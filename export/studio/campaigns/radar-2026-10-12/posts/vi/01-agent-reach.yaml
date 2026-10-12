@@ -1,0 +1,95 @@
+id: 01-agent-reach
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-12
+link: 01-agent-reach
+slides:
+- layout: cover
+  emoji: 🧰
+  eyebrow: Radar GitHub · Phần mềm
+  title: 'Agent Reach: Trang bị khả năng đọc Internet cho AI Agent'
+  subtitle: Công cụ CLI Python giúp AI Agent tìm kiếm và đọc dữ liệu từ YouTube, Reddit, Twitter, GitHub
+    mà không tốn phí API.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '96.575'
+  label: sao trên GitHub
+  caption: MIT · Python
+- layout: quote
+  text: Người dùng AI Agent gặp khó khăn khi yêu cầu agent tra cứu thông tin thực tế trên mạng xã hội
+    vì vướng tường lửa, lỗi 403 hoặc API yêu cầu trả phí.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Kiểm tra an toàn: Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh
+      CLI, chỉ ghi file…'
+  - text: 'Định tuyến backend: Mỗi nền tảng được cấu hình danh sách công cụ ưu tiên kèm dự phòng;'
+  - text: 'Đăng ký kỹ năng: Ghi thông tin hướng dẫn vào tập tin kỹ năng để AI Agent tự gọi trực tiếp các
+      công cụ dòng lệ…'
+  - text: 'Chẩn đoán đường truyền: Lệnh doctor kiểm tra toàn diện tình trạng kết nối của từng nền tảng
+      và chỉ rõ kênh nà…'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: agent-reach CLI
+    text: Bộ điều phối quản lý cài đặt, kiểm tra môi trường và định tuyến truy cập cho Agent.
+  - emoji: ⚙️
+    title: Multi-backend Router
+    text: Danh sách công cụ ưu tiên và dự phòng cho từng nền tảng như Jina Reader, yt-dlp, bili-cli.
+  - emoji: 🔌
+    title: Skill Config
+    text: Tập tin cấu hình hướng dẫn Agent nhận diện cú pháp gọi lệnh cho từng nền tảng được kích hoạt.
+  - emoji: 📦
+    title: Doctor Diagnostic
+    text: Mô-đun kiểm tra trạng thái hoạt động và phát hiện lỗi kết nối của các kênh dữ liệu.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - 'Mô hình Capability Layer: Đóng vai trò chọn lọc, định tuyến và kiểm tra thay vì tự viết lại toàn
+    bộ công cụ c…'
+  - 'Cơ chế Fallback nhiều tầng: Chuẩn bị sẵn backend thay thế giúp hệ thống tiếp tục chạy khi một công
+    cụ bị nền…'
+  - 'Bảo mật quyền hạn tối thiểu: Mặc định kiểm tra môi trường không can thiệp file, chỉ thay đổi hệ thống
+    khi có…'
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Các nền tảng như Reddit, Twitter hay XiaoHongShu vẫn yêu cầu xuất cookie trình duyệt thủ công
+      để truy cập sâu.
+  - emoji: ⚠️
+    text: Chỉ chạy lệnh cài đặt thực tế khi có cờ --system, mặc định chỉ là bước kiểm tra an toàn.
+  - emoji: ⚠️
+    text: Môi trường máy chủ có thể cần cấu hình thêm proxy nếu IP bị nền tảng chặn.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Mở rộng tầm mắt cho AI Agent với công cụ kết nối Internet đa nền tảng.
+
+
+      Agent của bạn gặp lỗi 403 khi đọc Reddit hay không lấy được phụ đề YouTube?
+
+      Agent Reach đóng vai trò lớp định tuyến tự động chuyển đổi công cụ lấy tin.
+
+      Hoàn toàn mã nguồn mở, không tốn phí API và lưu cookie cục bộ.
+
+      Chẩn đoán sức khỏe kết nối dễ dàng chỉ với một dòng lệnh.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AIAgent
+    - OpenSource
+    - Python
+    - WebScraping
+    - Automation
