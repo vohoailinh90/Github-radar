@@ -45,8 +45,23 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt
 
-      - name: Doctor (keys and models)
+      - name: Doctor (keys)
         if: ${{ env.DRY != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          RADAR_LANGS: ${{ inputs.langs }}
+        run: python radar.py doctor
+
+      # Informational: a provider's model listing can fail for a minute, and a retired fallback model is not worth a red
+      # scheduled run (the gateway falls through to the next model anyway). Read it in the log.
+      - name: Doctor (is each model still offered?)
+        if: ${{ env.DRY != 'true' }}
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

@@ -17,6 +17,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent.parent
 SNAPSHOT = HERE / "contracts" / "studio-layouts.json"
+TLDS = HERE / "contracts" / "tlds.txt"
 
 
 def read_studio(studio: Path) -> dict:
@@ -45,12 +46,14 @@ def main(argv: list[str]) -> int:
     studio = Path(argv[2]).resolve()
     if argv[1] in ("snapshot", "diff"):
         current = read_studio(studio)
+        studio_tlds = (studio / "mkt" / "tlds.txt").read_text(encoding="utf-8")
         if argv[1] == "snapshot":
             SNAPSHOT.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-            print(f"wrote {SNAPSHOT.relative_to(HERE)}")
+            TLDS.write_text(studio_tlds, encoding="utf-8")
+            print(f"wrote {SNAPSHOT.relative_to(HERE)} and {TLDS.relative_to(HERE)}")
             return 0
-        if json.loads(SNAPSHOT.read_text(encoding="utf-8")) != current:
-            print("contracts/studio-layouts.json has drifted from the studio: run `snapshot`")
+        if json.loads(SNAPSHOT.read_text(encoding="utf-8")) != current or TLDS.read_text(encoding="utf-8") != studio_tlds:
+            print("contracts/ has drifted from the studio (layouts or tlds.txt): run `snapshot`")
             return 1
         print("studio contract snapshot is current")
         return 0

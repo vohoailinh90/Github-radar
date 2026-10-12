@@ -87,3 +87,32 @@ def test_the_token_never_appears_on_a_command_line(monkeypatch):
     cmd, env = seen[0]
     assert all("SECRET-TOKEN" not in part for part in cmd)
     assert "SECRET-TOKEN" not in "".join(env.values()) and "AUTHORIZATION: basic" in env["GIT_CONFIG_VALUE_0"]
+
+
+def test_ext_transport_remotes_are_refused_and_run_nothing(tmp_path):
+    marker = tmp_path / "pwned"
+    with pytest.raises(RuntimeError):
+        # git's ext:: syntax has no quoting, only backslash-escaped spaces: this runs `sh -c "touch <marker>"` if ext is allowed
+        handoff.open_pr(bundle(), remote=f"ext::sh -c touch\\ {marker}", repo="o/studio", campaign="radar-2026-10-14", token="t",
+                        title="t", body="b", api="http://127.0.0.1:9")
+    assert not marker.exists()
+
+
+def test_a_branch_that_already_exists_on_the_remote_is_reported_not_pushed_over(studio_remote, tmp_path):
+    git("clone", "-q", str(studio_remote), str(tmp_path / "w"), cwd=tmp_path)
+    git("-c", "user.name=t", "-c", "user.email=t@t", "checkout", "-q", "-b", "radar/radar-2026-10-14", cwd=tmp_path / "w")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "earlier PR", cwd=tmp_path / "w")
+    git("push", "-q", "origin", "radar/radar-2026-10-14", cwd=tmp_path / "w")
+    api = fake_github()
+    try:
+        out = handoff.open_pr(bundle(), remote=str(studio_remote), repo="o/studio", campaign="radar-2026-10-14", token="t",
+                              title="t", body="b", api=api.url)
+    finally:
+        api.close()
+    assert out["status"] == "branch-exists" and not any(c["path"].endswith("/pulls") for c in api.calls)
+
+
+def test_git_is_started_with_hooks_off_and_ext_transport_denied_explicitly():
+    # Recent git denies ext:: by default, so behaviour alone cannot tell this line was removed: pin it.
+    flat = " ".join(handoff.GIT_SAFE)
+    assert "protocol.ext.allow=never" in flat and "core.hooksPath=/dev/null" in flat and "core.fsmonitor=false" in flat

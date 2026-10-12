@@ -71,3 +71,11 @@ def test_parse_json_tolerates_fences_and_chatter():
         llm.parse_json("no json here")
     with pytest.raises(ValueError):
         llm.parse_json("[1, 2]")
+
+
+def test_family_is_a_table_on_the_model_name_not_on_the_provider():
+    assert llm.family("groq/llama-3.3-70b") == llm.family("openrouter/meta-llama/llama-3.3-70b:free") == "meta"
+    assert llm.family("openrouter/google/gemma-3:free") == llm.family("google/gemini-flash-latest") == "google"
+    assert llm.family("groq/deepseek-r1-distill-llama-70b") == "deepseek"            # the base model decides
+    assert llm.family("mistral/mistral-small-latest") != llm.family("google/gemini-flash-latest")
+    assert llm.family("openrouter/someco/model:free") == "someco"

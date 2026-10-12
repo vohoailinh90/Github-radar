@@ -5,7 +5,7 @@ import yaml
 from radar import config, contract, pipeline
 from radar.github import GitHub
 from radar.llm import Gateway
-from tests.support import TODAY, make_draft
+from tests.support import TODAY, fake_github, make_draft
 
 
 def cfg(**kw):
@@ -92,3 +92,61 @@ def test_a_bundle_the_studio_would_reject_is_not_written(tmp_path, servers, monk
     report = pipeline.run(cfg(picks_per_run=1), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
     assert not report["ok"] and report["export_errors"] == ["bad bundle"]
     assert not (tmp_path / "export").exists() and (tmp_path / "digests").exists()
+
+
+def test_primary_language_rule_a_repo_whose_first_language_is_held_is_not_exported_even_if_another_language_passed(tmp_path, servers):
+    gh, llm = servers
+    llm.script = lambda kind, facts, lang, n: make_draft(facts, "vi", problem="Xem https://example.com") if kind == "writer" and lang == "vi" else None
+    report = pipeline.run(cfg(picks_per_run=1, langs=["vi", "en"]), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert not report["ok"] and any(w["lang"] == "en" for w in report["written"]) and any(h["lang"] == "vi" for h in report["held"])
+    assert not (tmp_path / "export").exists() and not (tmp_path / "state" / "seen.json").exists()
+
+
+def test_a_github_error_on_one_repo_holds_that_repo_only(tmp_path, servers, monkeypatch):
+    gh, llm = servers
+    gh.close()
+    bad = fake_github(fail=("sample-agent-kit/git/trees",))
+    monkeypatch.setenv("GITHUB_API_URL", bad.url)
+    try:
+        report = pipeline.run(cfg(picks_per_run=3), GitHub(sleep=lambda s: None), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    finally:
+        bad.close()
+    assert [h["repo"] for h in report["held"]] == ["example-org/sample-agent-kit"] and "GitHub" in report["held"][0]["problems"][0]
+    assert report["ok"] and len(report["written"]) == 2
+    assert "example-org/sample-agent-kit" not in json.loads((tmp_path / "state" / "seen.json").read_text())
+
+
+def test_a_failing_search_is_counted_not_fatal(tmp_path, monkeypatch):
+    bad = fake_github(fail=("topic%3Allm",))
+    try:
+        report = pipeline.run(cfg(), GitHub(base=bad.url, sleep=lambda s: None), Gateway(), tmp_path, TODAY, dry_run=True)
+    finally:
+        bad.close()
+    assert report["dropped"]["search failed (HTTP 403)"] == 1 and report["picks"]
+
+
+def test_a_refused_bundle_leaves_repos_unremembered_so_they_are_offered_again(tmp_path, servers, monkeypatch):
+    monkeypatch.setattr(pipeline.contract, "validate", lambda files, c=None: ["bad bundle"])
+    pipeline.run(cfg(picks_per_run=2), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert not (tmp_path / "state" / "seen.json").exists()
+
+
+def test_a_second_run_on_the_same_day_gets_its_own_folder_and_campaign_and_both_validate(tmp_path, servers):
+    first = go(tmp_path, servers, picks=2)
+    second = go(tmp_path, servers, picks=2)
+    assert first["campaign"] == "radar-2026-10-14" and second["campaign"] == "radar-2026-10-14-2"
+    assert (tmp_path / "digests" / "2026-10-14").is_dir() and (tmp_path / "digests" / "2026-10-14-2").is_dir()
+    files = pipeline.read_bundle(tmp_path)
+    assert {p.split("/")[1] for p in files if p.startswith("campaigns/")} == {"radar-2026-10-14", "radar-2026-10-14-2"}
+    assert contract.validate(files) == []
+    c1 = yaml.safe_load(files["campaigns/radar-2026-10-14/campaign.yaml"])["links"]
+    c2 = yaml.safe_load(files["campaigns/radar-2026-10-14-2/campaign.yaml"])["links"]
+    assert len(c1) == 2 and len(c2) == 2 and not (set(c1.values()) & set(c2.values()))
+
+
+def test_the_report_flags_a_checker_that_shares_the_writers_family(tmp_path, servers):
+    report = pipeline.run(cfg(picks_per_run=1, models={"writer": ["google/gemini-flash-latest"], "checker": ["google/gemma-3"]}),
+                          GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert report["ok"] and report["written"][0]["independent_checker"] is False and report["warnings"]
+    ok = pipeline.run(cfg(picks_per_run=1), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert ok["written"][0]["independent_checker"] is True and not ok["warnings"]

@@ -89,12 +89,14 @@ class _Server:
         self.httpd.server_close()
 
 
-def fake_github(repos: list[dict] | None = None, readme: str = README) -> _Server:
+def fake_github(repos: list[dict] | None = None, readme: str = README, fail: tuple = ()) -> _Server:
     repos = catalogue() if repos is None else repos
 
     def handle(call):
         url = urlparse(call["path"])
         path = url.path
+        if any(f in call["path"] for f in fail):
+            return 403, {"message": "API rate limit exceeded"}
         if path == "/search/repositories":
             q = parse_qs(url.query)["q"][0]
             topic = re.search(r"topic:(\S+)", q).group(1)

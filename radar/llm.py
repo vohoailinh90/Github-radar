@@ -34,9 +34,11 @@ BASE_URLS = {
     "deepseek": "https://api.deepseek.com",
     "nvidia": "https://integrate.api.nvidia.com/v1",
 }
-# Providers whose free tier may train on prompts. Scanned repos are public, so this only
-# matters for what the prompt adds; docs/models.md says what to do for a private input.
-FAMILY = {"google": "gemini", "mistral": "mistral", "groq": "groq", "deepseek": "deepseek", "nvidia": "nvidia"}
+# Model-name fragments -> vendor family. Order matters: a distilled model names two families, the base model decides.
+FAMILIES = (("deepseek", "deepseek"), ("gemini", "google"), ("gemma", "google"), ("llama", "meta"), ("mixtral", "mistral"),
+            ("mistral", "mistral"), ("codestral", "mistral"), ("magistral", "mistral"), ("ministral", "mistral"),
+            ("qwen", "qwen"), ("qwq", "qwen"), ("gpt", "openai"), ("claude", "anthropic"), ("glm", "zhipu"), ("kimi", "moonshot"),
+            ("phi-", "microsoft"), ("nemotron", "nvidia"), ("command", "cohere"), ("grok", "xai"))
 
 
 class AllModelsFailed(RuntimeError):
@@ -51,12 +53,16 @@ def split_model(model: str) -> tuple[str, str]:
 
 
 def family(model: str) -> str:
-    """The model family, so the checker is not the writer's own family (as `team doctor` warns)."""
+    """The vendor family of a model, so the checker is not the writer's own family (as `team doctor` warns).
+    `groq/llama-3` and `openrouter/meta-llama/llama-3:free` are one family; `openrouter/google/gemma` and `google/gemini` too."""
     provider, name = split_model(model)
-    if provider in ("openrouter", "nvidia"):
-        vendor = name.split("/", 1)[0].lower()
-        return re.sub(r"[^a-z]", "", vendor) or provider
-    return FAMILY.get(provider, provider)
+    low = name.lower()
+    for key, vendor in FAMILIES:
+        if key in low:
+            return vendor
+    if provider in ("openrouter", "nvidia") and "/" in low:
+        return re.sub(r"[^a-z]", "", low.split("/", 1)[0]) or provider
+    return provider
 
 
 def base_url(provider: str) -> str:

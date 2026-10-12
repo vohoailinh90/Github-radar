@@ -9,16 +9,19 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 
-NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
-TLDS = ("com|org|net|io|ai|dev|app|sh|co|me|xyz|gg|to|so|cloud|tech|vn|jp|info|page|run|tools|site|"
-        "online|chat|edu|gov|us|uk|de|fr|cn|ru|in|tv|fm|ly|im|sc|cc")
-URL = re.compile(r"(?i)(?:https?\s*:\s*//|\bwww\.|(?<![\w-])[a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)*\.(?:" + TLDS + r")(?![\w-]))")
+from . import urls
+
 HYPE = {
-    "en": ["best ever", "#1", "number one", "revolutionary", "game-changer", "guaranteed", "100%", "world's best"],
-    "vi": ["số 1", "số một", "tốt nhất thế giới", "cách mạng", "đảm bảo 100", "100%", "tuyệt đối", "thần thánh"],
+    "en": ["best ever", "#1", "number one", "revolutionary", "game changer", "guaranteed", "100%", "world's best"],
+    "vi": ["game changer", "số 1", "số một", "tốt nhất thế giới", "cách mạng", "đảm bảo 100", "100%", "tuyệt đối", "thần thánh"],
     "ja": ["世界一", "最強", "革命的", "絶対", "100%", "間違いなく最高"],
 }
+# A number, an optional unit that scales it (15k, 15 nghìn, 1.5万, 3 million). `v2.3`, `H100`, `Qwen2.5` are names, not numbers.
+UNITS = {"k": 1000, "nghìn": 1000, "ngàn": 1000, "thousand": 1000, "千": 1000, "万": 10000, "m": 10 ** 6,
+         "triệu": 10 ** 6, "million": 10 ** 6, "百万": 10 ** 6}
+NUM = re.compile(r"(?<![\w.])(\d+(?:[.,]\d+)*)(?:\s(nghìn|ngàn|thousand|triệu|million)\b|(百万|[kKmM万千])(?![A-Za-z]))?", re.I)
 VI_MARKS = set("àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ")
 LIMITS = {"title": 70, "hook": 110, "one_liner": 200, "problem": 500, "analogy": 300, "step": 220,
           "component": 160, "learn": 200, "who_for": 140, "caveat": 220, "caption": 1200}
@@ -34,20 +37,48 @@ class Problem:
         return f"[{self.level}] {self.field}: {self.message}"
 
 
-def norm_numbers(text: str) -> set[str]:
-    return {re.sub(r"[.,]", "", t) for t in NUMBER.findall(text)}
+def interpretations(token: str, with_unit: bool = False) -> set[Decimal]:
+    """`24.000` is 24000 in Vietnamese and 24 in English; `1,5` is 1.5 or 15. Accept a plain token if ANY reading is a known
+    number. With a unit (`1.5k`, `15,2 nghìn`) only the decimal reading exists: `1.5k` is 1500, never 15 thousand."""
+    simple = re.fullmatch(r"\d+[.,]\d+", token)
+    if with_unit:
+        return {Decimal(token.replace(",", "."))} if simple else {Decimal(re.sub(r"[.,]", "", token))}
+    out = {Decimal(re.sub(r"[.,]", "", token))}
+    if simple:
+        out.add(Decimal(token.replace(",", ".")))
+    return out
 
 
-def allowed_numbers(facts: dict) -> set[str]:
-    """Every number the facts state, plus the ways a writer may round or abbreviate a count."""
+def scan_numbers(text: str):
+    """(token, readings, multiplier or None) for every number in `text`."""
+    for m in NUM.finditer(text):
+        unit = (m.group(2) or m.group(3) or "").lower()
+        yield m.group(0).strip(), interpretations(m.group(1), bool(unit)), UNITS.get(unit) if unit else None
+
+
+def allowed_numbers(facts: dict) -> tuple[set[Decimal], list[int]]:
+    """(numbers the facts state, the counts a writer may abbreviate with a unit)."""
     blob = " ".join([facts["description"], facts["readme"], " ".join(facts["tree"]), " ".join(facts["topics"]),
                      facts["created"], facts["pushed"], facts["license"], facts["language"]])
-    found = norm_numbers(blob) | {str(n) for n in range(0, 11)}
-    for key in ("stars", "forks", "open_issues"):
-        value = int(facts[key])
-        found |= {str(value), str(round(value / 1000)), f"{value / 1000:.1f}".replace(".", "")}
-    found.add(str(facts["age_years"]))
-    return found
+    counts = [int(facts[k]) for k in ("stars", "forks", "open_issues")]
+    allowed = {Decimal(n) for n in range(0, 11)} | {Decimal(c) for c in counts} | {Decimal(int(facts["age_years"]))}
+    for _, readings, mult in scan_numbers(blob):
+        allowed |= {r * mult if mult else r for r in readings}
+    return allowed, counts
+
+
+def bad_numbers(text: str, facts: dict) -> list[str]:
+    allowed, counts = allowed_numbers(facts)
+    bad = []
+    for token, readings, mult in scan_numbers(text):
+        if mult:                              # "15k": must match a stated value, or a count within 5%
+            values = {r * mult for r in readings}
+            ok = bool(values & allowed) or any(abs(v - c) <= max(Decimal(c) * Decimal("0.05"), 1) for v in values for c in counts)
+        else:
+            ok = bool(readings & allowed)
+        if not ok:
+            bad.append(token)
+    return bad
 
 
 def texts(draft: dict) -> list[tuple[str, str]]:
@@ -66,6 +97,7 @@ def texts(draft: dict) -> list[tuple[str, str]]:
         out += [(f"glossary[{i}]", f"{g.get('term', '')} {g.get('meaning', '')}")]
     fb = draft.get("facebook") or {}
     out.append(("facebook.caption", str(fb.get("caption", ""))))
+    out.append(("facebook.hashtags", " ".join(str(t) for t in fb.get("hashtags") or [])))
     out += [("try_it.note", str((draft.get("try_it") or {}).get("note", "")))]
     return out
 
@@ -136,11 +168,29 @@ def schema(draft: dict) -> list[Problem]:
 
 
 def _evidence_ok(evidence: str, tree: list[str]) -> bool:
-    ev = str(evidence).strip().strip("`").lstrip("./").rstrip("/")
-    if ev.lower().startswith("readme"):
+    ev = str(evidence).strip().strip("`").lstrip("./").rstrip("/").lower()
+    if ev == "readme":
         return True
-    entries = [t.rstrip("/") for t in tree]
+    entries = [t.rstrip("/").lower() for t in tree]
     return any(e == ev or e.startswith(ev + "/") for e in entries)
+
+
+def _flat(text: str) -> str:
+    """Case, hyphens, spacing and '100 %' vs '100%' must not decide whether hype is caught."""
+    return re.sub(r"\s*%", "%", re.sub(r"[\s\-_]+", " ", text.lower()))
+
+
+def _norm_cmd(text: str) -> str:
+    return re.sub(r"^(?:[$>]\s+)", "", re.sub(r"\s+", " ", str(text)).strip())
+
+
+def readme_commands(readme: str) -> set[str]:
+    """Whole README lines and inline-code spans: what a reader could copy from it."""
+    found = set()
+    for line in readme.splitlines():
+        found |= {_norm_cmd(line), _norm_cmd(re.split(r"\s+#\s", line)[0])}
+        found |= {_norm_cmd(m.group(1)) for m in re.finditer(r"`([^`\n]+)`", line)}
+    return {c for c in found if c}
 
 
 def language_ok(draft: dict, lang: str) -> bool:
@@ -159,27 +209,27 @@ def check(draft: dict, facts: dict, lang: str) -> list[Problem]:
     problems = schema(draft)
     if any(p.field in ("how_it_works", "how_it_works.steps") for p in problems):
         return problems
-    allowed = allowed_numbers(facts)
+    files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
     for field, text in texts(draft):
-        if URL.search(text):
-            problems.append(Problem("error", field, "contains a URL or domain; links are added by the renderer"))
-        bad = sorted(norm_numbers(text) - allowed)
+        for hit in urls.find(text, files):
+            problems.append(Problem("error", field, f"contains a link or domain ({hit!r}); links are added by the renderer"))
+        bad = bad_numbers(text, facts)
         if bad:
             problems.append(Problem("error", field, f"numbers not in the facts: {', '.join(bad)}"))
-        low = text.lower()
+        flat = _flat(text)
         for word in HYPE.get(lang, []):
-            if word in low:
+            if _flat(word) in flat:
                 problems.append(Problem("error", field, f"hype wording '{word}'"))
     hiw = draft.get("how_it_works") or {}
     for key in ("steps", "components"):
         for i, item in enumerate(hiw.get(key) or []):
             if isinstance(item, dict) and item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                 problems.append(Problem("error", f"{key}[{i}]", f"evidence {item['evidence']!r} is not README or a path in the repository"))
-    readme = re.sub(r"\s+", " ", facts["readme"])
+    known = readme_commands(facts["readme"])
     for cmd in (draft.get("try_it") or {}).get("commands") or []:
-        shown = re.sub(r"\s+", " ", str(cmd)).strip().lstrip("$ ").strip()
-        if not shown or shown not in readme:
-            problems.append(Problem("error", "try_it.commands", f"command not found verbatim in the README: {cmd!r}"))
+        shown = _norm_cmd(cmd)
+        if not isinstance(cmd, str) or "`" in cmd or "\n" in cmd or len(shown) < 3 or shown not in known:
+            problems.append(Problem("error", "try_it.commands", f"command is not a line or code span of the README: {cmd!r}"))
     if not language_ok(draft, lang):
         problems.append(Problem("error", "language", f"text does not look like '{lang}'"))
     return problems

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import yaml
 
-from .gates import URL
+from . import urls
 
 CONTRACT = Path(__file__).resolve().parent.parent / "contracts" / "studio-layouts.json"
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -48,9 +48,15 @@ def validate(files: dict[str, str], contract: dict | None = None) -> list[str]:
         except yaml.YAMLError as exc:
             errors.append(f"{path}: invalid YAML: {exc}")
     campaigns = {p: d for p, d in parsed.items() if p.endswith("/campaign.yaml")}
-    if len(campaigns) != 1:
-        return errors + [f"expected exactly one campaign.yaml, found {len(campaigns)}"]
-    camp_path, camp = next(iter(campaigns.items()))
+    if not campaigns:
+        return errors + ["no campaign.yaml in the bundle"]
+    for camp_path, camp in campaigns.items():
+        errors += _campaign(camp_path, camp or {}, parsed, c)
+    return errors
+
+
+def _campaign(camp_path: str, camp: dict, parsed: dict, c: dict) -> list[str]:
+    errors: list[str] = []
     root = camp_path.rsplit("/", 1)[0]
     for key in ("tool", "langs", "platforms", "goal"):
         if not camp.get(key):
@@ -76,7 +82,7 @@ def validate(files: dict[str, str], contract: dict | None = None) -> list[str]:
     if not posts:
         errors.append(f"{camp_path}: no posts")
     for path, post in posts.items():
-        errors += _post(path, post, camp, c)
+        errors += _post(path, post or {}, camp, c)
     return errors
 
 
@@ -98,7 +104,7 @@ def _post(path: str, post: dict, camp: dict, c: dict) -> list[str]:
     if not slides or len(slides) > c["max_slides"]:
         e.append(f"{path}: needs 1-{c['max_slides']} slides, has {len(slides)}")
     for text in strings({k: post.get(k) for k in ("series", "slides", "platforms")}):
-        if URL.search(text):
+        if urls.has_url(text):
             e.append(f"{path}: a URL or domain is written into the post: {text[:60]!r}")
     if any("{link}" in t for t in strings({k: post.get(k) for k in ("series", "slides")})):
         e.append(f"{path}: {{link}} cannot go on an image")

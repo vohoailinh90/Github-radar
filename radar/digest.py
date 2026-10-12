@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from . import svg
 from .facts import slug
 from .labels import L
+
+
+def _md(text) -> str:
+    """One line, with a leading block marker (`#`, `>`, `-`, `1.`) defused, so a field cannot become a heading or a list."""
+    line = re.sub(r"\s+", " ", str(text)).strip()
+    return re.sub(r"^([#>*+\-]|\d+[.)])", r"\\\1", line)
 
 
 def _cell(text) -> str:
@@ -33,25 +40,25 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict]) -> 
         for name, content in files.items():
             (out / name).write_text(content, encoding="utf-8")
             written.append(out / name)
-        md = [f"# {draft['title']}", "", f"![{_cell(draft['title'])}](card-{lang}.svg)", "",
-              f"> {draft['hook']}", "", f"**{draft['one_liner']}**", "",
-              f"## {t['problem']}", "", draft["problem"], "",
-              f"> 💡 **{t['analogy']}:** {draft['analogy']}", "",
+        md = [f"# {_md(draft['title'])}", "", f"![{_cell(draft['title'])}](card-{lang}.svg)", "",
+              f"> {_md(draft['hook'])}", "", f"**{_md(draft['one_liner'])}**", "",
+              f"## {t['problem']}", "", _md(draft["problem"]), "",
+              f"> 💡 **{t['analogy']}:** {_md(draft['analogy'])}", "",
               f"## {t['how']}", "", f"![{t['how']}](flow-{lang}.svg)", "", f"![{t['how']}](steps-{lang}.svg)", ""]
         for i, step in enumerate(hiw["steps"], 1):
-            md.append(f"{i}. **{step['title']}**: {step['text']} _({t['evidence']}: `{step['evidence']}`)_")
+            md.append(f"{i}. **{_md(step['title'])}**: {_md(step['text'])} _({t['evidence']}: `{_cell(step['evidence'])}`)_")
         md += ["", f"## {t['parts']}", "", f"| | {t['parts']} | {t['evidence']} |", "|---|---|---|"]
         md += [f"| **{_cell(c['name'])}** | {_cell(c['role'])} | `{_cell(c['evidence'])}` |" for c in hiw["components"]]
-        md += ["", f"## {t['learn']}", ""] + [f"- {x}" for x in draft["learn"]]
-        md += ["", f"## {t['who']}", ""] + [f"- {x}" for x in draft["who_for"]]
+        md += ["", f"## {t['learn']}", ""] + [f"- {_md(x)}" for x in draft["learn"]]
+        md += ["", f"## {t['who']}", ""] + [f"- {_md(x)}" for x in draft["who_for"]]
         md += ["", f"## {t['try']}", ""]
         cmds = draft["try_it"]["commands"]
-        md += (["```bash"] + [str(c).lstrip("$ ").strip() for c in cmds] + ["```"]) if cmds else [t["no_cmd"]]
+        md += (["```bash"] + [re.sub(r"\s+", " ", str(c)).lstrip("$ ").strip() for c in cmds] + ["```"]) if cmds else [t["no_cmd"]]
         if draft["try_it"].get("note"):
-            md += ["", draft["try_it"]["note"]]
-        md += ["", f"## {t['caveats']}", ""] + [f"- {x}" for x in draft["caveats"]]
+            md += ["", _md(draft["try_it"]["note"])]
+        md += ["", f"## {t['caveats']}", ""] + [f"- {_md(x)}" for x in draft["caveats"]]
         if draft["glossary"]:
-            md += ["", f"## {t['glossary']}", ""] + [f"- **{g['term']}**: {g['meaning']}" for g in draft["glossary"]]
+            md += ["", f"## {t['glossary']}", ""] + [f"- **{_md(g['term'])}**: {_md(g['meaning'])}" for g in draft["glossary"]]
         md += ["", "---", "",
                f"{t['source']}: [{facts['full_name']}]({facts['url']}) · {t['license']}: {facts['license']} · "
                f"{svg.fmt_int(facts['stars'], t['sep'])} {t['stars']} · {t['scanned']} {facts['scanned']}", "", f"_{t['disclaimer']}_", ""]

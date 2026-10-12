@@ -12,7 +12,7 @@ import re
 
 import yaml
 
-from . import svg
+from . import svg, urls
 from .facts import slug
 from .labels import L
 
@@ -21,7 +21,7 @@ EMOJI_PARTS = ["🧩", "⚙️", "🔌", "📦", "🧠", "📡"]
 
 def shorten(text: str, limit: int) -> str:
     """Whole sentences up to `limit` characters; otherwise a clean cut with an ellipsis."""
-    text = re.sub(r"\s+", " ", str(text)).strip().replace("*", "")
+    text = urls.strip_domains(re.sub(r"\s+", " ", str(text)).strip().replace("*", ""))
     if len(text) <= limit:
         return text
     cut = text[:limit]
@@ -59,7 +59,7 @@ def post(facts: dict, draft: dict, lang: str, number: int, link_id: str, date: s
          "items": [{"emoji": "⚠️", "text": shorten(x, 110)} for x in draft["caveats"][:4]]},
         {"layout": "cta", "emoji": "📌", "title": t["save"], "text": t["save_text"], "show_link": False},
     ]
-    caption = draft["facebook"]["caption"].strip()
+    caption = urls.strip_domains(draft["facebook"]["caption"].strip().replace("\r", ""))
     tags = [re.sub(r"[^\w]", "", str(x)) for x in draft["facebook"].get("hashtags", [])]
     data = {
         "id": pid, "status": "draft", "format": "portrait", "series": f"{t['series']} · {date}", "link": link_id,

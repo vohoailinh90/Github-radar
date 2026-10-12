@@ -80,8 +80,9 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
     result = {"writer": writer, "checker": None, "issues": [], "fixed": False}
 
     problems = gates.check(draft, facts, lang)
-    review, checker = _ask(gw, [m for m in checker_models if family(m) != family(writer)] or checker_models,
-                           CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
+    independent = [m for m in checker_models if family(m) != family(writer)]
+    result["independent"] = bool(independent)         # False: only the writer's own family was left; the gates still decide
+    review, checker = _ask(gw, independent or checker_models, CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
                            max_tokens=1500, temperature=0.0)
     result["checker"] = checker
     blockers = [i for i in review.get("issues", []) if isinstance(i, dict) and i.get("severity") == "blocker"]

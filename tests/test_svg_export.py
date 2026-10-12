@@ -108,3 +108,25 @@ def test_vietnamese_uses_dots_for_thousands_and_the_others_commas():
     files = studio_export.bundle(entries(), CFG, "2026-10-14")
     post = yaml.safe_load(files["campaigns/radar-2026-10-14/posts/vi/01-sample-agent-kit.yaml"])
     assert next(s for s in post["slides"] if s["layout"] == "stat")["value"] == "24.000"
+
+
+def test_markdown_digest_fields_cannot_become_headings_lists_or_links(tmp_path):
+    from radar import digest
+    d = make_draft(FACTS, "vi", title="# Tiêu đề\n## giả", learn=["- mục giả", "1. số giả", "> trích giả"], caveats=["| a | b |", "ok"])
+    digest.render_repo(tmp_path, "2026-10-14", FACTS, {"vi": d})
+    md = (tmp_path / "digests" / "2026-10-14" / "sample-agent-kit" / "vi.md").read_text(encoding="utf-8")
+    lines = md.splitlines()
+    assert lines[0].startswith("# \\#") and "\n## giả" not in md
+    assert not any(line.startswith(("- mục giả", "1. số giả", "> trích")) for line in lines)
+
+
+def test_domain_shaped_tokens_are_stripped_from_studio_posts_so_the_real_studio_accepts_them():
+    d = make_draft(FACTS, "vi")
+    d["how_it_works"]["steps"][0]["text"] = "Planner đọc planner.py rồi mở https://example.com/a và www.evil.dev để chạy installer.sh."
+    d["facebook"]["caption"] = "Xem planner.py nhé\n\nDòng hai có main.py"
+    files = studio_export.bundle([{"facts": FACTS, "drafts": {"vi": d}}], CFG, "2026-10-14")
+    assert contract.validate(files) == []
+    post = yaml.safe_load(files["campaigns/radar-2026-10-14/posts/vi/01-sample-agent-kit.yaml"])
+    flow = next(s for s in post["slides"] if s["layout"] == "flow")
+    assert "planner" in flow["steps"][0]["text"] and "https" not in flow["steps"][0]["text"] and ".py" not in flow["steps"][0]["text"]
+    assert post["platforms"]["facebook"]["caption"].startswith("Xem planner nhé\n\n")

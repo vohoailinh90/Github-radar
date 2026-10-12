@@ -5,6 +5,8 @@ from __future__ import annotations
 import datetime as dt
 import math
 
+from .net import HttpError
+
 
 def _days(iso: str, today: dt.date) -> int:
     return max(0, (today - dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).date()).days)
@@ -49,7 +51,13 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date) -> tuple[list[dict], d
     for bucket in cfg["buckets"]:
         for topic in bucket["topics"]:
             query = f"topic:{topic} stars:>={cfg['min_stars']} pushed:>={since} archived:false fork:false"
-            for repo in gh.search(query, per_page=int(cfg["per_topic"])):
+            try:
+                results = gh.search(query, per_page=int(cfg["per_topic"]))
+            except HttpError as exc:
+                key = f"search failed (HTTP {exc.status})"
+                dropped[key] = dropped.get(key, 0) + 1
+                continue
+            for repo in results:
                 name = repo.get("full_name")
                 if not name or name in found:
                     continue

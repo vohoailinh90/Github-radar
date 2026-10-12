@@ -35,4 +35,8 @@ def test_secrets_are_only_passed_as_environment_to_the_steps_that_need_them():
     assert "secrets.STUDIO_REPO_TOKEN" in TEXT
     steps = W["jobs"]["radar"]["steps"]
     carrying = [s["name"] for s in steps if any("secrets." in str(v) for v in (s.get("env") or {}).values())]
-    assert carrying == ["Doctor (keys and models)", "Scan, write, check, export", "Hand off to tool-marketing-studio (draft pull request)"]
+    assert carrying == ["Doctor (keys)", "Doctor (is each model still offered?)", "Scan, write, check, export",
+                        "Hand off to tool-marketing-studio (draft pull request)"]
+    ping = next(s for s in steps if s.get("name", "").startswith("Doctor (is each"))
+    assert ping["continue-on-error"] is True and "--ping" in ping["run"]
+    assert "--ping" not in next(s for s in steps if s.get("name") == "Doctor (keys)")["run"]

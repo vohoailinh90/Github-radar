@@ -46,6 +46,11 @@ def open_pr(files: dict[str, str], *, remote: str, repo: str, campaign: str, tok
         if (work / "campaigns" / campaign).exists():
             return {"status": "already-handed-off", "campaign": campaign}
         branch = f"radar/{campaign}"
+        try:
+            _git(["ls-remote", "--exit-code", "--heads", "origin", branch], work, token)
+            return {"status": "branch-exists", "campaign": campaign, "branch": branch}   # an earlier PR (maybe closed) owns it
+        except RuntimeError:
+            pass
         _git(["checkout", "-b", branch], work)
         added = []
         for rel, text in sorted(files.items()):

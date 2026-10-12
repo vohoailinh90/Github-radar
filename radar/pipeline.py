@@ -9,6 +9,7 @@ from pathlib import Path
 
 from . import contract, digest, discover, facts as factslib, studio_export
 from .llm import AllModelsFailed, Gateway
+from .net import HttpError
 from .write import write_one
 
 
@@ -16,6 +17,15 @@ def read_bundle(root: Path) -> dict[str, str]:
     base = root / "export" / "studio"
     return {p.relative_to(base).as_posix(): p.read_text(encoding="utf-8") for p in sorted(base.rglob("*.yaml"))} \
         if base.exists() else {}
+
+
+def run_slug(root: Path, date: str) -> str:
+    """`2026-10-14`, or `2026-10-14-2` for a second run the same day, so a run never overwrites another's digests or campaign."""
+    slug, n = date, 1
+    while (root / "digests" / slug).exists() or (root / "export" / "studio" / "campaigns" / f"radar-{slug}").exists():
+        n += 1
+        slug = f"{date}-{n}"
+    return slug
 
 
 def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool = False,
@@ -35,7 +45,12 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
 
     entries = []
     for cand in picks:
-        facts = factslib.build(gh, cand, cfg, today)
+        try:
+            facts = factslib.build(gh, cand, cfg, today)
+        except (HttpError, KeyError, ValueError, TypeError) as exc:
+            # One repository's GitHub error (rate limit, deleted, odd answer) holds that repository only.
+            report["held"].append({"repo": cand["full_name"], "lang": "-", "problems": [f"GitHub: {str(exc)[:200]}"], "blockers": []})
+            continue
         drafts = {}
         for lang in cfg["langs"]:
             try:
@@ -48,7 +63,8 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
             if res["status"] == "ok":
                 drafts[lang] = res["draft"]
                 report["written"].append({"repo": facts["full_name"], "lang": lang, "writer": res["writer"],
-                                          "checker": res["checker"], "fixed": res["fixed"]})
+                                          "checker": res["checker"], "independent_checker": res["independent"],
+                                          "fixed": res["fixed"]})
             else:
                 report["held"].append({"repo": facts["full_name"], "lang": lang, "problems": [str(p) for p in res["problems"]
                                        if p.level == "error"][:8], "blockers": res["issues"][:4]})
@@ -57,16 +73,19 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
         if cfg["langs"][0] in drafts:               # the primary language decides; others may be missing and are reported
             entries.append({"facts": facts, "drafts": drafts})
     report["models_log"] = gw.log[-60:]
+    report["warnings"] = [f"{w['repo']} [{w['lang']}]: checker shares the writer's model family"
+                          for w in report["written"] if not w["independent_checker"]]
 
+    slug = run_slug(root, date)
     if entries:
         for lang in cfg["langs"]:
             have = [e for e in entries if lang in e["drafts"]]
             for e in have:
-                digest.render_repo(root, date, e["facts"], {lang: e["drafts"][lang]})
+                digest.render_repo(root, slug, e["facts"], {lang: e["drafts"][lang]})
             if have:
-                digest.render_index(root, date, have, lang)
+                digest.render_index(root, slug, have, lang)
         digest.render_global_index(root)
-        files = studio_export.bundle(entries, cfg, date)
+        files = studio_export.bundle(entries, cfg, slug)
         report["export_errors"] = contract.validate(files)
         if not report["export_errors"]:
             out = root / "export" / "studio"
@@ -74,11 +93,13 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
                 target = out / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(text, encoding="utf-8")
-        for e in entries:
-            seen[e["facts"]["full_name"]] = {"covered": date, "stars": e["facts"]["stars"], "bucket": e["facts"]["bucket"]}
-        factslib.save_seen(seen_path, seen)
+            # Remembered only once the posts exist: a repository whose bundle was refused is offered again next run.
+            for e in entries:
+                seen[e["facts"]["full_name"]] = {"covered": date, "stars": e["facts"]["stars"], "bucket": e["facts"]["bucket"]}
+            factslib.save_seen(seen_path, seen)
+    report["campaign"] = f"radar-{slug}" if entries and not report["export_errors"] else None
     report["ok"] = bool(entries) and not report["export_errors"] and not report["aborted"]
     runs = root / "state" / "runs"
     runs.mkdir(parents=True, exist_ok=True)
-    (runs / f"{date}.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (runs / f"{slug}.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return report

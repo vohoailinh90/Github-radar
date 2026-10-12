@@ -38,4 +38,5 @@ Routing: dimensions ambiguity 1, scope 2, architecture 1, dependencies 2, risk 1
 - A protected `main` blocks the bot's commit step. The handoff PR path needs `STUDIO_REPO_TOKEN`; untested against the real studio remote.
 - The checker does not re-review the fix round; the gates do. Claims the gates cannot compute (a wrong mechanism that cites a real path)
   can still pass: every digest carries a "read the original repository" notice and the studio keeps the human approval.
+- Written-out numbers ("one hundred") are not checked; the number gate reads digits only. The vendor-family table knows common model names only.
 - Template bilingual rule vs English CLI: decided to follow the studio's precedent (content is multilingual, tooling is English).

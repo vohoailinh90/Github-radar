@@ -52,7 +52,7 @@ def test_a_draft_that_still_fails_the_gates_after_the_fix_round_is_held(served):
     served(lambda kind, facts, lang, n: bad if kind == "writer" else None)
     res = write_one(gw(), CFG, FACTS, "vi")
     assert res["status"] == "held" and res["fixed"]
-    assert any("URL" in str(p) for p in res["problems"])
+    assert any("link or domain" in str(p) for p in res["problems"])
 
 
 def test_minor_issues_alone_do_not_trigger_a_rewrite(served):
