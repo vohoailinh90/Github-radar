@@ -60,7 +60,7 @@ Root: `README.md`, agent instruction files, `requirements.txt`, `radar.yaml`, an
 
 ## Pull request lifecycle
 
-Every pull request you create or drive for a requirement goes through the loop below, whatever the size of the change. It is a standing rule, not a judgement call. It starts when a PR exists; it does not authorize opening one, so a PR is still opened only when the user asks for it or the task's own flow calls for it.
+Every pull request you create or drive for a requirement goes through the loop below, whatever the size of the change. It is a standing rule, not a judgement call. It covers pull requests against this repository only: the draft pull requests that `radar.py handoff` opens in the studio repository are outside it, and *Drafts only* above applies to them — never reviewed-and-merged by this loop, the owner approves and merges them. It starts when a PR exists; it does not authorize opening one, so a PR is still opened only when the user asks for it or the task's own flow calls for it.
 
 1. **Open, then Codex review — immediately.** The first action after the PR exists is the Codex review: a PR comment whose whole body is `@codex review`, and `@codex security review` as well when the change touches authentication, authorization, secrets, payments or personal data. Codex does not review a PR on its own unless the repository turns that on, so ask for it. A PR with no Codex review is not done and is never merged.
 2. **Validate every finding before acting.** Check it against the code. A confirmed finding is fixed; a wrong one is answered on its thread with the evidence — never silently skipped, never "fixed" speculatively.
