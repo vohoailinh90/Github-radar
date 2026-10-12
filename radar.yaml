@@ -3,7 +3,7 @@ langs: [vi]            # vi | en | ja. Mỗi ngôn ngữ thêm = một bộ lư�
 picks_per_run: 3       # số repo mỗi lần quét (thứ Tư và thứ Bảy)
 min_stars: 1500
 max_days_since_push: 120
-pace_seconds: 45       # nghỉ sau mỗi bài. mistral-small-2603 của tài khoản này chỉ 20.000 token/phút (~3 lượt soát/phút)
+pace_seconds: 45       # nghỉ sau mỗi bài. mistral-small-2603 của tài khoản này chỉ 20.000 token/phút: ~1 lượt soát mỗi 60-75 s
 
 # Tên topic là GitHub topic có thật; sửa theo mối quan tâm của bạn. Mỗi bucket được chọn xoay vòng.
 buckets:

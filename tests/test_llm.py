@@ -114,3 +114,10 @@ def test_the_default_gateway_tries_three_times_and_rate_limit_wait_is_configurab
     assert Gateway().attempts_per_model == 3 and Gateway().rate_limit_wait == 20.0
     assert Gateway(rate_limit_wait=5).wait_for(llm.HttpError(429, "", "u"), 2) == 10.0
     assert Gateway().wait_for(llm.HttpError(503, "", "u"), 2) == 4.0
+
+
+def test_retry_after_parsing_accepts_only_plain_ascii_seconds():
+    from radar.net import parse_retry_after as p
+    assert p("5") == 5.0 and p("0") == 0.0 and p("12.5") == 12.5 and p(" 7 ") == 7.0
+    for bad in (None, "", "²", "٣", "1e3", "-5", "5.", ".", "Wed, 21 Oct 2026 07:28:00 GMT", "soon"):
+        assert p(bad) is None, bad

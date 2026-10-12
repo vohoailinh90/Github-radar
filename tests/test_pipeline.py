@@ -150,3 +150,21 @@ def test_the_report_flags_a_checker_that_shares_the_writers_family(tmp_path, ser
     assert report["ok"] and report["written"][0]["independent_checker"] is False and report["warnings"]
     ok = pipeline.run(cfg(picks_per_run=1), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
     assert ok["written"][0]["independent_checker"] is True and not ok["warnings"]
+
+
+def test_pace_is_applied_between_repositories_but_not_after_the_last_call(tmp_path, servers):
+    waits = []
+    pipeline.run(cfg(picks_per_run=3), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY, pace=45.0, sleep=waits.append)
+    assert waits == [45.0, 45.0]                     # 3 repos, 1 language: after repos 1 and 2 only
+    waits.clear()
+    pipeline.run(cfg(picks_per_run=1, langs=["vi", "en"]), GitHub(), Gateway(sleep=lambda s: None), tmp_path / "b", TODAY,
+                 pace=45.0, sleep=waits.append)
+    assert waits == [45.0]                           # 1 repo, 2 languages: between the two languages only
+
+
+def test_the_cli_passes_the_configured_pace_to_the_pipeline(monkeypatch, capsys):
+    from radar import cli
+    seen = {}
+    monkeypatch.setattr(cli.pipeline, "run", lambda *a, **kw: seen.update(kw) or {"ok": True})
+    assert cli.main(["run", "--dry-run"]) == 0
+    assert seen["pace"] == 45.0 and seen["dry_run"] is True

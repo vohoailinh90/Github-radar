@@ -7,6 +7,7 @@ local fake server instead of the real service; nothing else changes between the 
 from __future__ import annotations
 
 import json
+import re
 import urllib.error
 import urllib.request
 
@@ -24,6 +25,12 @@ class HttpError(RuntimeError):
         return self.status in (408, 425, 429) or self.status >= 500
 
 
+def parse_retry_after(raw: str | None) -> float | None:
+    """Seconds from a numeric Retry-After. An HTTP-date, a sign, an exponent or a non-ASCII digit is "not given"."""
+    raw = (raw or "").strip()
+    return float(raw) if re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", raw) else None
+
+
 def request_json(url: str, *, headers: dict | None = None, payload: dict | None = None,
                  timeout: float = 60.0) -> dict | list:
     """GET (no payload) or POST (JSON payload) and decode a JSON answer."""
@@ -38,8 +45,7 @@ def request_json(url: str, *, headers: dict | None = None, payload: dict | None 
         with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - https/http only, set by us
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        raw = (exc.headers.get("Retry-After") or "").strip() if exc.headers else ""
-        wait = float(raw) if raw.replace(".", "", 1).isdigit() else None
+        wait = parse_retry_after(exc.headers.get("Retry-After") if exc.headers else None)
         raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url, wait) from exc
     except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
         raise HttpError(599, str(exc), url) from exc

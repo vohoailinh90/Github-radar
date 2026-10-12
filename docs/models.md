@@ -34,4 +34,4 @@ phải qua các cổng kiểm tra trước khi được dùng.
 
 ## Giới hạn theo tài khoản (đo ngày 12/10/2026)
 
-`mistral-small-2603`: 20.000 token/phút, 1 request/giây. Mỗi lượt soát tốn vài nghìn token, nên `pace_seconds: 45` giữ nhịp khoảng 1-2 lượt soát/phút. Xem số thật của bạn ở console Mistral, mục *Limites*; nếu cao hơn, giảm `pace_seconds` để chạy nhanh hơn.
+`mistral-small-2603`: 20.000 token/phút, 1 request/giây. Mỗi lượt soát tốn vài nghìn token, nên `pace_seconds: 45` (cộng thời gian model viết) giữ nhịp khoảng 1 lượt soát mỗi 60-75 giây, ước tính 7-9 nghìn token/phút. Xem số thật của bạn ở console Mistral, mục *Limites*; nếu cao hơn, giảm `pace_seconds` để chạy nhanh hơn.

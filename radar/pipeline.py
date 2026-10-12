@@ -59,7 +59,8 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
                 # Every model failed: the rest of the run would burn the same quota for nothing.
                 report["aborted"] = f"{facts['full_name']} [{lang}]: {exc}"
                 break
-            sleep(pace)
+            if not (cand is picks[-1] and lang == cfg["langs"][-1]):
+                sleep(pace)                          # keeps the checker under its tokens-per-minute cap; not needed after the last call
             if res["status"] == "ok":
                 drafts[lang] = res["draft"]
                 report["written"].append({"repo": facts["full_name"], "lang": lang, "writer": res["writer"],
