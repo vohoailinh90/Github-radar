@@ -45,6 +45,8 @@ Answer with ONE JSON object and nothing else, with exactly these keys:
  "facebook": {{"caption": "first line <=125 chars, then 3-6 short lines", "hashtags": ["max5"]}}}}
 Counts: steps 3-6, components 2-6, flow = pairs of component indexes (arrows), glossary 0-4."""
 
+# A verdict is a few hundred tokens. Some tiers count max_tokens toward the per-minute budget, so do not reserve more than needed.
+CHECK_MAX_TOKENS = 900
 CHECK_SYSTEM = """You are a strict fact-checker. You get FACTS about a GitHub project and a DRAFT written from them.
 List only real problems: a claim, number, command or capability the FACTS do not support (blocker); a misleading
 or hyped statement (blocker); wrong or invented evidence (blocker); unclear wording (minor).
@@ -89,7 +91,7 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
 
     problems = gates.check(draft, facts, lang)
     review, checker = _ask(gw, checker_pool(checker_models, writer), CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
-                           max_tokens=1500, temperature=0.0)
+                           max_tokens=CHECK_MAX_TOKENS, temperature=0.0)
     result["checker"] = checker
     blockers = [i for i in review.get("issues", []) if isinstance(i, dict) and i.get("severity") == "blocker"]
     result["issues"] = blockers

@@ -13,12 +13,13 @@ import urllib.request
 
 
 class HttpError(RuntimeError):
-    def __init__(self, status: int, body: str, url: str, retry_after: float | None = None):
+    def __init__(self, status: int, body: str, url: str, retry_after: float | None = None, headers: dict | None = None):
         super().__init__(f"HTTP {status} from {url}: {body[:300]}")
         self.status = status
         self.body = body
         self.url = url
         self.retry_after = retry_after       # seconds, from a numeric Retry-After header when the server sent one
+        self.headers = headers or {}         # only rate-limit related headers (limit/remaining/reset): they say WHY a 429 happened
 
     @property
     def retryable(self) -> bool:
@@ -46,7 +47,8 @@ def request_json(url: str, *, headers: dict | None = None, payload: dict | None 
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         wait = parse_retry_after(exc.headers.get("Retry-After") if exc.headers else None)
-        raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url, wait) from exc
+        limits = {k.lower(): v[:60] for k, v in (exc.headers.items() if exc.headers else []) if re.search(r"(?i)rate|limit|remaining|reset|retry", k)}
+        raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url, wait, limits) from exc
     except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
         raise HttpError(599, str(exc), url) from exc
     except json.JSONDecodeError as exc:

@@ -122,3 +122,12 @@ def test_independence_is_judged_against_the_writer_of_the_final_draft_after_a_fi
                       ("w", "mistral/mistral-small-2603", make_draft(FACTS, "vi"))])      # the fix round fell back to mistral
     res = write_one(gw, cfg, FACTS, "vi")
     assert res["fixed"] and res["writer"] == "mistral/mistral-small-2603" and res["independent"] is False
+
+
+def test_the_checker_asks_for_a_short_answer_and_the_readme_sent_is_capped(served):
+    from radar.write import CHECK_MAX_TOKENS
+    srv = served()
+    write_one(gw(), CFG, FACTS, "vi")
+    writer_call, checker_call = srv.calls[0]["body"], srv.calls[1]["body"]
+    assert checker_call["max_tokens"] == CHECK_MAX_TOKENS <= 900 and writer_call["max_tokens"] > CHECK_MAX_TOKENS
+    assert CFG["readme_max_chars"] == 8000

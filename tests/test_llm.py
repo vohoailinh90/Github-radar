@@ -153,3 +153,13 @@ def test_a_rate_limit_or_server_error_never_marks_a_model_dead(fake):
     gw = Gateway(sleep=lambda s: None, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k"})
     gw.chat(["google/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
     assert gw.dead == set()
+
+
+def test_rate_limit_headers_sent_with_a_429_are_kept_in_the_run_log(fake):
+    fake(lambda kind, facts, lang, n: (429, {"e": 1}, {"x-ratelimit-remaining-tokens-minute": "0", "X-RateLimit-Limit-Tokens-Minute": "20000",
+                                                       "Set-Cookie": "secret=1", "Server": "x"}) if n == 1 else {"ok": True})
+    gw = Gateway(sleep=lambda s: None, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k"})
+    gw.chat(["google/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    headers = gw.log[0]["headers"]
+    assert headers["x-ratelimit-remaining-tokens-minute"] == "0" and headers["x-ratelimit-limit-tokens-minute"] == "20000"
+    assert "set-cookie" not in headers and "server" not in headers          # only rate-limit headers, never anything else

@@ -32,7 +32,7 @@ DEFAULTS = {
     },
     "pace_seconds": 45,
     "max_run_minutes": 35,       # stop starting work after this: the workflow job is killed at 60 minutes and would lose everything
-    "readme_max_chars": 12000,
+    "readme_max_chars": 8000,       # the checker re-sends it with the draft: keep one request far below a 20,000 tokens/minute cap
     "tree_max_entries": 120,
     "studio": {"tool": "github-radar", "name": "GitHub Radar", "accent": "#0ea5e9", "platforms": ["facebook"]},
 }

@@ -32,6 +32,10 @@ nguồn riêng tư (README nội bộ) vào pipeline này mà không đổi sang
 README của repo quét được là **dữ liệu không tin cậy**: prompt coi nó là dữ liệu, model không có công cụ nào, và đầu ra
 phải qua các cổng kiểm tra trước khi được dùng.
 
+## Một request quá lớn không bao giờ qua được
+
+Lần chạy thật đầu tiên: bài viết thành công (Gemini Flash quá tải 503 nên chuyển sang Flash-Lite), nhưng Mistral trả 429 ngay lượt đầu và cả sau khi chờ 20 s, 40 s. Một request lớn gần bằng cả hạn mức phút (20.000 token) sẽ bị từ chối dù chờ bao lâu. Vì vậy README gửi đi giới hạn 8.000 ký tự (CJK tính khoảng 1 token/ký tự) và lượt soát chỉ xin tối đa 900 token trả lời. Log từng lượt gọi (`state/runs/*.json`, mục `models_log`) giờ ghi cả header `x-ratelimit-*` mà nhà cung cấp gửi kèm 429 để phân biệt "quá tải" với "request quá lớn".
+
 ## Giới hạn theo tài khoản (đo ngày 12/10/2026)
 
 `mistral-small-2603`: 20.000 token/phút, 1 request/giây. Mỗi lượt soát tốn vài nghìn token, nên `pace_seconds: 45` (cộng thời gian model viết) giữ nhịp khoảng 1 lượt soát mỗi 60-75 giây, ước tính 7-9 nghìn token/phút. Xem số thật của bạn ở console Mistral, mục *Limites*; nếu cao hơn, giảm `pace_seconds` để chạy nhanh hơn.
