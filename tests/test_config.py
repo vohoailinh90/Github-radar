@@ -3,9 +3,19 @@ from radar import config
 
 def test_committed_radar_yaml_matches_the_documented_defaults_for_the_account_limits():
     cfg = config.load(path=config.ROOT / "radar.yaml", env={})
-    assert cfg["models"]["checker"] == ["mistral/mistral-small-2603"]       # the name this account lists under "Limites"
+    assert cfg["models"]["checker"][0] == "mistral/mistral-small-2603"       # the name this account lists under "Limites"
     assert cfg["pace_seconds"] == 45 and config.DEFAULTS["pace_seconds"] == 45
-    assert cfg["langs"] == ["vi"] and cfg["models"]["writer"] == ["google/gemini-flash-latest"]
+    assert cfg["langs"] == ["vi"] and cfg["models"]["writer"][0] == "google/gemini-flash-latest"
+    assert cfg["models"] == config.DEFAULTS["models"]                         # yaml and code defaults cannot drift apart
+
+
+def test_every_role_has_fallbacks_in_more_than_one_family_so_one_overloaded_model_cannot_stop_a_run():
+    from radar.llm import family
+    models = config.load(path=config.ROOT / "radar.yaml", env={})["models"]
+    assert len(models["writer"]) >= 3 and len(models["checker"]) >= 2
+    assert len({family(m) for m in models["writer"]}) >= 2 and len({family(m) for m in models["checker"]}) >= 2
+    for writer in models["writer"]:      # whichever model wrote the draft, some checker is of another family
+        assert [m for m in models["checker"] if family(m) != family(writer)], writer
 
 
 def test_environment_overrides_win_without_editing_the_file():

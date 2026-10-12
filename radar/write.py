@@ -71,6 +71,13 @@ def _ask(gw: Gateway, models, system, user, **kw) -> tuple[dict, str]:
     raise AllModelsFailed(f"unparseable model output: {last}")
 
 
+def checker_pool(checker_models: list[str], writer: str) -> tuple[list[str], bool]:
+    """Checkers of another family than the model that actually wrote the draft (a fallback writer changes the answer).
+    If none is left, use them all and say so: the gates still decide, the report warns."""
+    other = [m for m in checker_models if family(m) != family(writer)]
+    return (other or checker_models), bool(other)
+
+
 def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
     """Returns {"draft", "status": "ok"|"held", "problems", "writer", "checker", "issues"}."""
     writer_models, checker_models = cfg["models"]["writer"], cfg["models"]["checker"]
@@ -80,9 +87,8 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
     result = {"writer": writer, "checker": None, "issues": [], "fixed": False}
 
     problems = gates.check(draft, facts, lang)
-    independent = [m for m in checker_models if family(m) != family(writer)]
-    result["independent"] = bool(independent)         # False: only the writer's own family was left; the gates still decide
-    review, checker = _ask(gw, independent or checker_models, CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
+    pool, result["independent"] = checker_pool(checker_models, writer)
+    review, checker = _ask(gw, pool, CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
                            max_tokens=1500, temperature=0.0)
     result["checker"] = checker
     blockers = [i for i in review.get("issues", []) if isinstance(i, dict) and i.get("severity") == "blocker"]

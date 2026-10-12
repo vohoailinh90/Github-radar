@@ -40,3 +40,69 @@ def test_secrets_are_only_passed_as_environment_to_the_steps_that_need_them():
     ping = next(s for s in steps if s.get("name", "").startswith("Doctor (is each"))
     assert ping["continue-on-error"] is True and "--ping" in ping["run"]
     assert "--ping" not in next(s for s in steps if s.get("name") == "Doctor (keys)")["run"]
+
+
+# --- the commit step, run for real in a throwaway repository -------------------------------------------------------
+import os
+import subprocess
+
+import pytest
+
+
+def commit_script():
+    step = next(s for s in W["jobs"]["radar"]["steps"] if s.get("name") == "Commit digests, export and state")
+    return step["run"]
+
+
+def sh(*args, cwd, env=None, check=True):
+    return subprocess.run(args, cwd=cwd, text=True, capture_output=True, check=check, env={**os.environ, **(env or {}), "GIT_TERMINAL_PROMPT": "0"})
+
+
+@pytest.fixture
+def checkout(tmp_path):
+    bare, work = tmp_path / "remote.git", tmp_path / "work"
+    sh("git", "init", "-q", "--bare", "-b", "main", str(bare), cwd=tmp_path)
+    sh("git", "clone", "-q", str(bare), str(work), cwd=tmp_path)
+    (work / "README.md").write_text("x\n")
+    sh("git", "add", ".", cwd=work)
+    sh("git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "init", cwd=work)
+    sh("git", "push", "-q", "origin", "HEAD:main", cwd=work)
+    return bare, work
+
+
+def run_commit_step(work, tmp_path):
+    return sh("bash", "-e", "-c", commit_script(), cwd=work, env={"GITHUB_REF_NAME": "main"}, check=False)
+
+
+def test_the_commit_step_succeeds_when_the_run_wrote_nothing(checkout, tmp_path):
+    bare, work = checkout                             # the run that failed on GitHub: no digests/, export/ or state/ at all
+    out = run_commit_step(work, tmp_path)
+    assert out.returncode == 0 and "nothing was written" in out.stdout
+    assert sh("git", "log", "--oneline", cwd=bare).stdout.count("\n") == 1
+
+
+def test_the_commit_step_keeps_partial_output_when_only_some_folders_exist(checkout, tmp_path):
+    bare, work = checkout                             # digests written, export refused: the old `git add digests export state` died here
+    (work / "digests" / "2026-10-14").mkdir(parents=True)
+    (work / "digests" / "2026-10-14" / "x.md").write_text("bài đã viết\n")
+    out = run_commit_step(work, tmp_path)
+    assert out.returncode == 0, out.stderr
+    assert "digests/2026-10-14/x.md" in sh("git", "ls-tree", "-r", "--name-only", "main", cwd=bare).stdout
+    again = run_commit_step(work, tmp_path)           # nothing changed: no empty commit
+    assert again.returncode == 0 and "nothing new to commit" in again.stdout
+
+
+def test_the_commit_step_rebases_when_main_moved_during_the_scan(checkout, tmp_path):
+    bare, work = checkout
+    other = tmp_path / "other"
+    sh("git", "clone", "-q", str(bare), str(other), cwd=tmp_path)
+    (other / "NOTES.md").write_text("someone else\n")
+    sh("git", "add", ".", cwd=other)
+    sh("git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "other", cwd=other)
+    sh("git", "push", "-q", "origin", "HEAD:main", cwd=other)
+    (work / "state").mkdir()
+    (work / "state" / "seen.json").write_text("{}\n")
+    out = run_commit_step(work, tmp_path)
+    assert out.returncode == 0, out.stderr
+    tree = sh("git", "ls-tree", "-r", "--name-only", "main", cwd=bare).stdout
+    assert "state/seen.json" in tree and "NOTES.md" in tree

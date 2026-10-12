@@ -66,7 +66,7 @@ def test_all_models_failing_aborts_early_and_remembers_nothing(tmp_path, servers
     report = pipeline.run(cfg(), GitHub(), Gateway(sleep=lambda s: None, attempts_per_model=1), tmp_path, TODAY)
     assert not report["ok"] and report["aborted"] and report["written"] == []
     assert not (tmp_path / "state" / "seen.json").exists() and not (tmp_path / "export").exists()
-    assert llm.counts["writer"] <= 2          # it stopped instead of burning the quota on every repo
+    assert llm.counts["writer"] == len(cfg()["models"]["writer"])      # each writer model tried once, for the FIRST repo only
 
 
 def test_a_held_primary_language_is_not_exported_and_is_retried_next_run(tmp_path, servers):

@@ -14,13 +14,13 @@ dùng container OpenCode; `radar/llm.py` gọi thẳng endpoint tương thích O
 | `deepseek` | `DEEPSEEK_API_KEY` | api.deepseek.com |
 | `nvidia` | `NVIDIA_API_KEY` | integrate.api.nvidia.com/v1 |
 
-Mặc định (`radar.yaml`): viết = `google/gemini-flash-latest`, soát = `mistral/mistral-small-2603` (tên cụ thể có trong mục *Limites* của console Mistral; alias `-latest` có thể không có). Danh sách model free
+Mặc định (`radar.yaml`): viết = `google/gemini-flash-latest`, dự phòng `google/gemini-flash-lite-latest` rồi `mistral/mistral-small-2603`; soát = `mistral/mistral-small-2603`, dự phòng `google/gemini-flash-lite-latest` (luôn khác họ với model đã viết) (tên cụ thể có trong mục *Limites* của console Mistral; alias `-latest` có thể không có). Danh sách model free
 đổi liên tục; xem hiện trạng bằng `python3 radar.py models <provider>` (`--free` cho OpenRouter) rồi `doctor --ping`.
 Có thể ghi đè không cần sửa file: `RADAR_MODELS_WRITER="google/x openrouter/vendor/y:free"`.
 
 ## Hành vi khi model lỗi
 
-Lỗi 5xx: thử lại cùng model (tối đa 3 lần, chờ 2 s, 4 s). Lỗi 429 (giới hạn theo phút): chờ theo `Retry-After` của server, tối thiểu 20 s, 40 s (tối đa 90 s), vì cửa sổ giới hạn là cả phút; rồi mới sang model kế tiếp. Lỗi 4xx (sai key...) không thử lại.
+Lỗi 5xx (vd. Google 503 "high demand"): thử lại cùng model (tối đa 3 lần, chờ 2 s, 4 s). Treo quá thời gian hoặc không kết nối được: **sang model kế tiếp ngay**, vì cùng model sẽ treo thêm 120 s mỗi lần. Lỗi 429 (giới hạn theo phút): chờ theo `Retry-After` của server, tối thiểu 20 s, 40 s (tối đa 90 s), vì cửa sổ giới hạn là cả phút; rồi mới sang model kế tiếp. Lỗi 4xx (sai key...) không thử lại.
 Thiếu key của một model thì bỏ qua model đó. Nếu **mọi** model đều lỗi, lượt chạy dừng sớm (không đốt quota cho các repo
 còn lại), không ghi nhớ repo nào, và job báo đỏ. Hạn mức free (OpenRouter khoảng 50 lượt/ngày nếu chưa nạp credit) là giới hạn thật:
 mỗi repo tốn 2-3 lượt cho mỗi ngôn ngữ.

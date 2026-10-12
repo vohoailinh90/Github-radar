@@ -26,8 +26,9 @@ DEFAULTS = {
         {"id": "startup", "emoji": "🚀", "topics": ["saas", "startup", "boilerplate", "indie-hacker"]},
     ],
     "models": {
-        "writer": ["google/gemini-flash-latest"],
-        "checker": ["mistral/mistral-small-2603"],
+        # First is the primary. Fallbacks matter: a free model returns 503 "high demand" or stalls now and then.
+        "writer": ["google/gemini-flash-latest", "google/gemini-flash-lite-latest", "mistral/mistral-small-2603"],
+        "checker": ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"],
     },
     "pace_seconds": 45,
     "readme_max_chars": 12000,

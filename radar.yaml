@@ -12,11 +12,12 @@ buckets:
   - {id: solutions, emoji: "🧩", topics: [automation, workflow, open-source-alternative, low-code]}
   - {id: startup, emoji: "🚀", topics: [saas, startup, boilerplate, indie-hacker]}
 
-# <provider>/<model>; model đầu là chính. Người viết và người soát PHẢI khác họ model.
+# <provider>/<model>; model đầu là chính, các model sau là dự phòng khi model trước quá tải (503) hoặc treo.
+# Người soát luôn được chọn khác họ với model ĐÃ viết bài, nên viết bằng mistral thì soát bằng gemini. Người viết và người soát PHẢI khác họ model.
 # Danh sách free đổi liên tục: python3 radar.py models <provider>, rồi python3 radar.py doctor --ping.
 models:
-  writer: [google/gemini-flash-latest]
-  checker: [mistral/mistral-small-2603]   # đúng tên trong mục Limites của console Mistral
+  writer: [google/gemini-flash-latest, google/gemini-flash-lite-latest, mistral/mistral-small-2603]
+  checker: [mistral/mistral-small-2603, google/gemini-flash-lite-latest]   # tên đầu: đúng tên trong mục Limites của console Mistral
 
 studio:
   tool: github-radar

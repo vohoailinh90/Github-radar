@@ -118,7 +118,9 @@ class Gateway:
                     if not isinstance(text, str) or not text.strip():
                         raise HttpError(502, "empty completion", base_url(provider))
                 except (HttpError, KeyError, IndexError, TypeError) as exc:
-                    retry = isinstance(exc, HttpError) and exc.retryable
+                    # A 599 is a timeout or a refused connection: the same model would stall again for the full timeout,
+                    # so go to the next model instead of retrying (a 5xx or 429 answered quickly and may clear).
+                    retry = isinstance(exc, HttpError) and exc.retryable and exc.status != 599
                     self.log.append({"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200]})
                     errors.append(f"{model}: {exc}")
                     if retry and attempt < self.attempts_per_model:

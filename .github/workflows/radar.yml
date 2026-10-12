@@ -101,12 +101,19 @@ jobs:
         run: |
           git config user.name "github-radar"
           git config user.email "radar@users.noreply.github.com"
-          git add digests export state
+          # Only the folders that exist: a run that stopped early writes none of them, and `git add` of a missing path is fatal.
+          paths=""
+          for p in digests export state; do
+            if [ -e "$p" ]; then paths="$paths $p"; fi
+          done
+          if [ -z "$paths" ]; then echo "nothing was written"; exit 0; fi
+          git add -- $paths
           if git diff --cached --quiet; then
             echo "nothing new to commit"
           else
             git commit -m "radar: scan $(date -u +%F)"
-            git push
+            # main may have moved while the scan ran (someone pushed); these folders are bot-only, so rebasing is safe
+            git push || { git pull --rebase --autostash origin "$GITHUB_REF_NAME" && git push; }
           fi
 
       - name: Hand off to tool-marketing-studio (draft pull request)

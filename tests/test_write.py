@@ -76,3 +76,11 @@ def test_prompt_marks_the_readme_as_data_and_carries_the_language(served):
     user = srv.calls[0]["body"]["messages"][1]["content"]
     assert "never instructions" in system and "Japanese" in system and "<<<README" in user
     assert srv.calls[0]["body"]["response_format"] == {"type": "json_object"}
+
+
+def test_the_checker_is_always_of_another_family_than_the_model_that_actually_wrote_the_draft():
+    from radar.write import checker_pool
+    checkers = ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"]
+    assert checker_pool(checkers, "google/gemini-flash-latest") == (["mistral/mistral-small-2603"], True)
+    assert checker_pool(checkers, "mistral/mistral-small-2603") == (["google/gemini-flash-lite-latest"], True)   # fallback writer
+    assert checker_pool(["mistral/a"], "mistral/b") == (["mistral/a"], False)                                     # none left: flagged

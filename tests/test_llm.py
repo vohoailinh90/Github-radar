@@ -121,3 +121,14 @@ def test_retry_after_parsing_accepts_only_plain_ascii_seconds():
     assert p("5") == 5.0 and p("0") == 0.0 and p("12.5") == 12.5 and p(" 7 ") == 7.0
     for bad in (None, "", "²", "٣", "1e3", "-5", "5.", ".", "Wed, 21 Oct 2026 07:28:00 GMT", "soon"):
         assert p(bad) is None, bad
+
+
+def test_a_timeout_or_refused_connection_goes_to_the_next_model_without_retrying_or_waiting(fake, monkeypatch):
+    srv = fake(lambda kind, facts, lang, n: {"ok": True})
+    monkeypatch.setenv("RADAR_BASE_GOOGLE", "http://127.0.0.1:9")            # nothing listens: HttpError 599, like a read timeout
+    waits = []
+    gw = Gateway(sleep=waits.append, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k", "MISTRAL_API_KEY": "k"})
+    _, model = gw.chat(["google/a", "mistral/b"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    assert model == "mistral/b" and waits == []                              # 120 s x 3 on a stalled model is what cost 6 minutes
+    assert [(e["model"], e["status"]) for e in gw.log] == [("google/a", "error"), ("mistral/b", "ok")]
+    assert "HTTP 599" in gw.log[0]["why"] and len(srv.calls) == 1
