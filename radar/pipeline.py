@@ -29,8 +29,9 @@ def run_slug(root: Path, date: str) -> str:
 
 
 def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool = False,
-        pace: float = 0.0, sleep=time.sleep) -> dict:
+        pace: float = 0.0, sleep=time.sleep, clock=time.monotonic) -> dict:
     date = today.isoformat()
+    started, budget = clock(), float(cfg.get("max_run_minutes", 35)) * 60
     seen_path = root / "state" / "seen.json"
     seen = factslib.load_seen(seen_path)
     ranked, dropped = discover.candidates(gh, cfg, seen, today)
@@ -53,6 +54,10 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
             continue
         drafts = {}
         for lang in cfg["langs"]:
+            if clock() - started > budget:
+                # The job has a hard timeout that would cancel it and lose everything: stop starting work, keep what is done.
+                report["aborted"] = f"time budget of {cfg.get('max_run_minutes', 35)} minutes used before {facts['full_name']} [{lang}]"
+                break
             try:
                 res = write_one(gw, cfg, facts, lang)
             except AllModelsFailed as exc:
@@ -69,10 +74,10 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
             else:
                 report["held"].append({"repo": facts["full_name"], "lang": lang, "problems": [str(p) for p in res["problems"]
                                        if p.level == "error"][:8], "blockers": res["issues"][:4]})
-        if report["aborted"]:
-            break
         if cfg["langs"][0] in drafts:               # the primary language decides; others may be missing and are reported
             entries.append({"facts": facts, "drafts": drafts})
+        if report["aborted"]:
+            break
     report["models_log"] = gw.log[-60:]
     report["warnings"] = [f"{w['repo']} [{w['lang']}]: checker shares the writer's model family"
                           for w in report["written"] if not w["independent_checker"]]

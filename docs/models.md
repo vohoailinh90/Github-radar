@@ -20,7 +20,7 @@ Có thể ghi đè không cần sửa file: `RADAR_MODELS_WRITER="google/x openr
 
 ## Hành vi khi model lỗi
 
-Lỗi 5xx (vd. Google 503 "high demand"): thử lại cùng model (tối đa 3 lần, chờ 2 s, 4 s). Treo quá thời gian hoặc không kết nối được: **sang model kế tiếp ngay**, vì cùng model sẽ treo thêm 120 s mỗi lần. Lỗi 429 (giới hạn theo phút): chờ theo `Retry-After` của server, tối thiểu 20 s, 40 s (tối đa 90 s), vì cửa sổ giới hạn là cả phút; rồi mới sang model kế tiếp. Lỗi 4xx (sai key...) không thử lại.
+Lỗi 5xx (vd. Google 503 "high demand"): thử lại cùng model (tối đa 3 lần, chờ 2 s, 4 s). Treo quá thời gian hoặc không kết nối được: **sang model kế tiếp ngay** và model đó bị bỏ qua cho đến hết lượt chạy (mỗi model chỉ treo tối đa một lần, 120 s). Lỗi 4xx khác 408/425/429 (sai key, model không tồn tại) cũng không thử lại, sang model kế tiếp. Lỗi 429 (giới hạn theo phút): chờ theo `Retry-After` của server, tối thiểu 20 s, 40 s (tối đa 90 s), vì cửa sổ giới hạn là cả phút; rồi mới sang model kế tiếp. Lỗi 4xx (sai key...) không thử lại.
 Thiếu key của một model thì bỏ qua model đó. Nếu **mọi** model đều lỗi, lượt chạy dừng sớm (không đốt quota cho các repo
 còn lại), không ghi nhớ repo nào, và job báo đỏ. Hạn mức free (OpenRouter khoảng 50 lượt/ngày nếu chưa nạp credit) là giới hạn thật:
 mỗi repo tốn 2-3 lượt cho mỗi ngôn ngữ.

@@ -168,3 +168,22 @@ def test_the_cli_passes_the_configured_pace_to_the_pipeline(monkeypatch, capsys)
     monkeypatch.setattr(cli.pipeline, "run", lambda *a, **kw: seen.update(kw) or {"ok": True})
     assert cli.main(["run", "--dry-run"]) == 0
     assert seen["pace"] == 45.0 and seen["dry_run"] is True
+
+
+def test_the_time_budget_stops_new_work_but_keeps_what_was_finished(tmp_path, servers):
+    ticks = iter([0, 0, 36 * 60, 36 * 60, 36 * 60])                         # start, repo 1 starts, then 36 minutes have passed
+    clock = lambda: next(ticks, 36 * 60)  # noqa: E731
+    report = pipeline.run(cfg(picks_per_run=3), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY, clock=clock)
+    assert report["aborted"] and "time budget of 35 minutes" in report["aborted"] and report["ok"] is False
+    assert [w["repo"] for w in report["written"]] == [report["picks"][0]["repo"]]
+    assert contract.validate(pipeline.read_bundle(tmp_path)) == [] and (tmp_path / "state" / "seen.json").exists()
+    assert list((tmp_path / "digests").glob("20*/*/vi.md"))                 # the finished repository's digest is on disk
+
+
+def test_an_aborted_run_keeps_a_repository_whose_primary_language_was_already_written(tmp_path, servers):
+    gh, llm = servers
+    llm.script = lambda kind, facts, lang, n: (503, {"e": 1}) if lang == "en" and kind == "writer" else None
+    report = pipeline.run(cfg(picks_per_run=1, langs=["vi", "en"]), GitHub(), Gateway(sleep=lambda s: None, attempts_per_model=1),
+                          tmp_path, TODAY)
+    assert report["aborted"] and [w["lang"] for w in report["written"]] == ["vi"]
+    assert (tmp_path / "state" / "seen.json").exists() and pipeline.read_bundle(tmp_path)

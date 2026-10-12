@@ -132,3 +132,24 @@ def test_a_timeout_or_refused_connection_goes_to_the_next_model_without_retrying
     assert model == "mistral/b" and waits == []                              # 120 s x 3 on a stalled model is what cost 6 minutes
     assert [(e["model"], e["status"]) for e in gw.log] == [("google/a", "error"), ("mistral/b", "ok")]
     assert "HTTP 599" in gw.log[0]["why"] and len(srv.calls) == 1
+
+
+def test_a_model_that_stalled_once_is_not_tried_again_for_the_rest_of_the_run(fake, monkeypatch):
+    srv = fake(lambda kind, facts, lang, n: {"ok": True})
+    monkeypatch.setenv("RADAR_BASE_GOOGLE", "http://127.0.0.1:9")
+    gw = Gateway(sleep=lambda s: None, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k", "MISTRAL_API_KEY": "k"})
+    prompt = 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>'
+    for _ in range(3):
+        _, model = gw.chat(["google/a", "mistral/b"], "s", prompt)
+        assert model == "mistral/b"
+    assert [e["status"] for e in gw.log].count("error") == 1 and [e["status"] for e in gw.log].count("skipped") == 2
+    assert "google/a" in gw.dead and len(srv.calls) == 3
+    with pytest.raises(AllModelsFailed, match="stopped answering earlier in this run"):
+        gw.chat(["google/a"], "s", prompt)
+
+
+def test_a_rate_limit_or_server_error_never_marks_a_model_dead(fake):
+    fake(lambda kind, facts, lang, n: (429, {"e": 1}) if n == 1 else {"ok": True})
+    gw = Gateway(sleep=lambda s: None, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k"})
+    gw.chat(["google/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    assert gw.dead == set()

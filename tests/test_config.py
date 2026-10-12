@@ -22,3 +22,11 @@ def test_environment_overrides_win_without_editing_the_file():
     cfg = config.load(path=config.ROOT / "none.yaml", env={"RADAR_LANGS": "vi,en", "RADAR_PICKS": "2",
                                                           "RADAR_MODELS_CHECKER": "mistral/a groq/b"})
     assert cfg["langs"] == ["vi", "en"] and cfg["picks_per_run"] == 2 and cfg["models"]["checker"] == ["mistral/a", "groq/b"]
+
+
+def test_the_run_time_budget_is_configured_in_both_places_and_must_be_positive():
+    import pytest
+    cfg = config.load(path=config.ROOT / "radar.yaml", env={})
+    assert cfg["max_run_minutes"] == 35 == config.DEFAULTS["max_run_minutes"]
+    with pytest.raises(ValueError, match="max_run_minutes"):
+        config.validate({**config.DEFAULTS, "max_run_minutes": 0})

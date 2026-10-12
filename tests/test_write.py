@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from radar import config
@@ -78,9 +80,45 @@ def test_prompt_marks_the_readme_as_data_and_carries_the_language(served):
     assert srv.calls[0]["body"]["response_format"] == {"type": "json_object"}
 
 
-def test_the_checker_is_always_of_another_family_than_the_model_that_actually_wrote_the_draft():
+def test_independent_checkers_come_first_and_the_rest_stay_as_a_last_resort():
     from radar.write import checker_pool
     checkers = ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"]
-    assert checker_pool(checkers, "google/gemini-flash-latest") == (["mistral/mistral-small-2603"], True)
-    assert checker_pool(checkers, "mistral/mistral-small-2603") == (["google/gemini-flash-lite-latest"], True)   # fallback writer
-    assert checker_pool(["mistral/a"], "mistral/b") == (["mistral/a"], False)                                     # none left: flagged
+    assert checker_pool(checkers, "google/gemini-flash-latest") == ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"]
+    assert checker_pool(checkers, "mistral/mistral-small-2603") == ["google/gemini-flash-lite-latest", "mistral/mistral-small-2603"]
+    assert checker_pool(["mistral/a"], "mistral/b") == ["mistral/a"]
+
+
+class StubGateway:
+    """Answers by script: each entry is (kind, model, payload) in call order; a model in `broken` fails like a 404."""
+
+    def __init__(self, steps, broken=()):
+        self.steps, self.broken, self.log, self.asked = list(steps), set(broken), [], []
+
+    def chat(self, models, system, user, **kw):
+        self.asked.append(list(models))
+        kind, model, payload = self.steps.pop(0)
+        usable = [m for m in models if m not in self.broken]
+        if not usable:
+            from radar.llm import AllModelsFailed
+            raise AllModelsFailed("no model answered: stub")
+        return (json.dumps(payload, ensure_ascii=False) if not isinstance(payload, str) else payload), model if model in usable else usable[0]
+
+
+def test_a_dead_independent_checker_does_not_abort_a_run_that_already_has_a_draft():
+    # Mistral wrote (writer fallback); the only independent checker, gemini-lite, is retired (404): the same-family checker is used and flagged.
+    cfg = {**CFG, "models": {"writer": ["mistral/mistral-small-2603"], "checker": ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"]}}
+    gw = StubGateway([("w", "mistral/mistral-small-2603", make_draft(FACTS, "vi")),
+                      ("c", "mistral/mistral-small-2603", {"verdict": "pass", "issues": []})], broken={"google/gemini-flash-lite-latest"})
+    res = write_one(gw, cfg, FACTS, "vi")
+    assert res["status"] == "ok" and res["checker"] == "mistral/mistral-small-2603" and res["independent"] is False
+    assert gw.asked[1][0] == "google/gemini-flash-lite-latest"          # the independent one was tried first
+
+
+def test_independence_is_judged_against_the_writer_of_the_final_draft_after_a_fix_round():
+    cfg = {**CFG, "models": {"writer": ["google/gemini-flash-latest", "mistral/mistral-small-2603"], "checker": ["mistral/mistral-small-2603"]}}
+    issue = {"severity": "blocker", "field": "problem", "problem": "unsupported", "fact": "none"}
+    gw = StubGateway([("w", "google/gemini-flash-latest", make_draft(FACTS, "vi")),
+                      ("c", "mistral/mistral-small-2603", {"verdict": "fix", "issues": [issue]}),
+                      ("w", "mistral/mistral-small-2603", make_draft(FACTS, "vi"))])      # the fix round fell back to mistral
+    res = write_one(gw, cfg, FACTS, "vi")
+    assert res["fixed"] and res["writer"] == "mistral/mistral-small-2603" and res["independent"] is False

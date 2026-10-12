@@ -71,11 +71,12 @@ def _ask(gw: Gateway, models, system, user, **kw) -> tuple[dict, str]:
     raise AllModelsFailed(f"unparseable model output: {last}")
 
 
-def checker_pool(checker_models: list[str], writer: str) -> tuple[list[str], bool]:
-    """Checkers of another family than the model that actually wrote the draft (a fallback writer changes the answer).
-    If none is left, use them all and say so: the gates still decide, the report warns."""
+def checker_pool(checker_models: list[str], writer: str) -> list[str]:
+    """Checkers of another family than the model that actually wrote the draft come first; the others stay in the list as
+    a last resort, so one retired or overloaded model cannot stop a run that already has a draft. Whether the checker that
+    answered was independent is decided afterwards from the model that actually answered."""
     other = [m for m in checker_models if family(m) != family(writer)]
-    return (other or checker_models), bool(other)
+    return other + [m for m in checker_models if m not in other]
 
 
 def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
@@ -87,8 +88,7 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
     result = {"writer": writer, "checker": None, "issues": [], "fixed": False}
 
     problems = gates.check(draft, facts, lang)
-    pool, result["independent"] = checker_pool(checker_models, writer)
-    review, checker = _ask(gw, pool, CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
+    review, checker = _ask(gw, checker_pool(checker_models, writer), CHECK_SYSTEM, facts_block(facts) + "\n\nDRAFT:\n" + json.dumps(draft, ensure_ascii=False),
                            max_tokens=1500, temperature=0.0)
     result["checker"] = checker
     blockers = [i for i in review.get("issues", []) if isinstance(i, dict) and i.get("severity") == "blocker"]
@@ -101,6 +101,7 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
         draft, writer = _ask(gw, writer_models, system, fix_user, max_tokens=4500)
         result["fixed"], result["writer"] = True, writer
         problems = gates.check(draft, facts, lang)
+    result["independent"] = family(result["checker"]) != family(result["writer"])   # the FINAL writer, after any fix round
     result["draft"], result["problems"] = draft, problems
     result["status"] = "held" if gates.errors(problems) else "ok"
     return result

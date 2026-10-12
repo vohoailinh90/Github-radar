@@ -87,6 +87,7 @@ class Gateway:
         self.sleep = sleep
         self.env = os.environ if env is None else env
         self.log: list[dict] = []
+        self.dead: set[str] = set()      # models that timed out or refused a connection: not retried for the rest of this run
 
     def wait_for(self, exc: HttpError, attempt: int) -> float:
         """Seconds to wait before the next try. A 429 is a per-minute window (free tiers cap tokens per minute), so a
@@ -101,6 +102,10 @@ class Gateway:
         errors = []
         for model in models:
             provider, name = split_model(model)
+            if model in self.dead:
+                self.log.append({"model": model, "status": "skipped", "why": "stopped answering earlier in this run"})
+                errors.append(f"{model}: stopped answering earlier in this run")
+                continue
             key = self.env.get(PROVIDER_KEYS[provider])
             if not key:
                 self.log.append({"model": model, "status": "skipped", "why": f"{PROVIDER_KEYS[provider]} not set"})
@@ -123,6 +128,8 @@ class Gateway:
                     retry = isinstance(exc, HttpError) and exc.retryable and exc.status != 599
                     self.log.append({"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200]})
                     errors.append(f"{model}: {exc}")
+                    if isinstance(exc, HttpError) and exc.status == 599:
+                        self.dead.add(model)         # one 120 s stall per model per run, not one per call
                     if retry and attempt < self.attempts_per_model:
                         self.sleep(self.wait_for(exc, attempt))
                         continue

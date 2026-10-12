@@ -31,6 +31,7 @@ DEFAULTS = {
         "checker": ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"],
     },
     "pace_seconds": 45,
+    "max_run_minutes": 35,       # stop starting work after this: the workflow job is killed at 60 minutes and would lose everything
     "readme_max_chars": 12000,
     "tree_max_entries": 120,
     "studio": {"tool": "github-radar", "name": "GitHub Radar", "accent": "#0ea5e9", "platforms": ["facebook"]},
@@ -72,6 +73,8 @@ def validate(cfg: dict) -> None:
         raise ValueError(f"langs must be a non-empty subset of {list(LANGS)}, got {cfg['langs']}")
     if not 1 <= int(cfg["picks_per_run"]) <= 10:
         raise ValueError("picks_per_run must be between 1 and 10")
+    if float(cfg["max_run_minutes"]) <= 0:
+        raise ValueError("max_run_minutes must be positive")
     for bucket in cfg["buckets"]:
         if not bucket.get("id") or not bucket.get("topics"):
             raise ValueError("every bucket needs an id and at least one topic")
