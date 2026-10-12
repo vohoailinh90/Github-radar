@@ -12,11 +12,12 @@ import urllib.request
 
 
 class HttpError(RuntimeError):
-    def __init__(self, status: int, body: str, url: str):
+    def __init__(self, status: int, body: str, url: str, retry_after: float | None = None):
         super().__init__(f"HTTP {status} from {url}: {body[:300]}")
         self.status = status
         self.body = body
         self.url = url
+        self.retry_after = retry_after       # seconds, from a numeric Retry-After header when the server sent one
 
     @property
     def retryable(self) -> bool:
@@ -37,7 +38,9 @@ def request_json(url: str, *, headers: dict | None = None, payload: dict | None 
         with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - https/http only, set by us
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url) from exc
+        raw = (exc.headers.get("Retry-After") or "").strip() if exc.headers else ""
+        wait = float(raw) if raw.replace(".", "", 1).isdigit() else None
+        raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url, wait) from exc
     except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
         raise HttpError(599, str(exc), url) from exc
     except json.JSONDecodeError as exc:

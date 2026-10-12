@@ -77,14 +77,23 @@ def has_key(model: str, env: dict | None = None) -> bool:
 class Gateway:
     """Calls the first usable model; records every attempt so a run report can show them."""
 
-    def __init__(self, *, attempts_per_model: int = 2, backoff: float = 2.0, timeout: float = 120.0,
+    def __init__(self, *, attempts_per_model: int = 3, backoff: float = 2.0, rate_limit_wait: float = 20.0,
+                 timeout: float = 120.0,
                  sleep=time.sleep, env: dict | None = None):
         self.attempts_per_model = attempts_per_model
         self.backoff = backoff
+        self.rate_limit_wait = rate_limit_wait
         self.timeout = timeout
         self.sleep = sleep
         self.env = os.environ if env is None else env
         self.log: list[dict] = []
+
+    def wait_for(self, exc: HttpError, attempt: int) -> float:
+        """Seconds to wait before the next try. A 429 is a per-minute window (free tiers cap tokens per minute), so a
+        2-second retry would only fail again: wait the server's Retry-After, or at least `rate_limit_wait` per attempt (max 90)."""
+        if exc.status == 429:
+            return min(90.0, max(exc.retry_after or 0.0, self.rate_limit_wait * attempt))
+        return self.backoff * attempt
 
     def chat(self, models: list[str], system: str, user: str, *, max_tokens: int = 4000,
              temperature: float = 0.3, json_mode: bool = True) -> tuple[str, str]:
@@ -113,7 +122,7 @@ class Gateway:
                     self.log.append({"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200]})
                     errors.append(f"{model}: {exc}")
                     if retry and attempt < self.attempts_per_model:
-                        self.sleep(self.backoff * attempt)
+                        self.sleep(self.wait_for(exc, attempt))
                         continue
                     break
                 self.log.append({"model": model, "status": "ok", "attempt": attempt})

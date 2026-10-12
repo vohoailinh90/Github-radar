@@ -70,9 +70,12 @@ class _Server:
                 call = {"method": self.command, "path": self.path, "headers": dict(self.headers),
                         "body": json.loads(body) if body else None}
                 outer.calls.append(call)
-                status, payload = handler(call)
+                out = handler(call)
+                status, payload = out[0], out[1]
                 raw = json.dumps(payload).encode()
                 self.send_response(status)
+                for key, value in (out[2] if len(out) > 2 else {}).items():
+                    self.send_header(key, value)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(raw)))
                 self.end_headers()

@@ -27,8 +27,9 @@ DEFAULTS = {
     ],
     "models": {
         "writer": ["google/gemini-flash-latest"],
-        "checker": ["mistral/mistral-small-latest"],
+        "checker": ["mistral/mistral-small-2603"],
     },
+    "pace_seconds": 45,
     "readme_max_chars": 12000,
     "tree_max_entries": 120,
     "studio": {"tool": "github-radar", "name": "GitHub Radar", "accent": "#0ea5e9", "platforms": ["facebook"]},

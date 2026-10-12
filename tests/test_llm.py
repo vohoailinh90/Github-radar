@@ -79,3 +79,38 @@ def test_family_is_a_table_on_the_model_name_not_on_the_provider():
     assert llm.family("groq/deepseek-r1-distill-llama-70b") == "deepseek"            # the base model decides
     assert llm.family("mistral/mistral-small-latest") != llm.family("google/gemini-flash-latest")
     assert llm.family("openrouter/someco/model:free") == "someco"
+
+
+def sleeps_for(fake, script, **gw_kw):
+    """Run one chat() against a scripted provider; return (model used, the waits the gateway asked for)."""
+    fake(script)
+    waits = []
+    gw = Gateway(sleep=waits.append, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k", "MISTRAL_API_KEY": "k"}, **gw_kw)
+    _, model = gw.chat(["google/a", "mistral/b"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    return model, waits
+
+
+def test_a_rate_limit_waits_out_the_per_minute_window_on_the_same_model(fake):
+    # 20.000 tokens/minute free tiers: a 2-second retry would fail again, so wait 20 s, then 40 s, then succeed.
+    model, waits = sleeps_for(fake, lambda kind, facts, lang, n: (429, {"e": 1}) if n <= 2 else {"ok": True})
+    assert model == "google/a" and waits == [20.0, 40.0]
+
+
+def test_retry_after_from_the_server_is_honoured_up_to_a_cap(fake):
+    _, waits = sleeps_for(fake, lambda kind, facts, lang, n: (429, {"e": 1}, {"Retry-After": "55"}) if n == 1 else {"ok": True})
+    assert waits == [55.0]
+    _, waits = sleeps_for(fake, lambda kind, facts, lang, n: (429, {"e": 1}, {"Retry-After": "600"}) if n == 1 else {"ok": True})
+    assert waits == [90.0]
+    _, waits = sleeps_for(fake, lambda kind, facts, lang, n: (429, {"e": 1}, {"Retry-After": "3"}) if n == 1 else {"ok": True})
+    assert waits == [20.0]                          # never shorter than the minimum window wait
+
+
+def test_a_server_error_still_waits_only_briefly_and_exhausted_retries_fall_to_the_next_model(fake):
+    model, waits = sleeps_for(fake, lambda kind, facts, lang, n: (500, {"e": 1}) if n <= 3 else {"ok": True})
+    assert waits == [2.0, 4.0] and model == "mistral/b"       # 3 tries on google/a (waits 2, 4), then the next model answers
+
+
+def test_the_default_gateway_tries_three_times_and_rate_limit_wait_is_configurable():
+    assert Gateway().attempts_per_model == 3 and Gateway().rate_limit_wait == 20.0
+    assert Gateway(rate_limit_wait=5).wait_for(llm.HttpError(429, "", "u"), 2) == 10.0
+    assert Gateway().wait_for(llm.HttpError(503, "", "u"), 2) == 4.0
