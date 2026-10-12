@@ -1,0 +1,24 @@
+# Cấu hình GitHub Radar. Mọi khóa đều có mặc định trong radar/config.py; chỉ ghi điều muốn đổi.
+langs: [vi]            # vi | en | ja. Mỗi ngôn ngữ thêm = một bộ lượt gọi model nữa cho mỗi repo.
+picks_per_run: 3       # số repo mỗi lần quét (thứ Tư và thứ Bảy)
+min_stars: 1500
+max_days_since_push: 120
+pace_seconds: 3        # nghỉ giữa các lượt gọi model để không chạm giới hạn mỗi phút của gói free
+
+# Tên topic là GitHub topic có thật; sửa theo mối quan tâm của bạn. Mỗi bucket được chọn xoay vòng.
+buckets:
+  - {id: ai, emoji: "🤖", topics: [llm, ai-agents, rag, machine-learning]}
+  - {id: software, emoji: "🧰", topics: [developer-tools, self-hosted, cli, productivity]}
+  - {id: solutions, emoji: "🧩", topics: [automation, workflow, open-source-alternative, low-code]}
+  - {id: startup, emoji: "🚀", topics: [saas, startup, boilerplate, indie-hacker]}
+
+# <provider>/<model>; model đầu là chính. Người viết và người soát PHẢI khác họ model.
+# Danh sách free đổi liên tục: python3 radar.py models <provider>, rồi python3 radar.py doctor --ping.
+models:
+  writer: [google/gemini-flash-latest]
+  checker: [mistral/mistral-small-latest]
+
+studio:
+  tool: github-radar
+  name: GitHub Radar
+  accent: "#0ea5e9"

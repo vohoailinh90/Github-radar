@@ -1,0 +1,62 @@
+"""Read-only GitHub REST client for public repositories."""
+
+from __future__ import annotations
+
+import base64
+import os
+import time
+import urllib.parse
+
+from .net import HttpError, request_json
+
+
+class GitHub:
+    def __init__(self, token: str | None = None, base: str | None = None, sleep=time.sleep):
+        self.token = token if token is not None else os.environ.get("GITHUB_TOKEN", "")
+        self.base = (base or os.environ.get("GITHUB_API_URL") or "https://api.github.com").rstrip("/")
+        self.sleep = sleep
+
+    def get(self, path: str, **params):
+        url = self.base + path + (("?" + urllib.parse.urlencode(params)) if params else "")
+        headers = {"X-GitHub-Api-Version": "2022-11-28", "Accept": "application/vnd.github+json",
+                   "User-Agent": "github-radar"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        for attempt in (1, 2, 3):
+            try:
+                return request_json(url, headers=headers, timeout=30)
+            except HttpError as exc:
+                if exc.retryable and attempt < 3:
+                    self.sleep(2 * attempt)
+                    continue
+                raise
+
+    def search(self, query: str, per_page: int = 15) -> list[dict]:
+        data = self.get("/search/repositories", q=query, sort="stars", order="desc", per_page=per_page)
+        return data.get("items", []) if isinstance(data, dict) else []
+
+    def readme(self, full_name: str) -> str:
+        try:
+            data = self.get(f"/repos/{full_name}/readme")
+        except HttpError as exc:
+            if exc.status == 404:
+                return ""
+            raise
+        if isinstance(data, dict) and data.get("encoding") == "base64":
+            return base64.b64decode(data.get("content", "")).decode("utf-8", "replace")
+        return ""
+
+    def languages(self, full_name: str) -> dict:
+        data = self.get(f"/repos/{full_name}/languages")
+        return data if isinstance(data, dict) else {}
+
+    def tree(self, full_name: str, branch: str) -> list[str]:
+        """Top-level paths, directories with a trailing slash."""
+        data = self.get(f"/repos/{full_name}/git/trees/{urllib.parse.quote(branch)}")
+        items = data.get("tree", []) if isinstance(data, dict) else []
+        return [i["path"] + ("/" if i.get("type") == "tree" else "") for i in items if i.get("path")]
+
+    def children(self, full_name: str, branch: str, directory: str) -> list[str]:
+        data = self.get(f"/repos/{full_name}/git/trees/{urllib.parse.quote(branch)}:{urllib.parse.quote(directory)}")
+        items = data.get("tree", []) if isinstance(data, dict) else []
+        return [f"{directory}/{i['path']}" + ("/" if i.get("type") == "tree" else "") for i in items if i.get("path")]

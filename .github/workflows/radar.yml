@@ -1,0 +1,101 @@
+name: Radar scan
+
+on:
+  schedule:
+    # Wednesday and Saturday at 01:00 UTC = 08:00 in Vietnam (UTC+7). Cron weekdays: 0 = Sunday, so 3 = Wed, 6 = Sat.
+    - cron: "0 1 * * 3,6"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Discover and rank only: no model calls, nothing committed (use this for the first manual run)"
+        type: boolean
+        default: true
+      picks:
+        description: "Repositories to cover (blank = radar.yaml)"
+        type: string
+        default: ""
+      langs:
+        description: "Content languages, e.g. vi,en,ja (blank = radar.yaml)"
+        type: string
+        default: ""
+
+# One scan at a time; a late run waits instead of cancelling a run that is half-way through its quota.
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  radar:
+    # Same switch as the other repos (docs/vps-team.md): set the repository variable CI_RUNNER to a
+    # self-hosted runner label to run on the VPS. Keep this repository PRIVATE if you do.
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    env:
+      DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Doctor (keys and models)
+        if: ${{ env.DRY != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          RADAR_LANGS: ${{ inputs.langs }}
+        run: python radar.py doctor --ping
+
+      - name: Scan, write, check, export
+        id: run
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          RADAR_PICKS: ${{ inputs.picks }}
+          RADAR_LANGS: ${{ inputs.langs }}
+        run: |
+          args=""
+          if [ "$DRY" = "true" ]; then args="--dry-run"; fi
+          set +e
+          python radar.py run $args > run.json
+          code=$?
+          { echo "### Radar run"; echo '```json'; cat run.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          cat run.json
+          exit $code
+
+      # Runs even when the scan reported a problem: digests that were written are worth keeping,
+      # and the job still ends red because the step above failed.
+      - name: Commit digests, export and state
+        if: ${{ !cancelled() && env.DRY != 'true' }}
+        run: |
+          git config user.name "github-radar"
+          git config user.email "radar@users.noreply.github.com"
+          git add digests export state
+          if git diff --cached --quiet; then
+            echo "nothing new to commit"
+          else
+            git commit -m "radar: scan $(date -u +%F)"
+            git push
+          fi
+
+      - name: Hand off to tool-marketing-studio (draft pull request)
+        if: ${{ steps.run.outcome == 'success' && env.DRY != 'true' }}
+        env:
+          STUDIO_REPO_TOKEN: ${{ secrets.STUDIO_REPO_TOKEN }}
+        run: python radar.py handoff
