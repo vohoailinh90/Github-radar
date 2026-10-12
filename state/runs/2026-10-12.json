@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-12",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 131,
+  "dropped": {
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "Panniantong/Agent-Reach",
+      "bucket": "software",
+      "score": 17.1987,
+      "stars": 96574
+    }
+  ],
+  "written": [],
+  "held": [],
+  "export_errors": [],
+  "aborted": "Panniantong/Agent-Reach [vi]: no model answered: mistral/mistral-small-2603: HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}; mistral/mistral-small-2603: HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}; mistral/mistral-small-2603: HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+  "ok": false,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}"
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}"
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}"
+    }
+  ],
+  "warnings": [],
+  "campaign": null
+}
