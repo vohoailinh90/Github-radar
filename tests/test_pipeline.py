@@ -5,7 +5,7 @@ import yaml
 from radar import config, contract, pipeline
 from radar.github import GitHub
 from radar.llm import Gateway
-from tests.support import TODAY, fake_github, make_draft
+from tests.support import TODAY, FakeLLM, fake_github, make_draft
 
 
 def cfg(**kw):
@@ -187,3 +187,23 @@ def test_an_aborted_run_keeps_a_repository_whose_primary_language_was_already_wr
                           tmp_path, TODAY)
     assert report["aborted"] and [w["lang"] for w in report["written"]] == ["vi"]
     assert (tmp_path / "state" / "seen.json").exists() and pipeline.read_bundle(tmp_path)
+
+
+def test_the_readme_cap_really_limits_what_reaches_both_prompts(tmp_path, monkeypatch):
+    big = "\n".join(f"step {i}: run the installer with option number {i} and read the notes" for i in range(3000))      # ~200,000 chars
+    gh, llm = fake_github(readme=big), FakeLLM()
+    monkeypatch.setenv("GITHUB_API_URL", gh.url)
+    for provider in ("GOOGLE", "MISTRAL"):
+        monkeypatch.setenv(f"RADAR_BASE_{provider}", llm.url)
+    monkeypatch.setenv("GOOGLE_GENERATIVE_AI_API_KEY", "k")
+    monkeypatch.setenv("MISTRAL_API_KEY", "k")
+    try:
+        pipeline.run(cfg(picks_per_run=1), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    finally:
+        gh.close()
+        llm.close()
+    users = [c["body"]["messages"][1]["content"] for c in llm.calls]
+    assert len(users) >= 2
+    for user in users:                                  # the writer prompt and the checker prompt
+        readme = user.split("<<<README\n", 1)[1].split("\nREADME>>>", 1)[0]
+        assert 0 < len(readme) <= 8000

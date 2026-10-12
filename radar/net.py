@@ -47,7 +47,7 @@ def request_json(url: str, *, headers: dict | None = None, payload: dict | None 
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         wait = parse_retry_after(exc.headers.get("Retry-After") if exc.headers else None)
-        limits = {k.lower(): v[:60] for k, v in (exc.headers.items() if exc.headers else []) if re.search(r"(?i)rate|limit|remaining|reset|retry", k)}
+        limits = {k.lower(): v[:60] for k, v in (exc.headers.items() if exc.headers else []) if re.match(r"(?i)(x-)?(rate-?limit|retry-after)", k)}
         raise HttpError(exc.code, exc.read().decode("utf-8", "replace"), url, wait, limits) from exc
     except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
         raise HttpError(599, str(exc), url) from exc

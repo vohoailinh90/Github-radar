@@ -131,3 +131,16 @@ def test_the_checker_asks_for_a_short_answer_and_the_readme_sent_is_capped(serve
     writer_call, checker_call = srv.calls[0]["body"], srv.calls[1]["body"]
     assert checker_call["max_tokens"] == CHECK_MAX_TOKENS <= 900 and writer_call["max_tokens"] > CHECK_MAX_TOKENS
     assert CFG["readme_max_chars"] == 8000
+
+
+def test_a_cut_off_checker_answer_is_retried_with_more_room_not_the_same_limit(served):
+    from radar.write import CHECK_MAX_TOKENS
+    srv = served(lambda kind, facts, lang, n: '{"verdict": "fix", "issues": [{"severity": "blocker", "field": "pro' if kind == "checker" and n == 1 else None)
+    res = write_one(gw(), CFG, FACTS, "vi")
+    checker_calls = [c["body"]["max_tokens"] for c in srv.calls if "strict fact-checker" in c["body"]["messages"][0]["content"]]
+    assert checker_calls == [CHECK_MAX_TOKENS, int(CHECK_MAX_TOKENS * 1.5)] and res["status"] == "ok"
+
+
+def test_the_checker_is_told_to_keep_its_verdict_short():
+    from radar.write import CHECK_SYSTEM
+    assert "at most 6 issues" in CHECK_SYSTEM and "under 25 words" in CHECK_SYSTEM

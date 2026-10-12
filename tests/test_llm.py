@@ -163,3 +163,13 @@ def test_rate_limit_headers_sent_with_a_429_are_kept_in_the_run_log(fake):
     headers = gw.log[0]["headers"]
     assert headers["x-ratelimit-remaining-tokens-minute"] == "0" and headers["x-ratelimit-limit-tokens-minute"] == "20000"
     assert "set-cookie" not in headers and "server" not in headers          # only rate-limit headers, never anything else
+
+
+def test_only_rate_limit_headers_are_kept_by_name_prefix_and_values_are_cut(fake):
+    fake(lambda kind, facts, lang, n: (429, {"e": 1}, {"ratelimitbysize-remaining": "5", "X-RateLimit-Reset-Tokens": "7" * 200, "Retry-After": "3",
+                                                       "X-Generated-By": "a", "X-Moderation": "b", "Accelerate": "c"}) if n == 1 else {"ok": True})
+    gw = Gateway(sleep=lambda s: None, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k"})
+    gw.chat(["google/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    headers = gw.log[0]["headers"]
+    assert set(headers) == {"ratelimitbysize-remaining", "x-ratelimit-reset-tokens", "retry-after"}
+    assert len(headers["x-ratelimit-reset-tokens"]) == 60

@@ -52,7 +52,8 @@ List only real problems: a claim, number, command or capability the FACTS do not
 or hyped statement (blocker); wrong or invented evidence (blocker); unclear wording (minor).
 Answer with ONE JSON object: {"verdict": "pass" or "fix", "issues": [{"severity": "blocker" or "minor",
 "field": "where", "problem": "what is wrong", "fact": "the FACTS line that contradicts it, or none"}]}.
-verdict is "fix" only when there is at least one blocker."""
+verdict is "fix" only when there is at least one blocker.
+Be brief: at most 6 issues, blockers first, each "problem" and "fact" under 25 words."""
 
 
 def facts_block(facts: dict) -> str:
@@ -63,7 +64,9 @@ def facts_block(facts: dict) -> str:
 
 def _ask(gw: Gateway, models, system, user, **kw) -> tuple[dict, str]:
     last = None
-    for _ in range(2):                           # one repair attempt for unparseable output
+    for attempt in range(2):                     # one repair attempt for unparseable output
+        if attempt:                              # most likely cut off by max_tokens: ask again with 50% more room
+            kw = {**kw, "max_tokens": int(kw.get("max_tokens", 4000) * 1.5)}
         text, model = gw.chat(models, system, user, **kw)
         try:
             return parse_json(text), model
