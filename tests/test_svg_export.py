@@ -130,3 +130,24 @@ def test_domain_shaped_tokens_are_stripped_from_studio_posts_so_the_real_studio_
     flow = next(s for s in post["slides"] if s["layout"] == "flow")
     assert "planner" in flow["steps"][0]["text"] and "https" not in flow["steps"][0]["text"] and ".py" not in flow["steps"][0]["text"]
     assert post["platforms"]["facebook"]["caption"].startswith("Xem planner nhé\n\n")
+
+
+def test_slide_text_is_cut_at_a_word_never_in_the_middle_of_one_and_has_room_for_a_full_step():
+    step = "Kiểm tra an toàn: Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh CLI, chỉ ghi file và cài gói khi có cờ ủy quyền cụ thể"
+    assert studio_export.shorten(step, 170) == step                       # 150 chars: fits, no ellipsis (it used to be cut at 110)
+    cut = studio_export.shorten(step, 100)
+    assert cut.endswith("…") and cut[:-1].split(" ")[-1] in {w.strip(",;:") for w in step.split(" ")}     # the last word is a whole word
+    assert studio_export.shorten("これは長い日本語の文章でスペースがありません" * 4, 30).endswith("…")      # CJK: no spaces, cut by characters
+    assert ";" not in studio_export.shorten("Một ý; ý khác; " * 20, 40)[-3:]
+
+
+def test_a_full_length_step_reaches_the_flow_slide_uncut():
+    d = make_draft(FACTS, "vi")
+    d["how_it_works"]["steps"][0] = {"title": "Kiểm tra an toàn", "evidence": "README", "text": "Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh CLI, chỉ ghi file khi có cờ ủy quyền"}
+    d["learn"][0] = "Mô hình lớp năng lực: chỉ chọn lọc, định tuyến và kiểm tra thay vì tự viết lại toàn bộ công cụ cào web từ đầu cho mỗi nền tảng"
+    files = studio_export.bundle([{"facts": FACTS, "drafts": {"vi": d}}], CFG, "2026-10-14")
+    post = yaml.safe_load(files["campaigns/radar-2026-10-14/posts/vi/01-sample-agent-kit.yaml"])
+    step = next(s for s in post["slides"] if s["layout"] == "flow")["steps"][0]["text"]
+    learn = next(s for s in post["slides"] if s["layout"] == "checklist")["items"][0]
+    assert step == "Kiểm tra an toàn: " + d["how_it_works"]["steps"][0]["text"] and "…" not in step     # 136 chars used to become 110 + "…"
+    assert learn == d["learn"][0] and "…" not in learn

@@ -173,3 +173,26 @@ def test_only_rate_limit_headers_are_kept_by_name_prefix_and_values_are_cut(fake
     headers = gw.log[0]["headers"]
     assert set(headers) == {"ratelimitbysize-remaining", "x-ratelimit-reset-tokens", "retry-after"}
     assert len(headers["x-ratelimit-reset-tokens"]) == 60
+
+
+def test_a_429_that_reports_a_limit_of_zero_skips_the_model_at_once_instead_of_waiting_minutes(fake):
+    # What the real Mistral key answered: x-ratelimit-limit-req-minute: 0. Waiting 20 s + 40 s cannot create quota.
+    srv = fake(lambda kind, facts, lang, n: (429, {"e": 1}, {"x-ratelimit-limit-req-minute": "0", "x-ratelimit-remaining-req-minute": "0"})
+               if n == 1 else {"ok": True})
+    waits = []
+    gw = Gateway(sleep=waits.append, env={"GOOGLE_GENERATIVE_AI_API_KEY": "k", "MISTRAL_API_KEY": "k"})
+    prompt = 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>'
+    _, model = gw.chat(["mistral/a", "google/b"], "s", prompt)
+    assert model == "google/b" and waits == [] and "mistral/a" in gw.dead and len(srv.calls) == 2
+    assert gw.log[0]["headers"]["x-ratelimit-limit-req-minute"] == "0"
+    _, model = gw.chat(["mistral/a", "google/b"], "s", prompt)
+    assert model == "google/b" and len(srv.calls) == 3          # the dead model was not contacted again
+
+
+def test_a_429_with_quota_left_in_the_limit_still_waits_and_the_model_is_not_marked_dead(fake):
+    fake(lambda kind, facts, lang, n: (429, {"e": 1}, {"x-ratelimit-limit-tokens-minute": "20000", "x-ratelimit-remaining-tokens-minute": "0"})
+         if n == 1 else {"ok": True})
+    waits = []
+    gw = Gateway(sleep=waits.append, env={"MISTRAL_API_KEY": "k"})
+    _, model = gw.chat(["mistral/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
+    assert model == "mistral/a" and waits == [20.0] and gw.dead == set()

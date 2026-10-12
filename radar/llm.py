@@ -125,14 +125,16 @@ class Gateway:
                 except (HttpError, KeyError, IndexError, TypeError) as exc:
                     # A 599 is a timeout or a refused connection: the same model would stall again for the full timeout,
                     # so go to the next model instead of retrying (a 5xx or 429 answered quickly and may clear).
-                    retry = isinstance(exc, HttpError) and exc.retryable and exc.status != 599
+                    no_quota = isinstance(exc, HttpError) and exc.status == 429 and any(
+                        "limit" in k and "remaining" not in k and v.strip() == "0" for k, v in exc.headers.items())
+                    retry = isinstance(exc, HttpError) and exc.retryable and exc.status != 599 and not no_quota
                     entry = {"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200]}
                     if isinstance(exc, HttpError) and exc.headers:
                         entry["headers"] = exc.headers          # e.g. x-ratelimit-remaining-tokens-minute: tells a size limit from a rate limit
                     self.log.append(entry)
                     errors.append(f"{model}: {exc}")
-                    if isinstance(exc, HttpError) and exc.status == 599:
-                        self.dead.add(model)         # one 120 s stall per model per run, not one per call
+                    if no_quota or (isinstance(exc, HttpError) and exc.status == 599):
+                        self.dead.add(model)         # a stall, or a quota of 0 (x-ratelimit-limit-*: 0): not retried again this run
                     if retry and attempt < self.attempts_per_model:
                         self.sleep(self.wait_for(exc, attempt))
                         continue

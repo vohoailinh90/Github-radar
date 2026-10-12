@@ -20,16 +20,20 @@ EMOJI_PARTS = ["🧩", "⚙️", "🔌", "📦", "🧠", "📡"]
 
 
 def shorten(text: str, limit: int) -> str:
-    """Whole sentences up to `limit` characters; otherwise a clean cut with an ellipsis."""
+    """Whole sentences up to `limit` characters; otherwise cut at a word (or, for CJK, at a character) with an ellipsis."""
     text = urls.strip_domains(re.sub(r"\s+", " ", str(text)).strip().replace("*", ""))
     if len(text) <= limit:
         return text
     cut = text[:limit]
-    for mark in (". ", "。", "! ", "? ", "; "):
+    for mark in (". ", "。", "! ", "? "):
         i = cut.rfind(mark)
         if i >= limit * 0.3:
             return cut[:i + len(mark.strip())].strip()
-    return cut[:limit - 1].rstrip(" ,;:") + "…"
+    cut = text[:limit - 1]
+    i = cut.rfind(" ")
+    if i >= limit * 0.6:
+        cut = cut[:i]
+    return cut.rstrip(" ,;:、，") + "…"
 
 
 def dump(data: dict) -> str:
@@ -49,14 +53,14 @@ def post(facts: dict, draft: dict, lang: str, number: int, link_id: str, date: s
          "caption": stat_caption},
         {"layout": "quote", "text": shorten(draft["problem"], 230), "author": t["problem"]},
         {"layout": "flow", "variant": "after", "title": t["flow_slide"],
-         "steps": [{"text": shorten(f"{s['title']}: {s['text']}", 110)} for s in hiw["steps"][:6]]},
+         "steps": [{"text": shorten(f"{s['title']}: {s['text']}", 170)} for s in hiw["steps"][:6]]},
         {"layout": "features", "title": t["parts_slide"],
          "items": [{"emoji": EMOJI_PARTS[i % len(EMOJI_PARTS)], "title": shorten(c["name"], 40),
-                    "text": shorten(c["role"], 95)} for i, c in enumerate(hiw["components"][:6])]},
+                    "text": shorten(c["role"], 120)} for i, c in enumerate(hiw["components"][:6])]},
         {"layout": "checklist", "title": t["learn_slide"], "tone": "ok",
-         "items": [shorten(x, 110) for x in draft["learn"][:5]]},
+         "items": [shorten(x, 150) for x in draft["learn"][:5]]},
         {"layout": "pains", "title": t["caveat_slide"], "tone": "accent",
-         "items": [{"emoji": "⚠️", "text": shorten(x, 110)} for x in draft["caveats"][:4]]},
+         "items": [{"emoji": "⚠️", "text": shorten(x, 140)} for x in draft["caveats"][:4]]},
         {"layout": "cta", "emoji": "📌", "title": t["save"], "text": t["save_text"], "show_link": False},
     ]
     caption = urls.strip_domains(draft["facebook"]["caption"].strip().replace("\r", ""))
