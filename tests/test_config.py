@@ -3,7 +3,7 @@ from radar import config
 
 def test_committed_radar_yaml_matches_the_documented_defaults_for_the_account_limits():
     cfg = config.load(path=config.ROOT / "radar.yaml", env={})
-    assert cfg["models"]["checker"][0] == "groq/llama-3.3-70b-versatile"      # an independent family first; Mistral reports a quota of 0 for this key
+    assert cfg["models"]["checker"][0] == "groq/meta-llama/llama-4-scout-17b-16e-instruct"      # an independent family first; Mistral reports a quota of 0 for this key
     assert cfg["pace_seconds"] == 45 and config.DEFAULTS["pace_seconds"] == 45
     assert cfg["langs"] == ["vi"] and cfg["models"]["writer"][0] == "google/gemini-flash-latest"
     assert cfg["models"] == config.DEFAULTS["models"]                         # yaml and code defaults cannot drift apart
@@ -35,6 +35,6 @@ def test_the_run_time_budget_is_configured_in_both_places_and_must_be_positive()
 def test_a_gemini_draft_is_checked_by_llama_first_and_a_llama_draft_by_another_family_with_llama_last():
     from radar.write import checker_pool
     models = config.load(path=config.ROOT / "radar.yaml", env={})["models"]
-    assert checker_pool(models["checker"], "google/gemini-flash-latest")[0] == "groq/llama-3.3-70b-versatile"
-    assert checker_pool(models["checker"], "groq/llama-3.3-70b-versatile") == [
-        "mistral/mistral-small-2603", "google/gemini-flash-lite-latest", "groq/llama-3.3-70b-versatile"]    # same family only as a last resort
+    assert checker_pool(models["checker"], "google/gemini-flash-latest")[:2] == ["groq/meta-llama/llama-4-scout-17b-16e-instruct", "groq/meta-llama/llama-4-maverick-17b-128e-instruct"]
+    assert checker_pool(models["checker"], "groq/meta-llama/llama-4-scout-17b-16e-instruct") == [
+        "mistral/mistral-small-2603", "google/gemini-flash-lite-latest", "groq/meta-llama/llama-4-scout-17b-16e-instruct", "groq/meta-llama/llama-4-maverick-17b-128e-instruct"]    # same family only as a last resort

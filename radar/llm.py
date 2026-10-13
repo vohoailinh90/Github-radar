@@ -133,8 +133,8 @@ class Gateway:
                         entry["headers"] = exc.headers          # e.g. x-ratelimit-remaining-tokens-minute: tells a size limit from a rate limit
                     self.log.append(entry)
                     errors.append(f"{model}: {exc}")
-                    if no_quota or (isinstance(exc, HttpError) and exc.status == 599):
-                        self.dead.add(model)         # a stall, or a quota of 0 (x-ratelimit-limit-*: 0): not retried again this run
+                    if no_quota or (isinstance(exc, HttpError) and exc.status in (404, 599)):
+                        self.dead.add(model)         # a stall, a retired model id (404) or a quota of 0 (x-ratelimit-limit-*: 0): not tried again this run
                     if retry and attempt < self.attempts_per_model:
                         self.sleep(self.wait_for(exc, attempt))
                         continue
