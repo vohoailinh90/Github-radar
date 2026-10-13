@@ -1,0 +1,87 @@
+id: 01-scrapling
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-13-2
+link: 01-scrapling
+slides:
+- layout: cover
+  emoji: 🧩
+  eyebrow: Radar GitHub · Giải pháp
+  title: 'Scrapling: Framework web scraping tự thích ứng trên Python'
+  subtitle: Scrapling là framework Python hỗ trợ cào dữ liệu web tự thích ứng cấu trúc trang, vượt rào
+    cản bot và mở rộng quy mô crawl.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '87.320'
+  label: sao trên GitHub
+  caption: BSD-3-Clause · Python
+- layout: quote
+  text: Người cào dữ liệu thường xuyên gặp sự cố khi website đổi cấu trúc giao diện khiến bộ chọn CSS
+    hoặc XPath bị hỏng.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Gửi request ngầm: StealthyFetcher thực hiện tải website ở chế độ headless và network idle để
+      vượt qua các bộ lọc bot như Cloudflare Turnstile.'
+  - text: 'Bóc tách tự thích ứng: Khi chọn phần tử với auto_save=True, parser lưu lại đặc điểm; khi trang
+      đổi layout, cờ adaptive=True giúp tự tìm lại phần tử đó.'
+  - text: 'Điều phối crawl diện rộng: Spider quản lý crawl đồng thời đa phiên, hỗ trợ tạm dừng, xoay vòng
+      proxy và tự động lùi bước giảm tốc khi máy chủ có dấu hiệu chặn.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: StealthyFetcher
+    text: Thành phần tải trang web dưới dạng browser ngầm giúp vượt qua hệ thống chống bot.
+  - emoji: ⚙️
+    title: Adaptive Parser
+    text: Bộ phân tích dữ liệu có khả năng ghi nhớ và tự tái định vị phần tử khi cấu trúc HTML thay đổi.
+  - emoji: 🔌
+    title: Spider Engine
+    text: Khung điều phối crawl quy mô lớn, hỗ trợ xoay proxy và tự điều chỉnh tốc độ request.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cơ chế tự phục hồi bộ chọn (self-healing selectors) giúp giảm chi phí bảo trì script.
+  - Tách biệt rõ ràng giữa tầng fetcher (thu thập), parser (bóc tách) và spider (điều phối).
+  - Chiến thuật backoff thích ứng theo phản hồi của server để duy trì kết nối ổn định.
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Chỉ tích hợp sẵn cơ chế vượt qua Cloudflare Turnstile, các hệ thống bảo vệ khác có thể cần giải
+      pháp mở rộng.
+  - emoji: ⚠️
+    text: Khả năng thích ứng của bộ chọn yêu cầu phải lưu vết phần tử thành công từ trước.
+  - emoji: ⚠️
+    text: Phát hành theo giấy phép BSD-3-Clause.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Scrapling: Giải pháp cào web tự thích ứng khi website đổi giao diện!
+
+      - Tự tìm lại phần tử khi cấu trúc HTML của website thay đổi.
+
+      - Vượt rào cản bot như Cloudflare Turnstile mặc định.
+
+      - Điều phối Spider đa luồng, tự xoay proxy và lùi bước khi bị chặn.
+
+      - Hỗ trợ tích hợp kỹ năng cho AI Agent và máy chủ MCP.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - WebScraping
+    - Python
+    - Automation
+    - DataEngineering
+    - Scrapling

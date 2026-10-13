@@ -1,0 +1,110 @@
+{
+  "draft": {
+    "analogy": "Giống như người giao hàng biết tự nhận diện lại số nhà dù mặt tiền vừa sửa, đồng thời biết tự đổi biển số và đi đường tránh khi gặp trạm kiểm soát.",
+    "caveats": [
+      "Chỉ tích hợp sẵn cơ chế vượt qua Cloudflare Turnstile, các hệ thống bảo vệ khác có thể cần giải pháp mở rộng.",
+      "Khả năng thích ứng của bộ chọn yêu cầu phải lưu vết phần tử thành công từ trước.",
+      "Phát hành theo giấy phép BSD-3-Clause."
+    ],
+    "facebook": {
+      "caption": "Scrapling: Giải pháp cào web tự thích ứng khi website đổi giao diện!\n- Tự tìm lại phần tử khi cấu trúc HTML của website thay đổi.\n- Vượt rào cản bot như Cloudflare Turnstile mặc định.\n- Điều phối Spider đa luồng, tự xoay proxy và lùi bước khi bị chặn.\n- Hỗ trợ tích hợp kỹ năng cho AI Agent và máy chủ MCP.",
+      "hashtags": [
+        "WebScraping",
+        "Python",
+        "Automation",
+        "DataEngineering",
+        "Scrapling"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Quá trình tự động trích xuất và thu thập thông tin từ các trang web.",
+        "term": "Web Scraping"
+      },
+      {
+        "meaning": "Bộ chọn dữ liệu có khả năng tự định vị lại phần tử khi mã HTML của website thay đổi.",
+        "term": "Adaptive Selector"
+      },
+      {
+        "meaning": "Kỹ thuật tự động thay đổi địa chỉ IP trung gian để tránh bị giới hạn hoặc chặn request.",
+        "term": "Proxy Rotation"
+      }
+    ],
+    "hook": "Website đổi giao diện hay bật chống bot làm mã cào dữ liệu hỏng liên tục?",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "StealthyFetcher",
+          "role": "Thành phần tải trang web dưới dạng browser ngầm giúp vượt qua hệ thống chống bot."
+        },
+        {
+          "evidence": "README",
+          "name": "Adaptive Parser",
+          "role": "Bộ phân tích dữ liệu có khả năng ghi nhớ và tự tái định vị phần tử khi cấu trúc HTML thay đổi."
+        },
+        {
+          "evidence": "README",
+          "name": "Spider Engine",
+          "role": "Khung điều phối crawl quy mô lớn, hỗ trợ xoay proxy và tự điều chỉnh tốc độ request."
+        }
+      ],
+      "flow": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "StealthyFetcher thực hiện tải website ở chế độ headless và network idle để vượt qua các bộ lọc bot như Cloudflare Turnstile.",
+          "title": "Gửi request ngầm"
+        },
+        {
+          "evidence": "README",
+          "text": "Khi chọn phần tử với auto_save=True, parser lưu lại đặc điểm; khi trang đổi layout, cờ adaptive=True giúp tự tìm lại phần tử đó.",
+          "title": "Bóc tách tự thích ứng"
+        },
+        {
+          "evidence": "README",
+          "text": "Spider quản lý crawl đồng thời đa phiên, hỗ trợ tạm dừng, xoay vòng proxy và tự động lùi bước giảm tốc khi máy chủ có dấu hiệu chặn.",
+          "title": "Điều phối crawl diện rộng"
+        }
+      ]
+    },
+    "learn": [
+      "Cơ chế tự phục hồi bộ chọn (self-healing selectors) giúp giảm chi phí bảo trì script.",
+      "Tách biệt rõ ràng giữa tầng fetcher (thu thập), parser (bóc tách) và spider (điều phối).",
+      "Chiến thuật backoff thích ứng theo phản hồi của server để duy trì kết nối ổn định."
+    ],
+    "one_liner": "Scrapling là framework Python hỗ trợ cào dữ liệu web tự thích ứng cấu trúc trang, vượt rào cản bot và mở rộng quy mô crawl.",
+    "problem": "Người cào dữ liệu thường xuyên gặp sự cố khi website đổi cấu trúc giao diện khiến bộ chọn CSS hoặc XPath bị hỏng. Ngoài ra, các cơ chế kiểm tra bot như Cloudflare Turnstile dễ dàng chặn đứng request, làm gián đoạn quá trình thu thập thông tin quy mô lớn.",
+    "title": "Scrapling: Framework web scraping tự thích ứng trên Python",
+    "try_it": {
+      "commands": [],
+      "note": "Scrapling được sử dụng dưới dạng thư viện Python qua các lớp Fetcher, DynamicFetcher, StealthyFetcher hoặc Spider."
+    },
+    "who_for": [
+      "Kỹ sư dữ liệu cần giải pháp cào web bền vững trước các đợt cập nhật UI.",
+      "Lập trình viên Python gặp rào cản từ các cơ chế chặn bot cơ bản.",
+      "Người xây dựng crawler đa luồng cần quản lý xoay proxy tự động."
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 8952,
+    "full_name": "D4Vinci/Scrapling",
+    "language": "Python",
+    "license": "BSD-3-Clause",
+    "scanned": "2026-10-13",
+    "stars": 87320,
+    "url": "https://github.com/D4Vinci/Scrapling"
+  },
+  "lang": "vi",
+  "position": 1
+}
