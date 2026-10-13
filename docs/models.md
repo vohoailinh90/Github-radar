@@ -14,7 +14,7 @@ dùng container OpenCode; `radar/llm.py` gọi thẳng endpoint tương thích O
 | `deepseek` | `DEEPSEEK_API_KEY` | api.deepseek.com |
 | `nvidia` | `NVIDIA_API_KEY` | integrate.api.nvidia.com/v1 |
 
-Mặc định (`radar.yaml`): viết = `google/gemini-flash-latest`, dự phòng `google/gemini-flash-lite-latest` rồi `mistral/mistral-small-2603`; soát = `mistral/mistral-small-2603`, dự phòng `google/gemini-flash-lite-latest` (luôn khác họ với model đã viết) (tên cụ thể có trong mục *Limites* của console Mistral; alias `-latest` có thể không có). Danh sách model free
+Mặc định (`radar.yaml`): viết = `google/gemini-flash-latest`, dự phòng `google/gemini-flash-lite-latest`, `groq/llama-3.3-70b-versatile` rồi `mistral/mistral-small-2603`; soát = `groq/llama-3.3-70b-versatile`, rồi `mistral/mistral-small-2603`, rồi `google/gemini-flash-lite-latest` (người soát khác họ với model đã viết luôn được thử trước; cùng họ chỉ là phương án cuối). Mistral hiện báo hạn mức request/phút = 0 cho key của chủ repo (log ngày 12/10/2026), nên nó chỉ còn là dự phòng; Groq cần secret `GROQ_API_KEY`, và tên model Groq chưa được kiểm chứng trước lần chạy đầu: xem dòng `is offered` ở bước Doctor (tên cụ thể có trong mục *Limites* của console Mistral; alias `-latest` có thể không có). Danh sách model free
 đổi liên tục; xem hiện trạng bằng `python3 radar.py models <provider>` (`--free` cho OpenRouter) rồi `doctor --ping`.
 Có thể ghi đè không cần sửa file: `RADAR_MODELS_WRITER="google/x openrouter/vendor/y:free"`.
 

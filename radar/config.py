@@ -27,8 +27,8 @@ DEFAULTS = {
     ],
     "models": {
         # First is the primary. Fallbacks matter: a free model returns 503 "high demand" or stalls now and then.
-        "writer": ["google/gemini-flash-latest", "google/gemini-flash-lite-latest", "mistral/mistral-small-2603"],
-        "checker": ["mistral/mistral-small-2603", "google/gemini-flash-lite-latest"],
+        "writer": ["google/gemini-flash-latest", "google/gemini-flash-lite-latest", "groq/llama-3.3-70b-versatile", "mistral/mistral-small-2603"],
+        "checker": ["groq/llama-3.3-70b-versatile", "mistral/mistral-small-2603", "google/gemini-flash-lite-latest"],
     },
     "pace_seconds": 45,
     "max_run_minutes": 35,       # stop starting work after this: the workflow job is killed at 60 minutes and would lose everything

@@ -66,7 +66,9 @@ def test_all_models_failing_aborts_early_and_remembers_nothing(tmp_path, servers
     report = pipeline.run(cfg(), GitHub(), Gateway(sleep=lambda s: None, attempts_per_model=1), tmp_path, TODAY)
     assert not report["ok"] and report["aborted"] and report["written"] == []
     assert not (tmp_path / "state" / "seen.json").exists() and not (tmp_path / "export").exists()
-    assert llm.counts["writer"] == len(cfg()["models"]["writer"])      # each writer model tried once, for the FIRST repo only
+    from radar.llm import has_key
+    usable = [m for m in cfg()["models"]["writer"] if has_key(m)]               # a model without a key is skipped, not called
+    assert llm.counts["writer"] == len(usable) >= 3                          # each usable writer model tried once, for the FIRST repo only
 
 
 def test_a_held_primary_language_is_not_exported_and_is_retried_next_run(tmp_path, servers):
