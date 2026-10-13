@@ -1,0 +1,118 @@
+{
+  "draft": {
+    "analogy": "Playwright giống như chiếc điều khiển đa năng cho mọi dòng tivi, tự biết chờ màn hình tải xong nội dung rồi mới bấm nút tiếp theo.",
+    "caveats": [
+      "Cần tải về các bản dựng trình duyệt đi kèm, có thể chiếm thêm dung lượng lưu trữ.",
+      "Yêu cầu môi trường Node.js để cài đặt và chạy các gói kiểm thử.",
+      "Được phát hành theo giấy phép mã nguồn mở Apache-2.0."
+    ],
+    "facebook": {
+      "caption": "Playwright: Giải pháp tự động hóa kiểm thử web xuyên suốt mọi trình duyệt\nĐiều khiển Chromium, Firefox và WebKit chỉ bằng một API thống nhất.\nTự động chờ phần tử sẵn sàng, không lo bài test bị chập chờn.\nMỗi kịch bản kiểm thử được cách ly hoàn toàn qua Browser Context.\nTích hợp sẵn công cụ cho cả lập trình viên và các AI agent.",
+      "hashtags": [
+        "#Playwright",
+        "#WebTesting",
+        "#Automation",
+        "#OpenSource",
+        "#DevTools"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Chế độ chạy trình duyệt ngầm trong nền mà không hiển thị cửa sổ giao diện đồ họa.",
+        "term": "Headless mode"
+      },
+      {
+        "meaning": "Môi trường phiên duyệt web độc lập tương đương một hồ sơ người dùng mới hoàn toàn.",
+        "term": "Browser Context"
+      },
+      {
+        "meaning": "Model Context Protocol, giao thức kết nối cho phép mô hình ngôn ngữ tương tác với công cụ bên ngoài.",
+        "term": "MCP"
+      }
+    ],
+    "hook": "Làm sao để test một website trên Chrome, Firefox và Safari mà chỉ cần viết kịch bản duy nhất một lần?",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "packages/playwright-test/",
+          "name": "Playwright Test",
+          "role": "Trình chạy kiểm thử đầu-cuối hỗ trợ chạy song song, tự động chờ và assertions hướng web."
+        },
+        {
+          "evidence": "packages/playwright-core/",
+          "name": "Playwright Core",
+          "role": "Hạt nhân điều khiển trực tiếp các engine trình duyệt Chromium, Firefox và WebKit."
+        },
+        {
+          "evidence": "packages/trace-viewer/",
+          "name": "Trace Viewer",
+          "role": "Công cụ giao diện giúp xem lại từng bước thực thi, ảnh chụp DOM và lưu lượng mạng khi kiểm thử."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Playwright sử dụng các bộ định vị (locators) mô phỏng góc nhìn người dùng và tự động chờ phần tử sẵn sàng hành động mà không cần hẹn giờ thủ công.",
+          "title": "Định vị và tự động chờ"
+        },
+        {
+          "evidence": "README",
+          "text": "Mỗi kịch bản kiểm thử chạy trong một Browser Context riêng biệt tương tự profile trình duyệt mới, giúp cô lập dữ liệu với chi phí tối thiểu.",
+          "title": "Cô lập ngữ cảnh kiểm thử"
+        },
+        {
+          "evidence": "README",
+          "text": "Các bài kiểm thử mặc định chạy song song ở chế độ headless trên các trình duyệt, đồng thời có thể thu thập trace, ảnh chụp và video để điều tra khi gặp sự cố.",
+          "title": "Chạy song song và ghi lại trace"
+        },
+        {
+          "evidence": "README",
+          "text": "Cung cấp máy chủ MCP và giao diện dòng lệnh CLI để các AI agent tương tác với web thông qua cây trợ năng mà không cần phân tích hình ảnh.",
+          "title": "Kết nối tác vụ AI"
+        }
+      ]
+    },
+    "learn": [
+      "Cơ chế auto-wait và web-first assertions giúp loại bỏ hoàn toàn các khoảng thời gian chờ cứng, giảm thiểu flaky test.",
+      "Tạo Browser Context mới nhẹ hơn nhiều so với mở cả tiến trình trình duyệt mới, giúp cách ly dữ liệu kiểm thử hiệu quả.",
+      "Dùng cây trợ năng (accessibility tree) để AI tương tác phần tử web chính xác và tiết kiệm token hơn so với nhận diện hình ảnh."
+    ],
+    "one_liner": "Playwright là framework kiểm thử và tự động hóa web, cho phép điều khiển Chromium, Firefox và WebKit thông qua một API thống nhất.",
+    "problem": "Lập trình viên và kiểm thử viên web thường tốn nhiều công sức khi phải viết các kịch bản kiểm thử riêng cho từng trình duyệt khác nhau. Các bài kiểm thử tự động cũng dễ bị lỗi chập chờn do tốc độ phản hồi mạng và giao diện không đồng bộ. Ngoài ra, việc cô lập trạng thái dữ liệu và phiên đăng nhập giữa các lượt kiểm thử rất phức tạp.",
+    "title": "Playwright: Tự động hóa và kiểm thử web đa trình duyệt",
+    "try_it": {
+      "commands": [
+        "npm init playwright@latest",
+        "npx playwright test"
+      ],
+      "note": "Lệnh trên giúp khởi tạo nhanh dự án Playwright Test và thực thi các kịch bản kiểm thử mẫu."
+    },
+    "who_for": [
+      "Kỹ sư kiểm thử phần mềm cần viết E2E test đáng tin cậy trên nhiều trình duyệt.",
+      "Lập trình viên web cần viết mã tự động cào dữ liệu, chụp màn hình hoặc xuất file PDF.",
+      "Người xây dựng AI agent cần công cụ điều khiển trình duyệt qua giao thức chuẩn."
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 6599,
+    "full_name": "microsoft/playwright",
+    "language": "TypeScript",
+    "license": "Apache-2.0",
+    "scanned": "2026-10-13",
+    "stars": 97646,
+    "url": "https://github.com/microsoft/playwright"
+  },
+  "lang": "vi",
+  "position": 1
+}

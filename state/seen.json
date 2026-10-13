@@ -13,5 +13,10 @@
     "bucket": "solutions",
     "covered": "2026-10-13",
     "stars": 62958
+  },
+  "microsoft/playwright": {
+    "bucket": "solutions",
+    "covered": "2026-10-13",
+    "stars": 97646
   }
 }

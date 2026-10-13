@@ -1,0 +1,91 @@
+id: 01-playwright
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-13-3
+link: 01-playwright
+slides:
+- layout: cover
+  emoji: 🧩
+  eyebrow: Radar GitHub · Giải pháp
+  title: 'Playwright: Tự động hóa và kiểm thử web đa trình duyệt'
+  subtitle: Playwright là framework kiểm thử và tự động hóa web, cho phép điều khiển Chromium, Firefox
+    và WebKit thông qua một API thống nhất.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '97.646'
+  label: sao trên GitHub
+  caption: Apache-2.0 · TypeScript
+- layout: quote
+  text: Lập trình viên và kiểm thử viên web thường tốn nhiều công sức khi phải viết các kịch bản kiểm
+    thử riêng cho từng trình duyệt khác nhau.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Định vị và tự động chờ: Playwright sử dụng các bộ định vị (locators) mô phỏng góc nhìn người
+      dùng và tự động chờ phần tử sẵn sàng hành động mà không cần hẹn giờ thủ công.'
+  - text: 'Cô lập ngữ cảnh kiểm thử: Mỗi kịch bản kiểm thử chạy trong một Browser Context riêng biệt tương
+      tự profile trình duyệt mới, giúp cô lập dữ liệu với chi phí tối thiểu.'
+  - text: 'Chạy song song và ghi lại trace: Các bài kiểm thử mặc định chạy song song ở chế độ headless
+      trên các trình duyệt, đồng thời có thể thu thập trace, ảnh chụp và video để…'
+  - text: 'Kết nối tác vụ AI: Cung cấp máy chủ MCP và giao diện dòng lệnh CLI để các AI agent tương tác
+      với web thông qua cây trợ năng mà không cần phân tích hình ảnh.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Playwright Test
+    text: Trình chạy kiểm thử đầu-cuối hỗ trợ chạy song song, tự động chờ và assertions hướng web.
+  - emoji: ⚙️
+    title: Playwright Core
+    text: Hạt nhân điều khiển trực tiếp các engine trình duyệt Chromium, Firefox và WebKit.
+  - emoji: 🔌
+    title: Trace Viewer
+    text: Công cụ giao diện giúp xem lại từng bước thực thi, ảnh chụp DOM và lưu lượng mạng khi kiểm thử.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cơ chế auto-wait và web-first assertions giúp loại bỏ hoàn toàn các khoảng thời gian chờ cứng, giảm
+    thiểu flaky test.
+  - Tạo Browser Context mới nhẹ hơn nhiều so với mở cả tiến trình trình duyệt mới, giúp cách ly dữ liệu
+    kiểm thử hiệu quả.
+  - Dùng cây trợ năng (accessibility tree) để AI tương tác phần tử web chính xác và tiết kiệm token hơn
+    so với nhận diện hình ảnh.
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Cần tải về các bản dựng trình duyệt đi kèm, có thể chiếm thêm dung lượng lưu trữ.
+  - emoji: ⚠️
+    text: Yêu cầu môi trường Node.js để cài đặt và chạy các gói kiểm thử.
+  - emoji: ⚠️
+    text: Được phát hành theo giấy phép mã nguồn mở Apache-2.0.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Playwright: Giải pháp tự động hóa kiểm thử web xuyên suốt mọi trình duyệt
+
+      Điều khiển Chromium, Firefox và WebKit chỉ bằng một API thống nhất.
+
+      Tự động chờ phần tử sẵn sàng, không lo bài test bị chập chờn.
+
+      Mỗi kịch bản kiểm thử được cách ly hoàn toàn qua Browser Context.
+
+      Tích hợp sẵn công cụ cho cả lập trình viên và các AI agent.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Playwright
+    - WebTesting
+    - Automation
+    - OpenSource
+    - DevTools

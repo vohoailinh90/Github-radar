@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-13",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 129,
+  "dropped": {
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "already covered": 4,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "microsoft/playwright",
+      "bucket": "solutions",
+      "score": 16.0179,
+      "stars": 97646
+    }
+  ],
+  "written": [
+    {
+      "repo": "microsoft/playwright",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "google/gemini-flash-lite-latest",
+      "independent_checker": false,
+      "fixed": true
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/meta-llama/llama-4-scout-17b-16e-instruct",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 404 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"The model `meta-llama/llama-4-scout-17b-16e-instruct` does not exist or you do not have access to it.\",\"type\":\"inval"
+    },
+    {
+      "model": "groq/meta-llama/llama-4-maverick-17b-128e-instruct",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 404 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"The model `meta-llama/llama-4-maverick-17b-128e-instruct` does not exist or you do not have access to it.\",\"type\":\"i"
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+      "headers": {
+        "x-ratelimit-limit-req-minute": "0",
+        "x-ratelimit-remaining-req-minute": "0"
+      }
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1
+    }
+  ],
+  "warnings": [
+    "microsoft/playwright [vi]: checker shares the writer's model family"
+  ],
+  "campaign": "radar-2026-10-13-3"
+}
