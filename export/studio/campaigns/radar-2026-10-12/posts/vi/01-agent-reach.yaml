@@ -24,12 +24,13 @@ slides:
   title: Nó chạy thế nào
   steps:
   - text: 'Kiểm tra an toàn: Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh
-      CLI, chỉ ghi file…'
-  - text: 'Định tuyến backend: Mỗi nền tảng được cấu hình danh sách công cụ ưu tiên kèm dự phòng;'
+      CLI, chỉ ghi file và cài gói khi có cờ ủy quyền cụ thể.'
+  - text: 'Định tuyến backend: Mỗi nền tảng được cấu hình danh sách công cụ ưu tiên kèm dự phòng; hệ thống
+      tự đổi đường dẫn nếu công cụ chính bị nền tảng chặn.'
   - text: 'Đăng ký kỹ năng: Ghi thông tin hướng dẫn vào tập tin kỹ năng để AI Agent tự gọi trực tiếp các
-      công cụ dòng lệ…'
+      công cụ dòng lệnh mà không cần qua tầng bọc trung gian.'
   - text: 'Chẩn đoán đường truyền: Lệnh doctor kiểm tra toàn diện tình trạng kết nối của từng nền tảng
-      và chỉ rõ kênh nà…'
+      và chỉ rõ kênh nào thông, kênh nào cần cấu hình thêm.'
 - layout: features
   title: Các mảnh ghép
   items:
@@ -50,11 +51,11 @@ slides:
   tone: ok
   items:
   - 'Mô hình Capability Layer: Đóng vai trò chọn lọc, định tuyến và kiểm tra thay vì tự viết lại toàn
-    bộ công cụ c…'
+    bộ công cụ cào web từ đầu.'
   - 'Cơ chế Fallback nhiều tầng: Chuẩn bị sẵn backend thay thế giúp hệ thống tiếp tục chạy khi một công
-    cụ bị nền…'
+    cụ bị nền tảng chặn.'
   - 'Bảo mật quyền hạn tối thiểu: Mặc định kiểm tra môi trường không can thiệp file, chỉ thay đổi hệ thống
-    khi có…'
+    khi có xác nhận rõ ràng.'
 - layout: pains
   title: Lưu ý
   tone: accent

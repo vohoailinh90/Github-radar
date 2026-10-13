@@ -47,6 +47,7 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 ```bash
 python3 -m pytest -q                                   # pipeline against fake GitHub + fake LLM servers, gates, SVG, export, handoff
 python3 radar.py check                                 # export/studio satisfies the vendored studio contract
+python3 radar.py rerender                              # redraw digests, diagrams and studio posts from the stored drafts (no model, no GitHub)
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
@@ -56,7 +57,7 @@ python3 scripts/layout_check.py                        # repository layout
 
 Root: `README.md`, agent instruction files, `requirements.txt`, `radar.yaml`, and the entry point `radar.py`. The package is
 `radar/`, tests `tests/`, developer tooling `scripts/`, docs `docs/`. Generated, committed by the scheduled run: `digests/`,
-`export/studio/`, `state/` (never edit by hand). New Python files follow `.claude/skills/repo-layout/SKILL.md`.
+`export/studio/`, `state/` (never edit by hand; `rerender` redraws the first two from `digests/*/*/draft-*.json`, which are the models' gated answers and must be kept). New Python files follow `.claude/skills/repo-layout/SKILL.md`.
 
 ## Pull request lifecycle
 

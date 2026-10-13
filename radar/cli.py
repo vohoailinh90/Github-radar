@@ -107,6 +107,12 @@ def cmd_check(args, cfg) -> int:
     return 1 if errors else 0
 
 
+def cmd_rerender(args, cfg) -> int:
+    report = pipeline.rerender(cfg, ROOT, args.slug)
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+    return 1 if args.slug and args.slug in report["skipped"] else 0
+
+
 def cmd_handoff(args, cfg) -> int:
     from . import handoff
     token = os.environ.get("STUDIO_REPO_TOKEN", "")
@@ -147,6 +153,9 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=cmd_models)
     p.add_argument("provider", choices=sorted(PROVIDER_KEYS))
     p.add_argument("--free", action="store_true")
+    p = sub.add_parser("rerender", help="draw digests, diagrams and studio posts again from the stored drafts (no model, no GitHub)")
+    p.set_defaults(fn=cmd_rerender)
+    p.add_argument("--slug", default=None, help="one run, e.g. 2026-10-12 (default: every run that has stored drafts)")
     p = sub.add_parser("handoff")
     p.set_defaults(fn=cmd_handoff)
     p.add_argument("campaign", nargs="?", default="")

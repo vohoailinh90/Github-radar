@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -20,11 +21,15 @@ def _cell(text) -> str:
     return str(text).replace("|", "\\|").replace("\n", " ").strip()
 
 
+# The few facts every renderer reads; the README and the file tree are not needed to draw a digest again.
+META_KEYS = ("full_name", "url", "stars", "forks", "license", "language", "bucket", "scanned")
+
+
 def repo_dir(root: Path, date: str, facts: dict) -> Path:
     return root / "digests" / date / slug(facts["full_name"])
 
 
-def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict]) -> list[Path]:
+def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], position: int | None = None) -> list[Path]:
     """Write <date>/<repo>/<lang>.md plus card/flow/steps SVGs per language. Returns the files."""
     out = repo_dir(root, date, facts)
     out.mkdir(parents=True, exist_ok=True)
@@ -37,6 +42,10 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict]) -> 
             f"flow-{lang}.svg": svg.flow(hiw["components"], hiw["flow"], t["how"]),
             f"steps-{lang}.svg": svg.steps(hiw["steps"], t["how"]),
         }
+        # The draft is the model's answer after the gates: with it the digest, the diagrams and the studio posts can be drawn
+        # again whenever the renderer improves (`radar.py rerender`), without asking a model or GitHub for anything.
+        files[f"draft-{lang}.json"] = json.dumps({"lang": lang, "position": position, "facts": {k: facts[k] for k in META_KEYS}, "draft": draft},
+                                                 ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         for name, content in files.items():
             (out / name).write_text(content, encoding="utf-8")
             written.append(out / name)

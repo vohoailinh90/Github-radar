@@ -22,7 +22,7 @@ flowchart LR
 `digests/<ngày>/<repo>/vi.md` gồm: thẻ tóm tắt (ảnh), **vấn đề** repo giải quyết, **hình dung đời thường**,
 **sơ đồ các mảnh ghép** và **các bước chạy** (SVG vẽ bằng script, không phải model vẽ), bảng căn cứ cho từng mảnh,
 **bài học thiết kế**, lệnh chạy thử (chép nguyên văn từ README), **lưu ý** trước khi dùng và bảng từ khóa.
-Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn.
+Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Có nó thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota. Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn.
 
 ## Vì sao tin được nội dung
 
@@ -62,6 +62,7 @@ python3 radar.py scan               # xếp hạng ứng viên, không gọi mod
 python3 radar.py run --dry-run      # chọn repo sẽ viết, không ghi gì
 python3 radar.py run                # chạy đầy đủ
 python3 radar.py check              # export/studio có hợp quy định của studio không
+python3 radar.py rerender           # vẽ lại bài học, sơ đồ và bản nháp studio từ bản nháp đã lưu (không gọi model, không gọi GitHub)
 python3 radar.py handoff            # mở PR nháp vào tool-marketing-studio
 ```
 

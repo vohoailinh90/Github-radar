@@ -87,7 +87,7 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
         for lang in cfg["langs"]:
             have = [e for e in entries if lang in e["drafts"]]
             for e in have:
-                digest.render_repo(root, slug, e["facts"], {lang: e["drafts"][lang]})
+                digest.render_repo(root, slug, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1)
             if have:
                 digest.render_index(root, slug, have, lang)
         digest.render_global_index(root)
@@ -108,4 +108,54 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
     runs = root / "state" / "runs"
     runs.mkdir(parents=True, exist_ok=True)
     (runs / f"{slug}.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return report
+
+
+def load_entries(root: Path, slug: str) -> list[dict]:
+    """The stored drafts of one run as pipeline entries, in the order the run numbered them (01, 02, ...)."""
+    day = root / "digests" / slug
+    entries = []
+    for folder in sorted(p for p in day.iterdir() if p.is_dir()) if day.is_dir() else []:
+        drafts, facts, position = {}, None, None
+        for path in sorted(folder.glob("draft-*.json")):
+            stored = json.loads(path.read_text(encoding="utf-8"))
+            facts = facts or stored["facts"]
+            position = position or stored.get("position")
+            drafts[stored["lang"]] = stored["draft"]
+        if drafts:
+            entries.append({"facts": facts, "drafts": drafts, "position": position or 999})
+    return sorted(entries, key=lambda e: (e["position"], e["facts"]["full_name"]))
+
+
+def rerender(cfg: dict, root: Path, slug: str | None = None) -> dict:
+    """Draw digests, diagrams and the studio bundle again from the stored drafts, with the current renderer.
+
+    Nothing is fetched and no model is called. A run whose new bundle the studio contract refuses is left exactly as it was."""
+    base = root / "digests"
+    slugs = [slug] if slug else sorted(p.name for p in base.iterdir() if p.is_dir()) if base.is_dir() else []
+    report = {"rerendered": [], "skipped": {}}
+    for name in slugs:
+        entries = load_entries(root, name)
+        if not entries:
+            report["skipped"][name] = "no stored drafts (written before drafts were kept)"
+            continue
+        present = {lang for e in entries for lang in e["drafts"]}
+        langs = [l for l in cfg["langs"] if l in present] + sorted(present - set(cfg["langs"]))
+        files = studio_export.bundle(entries, {**cfg, "langs": langs}, name)
+        errors = contract.validate(files)
+        if errors:
+            report["skipped"][name] = "the studio contract refuses the new bundle: " + "; ".join(errors[:3])
+            continue
+        for lang in langs:
+            have = [e for e in entries if lang in e["drafts"]]
+            for e in have:
+                digest.render_repo(root, name, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1)
+            digest.render_index(root, name, have, lang)
+        out = root / "export" / "studio"
+        for rel, text in files.items():
+            target = out / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
+        report["rerendered"].append(name)
+    digest.render_global_index(root)
     return report

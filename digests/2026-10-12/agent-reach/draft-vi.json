@@ -1,0 +1,122 @@
+{
+  "draft": {
+    "analogy": "Giống như chiếc kính vạn năng tự xoay chuyển tròng kính phù hợp cho từng khung cảnh, giúp người đeo quan sát rõ ràng mà không phải tự mài kính thủ công mỗi lần đổi vị trí.",
+    "caveats": [
+      "Các nền tảng như Reddit, Twitter hay XiaoHongShu vẫn yêu cầu xuất cookie trình duyệt thủ công để truy cập sâu.",
+      "Chỉ chạy lệnh cài đặt thực tế khi có cờ --system, mặc định chỉ là bước kiểm tra an toàn.",
+      "Môi trường máy chủ có thể cần cấu hình thêm proxy nếu IP bị nền tảng chặn."
+    ],
+    "facebook": {
+      "caption": "Mở rộng tầm mắt cho AI Agent với công cụ kết nối Internet đa nền tảng.\n\nAgent của bạn gặp lỗi 403 khi đọc Reddit hay không lấy được phụ đề YouTube?\nAgent Reach đóng vai trò lớp định tuyến tự động chuyển đổi công cụ lấy tin.\nHoàn toàn mã nguồn mở, không tốn phí API và lưu cookie cục bộ.\nChẩn đoán sức khỏe kết nối dễ dàng chỉ với một dòng lệnh.",
+      "hashtags": [
+        "AIAgent",
+        "OpenSource",
+        "Python",
+        "WebScraping",
+        "Automation"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Giao thức mở cho phép mô hình ngôn ngữ lớn kết nối với các công cụ và nguồn dữ liệu bên ngoài.",
+        "term": "MCP"
+      },
+      {
+        "meaning": "Chrome DevTools Protocol, giao thức điều khiển trình duyệt Chrome phục vụ kiểm tra và tự động hóa.",
+        "term": "CDP"
+      }
+    ],
+    "hook": "AI Agent biết viết code nhưng lại mù tịt khi cần tìm kiếm web? Agent Reach giúp kết nối đa nền tảng.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "agent_reach/",
+          "name": "agent-reach CLI",
+          "role": "Bộ điều phối quản lý cài đặt, kiểm tra môi trường và định tuyến truy cập cho Agent."
+        },
+        {
+          "evidence": "README",
+          "name": "Multi-backend Router",
+          "role": "Danh sách công cụ ưu tiên và dự phòng cho từng nền tảng như Jina Reader, yt-dlp, bili-cli."
+        },
+        {
+          "evidence": "README",
+          "name": "Skill Config",
+          "role": "Tập tin cấu hình hướng dẫn Agent nhận diện cú pháp gọi lệnh cho từng nền tảng được kích hoạt."
+        },
+        {
+          "evidence": "README",
+          "name": "Doctor Diagnostic",
+          "role": "Mô-đun kiểm tra trạng thái hoạt động và phát hiện lỗi kết nối của các kênh dữ liệu."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh CLI, chỉ ghi file và cài gói khi có cờ ủy quyền cụ thể.",
+          "title": "Kiểm tra an toàn"
+        },
+        {
+          "evidence": "README",
+          "text": "Mỗi nền tảng được cấu hình danh sách công cụ ưu tiên kèm dự phòng; hệ thống tự đổi đường dẫn nếu công cụ chính bị nền tảng chặn.",
+          "title": "Định tuyến backend"
+        },
+        {
+          "evidence": "README",
+          "text": "Ghi thông tin hướng dẫn vào tập tin kỹ năng để AI Agent tự gọi trực tiếp các công cụ dòng lệnh mà không cần qua tầng bọc trung gian.",
+          "title": "Đăng ký kỹ năng"
+        },
+        {
+          "evidence": "README",
+          "text": "Lệnh doctor kiểm tra toàn diện tình trạng kết nối của từng nền tảng và chỉ rõ kênh nào thông, kênh nào cần cấu hình thêm.",
+          "title": "Chẩn đoán đường truyền"
+        }
+      ]
+    },
+    "learn": [
+      "Mô hình Capability Layer: Đóng vai trò chọn lọc, định tuyến và kiểm tra thay vì tự viết lại toàn bộ công cụ cào web từ đầu.",
+      "Cơ chế Fallback nhiều tầng: Chuẩn bị sẵn backend thay thế giúp hệ thống tiếp tục chạy khi một công cụ bị nền tảng chặn.",
+      "Bảo mật quyền hạn tối thiểu: Mặc định kiểm tra môi trường không can thiệp file, chỉ thay đổi hệ thống khi có xác nhận rõ ràng."
+    ],
+    "one_liner": "Công cụ CLI Python giúp AI Agent tìm kiếm và đọc dữ liệu từ YouTube, Reddit, Twitter, GitHub mà không tốn phí API.",
+    "problem": "Người dùng AI Agent gặp khó khăn khi yêu cầu agent tra cứu thông tin thực tế trên mạng xã hội vì vướng tường lửa, lỗi 403 hoặc API yêu cầu trả phí. Tự cài đặt scraper, xử lý đăng nhập tài khoản và lọc mã HTML bẩn cho từng nền tảng tốn rất nhiều thời gian cấu hình.",
+    "title": "Agent Reach: Trang bị khả năng đọc Internet cho AI Agent",
+    "try_it": {
+      "commands": [
+        "openclaw config set tools.profile \"coding\"",
+        "agent-reach doctor"
+      ],
+      "note": "Người dùng OpenClaw cần bật quyền coding trước khi chạy để Agent có thể thực thi lệnh shell."
+    },
+    "who_for": [
+      "Người dùng Claude Code, Cursor, OpenClaw cần agent đọc tài liệu và nội dung mạng xã hội",
+      "Lập trình viên muốn tích hợp dữ liệu từ Reddit, YouTube, Bilibili vào Agent mà không tốn phí mua API"
+    ]
+  },
+  "facts": {
+    "bucket": "software",
+    "forks": 8453,
+    "full_name": "Panniantong/Agent-Reach",
+    "language": "Python",
+    "license": "MIT",
+    "scanned": "2026-10-12",
+    "stars": 96575,
+    "url": "https://github.com/Panniantong/Agent-Reach"
+  },
+  "lang": "vi",
+  "position": 1
+}
