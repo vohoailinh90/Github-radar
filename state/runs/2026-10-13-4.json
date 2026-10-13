@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-13",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 128,
+  "dropped": {
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "already covered": 5,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "JCodesMore/ai-website-cloner-template",
+      "bucket": "solutions",
+      "score": 15.7844,
+      "stars": 36720
+    }
+  ],
+  "written": [
+    {
+      "repo": "JCodesMore/ai-website-cloner-template",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-13-4"
+}

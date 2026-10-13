@@ -1,0 +1,94 @@
+id: 01-ai-website-cloner-template
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-13-4
+link: 01-ai-website-cloner-template
+slides:
+- layout: cover
+  emoji: 🧩
+  eyebrow: Radar GitHub · Giải pháp
+  title: 'AI Website Cloner Template: Tái tạo website thành Next.js'
+  subtitle: Bộ template và chỉ dẫn AI skill giúp tái tạo website bất kỳ thành dự án Next.js 16 kèm Tailwind
+    CSS và shadcn/ui.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '36.720'
+  label: sao trên GitHub
+  caption: MIT · TypeScript
+- layout: quote
+  text: Nhiều người cần chuyển website cũ từ nền tảng đóng sang Next.js nhưng tốn nhiều tuần để cắt lại
+    giao diện. Trường hợp bị mất mã nguồn gốc chỉ còn trang trực tuyến, việc dựng lại từ đầu rất phức
+    tạp.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Map: Khớp nối các URL nguồn sang hệ thống định tuyến (routes) cục bộ của Next.js và giữ lại
+      các phần việc đã thực hiện trước đó.'
+  - text: 'Observe: Kiểm tra giao diện máy tính lẫn di động, trích xuất hình ảnh, font chữ thực tế và
+      kích hoạt các trạng thái giao diện thay thế.'
+  - text: 'Build: Hiện thực hóa các component có thể chỉnh sửa, thiết lập tương tác hoạt động và phân
+      chia các phần độc lập khi cần thiết.'
+  - text: 'Compare: So sánh trực quan giữa trang nguồn và bản dựng ở cùng kích thước, khắc phục các lỗi
+      lệch hiển thị và chạy kiểm tra đóng gói.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Skill tái tạo AGENTS
+    text: Quy trình chuẩn hóa các bước trích xuất, đối chiếu và tái tạo giao diện dùng chung cho nhiều
+      AI coding agent.
+  - emoji: ⚙️
+    title: Khung ứng dụng (src/app/)
+    text: Cấu trúc Next.js 16 với App Router, React 19, TypeScript strict và shadcn/ui để chứa mã nguồn
+      tạo ra.
+  - emoji: 🔌
+    title: Thư mục tài nguyên (public/)
+    text: Lưu trữ hình ảnh, font chữ, video trích xuất từ website nguồn theo từng thư mục site riêng biệt.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Quy hoạch quy trình AI thành 4 giai đoạn rõ ràng (Map, Observe, Build, Compare) thay vì yêu cầu sinh
+    code một lần
+  - Tổ chức Agent Skill độc lập ở một thư mục để các công cụ khác nhau như Codex, Cursor, Claude Code
+    đều dùng chung được
+  - Phân tách ranh giới thư mục tài nguyên và component theo từng tên website để tránh đè lẫn mã nguồn
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Phụ thuộc vào AI coding agent (như Claude Code, Codex, OpenCode, Cursor) và yêu cầu Node.js
+      24+
+  - emoji: ⚠️
+    text: Không dùng cho mục đích lừa đảo, giả mạo danh tính hoặc vi phạm điều khoản dịch vụ của trang
+      nguồn
+  - emoji: ⚠️
+    text: Chỉ tái tạo cấu trúc giao diện và tài nguyên bề mặt, không tự động phục hồi mã nguồn phía máy
+      chủ backend
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Tái tạo giao diện website bất kỳ thành Next.js bằng AI coding agent.
+
+      Thay vì cắt HTML/CSS thủ công từ đầu, template này đưa ra quy trình 4 bước chuẩn hóa.
+
+      AI tự động tải asset, dựng component shadcn/ui và so sánh trực quan để sửa lỗi giao diện.
+
+      Giải pháp phù hợp khi cần chuyển đổi nền tảng hoặc nghiên cứu cách dựng animation phức tạp.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Nextjs
+    - AIAgents
+    - WebDev
+    - TypeScript
+    - TailwindCSS

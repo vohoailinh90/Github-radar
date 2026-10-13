@@ -1,0 +1,115 @@
+{
+  "draft": {
+    "analogy": "Giống như giao bức ảnh ngôi nhà cho đội thợ đo đạc, họ xem xét kết cấu từng tầng rồi dùng khung thép hiện đại để dựng lại mô hình y hệt.",
+    "caveats": [
+      "Phụ thuộc vào AI coding agent (như Claude Code, Codex, OpenCode, Cursor) và yêu cầu Node.js 24+",
+      "Không dùng cho mục đích lừa đảo, giả mạo danh tính hoặc vi phạm điều khoản dịch vụ của trang nguồn",
+      "Chỉ tái tạo cấu trúc giao diện và tài nguyên bề mặt, không tự động phục hồi mã nguồn phía máy chủ backend"
+    ],
+    "facebook": {
+      "caption": "Tái tạo giao diện website bất kỳ thành Next.js bằng AI coding agent.\nThay vì cắt HTML/CSS thủ công từ đầu, template này đưa ra quy trình 4 bước chuẩn hóa.\nAI tự động tải asset, dựng component shadcn/ui và so sánh trực quan để sửa lỗi giao diện.\nGiải pháp phù hợp khi cần chuyển đổi nền tảng hoặc nghiên cứu cách dựng animation phức tạp.",
+      "hashtags": [
+        "Nextjs",
+        "AIAgents",
+        "WebDev",
+        "TypeScript",
+        "TailwindCSS"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Tệp chỉ dẫn chuyên biệt giúp AI agent nắm được quy trình và kỹ thuật thực hiện một nhiệm vụ cụ thể.",
+        "term": "Agent Skill"
+      },
+      {
+        "meaning": "Bộ thành phần giao diện người dùng tái sử dụng được, xây dựng trên nền Tailwind CSS.",
+        "term": "shadcn/ui"
+      }
+    ],
+    "hook": "Đưa URL cho AI agent để tái hiện giao diện web thành Next.js thay vì bóc tách CSS thủ công.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "AGENTS.md",
+          "name": "Skill tái tạo AGENTS.md",
+          "role": "Quy trình chuẩn hóa các bước trích xuất, đối chiếu và tái tạo giao diện dùng chung cho nhiều AI coding agent."
+        },
+        {
+          "evidence": "src/app/",
+          "name": "Khung ứng dụng (src/app/)",
+          "role": "Cấu trúc Next.js 16 với App Router, React 19, TypeScript strict và shadcn/ui để chứa mã nguồn tạo ra."
+        },
+        {
+          "evidence": "public/",
+          "name": "Thư mục tài nguyên (public/)",
+          "role": "Lưu trữ hình ảnh, font chữ, video trích xuất từ website nguồn theo từng thư mục site riêng biệt."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Khớp nối các URL nguồn sang hệ thống định tuyến (routes) cục bộ của Next.js và giữ lại các phần việc đã thực hiện trước đó.",
+          "title": "Map"
+        },
+        {
+          "evidence": "README",
+          "text": "Kiểm tra giao diện máy tính lẫn di động, trích xuất hình ảnh, font chữ thực tế và kích hoạt các trạng thái giao diện thay thế.",
+          "title": "Observe"
+        },
+        {
+          "evidence": "README",
+          "text": "Hiện thực hóa các component có thể chỉnh sửa, thiết lập tương tác hoạt động và phân chia các phần độc lập khi cần thiết.",
+          "title": "Build"
+        },
+        {
+          "evidence": "README",
+          "text": "So sánh trực quan giữa trang nguồn và bản dựng ở cùng kích thước, khắc phục các lỗi lệch hiển thị và chạy kiểm tra đóng gói.",
+          "title": "Compare"
+        }
+      ]
+    },
+    "learn": [
+      "Quy hoạch quy trình AI thành 4 giai đoạn rõ ràng (Map, Observe, Build, Compare) thay vì yêu cầu sinh code một lần",
+      "Tổ chức Agent Skill độc lập ở một thư mục để các công cụ khác nhau như Codex, Cursor, Claude Code đều dùng chung được",
+      "Phân tách ranh giới thư mục tài nguyên và component theo từng tên website để tránh đè lẫn mã nguồn"
+    ],
+    "one_liner": "Bộ template và chỉ dẫn AI skill giúp tái tạo website bất kỳ thành dự án Next.js 16 kèm Tailwind CSS và shadcn/ui.",
+    "problem": "Nhiều người cần chuyển website cũ từ nền tảng đóng sang Next.js nhưng tốn nhiều tuần để cắt lại giao diện. Trường hợp bị mất mã nguồn gốc chỉ còn trang trực tuyến, việc dựng lại từ đầu rất phức tạp. Soi mã nguồn và trích xuất từng tài nguyên bằng tay vừa chậm vừa dễ sai sót.",
+    "title": "AI Website Cloner Template: Tái tạo website thành Next.js",
+    "try_it": {
+      "commands": [
+        "npm run dev",
+        "npm run check",
+        "docker compose up dev --build"
+      ],
+      "note": "Cần cài đặt Node.js 24 trở lên và chạy thông qua một AI coding agent có hỗ trợ duyệt web."
+    },
+    "who_for": [
+      "Lập trình viên muốn chuyển đổi nền tảng từ WordPress hoặc Webflow sang Next.js",
+      "Nhóm phát triển cần khôi phục mã nguồn giao diện của website đang chạy",
+      "Người học frontend muốn bóc tách layout, hiệu ứng động và bố cục responsive từ thực tế"
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 5391,
+    "full_name": "JCodesMore/ai-website-cloner-template",
+    "language": "TypeScript",
+    "license": "MIT",
+    "scanned": "2026-10-13",
+    "stars": 36720,
+    "url": "https://github.com/JCodesMore/ai-website-cloner-template"
+  },
+  "lang": "vi",
+  "position": 1
+}
