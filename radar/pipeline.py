@@ -4,13 +4,19 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
+import shutil
+import tempfile
 import time
 from pathlib import Path
 
-from . import contract, digest, discover, facts as factslib, studio_export
+from . import contract, digest, discover, facts as factslib, gates, studio_export
 from .llm import AllModelsFailed, Gateway
 from .net import HttpError
 from .write import write_one
+
+
+RUN_SLUG = re.compile(r"\d{4}-\d{2}-\d{2}(?:-\d+)?")      # what `run_slug` produces; nothing else is a run folder
 
 
 def read_bundle(root: Path) -> dict[str, str]:
@@ -116,46 +122,63 @@ def load_entries(root: Path, slug: str) -> list[dict]:
     day = root / "digests" / slug
     entries = []
     for folder in sorted(p for p in day.iterdir() if p.is_dir()) if day.is_dir() else []:
-        drafts, facts, position = {}, None, None
+        drafts, facts, position, note = {}, None, None, None
         for path in sorted(folder.glob("draft-*.json")):
             stored = json.loads(path.read_text(encoding="utf-8"))
             facts = facts or stored["facts"]
             position = position or stored.get("position")
+            note = note or stored.get("note")
             drafts[stored["lang"]] = stored["draft"]
         if drafts:
-            entries.append({"facts": facts, "drafts": drafts, "position": position or 999})
+            entries.append({"facts": facts, "drafts": drafts, "position": position or 999, "note": note})
     return sorted(entries, key=lambda e: (e["position"], e["facts"]["full_name"]))
 
 
 def rerender(cfg: dict, root: Path, slug: str | None = None) -> dict:
     """Draw digests, diagrams and the studio bundle again from the stored drafts, with the current renderer.
 
-    Nothing is fetched and no model is called. A run whose new bundle the studio contract refuses is left exactly as it was."""
+    Nothing is fetched and no model is called. Everything is drawn into a temporary folder first: a run whose bundle the
+    studio contract refuses, whose stored draft no longer fits the schema, or whose drawing fails is left exactly as it was."""
+    if slug is not None and not RUN_SLUG.fullmatch(slug):
+        raise ValueError(f"a run slug looks like 2026-10-12 or 2026-10-12-2, got {slug!r}")
     base = root / "digests"
-    slugs = [slug] if slug else sorted(p.name for p in base.iterdir() if p.is_dir()) if base.is_dir() else []
+    slugs = [slug] if slug else sorted(p.name for p in base.iterdir() if p.is_dir() and RUN_SLUG.fullmatch(p.name)) if base.is_dir() else []
     report = {"rerendered": [], "skipped": {}}
     for name in slugs:
         entries = load_entries(root, name)
         if not entries:
             report["skipped"][name] = "no stored drafts (written before drafts were kept)"
             continue
+        bad = [f"{e['facts']['full_name']} [{lang}]: {p}" for e in entries for lang, d in e["drafts"].items()
+               for p in gates.schema(d) if p.level == "error"]
+        if bad:
+            report["skipped"][name] = "a stored draft no longer fits the schema: " + "; ".join(bad[:2])
+            continue
         present = {lang for e in entries for lang in e["drafts"]}
         langs = [l for l in cfg["langs"] if l in present] + sorted(present - set(cfg["langs"]))
-        files = studio_export.bundle(entries, {**cfg, "langs": langs}, name)
-        errors = contract.validate(files)
-        if errors:
-            report["skipped"][name] = "the studio contract refuses the new bundle: " + "; ".join(errors[:3])
+        try:
+            files = studio_export.bundle(entries, {**cfg, "langs": langs}, name)
+            errors = contract.validate(files)
+            if errors:
+                report["skipped"][name] = "the studio contract refuses the new bundle: " + "; ".join(errors[:3])
+                continue
+            tmp = tempfile.TemporaryDirectory()
+            stage = Path(tmp.name)
+            for lang in langs:
+                have = [e for e in entries if lang in e["drafts"]]
+                for e in have:
+                    digest.render_repo(stage, name, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1, note=e.get("note"))
+                digest.render_index(stage, name, have, lang)
+            for rel, text in files.items():
+                target = stage / "export" / "studio" / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(text, encoding="utf-8")
+        except Exception as exc:  # noqa: BLE001 - nothing has been written to the repository yet
+            report["skipped"][name] = f"failed while drawing, nothing was changed: {type(exc).__name__}: {exc}"
             continue
-        for lang in langs:
-            have = [e for e in entries if lang in e["drafts"]]
-            for e in have:
-                digest.render_repo(root, name, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1)
-            digest.render_index(root, name, have, lang)
-        out = root / "export" / "studio"
-        for rel, text in files.items():
-            target = out / rel
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(text, encoding="utf-8")
+        with tmp:                                       # drawing succeeded: only now copy over the repository
+            shutil.copytree(stage / "digests" / name, root / "digests" / name, dirs_exist_ok=True)
+            shutil.copytree(stage / "export", root / "export", dirs_exist_ok=True)
         report["rerendered"].append(name)
     digest.render_global_index(root)
     return report

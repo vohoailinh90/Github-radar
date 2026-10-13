@@ -22,7 +22,7 @@ flowchart LR
 `digests/<ngày>/<repo>/vi.md` gồm: thẻ tóm tắt (ảnh), **vấn đề** repo giải quyết, **hình dung đời thường**,
 **sơ đồ các mảnh ghép** và **các bước chạy** (SVG vẽ bằng script, không phải model vẽ), bảng căn cứ cho từng mảnh,
 **bài học thiết kế**, lệnh chạy thử (chép nguyên văn từ README), **lưu ý** trước khi dùng và bảng từ khóa.
-Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Có nó thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota. Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn.
+Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED") **không phải** câu trả lời gốc của model. Có nó thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota. Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn.
 
 ## Vì sao tin được nội dung
 

@@ -29,7 +29,8 @@ def repo_dir(root: Path, date: str, facts: dict) -> Path:
     return root / "digests" / date / slug(facts["full_name"])
 
 
-def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], position: int | None = None) -> list[Path]:
+def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], position: int | None = None,
+                note: str | None = None) -> list[Path]:
     """Write <date>/<repo>/<lang>.md plus card/flow/steps SVGs per language. Returns the files."""
     out = repo_dir(root, date, facts)
     out.mkdir(parents=True, exist_ok=True)
@@ -44,8 +45,10 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], pos
         }
         # The draft is the model's answer after the gates: with it the digest, the diagrams and the studio posts can be drawn
         # again whenever the renderer improves (`radar.py rerender`), without asking a model or GitHub for anything.
-        files[f"draft-{lang}.json"] = json.dumps({"lang": lang, "position": position, "facts": {k: facts[k] for k in META_KEYS}, "draft": draft},
-                                                 ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        stored = {"lang": lang, "position": position, "facts": {k: facts[k] for k in META_KEYS}, "draft": draft}
+        if note:
+            stored["note"] = note        # e.g. "RECONSTRUCTED: ..." - a draft that is not the model's original answer says so here
+        files[f"draft-{lang}.json"] = json.dumps(stored, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         for name, content in files.items():
             (out / name).write_text(content, encoding="utf-8")
             written.append(out / name)

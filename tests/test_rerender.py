@@ -111,3 +111,97 @@ def test_rerendering_twice_keeps_the_numbering_stable(tmp_path, servers):
     positions = {json.loads(p.read_text(encoding="utf-8"))["facts"]["full_name"]: json.loads(p.read_text(encoding="utf-8"))["position"]
                  for p in (tmp_path / "digests").glob("2026-10-14/*/draft-vi.json")}
     assert sorted(positions.values()) == [1, 2, 3]
+
+
+# --- review findings: path safety, all-or-nothing drawing, extra languages, provenance --------------------------------------
+import pytest
+
+
+def plant_hostile_folder(outside: Path):
+    """A folder outside the repository that looks like a run: this is what `--slug ../../x` used to reach and write into."""
+    repo = outside / "repoA"
+    repo.mkdir(parents=True)
+    (repo / "draft-vi.json").write_text(json.dumps({"lang": "vi", "position": 1, "facts": {
+        "full_name": "o/repoA", "url": "https://github.com/o/repoA", "stars": 5, "forks": 1, "license": "MIT", "language": "Python",
+        "bucket": "ai", "scanned": "2026-10-14"}, "draft": __import__("tests.support", fromlist=["make_draft"]).make_draft({}, "vi")}))
+    return outside
+
+
+@pytest.mark.parametrize("bad", ["../x", "../../etc", "/tmp/evil", "2026-10-14/../..", "2026-10-14\n", "x", "", "2026-10-14-"])
+def test_a_slug_that_is_not_a_run_name_is_refused_and_nothing_is_written(tmp_path, servers, bad):
+    first_run(tmp_path)
+    outside = plant_hostile_folder(tmp_path.parent / f"{tmp_path.name}-outside")
+    before, outside_before = snapshot(tmp_path), sorted(p.name for p in outside.rglob("*"))
+    with pytest.raises(ValueError, match="run slug"):
+        pipeline.rerender(cfg(), tmp_path, bad)
+    with pytest.raises(ValueError):
+        pipeline.rerender(cfg(), tmp_path, str(outside))                    # an absolute path replaces the base in pathlib
+    assert snapshot(tmp_path) == before and sorted(p.name for p in outside.rglob("*")) == outside_before
+
+
+def test_the_command_refuses_a_traversal_slug_with_a_clear_message(tmp_path, servers, monkeypatch, capsys):
+    first_run(tmp_path)
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    outside = plant_hostile_folder(tmp_path.parent / f"{tmp_path.name}-cli-outside")
+    assert cli.main(["rerender", "--slug", "../" + outside.name]) == 2
+    assert "run slug" in capsys.readouterr().err and not (outside / "repoA" / "vi.md").exists()
+
+
+def test_the_listing_without_a_slug_only_visits_run_folders(tmp_path, servers):
+    first_run(tmp_path)
+    stray = plant_hostile_folder(tmp_path / "digests" / "evil-folder") / "repoA"
+    report = pipeline.rerender(cfg(), tmp_path)
+    assert report["rerendered"] == ["2026-10-14"] and "evil-folder" not in report["skipped"]
+    assert not (stray / "vi.md").exists()
+
+
+def test_a_failure_while_drawing_leaves_the_repository_exactly_as_it_was(tmp_path, servers, monkeypatch):
+    from radar import digest
+    first_run(tmp_path)
+    before = snapshot(tmp_path)
+    monkeypatch.setitem(L["vi"], "problem", "TIÊU ĐỀ MỚI")                  # so a repository drawn before the failure WOULD differ on disk
+    real, calls = digest.render_repo, []
+
+    def flaky(*a, **kw):
+        calls.append(1)
+        if len(calls) == 2:
+            raise KeyError("boom while drawing the second repository")
+        return real(*a, **kw)
+    monkeypatch.setattr(digest, "render_repo", flaky)
+    report = pipeline.rerender(cfg(), tmp_path)
+    assert report["rerendered"] == [] and "nothing was changed" in report["skipped"]["2026-10-14"] and "boom" in report["skipped"]["2026-10-14"]
+    assert snapshot(tmp_path) == before                                    # no half-rewritten digests next to a stale export
+    assert not any(b"TI\xc3\x8aU \xc4\x90\xe1\xbb\x80 M\xe1\xbb\x9a" in data for data in snapshot(tmp_path).values())
+
+
+def test_a_stored_draft_that_no_longer_fits_the_schema_is_skipped_not_drawn(tmp_path, servers):
+    first_run(tmp_path)
+    path = next((tmp_path / "digests").glob("2026-10-14/*/draft-vi.json"))
+    stored = json.loads(path.read_text(encoding="utf-8"))
+    del stored["draft"]["how_it_works"]["steps"]
+    path.write_text(json.dumps(stored), encoding="utf-8")
+    before = snapshot(tmp_path)
+    report = pipeline.rerender(cfg(), tmp_path)
+    assert "no longer fits the schema" in report["skipped"]["2026-10-14"] and snapshot(tmp_path) == before
+
+
+def test_a_language_stored_in_the_drafts_but_missing_from_the_config_is_still_redrawn_and_listed(tmp_path, servers):
+    first_run(tmp_path, langs=["vi", "en"])
+    wipe_drawn_files(tmp_path)
+    pipeline.rerender(cfg(langs=["vi"]), tmp_path)                           # the owner later narrowed langs to vi only
+    campaign = yaml.safe_load((tmp_path / "export/studio/campaigns/radar-2026-10-14/campaign.yaml").read_text(encoding="utf-8"))
+    assert campaign["langs"] == ["vi", "en"] and list((tmp_path / "export/studio/campaigns/radar-2026-10-14/posts/en").glob("*.yaml"))
+    assert list((tmp_path / "digests/2026-10-14").glob("*/en.md"))
+
+
+def test_a_note_on_a_draft_survives_every_rerender_so_a_reconstructed_draft_stays_labelled(tmp_path, servers):
+    first_run(tmp_path)
+    path = next((tmp_path / "digests").glob("2026-10-14/*/draft-vi.json"))
+    stored = json.loads(path.read_text(encoding="utf-8"))
+    stored["note"] = "RECONSTRUCTED: not the model's original answer"
+    path.write_text(json.dumps(stored, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    for _ in range(2):
+        pipeline.rerender(cfg(), tmp_path)
+    assert json.loads(path.read_text(encoding="utf-8"))["note"] == "RECONSTRUCTED: not the model's original answer"
+    other = next(p for p in (tmp_path / "digests").glob("2026-10-14/*/draft-vi.json") if p != path)
+    assert "note" not in json.loads(other.read_text(encoding="utf-8"))      # only drafts that carry one

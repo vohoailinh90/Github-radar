@@ -57,7 +57,7 @@ python3 scripts/layout_check.py                        # repository layout
 
 Root: `README.md`, agent instruction files, `requirements.txt`, `radar.yaml`, and the entry point `radar.py`. The package is
 `radar/`, tests `tests/`, developer tooling `scripts/`, docs `docs/`. Generated, committed by the scheduled run: `digests/`,
-`export/studio/`, `state/` (never edit by hand; `rerender` redraws the first two from `digests/*/*/draft-*.json`, which are the models' gated answers and must be kept). New Python files follow `.claude/skills/repo-layout/SKILL.md`.
+`export/studio/`, `state/` (never edit by hand; `rerender` redraws the first two from `digests/*/*/draft-*.json`, which are the models' gated answers and must be kept; a draft with a `note` key is NOT the model's original answer, keep the note). New Python files follow `.claude/skills/repo-layout/SKILL.md`.
 
 ## Pull request lifecycle
 
