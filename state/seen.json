@@ -3,5 +3,10 @@
     "bucket": "software",
     "covered": "2026-10-12",
     "stars": 96575
+  },
+  "debpalash/VoiceStudio": {
+    "bucket": "solutions",
+    "covered": "2026-10-13",
+    "stars": 62958
   }
 }
