@@ -151,3 +151,52 @@ def test_a_full_length_step_reaches_the_flow_slide_uncut():
     learn = next(s for s in post["slides"] if s["layout"] == "checklist")["items"][0]
     assert step == "Kiểm tra an toàn: " + d["how_it_works"]["steps"][0]["text"] and "…" not in step     # 136 chars used to become 110 + "…"
     assert learn == d["learn"][0] and "…" not in learn
+
+
+# --- arrows: straight into the box, the same height as the box they hit, and a head that is not bigger than the line needs ----
+import re
+
+
+def comps(n):
+    return [{"name": f"Part {i}", "role": "does one thing in the chain " * 2} for i in range(n)]
+
+
+def centre(lay, i):
+    return lay["pos"][i][1] + lay["boxes"][i][2] / 2
+
+
+def test_a_chain_is_a_straight_line_and_a_fork_is_symmetric_around_its_source():
+    chain = svg.flow_layout(comps(3), [[0, 1], [1, 2]])
+    assert centre(chain, 0) == centre(chain, 1) == centre(chain, 2)               # the arrows are level, not slanted
+    fork = svg.flow_layout(comps(4), [[0, 1], [0, 3], [1, 2]])                      # the real Agent-Reach diagram
+    assert abs((centre(fork, 1) + centre(fork, 3)) / 2 - centre(fork, 0)) < 1       # the source sits between its two targets
+    assert abs(centre(fork, 2) - centre(fork, 1)) < 1                              # Skill Config lines up with its only feeder
+    assert fork["pos"][3][1] >= fork["pos"][1][1] + fork["boxes"][1][2] + 24         # boxes of one column never overlap
+
+
+def test_every_box_stays_inside_the_canvas_even_with_merges_and_loops():
+    for edges in ([[0, 1], [2, 1], [1, 3]], [[0, 1], [1, 2], [2, 0], [2, 3]], [[0, 2], [1, 2], [2, 3]]):
+        lay = svg.flow_layout(comps(4), edges)
+        for i, (x, y) in lay["pos"].items():
+            assert x >= 0 and y >= 70 and x + lay["bw"] <= lay["total_w"] and y + lay["boxes"][i][2] <= lay["total_h"]
+
+
+def test_each_forward_arrow_leaves_and_enters_a_box_on_a_straight_horizontal_run_at_the_box_edge():
+    edges = [[0, 1], [0, 3], [1, 2]]
+    lay = svg.flow_layout(comps(4), edges)
+    root = wellformed(svg.flow(comps(4), edges, "t"))
+    paths = [p.get("d") for p in root.iter("{http://www.w3.org/2000/svg}path") if p.get("stroke-width") == "2.5"]
+    assert len(paths) == 3
+    for d, (a, b) in zip(paths, edges):
+        m = re.fullmatch(r"M(\S+) (\S+) L(\S+) (\S+) C(\S+) (\S+) (\S+) (\S+) (\S+) (\S+) L(\S+) (\S+)", d)
+        x1, y1, xs, ys, _, _, _, _, xe, ye, x2, y2 = (float(v) for v in m.groups())
+        assert (x1, y1) == (lay["pos"][a][0] + lay["bw"], centre(lay, a) // 1) and ys == y1 and xs - x1 == svg.STUB
+        assert (x2, y2) == (lay["pos"][b][0], centre(lay, b) // 1) and ye == y2 and x2 - xe == svg.STUB   # the head sits on a straight run
+
+
+def test_the_arrowhead_is_a_fixed_small_size_not_a_multiple_of_the_line_width():
+    root = wellformed(svg.flow(comps(2), [[0, 1]], "t"))
+    marker = next(root.iter("{http://www.w3.org/2000/svg}marker"))
+    assert marker.get("markerUnits") == "userSpaceOnUse" and int(marker.get("markerWidth")) == svg.ARROW <= 14
+    assert marker.get("refX") == "10"                                              # the tip is the path's end point
+    assert svg.STUB >= svg.ARROW                                                   # the whole head sits on the straight run

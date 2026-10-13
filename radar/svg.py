@@ -148,45 +148,69 @@ def _layers(n: int, edges: list) -> list[int]:
     return layer
 
 
-def flow(components: list[dict], edges: list[list[int]], title: str) -> str:
-    """Components as boxes in columns by dependency depth, arrows for the data/control flow."""
+ARROW = 12            # arrowhead size in pixels, independent of the line width
+STUB = 16             # straight horizontal run into and out of each box, so the head sits on a straight line
+
+
+def flow_layout(components: list[dict], edges: list[list[int]], *, bw: int = 300, gap: int = 96, pad: int = 40,
+                name_px: int = 22, role_px: int = 17, vgap: int = 24) -> dict:
+    """Columns by dependency depth; inside a column each box sits at the average height of the boxes that feed it, so a
+    chain is a straight line and a fork is symmetric. Returns positions and sizes; `flow` only draws them."""
     n = len(components)
     layer = _layers(n, edges) if edges else list(range(n)) if n <= 4 else [i // 2 for i in range(n)]
     cols = max(layer) + 1
-    bw, gap, pad, name_px, role_px = 300, 84, 40, 22, 17
     boxes = []
-    for i, c in enumerate(components):
+    for c in components:
         name = wrap(c["name"], name_px, bw - 32, 2)
         role = wrap(c["role"], role_px, bw - 32, 5)
-        h = 28 + int(name_px * 1.25 * len(name)) + 10 + int(role_px * 1.35 * len(role)) + 20
-        boxes.append((name, role, h))
-    stacks: dict[int, list[int]] = {}
-    for i, col in enumerate(layer):
-        stacks.setdefault(col, []).append(i)
-    heights = {col: sum(boxes[i][2] for i in idx) + 24 * (len(idx) - 1) for col, idx in stacks.items()}
-    inner = max(heights.values())
-    total_w = pad * 2 + cols * bw + (cols - 1) * gap
-    total_h = pad * 2 + inner + 70
-    pos: dict[int, tuple[int, int]] = {}
-    body = ['<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">'
-            f'<path d="M0 0 L10 5 L0 10 z" fill="{MUTED}"/></marker></defs>',
+        boxes.append((name, role, 28 + int(name_px * 1.25 * len(name)) + 10 + int(role_px * 1.35 * len(role)) + 20))
+    stacks = {col: [i for i in range(n) if layer[i] == col] for col in range(cols)}
+    top: dict[int, float] = {}
+    for col in range(cols):
+        want: dict[int, float | None] = {}
+        for i in stacks[col]:
+            feeders = [top[a] + boxes[a][2] / 2 for a, b in edges if b == i and layer[a] < col and a in top]
+            want[i] = sum(feeders) / len(feeders) if feeders else None
+        order = sorted(stacks[col], key=lambda i: (want[i] is None, want[i] if want[i] is not None else 0, i))
+        y, placed = 0.0, {}
+        for i in order:
+            placed[i] = y
+            y += boxes[i][2] + vgap
+        known = [i for i in order if want[i] is not None]
+        if known:       # shift the stack so its boxes sit as close as possible to where their feeders point
+            shift = sum(want[i] - (placed[i] + boxes[i][2] / 2) for i in known) / len(known)
+            placed = {i: v + shift for i, v in placed.items()}
+        top.update(placed)
+    first = 70 + pad // 2
+    lift = first - min(top.values())
+    pos = {i: (pad + layer[i] * (bw + gap), int(round(top[i] + lift))) for i in range(n)}
+    bottom = max(pos[i][1] + boxes[i][2] for i in range(n))
+    return {"layer": layer, "boxes": boxes, "pos": pos, "bw": bw, "pad": pad, "name_px": name_px, "role_px": role_px,
+            "total_w": pad * 2 + cols * bw + (cols - 1) * gap, "total_h": bottom + pad + 30}
+
+
+def flow(components: list[dict], edges: list[list[int]], title: str) -> str:
+    """Components as boxes in columns by dependency depth, arrows for the data/control flow."""
+    lay = flow_layout(components, edges)
+    layer, boxes, pos, bw = lay["layer"], lay["boxes"], lay["pos"], lay["bw"]
+    total_w, total_h, pad, name_px, role_px = lay["total_w"], lay["total_h"], lay["pad"], lay["name_px"], lay["role_px"]
+    body = [f'<defs><marker id="a" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="{ARROW}" '
+            f'markerHeight="{ARROW}" orient="auto"><path d="M0 1 L10 5 L0 9 z" fill="{MUTED}"/></marker></defs>',
             _text(pad, 40, wrap(title, 24, total_w - 2 * pad, 1), 24, INK, 700)]
-    for col, idx in stacks.items():
-        y = 70 + pad / 2 + (inner - heights[col]) / 2
-        for i in idx:
-            pos[i] = (pad + col * (bw + gap), int(y))
-            y += boxes[i][2] + 24
-    for a, b in edges:
+    for a, b in edges:                                    # arrows first: the boxes are drawn over their tips, so they meet flush
         (xa, ya), (xb, yb) = pos[a], pos[b]
-        ya, yb = ya + boxes[a][2] // 2, yb + boxes[b][2] // 2
+        ca, cb = ya + boxes[a][2] // 2, yb + boxes[b][2] // 2
         if layer[b] > layer[a]:
             x1, x2 = xa + bw, xb
-            mid = (x1 + x2) / 2
-            body.append(f'<path d="M{x1} {ya} C{mid} {ya} {mid} {yb} {x2 - 2} {yb}" fill="none" stroke="{MUTED}" stroke-width="2.5" marker-end="url(#a)"/>')
+            mid = (x1 + STUB + x2 - STUB) / 2
+            body.append(f'<path d="M{x1} {ca} L{x1 + STUB} {ca} C{mid} {ca} {mid} {cb} {x2 - STUB} {cb} L{x2} {cb}" fill="none" '
+                        f'stroke="{MUTED}" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#a)"/>')
         else:                                             # same column or a loop back: dashed, around the bottom
             x1, x2 = xa + bw / 2, xb + bw / 2
-            low = total_h - 26
-            body.append(f'<path d="M{x1} {ya + boxes[a][2] // 2} C{x1} {low} {x2} {low} {x2} {yb + boxes[b][2] // 2 + 2}" fill="none" stroke="{MUTED}" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#a)"/>')
+            low = total_h - 22
+            body.append(f'<path d="M{x1} {ya + boxes[a][2]} L{x1} {ya + boxes[a][2] + STUB} C{x1} {low} {x2} {low} {x2} '
+                        f'{yb + boxes[b][2] + STUB} L{x2} {yb + boxes[b][2]}" fill="none" stroke="{MUTED}" stroke-width="2" '
+                        f'stroke-dasharray="7 6" marker-end="url(#a)"/>')
     for i, c in enumerate(components):
         x, y = pos[i]
         fill, stroke = LAYERS[layer[i] % len(LAYERS)]
