@@ -12,6 +12,11 @@ import urllib.error
 import urllib.request
 
 
+# urllib's own "Python-urllib/3.x" is refused by Cloudflare-fronted APIs (Groq answers HTTP 403, error 1010, "browser
+# signature banned"), so every request names itself. A caller may still send its own User-Agent; it wins.
+USER_AGENT = "github-radar/1.0 (+https://github.com/vohoailinh90/github-radar)"
+
+
 class HttpError(RuntimeError):
     def __init__(self, status: int, body: str, url: str, retry_after: float | None = None, headers: dict | None = None):
         super().__init__(f"HTTP {status} from {url}: {body[:300]}")
@@ -38,6 +43,7 @@ def request_json(url: str, *, headers: dict | None = None, payload: dict | None 
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
     req = urllib.request.Request(url, data=data, method="POST" if data is not None else "GET")
     req.add_header("Accept", "application/json")
+    req.add_header("User-Agent", USER_AGENT)
     if data is not None:
         req.add_header("Content-Type", "application/json")
     for key, value in (headers or {}).items():
