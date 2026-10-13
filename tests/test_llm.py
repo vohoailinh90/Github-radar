@@ -148,6 +148,18 @@ def test_a_model_that_stalled_once_is_not_tried_again_for_the_rest_of_the_run(fa
         gw.chat(["google/a"], "s", prompt)
 
 
+def test_a_groq_reasoning_model_is_asked_to_think_briefly_and_other_models_get_no_such_field(monkeypatch):
+    from tests.support import _Server
+    srv = _Server(lambda call: (200, {"choices": [{"message": {"content": "{}"}}]}))
+    monkeypatch.setenv("RADAR_BASE_GROQ", srv.url)
+    monkeypatch.setenv("RADAR_BASE_MISTRAL", srv.url)
+    gw = Gateway(sleep=lambda s: None, env={"GROQ_API_KEY": "k", "MISTRAL_API_KEY": "k"})
+    for model in ("groq/openai/gpt-oss-120b", "groq/qwen/qwen3.8-27b", "mistral/openai/gpt-oss-x"):
+        gw.chat([model], "s", "u")
+    assert [c["body"].get("reasoning_effort") for c in srv.calls] == ["low", None, None]
+    srv.close()
+
+
 def test_a_model_id_that_answers_404_is_skipped_for_the_rest_of_the_run(fake):
     # Groq retired llama-3.3-70b-versatile: "does not exist or you do not have access" on every call, so asking again is waste
     srv = fake(lambda kind, facts, lang, n: (404, {"error": "model does not exist"}) if n == 1 else {"ok": True})

@@ -115,6 +115,9 @@ class Gateway:
                            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
                 if json_mode and provider != "nvidia":
                     payload["response_format"] = {"type": "json_object"}
+                if provider == "groq" and name.startswith("openai/gpt-oss"):
+                    # A reasoning model spends max_tokens on thinking first: at the default effort a 900-token check can end with no answer.
+                    payload["reasoning_effort"] = "low"
                 try:
                     body = request_json(base_url(provider) + "/chat/completions",
                                         headers={"Authorization": f"Bearer {key}"}, payload=payload,

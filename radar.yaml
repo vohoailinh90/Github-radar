@@ -17,8 +17,8 @@ buckets:
 # Người soát luôn được chọn khác họ với model ĐÃ viết bài, nên viết bằng mistral thì soát bằng gemini. Người viết và người soát PHẢI khác họ model.
 # Danh sách free đổi liên tục: python3 radar.py models <provider>, rồi python3 radar.py doctor --ping.
 models:
-  writer: [google/gemini-flash-latest, google/gemini-flash-lite-latest, groq/meta-llama/llama-4-scout-17b-16e-instruct, mistral/mistral-small-2603]
-  checker: [groq/meta-llama/llama-4-scout-17b-16e-instruct, groq/meta-llama/llama-4-maverick-17b-128e-instruct, mistral/mistral-small-2603, google/gemini-flash-lite-latest]   # Llama (Groq) khác họ với Gemini; Groq đã gỡ llama-3.3-70b-versatile (404), tên mới xem ở bước Doctor; Mistral hiện báo hạn mức 0 nên chỉ là dự phòng
+  writer: [google/gemini-flash-latest, google/gemini-flash-lite-latest, groq/openai/gpt-oss-120b, mistral/mistral-small-2603]
+  checker: [groq/openai/gpt-oss-120b, groq/openai/gpt-oss-20b, mistral/mistral-small-2603, google/gemini-flash-lite-latest]   # gpt-oss (Groq, họ OpenAI) khác họ với Gemini; Groq không còn model Llama nào (Doctor 13/10/2026); Mistral hiện báo hạn mức 0 nên chỉ là dự phòng
 
 studio:
   tool: github-radar
