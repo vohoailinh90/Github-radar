@@ -69,10 +69,15 @@ def cmd_doctor(args, cfg) -> int:
                 print(f"FAIL  {provider}: {exc}")
                 bad += 1
                 continue
-            for model in {m for ids in models.values() for m in ids if m.startswith(provider + "/")}:
+            missing = False
+            for model in sorted({m for ids in models.values() for m in ids if m.startswith(provider + "/")}):
                 found = split_model(model)[1] in listed
                 print(f"{'ok  ' if found else 'FAIL'}  {model} {'is offered' if found else 'is not offered by ' + provider + ' any more'}")
                 bad += not found
+                missing = missing or not found
+            if missing:
+                # A retired model id is the usual cause; the replacement is among the ids this key can really call.
+                print(f"      {provider} offers: " + ", ".join(sorted(listed)[:60]))
     return 1 if bad else 0
 
 
