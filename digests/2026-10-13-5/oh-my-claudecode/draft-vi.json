@@ -1,0 +1,109 @@
+{
+  "draft": {
+    "analogy": "Giống như việc xây nhà không giao hết cho một người mà chia thành kiến trúc sư vẽ bản thiết kế, đội thợ thi công và kỹ sư giám sát kiểm định chất lượng.",
+    "caveats": [
+      "Tính năng named autopilot profiles hiện yêu cầu môi trường Linux có tiện ích flock",
+      "Quá trình cài đặt qua npm có thể xuất hiện cảnh báo phiên bản cũ từ thư viện phụ thuộc better-sqlite3",
+      "Dự án được phân phối dưới giấy phép nguồn mở MIT"
+    ],
+    "facebook": {
+      "caption": "Điều phối nhiều AI agent cùng viết code với oh-my-claudecode.\nThay vì để một AI gánh hết mọi khâu, hệ thống phân tách rõ ràng giữa lập kế hoạch, viết code và kiểm thử.\nCung cấp cả CLI terminal và skill chạy ngay trong phiên làm việc.\nGiúp quy trình lập trình tự động trở nên ngăn nắp và hạn chế lỗi sót việc.",
+      "hashtags": [
+        "claudecode",
+        "aiagents",
+        "multiagent",
+        "automation",
+        "typescript"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Mô hình phối hợp giữa nhiều tác tử AI, mỗi tác tử đảm nhận một vai trò cụ thể",
+        "term": "Multi-agent"
+      },
+      {
+        "meaning": "Cơ chế tự động điều phối và chuyển tiếp các khâu công việc theo cấu hình định sẵn",
+        "term": "Autopilot"
+      }
+    ],
+    "hook": "Làm sao để AI tự chia giai đoạn lập kế hoạch, viết mã và kiểm thử thay vì làm dở dang?",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Terminal CLI",
+          "role": "Giao diện dòng lệnh chạy từ terminal ngoài để cài đặt môi trường, cấu hình và gửi yêu cầu hỏi các nhà cung cấp."
+        },
+        {
+          "evidence": "README",
+          "name": "In-session Skills",
+          "role": "Tập hợp các kỹ năng được kích hoạt bằng lệnh gạch chéo trực tiếp bên trong phiên làm việc của Claude Code."
+        },
+        {
+          "evidence": "README",
+          "name": "Autopilot Engine",
+          "role": "Bộ máy điều phối chuỗi thực thi tác vụ theo các hồ sơ giai đoạn cấu hình sẵn."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Người dùng cài đặt gói CLI hoặc bổ sung plugin, sau đó thực hiện lệnh thiết lập để đồng bộ hóa các kỹ năng và tác tử vào môi trường làm việc.",
+          "title": "Cài đặt và thiết lập"
+        },
+        {
+          "evidence": "README",
+          "text": "Lệnh autopilot phân tách nhiệm vụ thành các giai đoạn tuần tự đã định hình trước như ralplan (lập kế hoạch), execution (thực thi) và qa (kiểm định chất lượng).",
+          "title": "Phân chia giai đoạn qua Autopilot"
+        },
+        {
+          "evidence": "README",
+          "text": "Hệ thống kiểm soát các bước ghi nhận tiến trình bằng cơ chế khóa advisory trên nhân hệ điều hành, đảm bảo trạng thái không bị ghi đè hay xung đột khi chạy.",
+          "title": "Đồng bộ hóa trạng thái an toàn"
+        }
+      ]
+    },
+    "learn": [
+      "Tách biệt trách nhiệm bằng cách chia nhỏ quy trình AI thành các khâu riêng biệt thay vì dùng một câu lệnh duy nhất",
+      "Hỗ trợ song song cả giao diện dòng lệnh bên ngoài lẫn kỹ năng bên trong môi trường phiên làm việc",
+      "Sử dụng khóa hệ thống cấp kernel để bảo vệ tính toàn vẹn trạng thái khi thực thi quy trình phức tạp"
+    ],
+    "one_liner": "oh-my-claudecode (OMC) là hệ sinh thái điều phối đa tác tử (multi-agent orchestration) cho Claude Code, hỗ trợ tự động hóa quy trình lập trình qua các luồng công việc chuyên biệt.",
+    "problem": "Khi giao toàn bộ công việc lập trình phức tạp cho một phiên AI đơn lẻ, hệ thống dễ bị quá tải ngữ cảnh và làm việc thiếu nhất quán. Người phát triển phải liên tục theo dõi, can thiệp và ghép nối các bước thủ công từ lập kế hoạch đến kiểm thử. Thiếu một cơ chế khóa trạng thái và phân vai rõ ràng khiến các tác vụ tự động dễ phát sinh lỗi hoặc đè lẫn nhau.",
+    "title": "Điều phối Multi-agent cho Claude Code với OMC",
+    "try_it": {
+      "commands": [
+        "npm i -g oh-my-claude-sisyphus@latest",
+        "omc setup",
+        "/autopilot \"build a REST API for managing tasks\""
+      ],
+      "note": "Cài đặt CLI qua npm trên hệ thống, chạy lệnh setup để khởi tạo rồi kích hoạt chế độ autopilot trong phiên làm việc."
+    },
+    "who_for": [
+      "Lập trình viên sử dụng Claude Code muốn tự động hóa các quy trình tạo mã nguồn nhiều bước",
+      "Kỹ sư phần mềm cần chia tách giai đoạn lập kế hoạch và kiểm thử chất lượng mã nguồn"
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 3575,
+    "full_name": "Yeachan-Heo/oh-my-claudecode",
+    "language": "TypeScript",
+    "license": "MIT",
+    "scanned": "2026-10-13",
+    "stars": 39876,
+    "url": "https://github.com/Yeachan-Heo/oh-my-claudecode"
+  },
+  "lang": "vi",
+  "position": 1
+}

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-13",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 127,
+  "dropped": {
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "already covered": 7,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "Yeachan-Heo/oh-my-claudecode",
+      "bucket": "solutions",
+      "score": 15.779,
+      "stars": 39876
+    }
+  ],
+  "written": [
+    {
+      "repo": "Yeachan-Heo/oh-my-claudecode",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": false
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-13-5"
+}
