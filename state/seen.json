@@ -19,10 +19,20 @@
     "covered": "2026-10-13",
     "stars": 39876
   },
+  "ant-design/ant-design-pro": {
+    "bucket": "startup",
+    "covered": "2026-10-14",
+    "stars": 38852
+  },
   "debpalash/VoiceStudio": {
     "bucket": "solutions",
     "covered": "2026-10-13",
     "stars": 62958
+  },
+  "deepseek-ai/deepseek-harness": {
+    "bucket": "ai",
+    "covered": "2026-10-14",
+    "stars": 249184
   },
   "microsoft/playwright": {
     "bucket": "solutions",

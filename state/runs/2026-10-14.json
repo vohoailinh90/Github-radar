@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-14",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 126,
+  "dropped": {
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "already covered": 8,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "ant-design/ant-design-pro",
+      "bucket": "startup",
+      "score": 14.4969,
+      "stars": 38852
+    },
+    {
+      "repo": "deepseek-ai/deepseek-harness",
+      "bucket": "ai",
+      "score": 19.276,
+      "stars": 249184
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.1483,
+      "stars": 197573
+    }
+  ],
+  "written": [
+    {
+      "repo": "ant-design/ant-design-pro",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": false
+    },
+    {
+      "repo": "deepseek-ai/deepseek-harness",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": false
+    }
+  ],
+  "held": [
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "lang": "vi",
+      "problems": [
+        "[error] flow: edge [1, 2] must be two different component indexes"
+      ],
+      "blockers": []
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-14"
+}
