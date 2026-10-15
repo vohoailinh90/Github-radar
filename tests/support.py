@@ -116,6 +116,10 @@ def fake_github(repos: list[dict] | None = None, readme: str = README, fail: tup
             else:
                 names = TREE
             return 200, {"tree": [{"path": n.rstrip("/"), "type": "tree" if n.endswith("/") else "blob"} for n in names]}
+        m = re.match(r"^/repos/([^/]+/[^/]+)$", path)
+        if m:                                                    # one repository, by name in any letter case
+            hit = next((r for r in repos if r["full_name"].lower() == m.group(1).lower()), None)
+            return (200, hit) if hit else (404, {"message": "Not Found"})
         if path.endswith("/pulls") and call["method"] == "POST":
             return 201, {"html_url": "https://github.com/example-org/studio/pull/7"}
         return 404, {"message": "Not Found"}

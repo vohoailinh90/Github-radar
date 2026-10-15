@@ -61,10 +61,22 @@ python3 radar.py models google      # liệt kê model của nhà cung cấp (--
 python3 radar.py scan               # xếp hạng ứng viên, không gọi model
 python3 radar.py run --dry-run      # chọn repo sẽ viết, không ghi gì
 python3 radar.py run                # chạy đầy đủ
+python3 radar.py run --repo owner/tên   # chỉ viết bài cho đúng repo này (hoặc link github.com), không tìm kiếm
 python3 radar.py check              # export/studio có hợp quy định của studio không
 python3 radar.py rerender           # vẽ lại bài học, sơ đồ và bản nháp studio từ bản nháp đã lưu (không gọi model, không gọi GitHub)
 python3 radar.py handoff            # mở PR nháp vào tool-marketing-studio
 ```
+
+### Quét đúng một repo bạn chọn
+
+`python3 radar.py run --repo owner/tên --dry-run` kiểm tra repo (không gọi model, không ghi gì); bỏ `--dry-run` để viết bài.
+Trên GitHub: Actions → *Radar scan* → *Run workflow*, điền ô `repo` (ô `picks` bị bỏ qua), bỏ chọn `dry_run` để viết thật.
+
+- Lựa chọn của bạn thay cho bộ lọc xếp hạng: số sao, độ mới, "đã viết rồi" chỉ cho **cảnh báo** trong báo cáo (`requested.warnings`), repo vẫn được viết.
+  Repo đã viết trước đó được viết lại vào một thư mục chạy mới (`<ngày>-2`), bài cũ không bị ghi đè.
+- Vẫn **bị từ chối**: repo riêng tư/bị khóa, hoặc giấy phép không nằm trong danh sách miễn phí (`licenses` trong `radar.yaml`), hoặc tên không hợp lệ.
+- Nhóm (`ai`, `software`, `solutions`, `startup`) được đoán từ topic của repo; không khớp thì xếp vào `software`. Đổi bằng `--bucket` (hoặc ô `bucket`).
+- Sau khi viết, `handoff` vẫn mở **pull request nháp** vào studio như các lần quét theo lịch.
 
 Cấu hình trong [`radar.yaml`](radar.yaml) (số repo mỗi lần, ngôn ngữ `vi`/`en`/`ja`, chủ đề, model). Mặc định chỉ viết
 **tiếng Việt**: mỗi ngôn ngữ thêm là một lượt gọi model nữa cho mỗi repo (viết riêng, không dịch), nên hãy tính quota
