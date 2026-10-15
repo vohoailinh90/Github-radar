@@ -33,8 +33,11 @@ def cmd_scan(args, cfg) -> int:
 
 
 def cmd_run(args, cfg) -> int:
+    # --repo wins over RADAR_REPO, which is how the workflow passes its input (never through the shell command line)
+    only = (args.repo or os.environ.get("RADAR_REPO", "")).strip() or None
+    bucket = (args.bucket or os.environ.get("RADAR_BUCKET", "")).strip() or None
     report = pipeline.run(cfg, GitHub(), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
-                          pace=float(cfg.get("pace_seconds", 3)))
+                          pace=float(cfg.get("pace_seconds", 3)), only=only, bucket=bucket)
     print(json.dumps({k: v for k, v in report.items() if k != "models_log"}, indent=2, ensure_ascii=False))
     return 0 if report["ok"] else 1
 
@@ -152,6 +155,8 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today, UTC)")
         if "dry" in extra:
             p.add_argument("--dry-run", action="store_true", help="discover and rank only: no model calls, nothing written")
+            p.add_argument("--repo", default=None, help="cover this one repository (owner/name or a github.com link) instead of searching")
+            p.add_argument("--bucket", default=None, help="with --repo: ai, software, solutions or startup (default: from the repository's topics)")
         if "ping" in extra:
             p.add_argument("--ping", action="store_true", help="ask each provider whether the configured models still exist")
     p = sub.add_parser("models")

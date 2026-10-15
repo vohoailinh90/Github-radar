@@ -35,17 +35,24 @@ def run_slug(root: Path, date: str) -> str:
 
 
 def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool = False,
-        pace: float = 0.0, sleep=time.sleep, clock=time.monotonic) -> dict:
+        pace: float = 0.0, sleep=time.sleep, clock=time.monotonic, only: str | None = None, bucket: str | None = None) -> dict:
+    """`only` (owner/name or a link) covers that one repository instead of searching: see discover.requested."""
     date = today.isoformat()
     started, budget = clock(), float(cfg.get("max_run_minutes", 35)) * 60
     seen_path = root / "state" / "seen.json"
     seen = factslib.load_seen(seen_path)
-    ranked, dropped = discover.candidates(gh, cfg, seen, today)
-    picks = discover.pick(ranked, cfg, today)
+    if only:
+        cand, request_warnings = discover.requested(gh, only, cfg, seen, today, bucket)
+        ranked, dropped, picks = [cand], {}, [cand]
+    else:
+        ranked, dropped = discover.candidates(gh, cfg, seen, today)
+        picks = discover.pick(ranked, cfg, today)
     report = {"date": date, "dry_run": dry_run, "langs": cfg["langs"], "candidates": len(ranked), "dropped": dropped,
               "picks": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"],
                          "stars": c["repo"]["stargazers_count"]} for c in picks],
               "written": [], "held": [], "export_errors": [], "aborted": None, "ok": True}
+    if only:
+        report["requested"] = {"repo": cand["full_name"], "bucket": cand["bucket"], "warnings": request_warnings}
     if dry_run or not picks:
         report["ok"] = bool(picks) or dry_run
         return report

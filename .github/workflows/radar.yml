@@ -18,6 +18,14 @@ on:
         description: "Content languages, e.g. vi,en,ja (blank = radar.yaml)"
         type: string
         default: ""
+      repo:
+        description: "Cover this one repository instead of searching: owner/name or a github.com link (blank = the normal scan; picks is then ignored)"
+        type: string
+        default: ""
+      bucket:
+        description: "With repo: ai, software, solutions or startup (blank = from the repository's topics)"
+        type: string
+        default: ""
 
 # One scan at a time; a late run waits instead of cancelling a run that is half-way through its quota.
 concurrency:
@@ -84,6 +92,8 @@ jobs:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           RADAR_PICKS: ${{ inputs.picks }}
           RADAR_LANGS: ${{ inputs.langs }}
+          RADAR_REPO: ${{ inputs.repo }}
+          RADAR_BUCKET: ${{ inputs.bucket }}
         run: |
           args=""
           if [ "$DRY" = "true" ]; then args="--dry-run"; fi
