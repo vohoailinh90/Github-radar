@@ -156,6 +156,16 @@ def test_cli_repo_flag_and_environment_variable(monkeypatch, tmp_path, capsys, s
     assert code == 0 and len(json.loads(out)["picks"]) == 3 and "requested" not in json.loads(out)
 
 
+def test_cli_flag_given_as_empty_text_clears_the_variable(monkeypatch, tmp_path, capsys, servers):
+    code, out, _ = run_cli(monkeypatch, tmp_path, capsys, "--repo", "", env={"RADAR_REPO": NAME})   # explicit blank = normal scan
+    assert code == 0 and len(json.loads(out)["picks"]) == 3 and "requested" not in json.loads(out)
+    code, out, err = run_cli(monkeypatch, tmp_path, capsys, "--repo", NAME, "--bucket", "", env={"RADAR_BUCKET": "nope"})
+    assert code == 0, err                                       # the blank flag cleared a bucket that would have been refused
+    assert json.loads(out)["requested"]["bucket"] == "ai"       # inferred from the repo's topics
+    code, out, err = run_cli(monkeypatch, tmp_path, capsys, "--repo", NAME, env={"RADAR_BUCKET": "nope"})
+    assert code == 2 and "unknown bucket 'nope'" in err         # omitted flag: the variable still applies
+
+
 def test_cli_reports_a_bad_request_as_an_error_not_a_traceback(monkeypatch, tmp_path, capsys, servers):
     gh, _ = servers
     for bad in ("../etc/passwd", "example-org/missing", "example-org/sample-closed"):

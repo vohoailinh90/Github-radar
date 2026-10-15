@@ -33,9 +33,10 @@ def cmd_scan(args, cfg) -> int:
 
 
 def cmd_run(args, cfg) -> int:
-    # --repo wins over RADAR_REPO, which is how the workflow passes its input (never through the shell command line)
-    only = (args.repo or os.environ.get("RADAR_REPO", "")).strip() or None
-    bucket = (args.bucket or os.environ.get("RADAR_BUCKET", "")).strip() or None
+    # A flag that was given wins over the variable, even as "" (= the normal scan); only an omitted flag (None) falls back.
+    # RADAR_REPO is how the workflow passes its input (never through the shell command line).
+    only = (os.environ.get("RADAR_REPO", "") if args.repo is None else args.repo).strip() or None
+    bucket = (os.environ.get("RADAR_BUCKET", "") if args.bucket is None else args.bucket).strip() or None
     report = pipeline.run(cfg, GitHub(), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
                           pace=float(cfg.get("pace_seconds", 3)), only=only, bucket=bucket)
     print(json.dumps({k: v for k, v in report.items() if k != "models_log"}, indent=2, ensure_ascii=False))
