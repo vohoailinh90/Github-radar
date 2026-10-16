@@ -594,6 +594,36 @@ def test_a_line_that_is_a_command_elsewhere_in_the_readme_may_stand_alone_even_i
     assert not any("steps[0].commands" in e for e in errs(d, facts))
 
 
+LONG_GROUP = ["cat > big.yml <<EOF"] + [f"k{i}: {i}" for i in range(19)] + ["EOF"]                 # 21 entries
+LONG_README = README + "\n```bash\n" + "\n".join(LONG_GROUP) + "\n```\n"
+LONG_FACTS = {**FACTS, "readme": LONG_README, "links": readme.links(LONG_README), "blocks": readme.blocks(LONG_README)}
+
+
+def test_a_whole_heredoc_counts_as_one_command_whatever_its_length():
+    def problems(commands):
+        d = make_draft(LONG_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=commands, evidence="README")
+        return [e for e in errs(d, LONG_FACTS) if "steps[0].commands" in e]
+    assert problems(LONG_GROUP) == [] and problems(LONG_GROUP + ["pip install sample-agent-kit"] * 11) == []                  # 1 + 11 = 12 commands in 32 entries
+    assert any("needs 0-12 items" in e for e in problems(LONG_GROUP + ["pip install sample-agent-kit"] * 12))               # 13
+    assert any("needs 0-12 items" in e for e in problems(["pip install sample-agent-kit"] * 13))
+    assert any("needs 0-60 items" in e for e in problems(["pip install sample-agent-kit"] * 61))                             # the entries are bounded too
+    assert problems(LONG_GROUP[:12]) != []                                                                     # a part of it is still refused
+
+
+PROMPT_README = README + "\n```console\nuser@host:~$ pip install prompt-tool\nC:\\Users\\me> winget install prompt-tool\nInstalled prompt-tool\n```\n"
+PROMPT_FACTS = {**FACTS, "readme": PROMPT_README, "links": readme.links(PROMPT_README), "blocks": readme.blocks(PROMPT_README)}
+
+
+def test_a_command_after_a_conventional_transcript_prompt_is_a_command_and_the_output_is_not():
+    for command, ok in (("pip install prompt-tool", True), ("user@host:~$ pip install prompt-tool", True), ("winget install prompt-tool", True),
+                        ("C:\\Users\\me> winget install prompt-tool", True), ("Installed prompt-tool", False)):
+        d = make_draft(PROMPT_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, PROMPT_FACTS))) is ok, command
+    assert {"pip install prompt-tool", "winget install prompt-tool"} <= set(readme.setup_commands(PROMPT_README))
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

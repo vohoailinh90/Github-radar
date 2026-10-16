@@ -370,8 +370,10 @@ def is_local(url: str) -> bool:
 
 SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
-PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*)")             # a prompt in a transcript (`console`): `$ `, `> ` or `PS C:\\>`
-SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*)")          # a prompt in any other block: `> file` there is a redirection, a command
+POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)[ \t]?[$#]\s+"      # `user@host:~$ `, `[me@box ~]$ `, `root@host:/# `
+CMD_PROMPT = r"[A-Za-z]:\\[^\s>]*>\s*"                                                             # `C:\Users\me> `: a path, then `>` (a path with a space is not told)
+PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")             # a prompt in a transcript (`console`): `$ `, `> `, `PS C:\\>`, the two above
+SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")        # a prompt in any other block: `> file` there is a redirection, a command
 
 
 TAB_STOP = 4
@@ -418,7 +420,7 @@ POWERSHELL_LANGS = {"powershell", "ps1"}                                   # a b
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
-HEREDOC = re.compile(r"(?<!<)<<(?!<)-?[ \t]*(?:'([^'\s]+)'|\"([^\"\s]+)\"|\\?([A-Za-z_][A-Za-z0-9_]*))")      # `<<EOF`, `<<-'EOF'`; not `<<<`
+HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^'\s]+)'|\"([^\"\s]+)\"|\\?([A-Za-z_][A-Za-z0-9_]*))")      # what follows `<<`: `EOF`, `-'EOF'`, ` "EOF"`
 HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh"} | CONSOLE_LANGS
 
 
@@ -433,8 +435,31 @@ def _continues(lang: str, line: str) -> bool:
 
 
 def _heredoc_ends(line: str) -> list[str]:
-    """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each."""
-    return [next(g for g in m.groups() if g) for m in HEREDOC.finditer(line)]
+    """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each.
+    A `<<` inside quotes, after a backslash, in a `# comment` or as `<<<` (a here-string) opens nothing."""
+    ends, i, quote = [], 0, ""
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            i += 2 if ch == "\\" and quote == '"' else 1
+            quote = "" if i <= len(line) and ch == quote else quote
+            continue
+        if ch == "\\":
+            i += 2
+        elif ch in "'\"":
+            quote, i = ch, i + 1
+        elif ch == "#" and (i == 0 or line[i - 1].isspace()):
+            break
+        elif line.startswith("<<<", i):
+            i += 3
+        elif line.startswith("<<", i):
+            word = HEREDOC_WORD.match(line, i + 2)
+            if word:
+                ends.append(next(g for g in word.groups() if g))
+            i = word.end() if word else i + 2
+        else:
+            i += 1
+    return ends
 
 
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
@@ -563,7 +588,7 @@ def shells(text: str) -> dict[str, str]:
                 continue
             if lang in POWERSHELL_LANGS or (lang in CONSOLE_LANGS and POWERSHELL_PROMPT.match(line)):
                 shell = "powershell"
-            elif lang in CMD_LANGS:
+            elif lang in CMD_LANGS or (lang in CONSOLE_LANGS and re.match(CMD_PROMPT, line)):
                 shell = "bat"
             else:
                 shell = "bash"

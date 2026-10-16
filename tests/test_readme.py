@@ -345,6 +345,27 @@ def test_a_heredoc_is_one_group_from_its_opening_line_to_its_closing_word():
     assert readme.heredocs("```bash\nls\n```\n") == ([], ["ls"]) and readme.heredocs("no code") == ([], [])
 
 
+def test_a_heredoc_marker_in_a_quote_a_comment_or_after_a_backslash_opens_nothing():
+    ends = readme._heredoc_ends
+    assert ends("cat <<EOF > f") == ["EOF"] and ends("cat <<-'EOF' <<\"B\"") == ["EOF", "B"] and ends("cat << EOF") == ["EOF"]
+    for line in ("# Example: cat <<EOF", 'echo "write <<EOF to begin"', "echo 'a <<EOF'", "x <<< word", "echo $((1 << 2))", "echo a\\<<EOF"):
+        assert ends(line) == [], line
+    assert ends("echo 'a <<EOF' && cat <<X") == ["X"] and ends('echo "a \\" <<EOF" <<Z') == ["Z"] and ends("echo $# <<EOF") == ["EOF"]
+    text = "```bash\n# Example: cat <<EOF\npip install pkg\necho \"write <<EOF to begin\"\npip install other\n```\n"
+    assert readme.heredocs(text) == ([], ["# Example: cat <<EOF", "pip install pkg", 'echo "write <<EOF to begin"', "pip install other"])
+
+
+def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
+    text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
+            "C:\\tools\\run.exe > out.txt\noutput line\n```\n")
+    assert readme.setup_commands(text) == ["pip install pkg", "winget install pkg", "ls", "apt install x", "plain"]
+    assert readme.shells(text) == {"winget install pkg": "bat"}
+    for prompt in ("user@host:~$ ", "me@box $ ", "[me@box ~]$ ", "root@host:/# ", "C:\\Users\\me> ", "C:\\> "):
+        assert readme.SHELL_PROMPT.sub("", prompt + "ls") == "ls", prompt
+    for not_a_prompt in ("C:\\tools\\run.exe > out.txt", "ssh user@host ls", "git clone git@github.com:org/repo.git", "> out.txt", "echo $ x"):
+        assert readme.SHELL_PROMPT.sub("", not_a_prompt) == not_a_prompt, not_a_prompt
+
+
 def test_adjacent_addresses_with_nothing_between_them_are_separate_links():
     text = ("Set `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://frontend.example.com;http://[::1]:8080,https://b.example.org/x` first.\n"
             "Also [both](http://a.example.com,https://b.example.com) and https://c.example.com/list?ids=1,2 here.\n")

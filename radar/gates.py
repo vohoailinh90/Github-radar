@@ -29,7 +29,8 @@ LIMITS = {"title": 70, "hook": 110, "one_liner": 200, "problem": 500, "analogy":
 # The how-to guide: what a person does, in order, from nothing to the project's result.
 GUIDE = {"outcome": 220, "item": 80, "detail": 180, "title": 70, "why": 200, "do": 200, "command": 800, "expect": 220,
          "if_fails": 220, "verify": 220, "problem": 120, "fix": 200, "next": 160}
-GUIDE_COUNTS = {"requirements": (0, 8), "steps": (1, 10), "do": (1, 4), "commands": (0, 12), "troubleshooting": (0, 5), "next": (0, 3)}
+COMMANDS_PER_STEP = 12            # commands in a step; a whole heredoc counts as one (the schema only bounds the entries: 60)
+GUIDE_COUNTS = {"requirements": (0, 8), "steps": (1, 10), "do": (1, 4), "commands": (0, 60), "troubleshooting": (0, 5), "next": (0, 3)}
 
 
 @dataclass(frozen=True)
@@ -422,14 +423,13 @@ def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
     return out
 
 
-def _heredoc_problems(draft: dict, readme: str) -> list[Problem]:
-    """A heredoc is one command made of several lines: its opening line, its body and its closing word. A list of commands may not
-    hold a line that only the heredoc has (a body line, the closing word) without the whole group around it, nor an opening line
-    without the rest: alone they are a different command, or one that waits for input."""
+def _command_list_problems(draft: dict, readme: str) -> list[Problem]:
+    """What the lists of commands have to be as a whole. A heredoc is one command made of several lines: its opening line, its body
+    and its closing word. A list may not hold a line that only the heredoc has (a body line, the closing word) without the whole
+    group around it, nor an opening line without the rest: alone they are a different command, or one that waits for input. A step
+    has at most COMMANDS_PER_STEP commands, a whole heredoc counting as one."""
     found, loose = readmelib.heredocs(readme)
     groups = [[_norm_cmd(line) for line in group] for group in found]
-    if not groups:
-        return []
     openers = {group[0] for group in groups}
     elsewhere = {_norm_cmd(line) for line in loose} | {_norm_cmd(text) for text, _ in _prose_variants(readme)}         # a line that is a command on its own too
     only_in_heredocs = {key for group in groups for key in group[1:] if key} - elsewhere
@@ -439,8 +439,9 @@ def _heredoc_problems(draft: dict, readme: str) -> list[Problem]:
             by_field.setdefault(field, []).append(_norm_cmd(cmd))
     out = []
     for field, keys in by_field.items():
-        i = 0
+        i = commands = 0
         while i < len(keys):
+            commands += 1
             whole = next((group for group in groups if group[0] == keys[i] and keys[i:i + len(group)] == group), None)
             if whole:
                 i += len(whole)
@@ -450,6 +451,8 @@ def _heredoc_problems(draft: dict, readme: str) -> list[Problem]:
             elif keys[i] in only_in_heredocs:
                 out.append(Problem("error", field, f"command is a line of a heredoc, not a command: copy the whole heredoc from its opening line: {keys[i]!r}"))
             i += 1
+        if field.startswith("guide.steps[") and commands > COMMANDS_PER_STEP:
+            out.append(Problem("error", field, f"needs 0-{COMMANDS_PER_STEP} items (a whole heredoc counts as one)"))
     return out
 
 
@@ -496,7 +499,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         # a backtick is shell (command substitution) only in a line of a code block; around a span of prose it is Markdown
         if not isinstance(cmd, str) or "\n" in cmd or len(shown) < 3 or shown not in known or ("`" in shown and shown not in typed):
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
-    problems += _heredoc_problems(draft, facts["readme"])
+    problems += _command_list_problems(draft, facts["readme"])
     guide = draft.get("guide")
     if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):
         links, blocks = len(facts.get("links") or []), len(facts.get("blocks") or [])
