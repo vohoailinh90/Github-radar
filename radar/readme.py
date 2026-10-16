@@ -665,7 +665,7 @@ PS_COMPARISONS = ("eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match"
 PS_OPERATOR_END = re.compile(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + "|[ci]?(?:" + "|".join(PS_COMPARISONS) + "))$", re.I)       # `-ceq`, `-ireplace`: case-qualified
 PS_FORMAT_END = re.compile(r"\s-f$", re.I)                                  # `-f` is also the abbreviation of `-Force`: only in a statement that is an expression
 PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
-PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+(?:[-*/%]|\?\?|\.\.)$")     # `$x = 4 -`, `$a ??`, `$a ..`: an operand and then a binary operator
+PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+(?:[-*/%:?]|\?\?|\.\.)$")     # `$x = 4 -`, `$a ??`, `$a ..`, `$ok ?` over `'yes' :`: an operand and then a binary or ternary operator
 
 
 def _ps_continues(code: str, last: str) -> bool:

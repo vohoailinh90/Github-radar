@@ -1,0 +1,65 @@
+<!-- radar: Moda canvas 1200x1771; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Dựng video nhiều cảnh từ một ý tưởng với ViMax</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Bạn nêu ý tưởng, nhóm agent AI lo kịch bản, phân cảnh, nhân vật rồi dựng thành video</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Giao diện web hoặc TUI</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nơi bạn trò chuyện với agent, sửa kế hoạch và điều khiển việc dựng.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mô hình chat</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Viết kịch bản, phân cảnh; mô hình có thể nhìn ảnh còn dùng để chọn ảnh tốt nhất.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bộ tạo ảnh</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tạo khung hình chính và ảnh tham chiếu để giữ nhân vật nhất quán.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bộ tạo video</text>
+<text x="680" y="775" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Biến khung hình thành các đoạn video rồi ghép lại.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="777" x2="660" y2="777" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="125" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhận ý tưởng</text>
+<text x="154" y="1045" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bạn nêu ý tưởng, kịch bản hoặc tiểu thuyết; agent lập kế hoạch kể chuyện.</text>
+<line x1="584" y1="1049.5" x2="616" y2="1049.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="125" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lập kịch bản và phân cảnh</text>
+<text x="714" y="1045" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tạo nhân vật, kịch bản, phân cảnh và các cú máy cho từng cảnh.</text>
+<rectangle x="60" y="1136" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1158" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1158" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tạo ảnh và video</text>
+<text x="154" y="1194" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Điều phối ảnh tham chiếu và khung hình đầu để nhân vật nhất quán, rồi sinh các đoạn video.</text>
+<line x1="584" y1="1210" x2="616" y2="1210" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1136" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1158" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1158" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ghép thành video hoàn chỉnh</text>
+<text x="714" y="1194" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các cảnh và cú máy tương thích được tạo song song rồi ghép lại.</text>
+<text x="60" y="1366" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1432" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1472.8" x2="97.6" y2="1480" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1480" x2="110" y2="1464.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1452" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chia việc làm phim thành các vai nối tiếp nhau: biên kịch, phân cảnh, tạo ảnh, tạo video, ghép</text>
+<rectangle x="615" y="1432" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1472.8" x2="652.6" y2="1480" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1480" x2="665" y2="1464.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1452" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Giữ nhân vật nhất quán bằng ảnh tham chiếu, khung hình đầu và liên tục máy quay</text>
+<rectangle x="60" y="1556" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1596.8" x2="97.6" y2="1604" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1604" x2="110" y2="1588.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1576" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một lõi, nhiều cửa vào: giao diện web, TUI và các script chạy thẳng</text>
+<rectangle x="615" y="1556" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1596.8" x2="652.6" y2="1604" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1604" x2="665" y2="1588.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1576" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tạo nhiều ứng viên song song rồi nhờ mô hình chọn: đổi thêm chi phí lấy chất lượng</text>
+<text x="60" y="1708" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: HKUDS/ViMax · Giấy phép: MIT · 12.700 sao · Quét ngày 2026-10-16</text>
+</content>

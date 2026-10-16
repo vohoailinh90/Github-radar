@@ -1189,3 +1189,10 @@ def test_powershell_null_coalescing_and_range_operators_go_on_and_so_does_a_pipe
     assert lines("```pwsh\nGet-Process\n  | Where-Object CPU\n  | Sort-Object CPU\nGet-Date\n```\n") == ["Get-Process | Where-Object CPU | Sort-Object CPU", "Get-Date"]
     assert lines("```console\nPS C:\\> Get-Process\n>> | Where-Object CPU\nPS C:\\> Get-Date\n```\n") == ["PS C:\\> Get-Process | Where-Object CPU", "PS C:\\> Get-Date"]
     assert lines("```pwsh\nGet-Process\n\n| Where-Object CPU\n```\n") == ["Get-Process", "", "| Where-Object CPU"]          # a blank line ends the command
+
+
+def test_a_powershell_ternary_goes_on_after_its_question_mark_and_its_colon():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```pwsh\n$result = $ok ?\n  'yes' :\n  'no'\nls\n```\n") == ["$result = $ok ? 'yes' : 'no'", "ls"]
+    assert lines("```pwsh\ncd C:\nGet-Item $env:\n$x = 'a:'\nWrite-Host Done ?\n```\n") == ["cd C:", "Get-Item $env:", "$x = 'a:'", "Write-Host Done ?"]          # a command's own `:` and `?` end nothing

@@ -1,0 +1,62 @@
+<!-- radar: Moda canvas 1200x1700; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Tạo video từ chữ hoặc ảnh với Wan2.2 trên máy của bạn</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Một dòng lệnh biến câu mô tả thành video 720P, chạy ngay trên card đồ họa của bạn</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Câu mô tả và ảnh</text>
+<text x="80" y="577" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đầu vào do bạn đưa: một câu mô tả, có thể kèm ảnh.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mở rộng mô tả</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tùy chọn: viết lại câu mô tả chi tiết hơn bằng Dashscope hoặc Qwen cục bộ.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">generate.py</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Điểm vào duy nhất: nhận tác vụ, kích thước, thư mục mô hình và câu mô tả.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mô hình Wan2.2</text>
+<text x="680" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các mô hình T2V-A14B, I2V-A14B, TI2V-5B, S2V-14B và Animate-14B.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="300" y1="641" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="777" x2="660" y2="777" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chọn tác vụ</text>
+<text x="154" y="1045" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tùy chọn --task chọn loại việc: chữ thành video, ảnh thành video hoặc cả hai (ti2v-5B).</text>
+<line x1="584" y1="1061" x2="616" y2="1061" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nạp mô hình</text>
+<text x="714" y="1045" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">--ckpt_dir trỏ tới thư mục mô hình bạn đã tải về trước.</text>
+<rectangle x="60" y="1159" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1181" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1181" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mở rộng mô tả (tùy chọn)</text>
+<text x="154" y="1217" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Câu mô tả ngắn có thể được một mô hình ngôn ngữ viết dài và giàu chi tiết hơn trước khi sinh video.</text>
+<line x1="584" y1="1233" x2="616" y2="1233" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1159" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1181" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1181" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Sinh video</text>
+<text x="714" y="1217" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mô hình khử nhiễu từng bước để dựng khung hình; bản MoE giao các bước thời gian khác nhau cho các chuyên gia khác nhau.</text>
+<text x="60" y="1389" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1455" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1495.8" x2="97.6" y2="1503" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1503" x2="110" y2="1487.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1475" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một điểm vào duy nhất (generate.py) phục vụ nhiều tác vụ qua tùy chọn --task</text>
+<rectangle x="430" y="1455" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1495.8" x2="467.6" y2="1503" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1503" x2="480" y2="1487.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1475" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chia mô hình theo kích thước và nhu cầu: bản nhỏ cho GPU 24GB, bản lớn cho GPU 80GB</text>
+<rectangle x="800" y="1455" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1495.8" x2="837.6" y2="1503" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1503" x2="850" y2="1487.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1475" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách bước mở rộng mô tả khỏi bước sinh video để cải thiện chi tiết mà không đổi mô hình</text>
+<text x="60" y="1637" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Wan-Video/Wan2.2 · Giấy phép: Apache-2.0 · 18.000 sao · Quét ngày 2026-10-16</text>
+</content>
