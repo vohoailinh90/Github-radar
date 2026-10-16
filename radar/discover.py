@@ -6,7 +6,7 @@ import datetime as dt
 import math
 import re
 
-from . import history
+from . import conditions, history
 from .net import HttpError
 
 FALLBACK_BUCKET = "software"     # for a requested repo none of whose topics is in any bucket
@@ -96,7 +96,7 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = No
     window = int(rise["created_within_days"])
     top_floor, rise_floor, per_page = int(cfg["min_stars"]), int(rise["min_stars"]), int(cfg["per_topic"])
     born = f" created:>={(today - dt.timedelta(days=window)).isoformat()}"
-    rising_on = bool(rise["enabled"]) and int(rise["slots"]) > 0
+    rising_on = conditions.rising_slots(cfg) > 0         # no slot can be filled (e.g. one pick): the rising queries would be wasted
     found: dict[str, dict] = {}
     dropped: dict[str, int] = {}
 
@@ -156,8 +156,7 @@ def pick(ranked: list[dict], cfg: dict, today: dt.date) -> list[dict]:
     start = today.toordinal() % len(ids)
     order = ids[start:] + ids[:start]
     total = int(cfg["picks_per_run"])
-    rise = cfg["rising"]
-    slots = min(int(rise["slots"]), total // 2) if rise["enabled"] else 0
+    slots = conditions.rising_slots(cfg)
     plain = _rotate(ranked, order, total)
     names = {c["full_name"] for c in plain}
     # copies, flagged `slot`: "rising" only says a repository is young, `slot` says which picks really used a reserved slot

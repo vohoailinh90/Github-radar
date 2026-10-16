@@ -149,7 +149,7 @@ def estimate(cfg: dict) -> dict:
     `searches` is the least: a busy topic can add one band query. `model_calls` is the least too: a fix round adds more.
     `pace_seconds` is the pause after each written post (radar.yaml pace_seconds), the main wait besides the models' own time."""
     topics = sum(len(b["topics"]) for b in cfg["buckets"])
-    passes = 2 if cfg["rising"]["enabled"] and int(cfg["rising"]["slots"]) > 0 else 1
+    passes = 2 if rising_slots(cfg) > 0 else 1
     posts = int(cfg["picks_per_run"]) * len(cfg["langs"])
     return {"searches": topics * passes, "search_seconds": round(topics * passes * float(cfg["search_interval_seconds"])),
             "model_calls": posts * 2, "pace_seconds": max(0, posts - 1) * round(float(cfg["pace_seconds"]))}
@@ -180,14 +180,33 @@ def preset(name: str, bucket_ids: list[str], path: Path | None = None) -> dict:
     return sanitize(items[name]["conditions"], bucket_ids)
 
 
+def merge(base: dict, top: dict) -> dict:
+    """`top` over `base`, key by key. `rising` is merged setting by setting; `buckets` (and every other key) in `top` replaces
+    the whole value in `base`, so a person who names buckets gets exactly those."""
+    out = dict(base)
+    for key, value in top.items():
+        out[key] = {**base[key], **value} if key == "rising" and key in base else value
+    return out
+
+
+def rising_slots(cfg: dict) -> int:
+    """The picks a scan really reserves for young repositories: the configured slots, never more than half of the picks.
+    One rule for the search (is the rising pass worth its queries?), the picking and the cost estimate."""
+    return min(int(cfg["rising"]["slots"]), int(cfg["picks_per_run"]) // 2) if cfg["rising"]["enabled"] else 0
+
+
 def from_env(env: dict, bucket_ids: list[str]) -> tuple[dict, str | None]:
-    """(overrides, label) from RADAR_CONDITIONS (inline JSON) or RADAR_PRESET (a saved name). Inline conditions win over a
-    preset; with both, the preset name is only the label. 'none' and an empty value mean "no preset"."""
+    """(overrides, label) from RADAR_PRESET (a saved name) and RADAR_CONDITIONS (inline JSON).
+
+    Both together ADD UP: the preset first, then the inline conditions over it, so `quet-nhanh` plus `{"min_stars": 5000}` is
+    still one post with the stars floor at 5,000. Where both set a value the inline one wins. The label says so
+    ("quet-nhanh+custom"); inline conditions alone are "custom". 'none' and an empty value mean "no preset"; an empty `{}`
+    adds nothing. A named preset must exist even when inline conditions follow it."""
     name = (env.get("RADAR_PRESET") or "").strip()
     name = "" if name == "none" else name
-    inline = (env.get("RADAR_CONDITIONS") or "").strip()
+    inline_text = (env.get("RADAR_CONDITIONS") or "").strip()
+    base = preset(name, bucket_ids) if name else {}
+    inline = sanitize(parse_json(inline_text, "RADAR_CONDITIONS"), bucket_ids) if inline_text else {}
     if inline:
-        return sanitize(parse_json(inline, "RADAR_CONDITIONS"), bucket_ids), (name if PRESET_NAME.fullmatch(name) else "custom")
-    if name:
-        return preset(name, bucket_ids), name
-    return {}, None
+        return merge(base, inline), (f"{name}+custom" if name else "custom")
+    return base, (name or None)

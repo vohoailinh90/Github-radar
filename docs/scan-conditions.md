@@ -10,7 +10,7 @@ Lịch tự chạy vẫn là thứ Tư và thứ Bảy, dùng đúng `radar.yaml
 |---|---|
 | `dry_run` | Mặc định **bật**: chỉ xếp hạng, không gọi model, không ghi gì. Bỏ chọn để viết bài thật |
 | `preset` | Chọn một bộ điều kiện đã lưu (bên dưới). `none` = `radar.yaml` nguyên trạng |
-| `conditions` | Điều kiện dùng một lần, dạng JSON. Thắng `preset`. Ví dụ `{"picks_per_run": 2, "min_stars": 3000}` |
+| `conditions` | Điều kiện dùng một lần, dạng JSON, **cộng vào** `preset`; chỗ nào cả hai đặt giá trị thì ô này thắng. Ví dụ `quet-nhanh` + `{"min_stars": 5000}` vẫn là 1 bài, sàn 5000 sao. `{}` không thêm gì |
 | `picks`, `langs` | Ô cũ. Nếu điền, chúng thắng cả `preset` lẫn `conditions` (cụ thể hơn) |
 | `repo`, `bucket` | Quét đúng một repo bạn chọn (xem README) |
 
@@ -27,7 +27,7 @@ Chạy thật (bỏ `dry_run`) gọi model, ghi `digests/`, `export/studio/`, `s
 | `min_stars` | Sàn sao của lượt tìm chính | 0–1.000.000 |
 | `max_days_since_push` | Repo phải có commit trong bấy nhiêu ngày | 1–3650 |
 | `langs` | Ngôn ngữ bài viết (mỗi ngôn ngữ thêm = thêm lượt gọi model) | `vi`, `en`, `ja` |
-| `rising.enabled`, `rising.slots`, `rising.created_within_days`, `rising.min_stars` | Lượt tìm thứ hai cho repo trẻ và số suất dành cho chúng | slots 0–10 (tối đa một nửa số bài), ngày 1–1825 |
+| `rising.enabled`, `rising.slots`, `rising.created_within_days`, `rising.min_stars` | Lượt tìm thứ hai cho repo trẻ và số suất dành cho chúng | slots 0–10, ngày 1–1825. Số suất thật là `min(slots, một nửa số bài)`: với 1 bài thì bằng 0 và lượt tìm repo trẻ không được gửi |
 | `buckets` | Chỉ quét những nhóm này, với những topic này. Thay hẳn danh sách nhóm của `radar.yaml` | id phải có trong `radar.yaml`; topic: chữ thường, số, gạch ngang, tối đa 50 ký tự, tối đa 8 topic mỗi nhóm |
 
 **Không đổi được từ điều kiện** (là luật nội dung và an toàn của bạn, nằm ở `radar.yaml` và `CLAUDE.md`): giấy phép được coi là miễn phí (`licenses`), model và họ model, studio, giới hạn README, nhịp nghỉ, thời gian chạy tối đa. Khóa lạ, kiểu sai, số ngoài khoảng, JSON lặp khóa hoặc có `NaN` đều bị từ chối **trước khi gọi GitHub hay model**, bằng một thông báo ngắn không lặp lại nguyên văn đầu vào.
@@ -36,7 +36,7 @@ Vì sao topic bị kiểm chặt: topic được ghép nguyên vào câu truy v�
 
 ## Thứ tự ưu tiên
 
-`radar.yaml` → (`conditions` nếu có, không thì `preset`) → ô/biến cụ thể (`picks`, `langs`, `RADAR_SEARCH_INTERVAL`…). Kiểm tra hợp lệ **một lần, sau cùng**. Mỗi lần quét ghi vào `state/runs/<ngày>.json` khóa `conditions`: `label` (tên preset, `custom`, hoặc `null` cho lượt theo lịch) và `resolved` (**giá trị cuối cùng**, không chỉ tên preset, vì preset có thể bị sửa sau này).
+`radar.yaml` → `preset` → `conditions` chồng lên preset (từng khóa; riêng `rising` từng thiết lập, còn `buckets` thay hẳn) → ô/biến cụ thể (`picks`, `langs`, `RADAR_SEARCH_INTERVAL`…). Kiểm tra hợp lệ **một lần, sau cùng**. Tên preset phải có thật kể cả khi có `conditions` đi kèm. Mỗi lần quét ghi vào `state/runs/<ngày>.json` khóa `conditions`: `label` (tên preset, `tên+custom` khi có điều kiện nhập thêm, `custom` khi chỉ có điều kiện nhập tay, hoặc `null` cho lượt theo lịch) và `resolved` (**giá trị cuối cùng**, không chỉ tên preset, vì preset có thể bị sửa sau này).
 
 ## Bộ điều kiện đã lưu
 

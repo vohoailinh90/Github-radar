@@ -70,6 +70,10 @@ def test_json_is_parsed_strictly_and_never_echoed():
                         ('{"a": ', "not valid JSON"), ("x" * 5000, "longer than"), ("[" * 100000, "RADAR_CONDITIONS")):
         with pytest.raises(ValueError, match=match):
             parse(text)
+    try:                                                                             # deep nesting inside the size cap must never escape as
+        parse("[" * 1990 + "]" * 1990)                                               # RecursionError: Python 3.11 hits its limit and says so
+    except ValueError:                                                               # cleanly, newer versions simply parse it (sanitize then
+        pass                                                                         # refuses a list)
     with pytest.raises(ValueError) as err:
         parse('{"secret-token-123": ')
     assert "secret-token-123" not in str(err.value)
@@ -112,15 +116,25 @@ def test_a_saved_preset_inline_conditions_and_the_precedence_between_them():
     ai = load(RADAR_PRESET="ai-sau")
     assert ai["scan_label"] == "ai-sau" and [b["id"] for b in ai["buckets"]] == ["ai"]
     inline = load(RADAR_PRESET="ai-sau", RADAR_CONDITIONS='{"picks_per_run": 1, "buckets": {"startup": ["saas"]}}')
-    assert inline["scan_label"] == "ai-sau" and inline["picks_per_run"] == 1                  # inline wins; the preset name is only the label
-    assert [b["id"] for b in inline["buckets"]] == ["startup"]                                 # and the buckets are replaced, not merged
+    assert inline["scan_label"] == "ai-sau+custom" and inline["picks_per_run"] == 1           # where both set a value, the inline one wins
+    assert [b["id"] for b in inline["buckets"]] == ["startup"]                                 # buckets are replaced wholesale, not merged
     assert load(RADAR_CONDITIONS='{"min_stars": 5000}')["scan_label"] == "custom"
+    # a preset and one more condition ADD UP: the preset's other values stay (the person asked for one quick post)
+    quick = load(RADAR_PRESET="quet-nhanh", RADAR_CONDITIONS='{"min_stars": 5000}')
+    assert quick["scan_label"] == "quet-nhanh+custom" and quick["min_stars"] == 5000
+    assert quick["picks_per_run"] == 1 and quick["rising"]["enabled"] is False                  # from the preset, not dropped
+    moi = load(RADAR_PRESET="repo-moi-noi", RADAR_CONDITIONS='{"rising": {"slots": 1}}')       # rising is merged setting by setting
+    assert moi["rising"] == {"enabled": True, "slots": 1, "created_within_days": 90, "min_stars": 200} and moi["picks_per_run"] == 4
+    assert load(RADAR_PRESET="ai-sau", RADAR_CONDITIONS="{}")["scan_label"] == "ai-sau"        # an empty object adds nothing
+    assert load(RADAR_PRESET="  ai-sau  ")["scan_label"] == "ai-sau"                           # stray spaces from a form box
+    assert load(RADAR_PRESET="none", RADAR_CONDITIONS='{"min_stars": 1}')["scan_label"] == "custom"
     assert load(RADAR_PRESET="ai-sau", RADAR_PICKS="2")["picks_per_run"] == 2                  # the explicit variables are more specific
     assert load(RADAR_CONDITIONS='{"langs": ["vi"]}', RADAR_LANGS="vi,en")["langs"] == ["vi", "en"]
 
 
 def test_a_bad_preset_or_condition_stops_the_run_before_anything_is_fetched():
     for env, match in (({"RADAR_PRESET": "nope"}, "unknown preset"), ({"RADAR_PRESET": "../etc"}, "not a preset name"),
+                       ({"RADAR_PRESET": "zzz", "RADAR_CONDITIONS": '{"min_stars": 1}'}, "unknown preset"),      # a named preset must exist even with inline conditions
                        ({"RADAR_CONDITIONS": '{"models": 1}'}, "unknown condition"), ({"RADAR_CONDITIONS": "{"}, "not valid JSON"),
                        ({"RADAR_CONDITIONS": '{"rising": {"slots": 5}, "picks_per_run": 2}'}, "slots between 0 and picks_per_run")):
         with pytest.raises(ValueError, match=match):
@@ -190,7 +204,7 @@ def test_every_run_report_records_the_conditions_it_ran_with(tmp_path, monkeypat
     finally:
         srv.close()
     assert plain["conditions"]["label"] is None and plain["conditions"]["resolved"]["picks_per_run"] == 3
-    assert narrowed["conditions"] == {"label": "ai-sau", "resolved": {**conditions.resolved(cfg)}}
+    assert narrowed["conditions"] == {"label": "ai-sau+custom", "resolved": {**conditions.resolved(cfg)}}
     assert narrowed["conditions"]["resolved"]["buckets"] == {"ai": ["llm", "rag"]}
     assert {p["bucket"] for p in narrowed["picks"]} == {"ai"} and len(narrowed["picks"]) <= 2
 
@@ -203,3 +217,22 @@ def test_the_command_line_takes_the_same_conditions(capsys):
     assert cli.main(["run", "--dry-run", "--conditions", '{"min_stars": "x"}']) == 2
     err = capsys.readouterr().err
     assert "unknown preset 'nope'" in err and "min_stars must be a whole number" in err
+
+
+def test_a_malformed_bucket_in_radar_yaml_is_a_clean_error_not_a_traceback(tmp_path):
+    for text in ("buckets: [{topics: [llm]}]", "buckets: [x]", "buckets: {ai: 1}", "buckets: []", "buckets: [{id: ai, topics: llm}]"):
+        path = tmp_path / "radar.yaml"
+        path.write_text(text, encoding="utf-8")
+        for env in ({}, {"RADAR_CONDITIONS": '{"min_stars": 1}'}, {"RADAR_PRESET": "ai-sau"}):
+            with pytest.raises(ValueError, match="bucket"):
+                config.load(path=path, env=env)
+        assert cli.main(["--config", str(path), "presets"]) == 2                  # and the command line says so, without a traceback
+
+
+def test_the_slots_rule_is_one_function_for_the_search_the_pick_and_the_estimate():
+    one_post = config.load(path=config.ROOT / "radar.yaml", env={"RADAR_PICKS": "1"})
+    assert conditions.rising_slots(one_post) == 0                                  # slots 1 is valid, but half of one pick is nothing
+    assert conditions.estimate(one_post)["searches"] == 16                          # so the rising pass is not paid for
+    assert conditions.rising_slots(load()) == 1 and conditions.estimate(load())["searches"] == 32
+    assert conditions.rising_slots(load(RADAR_CONDITIONS='{"rising": {"enabled": false}}')) == 0
+    assert conditions.rising_slots(load(RADAR_CONDITIONS='{"picks_per_run": 10, "rising": {"slots": 10}}')) == 5

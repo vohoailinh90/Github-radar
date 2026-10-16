@@ -32,7 +32,7 @@ on:
         options: [none, ai-sau, repo-moi-noi, khoi-nghiep-saas, cong-cu-dev, quet-nhanh]
         default: none
       conditions:
-        description: "One-off conditions as JSON, e.g. {\"picks_per_run\": 2, \"min_stars\": 3000} (wins over preset; see docs/scan-conditions.md)"
+        description: "One-off conditions as JSON, e.g. {\"picks_per_run\": 2, \"min_stars\": 3000}. Added to the preset; where both set a value this box wins (see docs/scan-conditions.md)"
         type: string
         default: ""
 
