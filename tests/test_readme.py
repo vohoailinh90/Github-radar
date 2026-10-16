@@ -668,3 +668,9 @@ def test_the_prompt_of_root_is_a_prompt_when_a_command_follows_it_and_no_other_p
     comment = "```console\n$ ls\n# this is a comment\n# apt-get install x\n```\n"
     assert readme.setup_commands(comment) == ["ls"]                    # after a `$` prompt a `#` line is a comment, never root's prompt
     assert readme.setup_commands("```console\n# this is a comment\nOutput\n```\n") == []
+
+
+def test_the_lines_npm_prints_after_a_root_prompt_are_output_too():
+    text = "```console\n# npm start\n> app@1.0.0 start\n> node index.js\nServer started\n# npm test\n```\n"
+    assert readme.setup_commands(text) == ["npm start", "npm test"]          # `# npm test` after the output is still root's prompt
+    assert readme.setup_commands("```console\n$ npm start\n> app@1.0.0 start\n# npm test\n```\n") == ["npm start"]      # but not after a `$` prompt

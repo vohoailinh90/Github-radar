@@ -702,16 +702,17 @@ SECONDARY_PROMPT = re.compile(r"^>\s+")         # what a shell shows when a comm
 def transcript_prompts(lines: list[str], roles: list[str]) -> list:
     """For each logical line of a `console` transcript: the prompt pattern that precedes what was typed, or None when the line is output.
     `> ` is the prompt of a line typed in a transcript that has no other prompt; after a `$`-style prompt it is the shell's secondary
-    prompt or output (npm prints `> pkg@1.0.0 start` after `$ npm start`), typed only inside a heredoc. A bare `# ` is root's prompt
-    when no other prompt came before and what follows is a command, otherwise a comment."""
-    seen, out = False, []
+    prompt or output (npm prints `> pkg@1.0.0 start` after `$ npm start`), typed only inside a heredoc; the same after root's prompt.
+    A bare `# ` is root's prompt when no `$`-style prompt came before and what follows is a command, otherwise a comment."""
+    seen, rooted, out = False, False, []        # a `$`-style prompt came before / a root prompt came before
     for line, role in zip(lines, roles):
         if SHELL_PROMPT.match(line):
             seen = True
             out.append(PROMPT)
         elif SECONDARY_PROMPT.match(line):
-            out.append(None if seen and role != "body" else PROMPT)
+            out.append(None if (seen or rooted) and role != "body" else PROMPT)
         elif not seen and ROOT_PROMPT.match(line) and is_command_line(ROOT_PROMPT.sub("", line, count=1)):
+            rooted = True
             out.append(ROOT_PROMPT)
         else:
             out.append(None)
