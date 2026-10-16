@@ -128,8 +128,12 @@ def fake_github(repos: list[dict] | None = None, readme: str = README, fail: tup
         if m:                                                    # one repository, by name in any letter case
             hit = next((r for r in repos if r["full_name"].lower() == m.group(1).lower()), None)
             return (200, hit) if hit else (404, {"message": "Not Found"})
+        if path.endswith("/pulls") and call["method"] == "GET":                   # open pull requests: none unless a test says otherwise
+            return 200, []
         if path.endswith("/pulls") and call["method"] == "POST":
-            return 201, {"html_url": "https://github.com/example-org/studio/pull/7"}
+            return 201, {"html_url": "https://github.com/example-org/studio/pull/7", "number": 7, "node_id": "PR_node_7"}
+        if path == "/graphql" and call["method"] == "POST":
+            return 200, {"data": {"enablePullRequestAutoMerge": {"pullRequest": {"number": 7}}}}
         return 404, {"message": "Not Found"}
 
     return _Server(handle)

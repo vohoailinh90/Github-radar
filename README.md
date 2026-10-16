@@ -50,7 +50,7 @@ Bài vi phạm sau **một** vòng sửa sẽ bị giữ lại, không xuất. M
 2. **Chạy thử không tốn quota**: Actions → *Radar scan* → *Run workflow* (mặc định `dry_run = true`): chỉ quét và xếp hạng.
 3. Sau khi xem danh sách ổn, chạy lại với `dry_run = false`; từ đó lịch tự chạy.
 4. Chạy trên VPS (như `docs/vps-team.md`): đặt biến repo `CI_RUNNER` = nhãn runner. **Giữ repo ở chế độ private.**
-5. Nếu bật branch protection cho `main`, bước commit của bot sẽ bị chặn: cho phép bot, hoặc đổi sang chạy qua PR.
+5. Nếu bật branch protection cho `main`, bước commit của bot sẽ bị chặn. Cách làm an toàn (token riêng, kết quả đi qua PR, thứ tự các bước): [`docs/branch-protection.md`](docs/branch-protection.md). Đừng bật bảo vệ trước khi làm xong các bước đó.
 
 ## Lệnh
 

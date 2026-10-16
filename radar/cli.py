@@ -146,6 +146,19 @@ def cmd_rerender(args, cfg) -> int:
     return 1 if args.slug and args.slug in report["skipped"] else 0
 
 
+def cmd_publish(args, cfg) -> int:
+    """Push the results commit in the current checkout to a new branch and open a pull request (see radar/publish.py)."""
+    from . import publish
+    repo = args.repo or os.environ.get("GITHUB_REPOSITORY", "")
+    run_id = os.environ.get("GITHUB_RUN_ID", "")
+    run_url = f"{os.environ.get('GITHUB_SERVER_URL', 'https://github.com')}/{repo}/actions/runs/{run_id}" if repo and run_id.isdigit() else ""
+    result = publish.publish(repo=repo, token=os.environ.get("RADAR_PR_TOKEN", ""), cwd=Path.cwd(), base=args.base,
+                             automerge=os.environ.get("RADAR_AUTOMERGE", "").lower() == "true", run_url=run_url,
+                             run_id=run_id, attempt=os.environ.get("GITHUB_RUN_ATTEMPT", "1"))
+    print(json.dumps(result, ensure_ascii=False))
+    return 0 if result["status"] in ("opened", "branch-exists") else 1
+
+
 def cmd_handoff(args, cfg) -> int:
     from . import handoff
     token = os.environ.get("STUDIO_REPO_TOKEN", "")
@@ -196,6 +209,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("rerender", help="draw digests, diagrams and studio posts again from the stored drafts (no model, no GitHub)")
     p.set_defaults(fn=cmd_rerender)
     p.add_argument("--slug", default=None, help="one run, e.g. 2026-10-12 (default: every run that has stored drafts)")
+    p = sub.add_parser("publish", help="push the committed results to a new branch and open a pull request (token: RADAR_PR_TOKEN)")
+    p.set_defaults(fn=cmd_publish)
+    p.add_argument("--repo", default=None, help="owner/name (default: GITHUB_REPOSITORY)")
+    p.add_argument("--base", default="main")
     p = sub.add_parser("handoff")
     p.set_defaults(fn=cmd_handoff)
     p.add_argument("campaign", nargs="?", default="")
