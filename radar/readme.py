@@ -748,26 +748,86 @@ def _typed(lang: str, command: str) -> bool:
     return not lang and is_command_line(command)
 
 
-def _string_open(lang: str, text: str) -> bool:
-    """True when a string (a quote of a POSIX shell, a PowerShell string) is still open at the end of the text."""
+COMPOUND_OPEN = {"if", "for", "while", "until", "case", "select"}      # a construct that goes on to its closing word, over several lines
+COMPOUND_CLOSE = {"fi", "done", "esac"}
+COMMAND_FOLLOWS = {"then", "do", "else", "elif", "if", "while", "until", "!", "{", "time"}      # the word after one of these begins a command
+
+
+def _compound_depth(text: str) -> int:
+    """How many compound commands of a POSIX shell are still open at the end of the text: `if`, `for`, `while`, `until`, `case` and `select`
+    until `fi`, `done` or `esac`, and a `{ ... }` group (also the body of `name() {`). A keyword counts where a command begins, outside quotes
+    and comments, so `echo if`, `"fi"` and `${x}` are not keywords."""
+    text = SHELL_PROMPT.sub("", text.lstrip(), count=1)
+    depth, word, quote, command_start, i = 0, "", "", True, 0
+
+    def end_word() -> None:
+        nonlocal depth, word, command_start
+        if not word:
+            return
+        if command_start and (word in COMPOUND_OPEN or word == "{"):
+            depth += 1
+        elif command_start and (word in COMPOUND_CLOSE or word == "}"):
+            depth = max(0, depth - 1)
+        command_start = command_start and word in COMMAND_FOLLOWS
+        word = ""
+
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            if ch == "\\" and quote == '"':
+                word += "xx"
+                i += 2
+                continue
+            quote = "" if ch == quote else quote
+            word += "x"
+        elif ch == "\\":
+            word += "x"                                      # an escaped character is part of a word, never a keyword
+            i += 2
+            continue
+        elif ch in "'\"":
+            quote = ch
+            word += "x"
+        elif _comment_at(text, i):
+            end_word()
+            i = text.find("\n", i) if "\n" in text[i:] else len(text)
+            continue
+        elif ch.isspace() and ch != "\n":
+            end_word()
+        elif ch in "\n;&|(":
+            end_word()
+            command_start = True
+        elif ch in ")<>":
+            end_word()
+            command_start = ch == ")"                        # `a) cmd` in a `case`
+        else:
+            word += ch
+        i += 1
+    end_word()
+    return depth
+
+
+def _construct_open(lang: str, text: str) -> bool:
+    """True when a construct that goes on over several lines is still open at the end of the text: a string (a quote of a POSIX shell, a
+    PowerShell string) or a compound command of a POSIX shell (`if [ -d build ]; then` until `fi`)."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, text):
         return False
     if _is_powershell(lang, text):
         state = _ps_state(text)
         return bool(state and state[3])
-    return bool(_shell_state(text)[0])
+    return bool(_shell_state(text)[0]) or _compound_depth(text) > 0
 
 
-def _quote_group(lang: str, command: str, following: list[str]) -> int:
-    """How many of the next lines finish a string that is open at the end of the command (`python -c "` over the script and `"`), 0 when
-    it is not one or when the string does not close within GRAMMAR_LOOKAHEAD lines. The line breaks, blank lines included, are part of
-    the string, so the lines are kept apart as the data of the command, like the body of a heredoc, and not joined."""
-    if not _typed(lang, command) or not _string_open(lang, command):
+def _open_group(lang: str, command: str, following: list[str]) -> int:
+    """How many of the next lines finish a construct that is open at the end of the command (`python -c "` over the script and `"`, `if ...;
+    then` over its body and `fi`), 0 when it is not open or does not close within GRAMMAR_LOOKAHEAD lines. The line breaks, blank lines
+    included, are part of it (a string's content, a script's statements), so the lines are kept apart as the data of the command, like the
+    body of a heredoc, and not joined."""
+    if not _typed(lang, command) or not _construct_open(lang, command):
         return 0
     text = command
     for n, line in enumerate(following[:GRAMMAR_LOOKAHEAD], 1):
-        text += "\n" + _piece(lang, line, command)           # a blank line is part of the string: a script has them
-        if not _string_open(lang, text):
+        text += "\n" + _piece(lang, line, command)
+        if not _construct_open(lang, text):
             return n
     return 0
 
@@ -775,8 +835,8 @@ def _quote_group(lang: str, command: str, following: list[str]) -> int:
 def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
     """True when the shell's grammar leaves the command unfinished (`printf foo |`; in PowerShell a pipe, a comma or an open bracket at the
     end of a line) and the next lines finish it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed, so that the lines are one command.
-    A string left open is not joined (see `_quote_group`): the line break is part of it."""
-    if lang in CMD_LANGS or re.match(CMD_PROMPT, command) or _string_open(lang, command):
+    A string or a compound command left open is not joined (see `_open_group`): the line break is part of it."""
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, command) or _construct_open(lang, command):
         return False
     powershell = _is_powershell(lang, command)
     unfinished = _ps_open if powershell else _incomplete
@@ -787,7 +847,7 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
         if not line.strip():
             return False
         text = _join(lang, text, line, None)
-        if _string_open(lang, text):
+        if _construct_open(lang, text):
             return False
         state = unfinished(text)
         if state is None:
@@ -888,7 +948,7 @@ def _dangling(lang: str, command: str) -> bool:
     typed = _typed(lang, command)
     if _is_powershell(lang, command):
         return typed and _ps_open(command) is True
-    return typed and (_incomplete(command) or _ends_in_redirection(command))
+    return typed and (_incomplete(command) or _ends_in_redirection(command) or _compound_depth(command) > 0)
 
 
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
@@ -950,8 +1010,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`
                 glue = None
                 continue
-            lines_in_string = _quote_group(lang, pending, body[index + 1:])
-            if lines_in_string:                   # `python -c "` over its script and `"`: the line breaks are data, like those of a heredoc
+            lines_in_string = _open_group(lang, pending, body[index + 1:])
+            if lines_in_string:                   # `python -c "` over its script and `"`, `if ...; then` over `fi`: the line breaks are data, like those of a heredoc
                 logical.append(pending)
                 owners.append(None)
                 opener = len(logical) - 1
@@ -1046,10 +1106,12 @@ def heredocs(text: str) -> tuple[list[list[str]], list[str]]:
     return groups, loose
 
 
-def heredoc_data(commands) -> list[bool]:
-    """For each entry of a list of command lines: whether it is data of a heredoc, a PowerShell here-string or a string that goes on over
-    several lines (its body, its closing word, the lines that finish the string) and so is printed as it is."""
-    flags, ends, text_so_far = [], [], None
+def heredoc_data(commands, shells=None) -> list[bool]:
+    """For each entry of a list of command lines: whether it is data of a heredoc, a PowerShell here-string, a string that goes on over
+    several lines or a compound command (`if ...; then` over its body and `fi`), that is its body, its closing word, the lines that finish
+    it, so that it is printed as it is. `shells` says which shell the commands are for, to read a string with that shell's rules: a name
+    ("powershell") for all of them, or {comparable form of a command: shell} as `shells()` gives it."""
+    flags, ends, text_so_far, ps = [], [], None, False
     for command in commands if isinstance(commands, (list, tuple)) else []:
         text = command if isinstance(command, str) else ""
         if ends:
@@ -1059,20 +1121,29 @@ def heredoc_data(commands) -> list[bool]:
         elif text_so_far is not None:
             flags.append(True)
             text_so_far += "\n" + text
-            if not _shell_state(text_so_far)[0]:
+            if not _list_construct_open(text_so_far, ps):
                 text_so_far = None
         else:
             flags.append(False)
             if text.strip():
                 ends = _heredoc_openers(text)
-                if not ends and _shell_state(text)[0]:
+                ps = (shells == "powershell") if isinstance(shells, str) else (shells or {}).get(norm_command(text)) == "powershell"
+                if not ends and _list_construct_open(text, ps):
                     text_so_far = text
     return flags
 
 
-def command_count(commands) -> int:
+def _list_construct_open(text: str, powershell: bool) -> bool:
+    """`_construct_open` for the text of a command in a list, where the shell is told by the caller and not by a fence or a prompt."""
+    if powershell:
+        state = _ps_state(text)
+        return bool(state and state[3])
+    return bool(_shell_state(text)[0]) or _compound_depth(text) > 0
+
+
+def command_count(commands, shells=None) -> int:
     """How many commands a list of command lines holds: a heredoc (its opening line, body and closing word, one entry each) is one."""
-    return sum(1 for command, data in zip(commands if isinstance(commands, (list, tuple)) else [], heredoc_data(commands))
+    return sum(1 for command, data in zip(commands if isinstance(commands, (list, tuple)) else [], heredoc_data(commands, shells))
                if not data and isinstance(command, str) and command.strip())
 
 

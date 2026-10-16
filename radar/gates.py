@@ -420,18 +420,19 @@ def shown_commands(draft: dict) -> list[tuple[str, object]]:
 def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
     """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. Only the
     commands the reader sees count, so a `try_it` next to a guide adds nothing."""
-    wanted = _command_keys(readmelib.setup_commands(facts["readme"]))
+    shells = facts.get("shells") if isinstance(facts.get("shells"), dict) else None
+    wanted = _command_keys(readmelib.setup_commands(facts["readme"]), shells)
     by_field: dict[str, list] = {}
     for field, command in shown_commands(draft):
         by_field.setdefault(field, []).append(command)
-    used = set().union(*(_command_keys(commands) for commands in by_field.values()))
+    used = set().union(*(_command_keys(commands, shells) for commands in by_field.values()))
     return len(used & wanted), len(wanted)
 
 
-def _command_keys(commands: list) -> set[str]:
+def _command_keys(commands: list, shells=None) -> set[str]:
     """The comparable form of each command of a list of command lines. A heredoc (its opening line, body and closing word) is one
     command, keyed by its opening line: its body lines are data and not commands to count."""
-    return {key for command, data in zip(commands, readmelib.heredoc_data(commands))
+    return {key for command, data in zip(commands, readmelib.heredoc_data(commands, shells))
             if not data and isinstance(command, str) and (key := _norm_cmd(command))}
 
 

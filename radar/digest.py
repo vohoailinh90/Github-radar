@@ -65,7 +65,7 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 def _bash_block(commands, shell: str = "bash") -> list[str]:
     """The lines of a fenced block of `shell` (bash, powershell, bat) holding `commands`, the fence longer than any run of backticks in them."""
-    lines = [str(c).rstrip() if data else _command(c) for c, data in zip(commands, readmelib.heredoc_data(commands))]       # heredoc data as it is
+    lines = [str(c).rstrip() if data else _command(c) for c, data in zip(commands, readmelib.heredoc_data(commands, shell))]       # heredoc data as it is
     fence = "```"
     while any(fence in line for line in lines):
         fence += "`"
@@ -77,7 +77,7 @@ def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
     PowerShell line is not fenced as bash. When a step has a shell other than bash, each block says which shell it is for."""
     table = facts.get("shells") if isinstance(facts.get("shells"), dict) else {}
     groups: list[tuple[str, list]] = []
-    for command, data in zip(commands, readmelib.heredoc_data(commands)):
+    for command, data in zip(commands, readmelib.heredoc_data(commands, table)):
         shell = table.get(readmelib.norm_command(command))
         shell = shell if shell in ("powershell", "bat", "fish") else "bash"
         if groups and (data or groups[-1][0] == shell or not str(command).strip()):        # a blank line and the data of a heredoc stay in the block they are in

@@ -895,3 +895,47 @@ def test_a_powershell_block_comment_is_not_code_through_its_terminator_and_rem_i
     assert readme.setup_commands(text)[:1] == ["Get-Item x  | Select y"] and "Remove-Item -Recurse output" not in readme.setup_commands(text)
     assert readme.setup_commands("```cmd\nrem note\nREM Note\nRem\nsetup.bat\n```\n") == ["setup.bat"]
     assert readme.shells("```cmd\nrem note\nsetup.bat\n```\n") == {"setup.bat": "bat"}
+
+
+def test_a_compound_command_over_several_lines_is_a_group_that_is_copied_whole():
+    def groups(text):
+        return readme.heredocs(text)
+    iffy = "```bash\nif [ -d build ]; then\n  rm -rf build\nfi\nls\n```\n"
+    assert groups(iffy) == ([["if [ -d build ]; then", "  rm -rf build", "fi"]], ["if [ -d build ]; then", "ls"])
+    assert readme.command_count(readme.setup_commands(iffy)) == 2
+    loop = "```sh\nfor f in *.mp4; do\n  ffmpeg -i \"$f\" out/\"$f\"\ndone\nwhile read l; do echo $l; done < list.txt\n```\n"
+    assert groups(loop)[0] == [["for f in *.mp4; do", '  ffmpeg -i "$f" out/"$f"', "done"]]            # the one-line loop is a command of its own
+    case = "```bash\ncase $OS in\n  mac) brew install ffmpeg;;\n  *) apt install ffmpeg;;\nesac\n```\n"
+    assert groups(case)[0] == [["case $OS in", "  mac) brew install ffmpeg;;", "  *) apt install ffmpeg;;", "esac"]]
+    func = "```bash\nsetup() {\n  pip install x\n}\nsetup\n```\n"
+    assert groups(func) == ([["setup() {", "  pip install x", "}"]], ["setup() {", "setup"])
+    transcript = "```console\n$ if true; then\n>   echo yes\n> fi\n$ ls\n```\n"
+    assert groups(transcript)[0] == [["$ if true; then", ">   echo yes", "> fi"]]
+    assert readme.setup_commands(transcript) == ["if true; then", "echo yes", "fi", "ls"]
+
+
+def test_a_compound_command_that_never_closes_is_dropped_and_words_that_are_not_keywords_open_nothing():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nls\nif [ -d build ]; then\nls build\n```\n")[0] == "ls" and "if [ -d build ]; then" not in lines("```bash\nls\nif [ -d build ]; then\nls build\n```\n")
+    c = readme._compound_depth
+    for text, depth in (("if true; then echo x; fi", 0), ("echo if", 0), ('echo "if"', 0), ("echo ${x}", 0), ("echo a # if", 0), ("make if", 0), ("echo done", 0),
+                        ("echo $(if a; then b; fi)", 0), ("{ echo a; }", 0), ("(cd x && ls)", 0), ("if a; then b; elif c; then d; else e; fi", 0),
+                        ("if [ -d build ]; then", 1), ("for i in 1 2; do", 1), ("foo() {", 1), ("$ if true; then", 1), ("case $x in\n a) b;;", 1)):
+        assert c(text) == depth, text
+    yaml = "```yaml\nif: true\nfor: x\n```\n\n```python\nif x:\n    print(1)\n```\n"
+    assert [owners for _, _, owners in readme._scan(yaml)] == [[None, None], [None, None]]               # samples in other languages are not shell
+    assert readme.heredoc_data(["if true; then", "  ls", "fi", "pwd"]) == [False, True, True, False]
+
+
+def test_a_powershell_string_with_an_escaped_quote_before_its_line_break_stays_in_its_fence():
+    from radar import digest
+    text = "```powershell\nWrite-Host \"say `\"\nhi\"\nGet-Item x\n```\n"
+    assert readme.heredocs(text) == ([['Write-Host "say `"', 'hi"']], ['Write-Host "say `"', "Get-Item x"])
+    table = readme.shells(text)
+    assert table == {'Write-Host "say `"': "powershell", "Get-Item x": "powershell"}
+    commands = ['Write-Host "say `"', 'hi"', "Get-Item x"]
+    assert readme.heredoc_data(commands, table) == [False, True, False]                       # with the shell told, as the scanner read it
+    assert readme.heredoc_data(commands) == [False, False, True]                              # POSIX rules would end the string at the escaped quote
+    lines = digest._command_blocks({"shells": table}, commands, {"shell_bash": "bash", "shell_powershell": "PowerShell"})
+    assert lines == ["_PowerShell_", "", "```powershell", 'Write-Host "say `"', 'hi"', "Get-Item x", "```"]        # one block, in the opener's shell
