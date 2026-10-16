@@ -420,9 +420,9 @@ def test_a_heredoc_counts_as_one_command_in_a_list_of_commands():
 def test_a_secondary_prompt_continues_the_command_before_it_only_when_that_command_is_incomplete():
     text = ("```console\n$ printf foo |\n> sed s/foo/bar/\n$ echo \"multi\n> line\"\n$ (cd x &&\n> ls)\n"
             "$ npm start\n> myapp@1.0.0 start\n> node index.js\nServer started\n```\n")
-    assert readme.code_blocks(text) == [("console", ["$ printf foo | sed s/foo/bar/", '$ echo "multi', '> line"', "$ (cd x && ls)", "$ npm start",
+    assert readme.code_blocks(text) == [("console", ["$ printf foo | sed s/foo/bar/", '$ echo "multi', '> line"', "$ (cd x &&", "> ls)", "$ npm start",
                                                     "> myapp@1.0.0 start", "> node index.js", "Server started"])]     # an open quote is a group, not a join
-    assert readme.setup_commands(text)[:5] == ["printf foo | sed s/foo/bar/", 'echo "multi', 'line"', "(cd x && ls)", "npm start"]
+    assert readme.setup_commands(text)[:5] == ["printf foo | sed s/foo/bar/", 'echo "multi', 'line"', "(cd x &&", "ls)"]
     assert readme.code_blocks("```console\n> npm install x\n> npm run build\n```\n") == [("console", ["> npm install x", "> npm run build"])]
     for done in ("pip install x", "echo 'a | b'", "echo \"a\" && ls", "echo a \\| b", "(ls)"):
         assert not readme._incomplete(done), done
@@ -466,7 +466,7 @@ def test_a_command_that_the_shell_grammar_leaves_unfinished_is_joined_in_any_pos
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```bash\nprintf foo |\nsed s/foo/bar/\necho \"hello\nworld\"\n```\n") == ["printf foo | sed s/foo/bar/", 'echo "hello', 'world"']
     assert lines("```bash\ncurl -X POST http://x -d '{\n  \"a\": 1\n}'\npip install y\n```\n") == ["curl -X POST http://x -d '{", '  "a": 1', "}'", "pip install y"]
-    assert lines("```sh\n(cd x &&\n ls)\nmake &&\nmake test\n```\n") == ["(cd x && ls)", "make && make test"]
+    assert lines("```sh\n(cd x &&\n ls)\nmake &&\nmake test\n```\n") == ["(cd x &&", " ls)", "make && make test"]
     # the same for a transcript, where the secondary prompt is dropped
     assert lines("```console\n$ printf foo |\n> sed s/foo/bar/\n```\n") == ["$ printf foo | sed s/foo/bar/"]
 
@@ -996,3 +996,20 @@ def test_a_powershell_line_that_ends_in_a_binary_operator_or_a_pipeline_chain_go
     assert lines("```powershell\nGet-ChildItem *\nGet-ChildItem C:\\tmp\\\nRemove-Item x -f\nRemove-Item y -Force\n```\n") == [
         "Get-ChildItem *", "Get-ChildItem C:\\tmp\\", "Remove-Item x -f", "Remove-Item y -Force"]           # a wildcard, a path and `-f` do not want a next line
     assert lines("```powershell\nGet-Item x &&\n```\n") == []                                              # a chain with nothing after it is dropped
+
+
+def test_a_subshell_or_substitution_over_several_lines_is_a_group_because_a_line_break_separates_statements():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = "```bash\nx=$(\n  echo one\n  echo two\n)\n(cd x &&\n  ls)\nmake &&\nmake test\nls\n```\n"
+    assert readme.heredocs(text) == ([["x=$(", "  echo one", "  echo two", ")"], ["(cd x &&", "  ls)"]], ["x=$(", "(cd x &&", "make && make test", "ls"])
+    assert lines(text)[-2:] == ["make && make test", "ls"]                          # a pipe or `&&` at the end of a line is still joined
+    assert lines("```bash\nls\n(cd x\n```\n") == ["ls"]                         # a parenthesis that never closes
+    assert readme.heredoc_data(["x=$(", "echo one", "echo two", ")", "ls"]) == [False, True, True, True, False]
+
+
+def test_a_here_string_keeps_a_block_comment_marker_in_its_data():
+    text = '```powershell\n$x = @"\nliteral <# not a comment #> text\n"@\nGet-Item <# note #> y\n```\n'
+    assert readme.heredocs(text) == ([['$x = @"', "literal <# not a comment #> text", '"@']], ['$x = @"', "Get-Item  y"])
+    raw = "```powershell\n$y = @'\n<# raw #>\n'@ | Out-Null\nGet-Item z\n```\n"
+    assert readme.heredocs(raw) == ([["$y = @'", "<# raw #>", "'@ | Out-Null"]], ["$y = @'", "Get-Item z"])

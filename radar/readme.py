@@ -732,11 +732,17 @@ def _join(lang: str, text: str, line: str, glue) -> str:
 
 
 def _strip_ps_block_comments(lines: list[str]) -> list[str]:
-    """The lines of a PowerShell block without its `<# ... #>` comments (one or several lines, outside strings and `#` comments): everything
-    from `<#` through `#>` is comment text, even a line that looks like a command. A line that is only comment is dropped; a comment that
-    never closes runs to the end of the block."""
-    out, inside = [], False
+    """The lines of a PowerShell block without its `<# ... #>` comments (one or several lines, outside strings, here-strings and `#` comments):
+    everything from `<#` through `#>` is comment text, even a line that looks like a command. A line that is only comment is dropped; a
+    comment that never closes runs to the end of the block. The lines of a here-string, up to the one that begins with its closing mark,
+    are data and stay as they are."""
+    out, inside, here_end = [], False, ""
     for line in lines:
+        if here_end:
+            out.append(line)
+            if line.startswith(here_end):
+                here_end = ""
+            continue
         kept, i, quote = "", 0, ""
         while i < len(line):
             if inside:
@@ -763,6 +769,9 @@ def _strip_ps_block_comments(lines: list[str]) -> list[str]:
             kept, i = kept + ch, i + 1
         if kept.strip() or not line.strip():
             out.append(kept.rstrip() if kept.strip() else kept)
+        if not inside:                                                         # `@"` leaves a quote open at the end of the line: it is a here-string
+            opens = _here_string_openers(kept)
+            here_end = opens[0][0] if opens else ""
     return out
 
 
@@ -857,13 +866,15 @@ def _compound_depth(text: str) -> int:
 
 def _construct_open(lang: str, text: str) -> bool:
     """True when a construct that goes on over several lines is still open at the end of the text: a string (a quote of a POSIX shell, a
-    PowerShell string) or a compound command of a POSIX shell (`if [ -d build ]; then` until `fi`)."""
+    PowerShell string), a parenthesis (a subshell, a command substitution) or a compound command of a POSIX shell (`if [ -d build ]; then`
+    until `fi`). A line break inside one of these separates statements, so the lines are not joined with a space."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, text):
         return False
     if _is_powershell(lang, text):
         state = _ps_state(text)
         return bool(state and state[3])
-    return bool(_shell_state(text)[0]) or _compound_depth(text) > 0
+    quote, parens, _, _ = _shell_state(text)
+    return bool(quote) or parens > 0 or _compound_depth(text) > 0
 
 
 def _open_group(lang: str, command: str, following: list[str]) -> int:
@@ -1187,7 +1198,8 @@ def _list_construct_open(text: str, powershell: bool) -> bool:
     if powershell:
         state = _ps_state(text)
         return bool(state and state[3])
-    return bool(_shell_state(text)[0]) or _compound_depth(text) > 0
+    quote, parens, _, _ = _shell_state(text)
+    return bool(quote) or parens > 0 or _compound_depth(text) > 0
 
 
 def command_count(commands, shells=None) -> int:
