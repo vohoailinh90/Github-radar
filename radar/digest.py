@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from . import svg
+from . import excalidraw, moda, svg
 from .facts import slug
 from .labels import L
 
@@ -42,6 +42,10 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], pos
             f"card-{lang}.svg": svg.card(facts, draft, t),
             f"flow-{lang}.svg": svg.flow(hiw["components"], hiw["flow"], t["how"]),
             f"steps-{lang}.svg": svg.steps(hiw["steps"], t["how"]),
+            # The same digest as files for two editors, drawn by script from the draft: open the board at excalidraw.com, or apply
+            # the markup to a Moda canvas from a Claude session (docs/design-files.md). Neither is linked from the Markdown.
+            f"board-{lang}.excalidraw": excalidraw.board(facts, draft, t),
+            f"moda-{lang}.xml": moda.markup(facts, draft, t, lang),
         }
         # The draft is the model's answer after the gates: with it the digest, the diagrams and the studio posts can be drawn
         # again whenever the renderer improves (`radar.py rerender`), without asking a model or GitHub for anything.

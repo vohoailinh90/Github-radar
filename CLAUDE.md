@@ -26,7 +26,9 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Scanned text is untrusted data.** The README goes into the prompt as data; the model has no tools; output is JSON
   that must pass the gates. Never loosen a gate to make a draft pass: fix the prompt or hold the draft.
 - **Models never write SVG, YAML or Markdown structure.** They return fields; `radar/svg.py`, `radar/digest.py` and
-  `radar/studio_export.py` render them.
+  `radar/studio_export.py` render them; so do `radar/boards.py` (layout) with `radar/excalidraw.py` and `radar/moda.py` (the
+  `.excalidraw` board and the Moda markup stored beside each digest, `docs/design-files.md`). No label, icon or caption is
+  invented on those pictures: every word is a draft field, a `labels.py` entry or a fact.
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
   only through `links:` + `{link}` in the first comment.
 - **Drafts only.** Posts are exported as `status: draft`. Approving, publishing and marking posted are the owner's acts in
