@@ -164,6 +164,19 @@ IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 IMG_TAG = re.compile(r"<img\b[^>]*>", re.I)
 
 
+CODE_SPAN = re.compile(r"(?<!`)(`+)(?!`)([^\n]*?[^`\n])\1(?!`)")
+
+
+def _outside_code_spans(text: str, fn) -> str:
+    """`fn` applied to the text between its inline code spans: what a span holds (`printf '![x](y)'`) is a command's own and stays."""
+    out, last = [], 0
+    for found in CODE_SPAN.finditer(text):
+        out += [fn(text[last:found.start()]), found.group(0)]
+        last = found.end()
+    out.append(fn(text[last:]))
+    return "".join(out)
+
+
 def _uncomment(text: str) -> str:
     """The text without its HTML comments, a fenced code block excepted (what looks like a comment there is the code's). A comment
     that is never closed is left as it is: it would otherwise swallow the rest of the README."""
@@ -193,7 +206,7 @@ def clean_markup(text: str) -> str:
     code block: a configuration file, a template or a command there is kept exactly as the README has it, because a guide prints it."""
     parts, run, fence = [], [], None
     def flush():
-        chunk = IMG_TAG.sub("", IMAGE.sub("", "".join(run)))
+        chunk = _outside_code_spans("".join(run), lambda part: IMG_TAG.sub("", IMAGE.sub("", part)))
         parts.append(re.sub(r"\n{3,}", "\n\n", chunk))
         run.clear()
     for line in _uncomment(text).splitlines(keepends=True):
@@ -1440,6 +1453,13 @@ def shells(text: str) -> dict[str, str]:
             shell = "bash"
             posix.add(key)
         found.setdefault(key, shell)
+    for line in prose_lines(text):                            # a command written with an unambiguous prompt outside a fence: `PS C:\\> Get-Date`
+        line = line.strip()
+        for candidate in [line] + [span.strip() for span in re.findall(r"`([^`\n]+)`", line)]:
+            shell = "powershell" if POWERSHELL_PROMPT.match(candidate) else "bat" if re.match(CMD_PROMPT, candidate) else ""
+            key = norm_command(candidate) if shell else ""
+            if key and not _is_comment(key):
+                found.setdefault(key, shell)
     return {key: shell for key, shell in found.items() if shell != "bash" and key not in posix}
 
 

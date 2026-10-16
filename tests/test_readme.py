@@ -1196,3 +1196,12 @@ def test_a_powershell_ternary_goes_on_after_its_question_mark_and_its_colon():
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```pwsh\n$result = $ok ?\n  'yes' :\n  'no'\nls\n```\n") == ["$result = $ok ? 'yes' : 'no'", "ls"]
     assert lines("```pwsh\ncd C:\nGet-Item $env:\n$x = 'a:'\nWrite-Host Done ?\n```\n") == ["cd C:", "Get-Item $env:", "$x = 'a:'", "Write-Host Done ?"]          # a command's own `:` and `?` end nothing
+
+
+def test_inline_code_keeps_its_image_markup_and_a_prompted_command_outside_a_fence_has_its_shell():
+    text = "Run `printf '![x](y)'` and ![badge](http://b/svg) <img src=x> also `echo \"<img src=y>\"`.\n"
+    assert readme.clean_markup(text) == "Run `printf '![x](y)'` and   also `echo \"<img src=y>\"`."          # a span is a command's own, a badge is not
+    assert readme.clean_markup("![a](b)\n\n```bash\nprintf '![x](y)'\n```\n") == "```bash\nprintf '![x](y)'\n```"
+    assert readme.shells("Try it:\n\nPS C:\\> Get-Date\n\nor `C:\\Users\\me> dir /x` here.\n\n```bash\nls\n```\n") == {"Get-Date": "powershell", "dir /x": "bat"}
+    assert readme.shells("PS C:\\> ls\n\n```bash\nls\n```\n") == {}                          # a Unix block shows it too: no caption
+    assert readme.shells("A sentence with PS in it and $ not a prompt.\n") == {}
