@@ -1,0 +1,120 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn nhờ một trợ lý ngồi gõ lệnh trực tiếp trên trình duyệt đã đăng nhập sẵn của bạn, thay vì cố gắng tìm cách đột nhập qua cửa sổ không có chìa khóa.",
+    "caveats": [
+      "Không thể chạy headless độc lập vì bắt buộc duy trì một tab trình duyệt đã đăng nhập",
+      "Cần tạo dự án thủ công trên giao diện web và sao chép mã FLOW_PROJECT_ID vào biến môi trường",
+      "Một số tính năng mô hình Veo như video upscale hay start-and-end frame chưa hỗ trợ trên cơ chế batch"
+    ],
+    "facebook": {
+      "caption": "Tự động hoá tạo video từ Google Flow bằng Browser Bridge.\nKhông có REST API? FlowKit giải quyết bằng Chrome Extension đóng vai trò cầu nối.\nExtension tự xin reCAPTCHA và gửi batchexecute ngay trong tab đã đăng nhập.\nQuy trình tự động từ kịch bản, giữ nhất quán nhân vật tới xuất video 8 giây.\nMột giải pháp kiến trúc đáng học hỏi khi cần tự động hoá ứng dụng web đóng.",
+      "hashtags": [
+        "#FlowKit",
+        "#AIVideo",
+        "#Automation",
+        "#BrowserBridge",
+        "#SoftwareDesign"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Cầu nối dùng tiện ích mở rộng trình duyệt để chuyển tiếp lệnh từ backend vào phiên đăng nhập web",
+        "term": "Browser Bridge"
+      },
+      {
+        "meaning": "Giao thức gọi thủ tục từ xa nội bộ của web app Google để gom nhóm và gửi yêu cầu",
+        "term": "batchexecute"
+      },
+      {
+        "meaning": "Hình ảnh nhân vật hoặc bối cảnh gốc dùng làm mẫu chuẩn để AI giữ nguyên chi tiết qua nhiều cảnh",
+        "term": "Reference Image"
+      }
+    ],
+    "hook": "Làm sao gọi API của một dịch vụ web không có REST API mở và bắt buộc phải đăng nhập trên trình duyệt?",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Python Agent",
+          "role": "Dịch vụ FastAPI và SQLite quản lý hàng đợi, xử lý hậu kỳ và điều phối dữ liệu qua WebSocket."
+        },
+        {
+          "evidence": "README",
+          "name": "Chrome Extension",
+          "role": "Service worker đóng vai trò cầu nối, lấy token reCAPTCHA và thực thi RPC trực tiếp trong ngữ cảnh trang."
+        },
+        {
+          "evidence": "README",
+          "name": "Trình duyệt mở sẵn",
+          "role": "Tab trình duyệt giữ phiên đăng nhập hợp lệ với cookie và token bảo mật cần thiết để ký RPC."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Python agent tiếp nhận kịch bản, xử lý logic hàng đợi và gửi dữ liệu yêu cầu sang Chrome extension thông qua kết nối WebSocket nội bộ.",
+          "title": "Tiếp nhận tác vụ"
+        },
+        {
+          "evidence": "README",
+          "text": "Chrome extension hoạt động ngay trong tab dịch vụ, tự lấy token reCAPTCHA, gắn cookie phiên và gửi batchexecute RPC hợp lệ tới máy chủ.",
+          "title": "Xác thực và ký RPC"
+        },
+        {
+          "evidence": "README",
+          "text": "Google Flow tiếp nhận lệnh và tạo ảnh thực thể tham chiếu, ảnh cảnh quay cùng các đoạn video ngắn 8 giây thông qua mô hình Omni Flash.",
+          "title": "Sinh hình ảnh và clip"
+        },
+        {
+          "evidence": "README",
+          "text": "Agent tải các clip hoàn thành, ghép nối theo mốc thời gian giọng đọc narration, tạo ảnh thumbnail và chuẩn bị dữ liệu xuất bản video hoàn chỉnh.",
+          "title": "Hậu kỳ và đóng gói"
+        }
+      ]
+    },
+    "learn": [
+      "Kỹ thuật Browser Bridge: dùng extension để tương tác với web app bảo mật thay vì cố chạy headless",
+      "Đồng nhất nhân vật đa cảnh: tạo ảnh tham chiếu một lần để áp dụng xuyên suốt chuỗi khung hình",
+      "Thiết kế pipeline phân tầng: tách biệt rõ ràng giữa điều phối tác vụ, giao tiếp mạng và hậu kỳ media"
+    ],
+    "one_liner": "Hệ thống tự động hoá sản xuất video bằng cách điều khiển Google Flow thông qua Chrome extension chạy trực tiếp trong phiên đăng nhập web.",
+    "problem": "Google Flow sử dụng cơ chế bảo mật nghiêm ngặt với cookie phiên, mã bảo mật trang và reCAPTCHA, khiến các lệnh gọi API thông thường không thể chạy độc lập. Người dùng phải thao tác tay từng cảnh quay rất tốn thời gian và khó giữ tính đồng quán nhân vật giữa các phân đoạn. FlowKit giải quyết việc tự động hoá quy trình này mà không cần API chính thức.",
+    "title": "FlowKit: Cầu nối tự động hoá tạo video AI từ Google Flow",
+    "try_it": {
+      "commands": [
+        "./setup.sh",
+        "export FLOW_PROJECT_ID=<that uuid>",
+        "python -m agent.main",
+        "curl http://127.0.0.1:8100/health"
+      ],
+      "note": "Cần nạp extension vào Chrome, đăng nhập trang web Flow và giữ mở tab đó trước khi kích hoạt agent."
+    },
+    "who_for": [
+      "Lập trình viên muốn tìm hiểu giải pháp Browser Bridge để tự động hoá ứng dụng web đóng",
+      "Nhà sáng tạo nội dung cần tạo video nhiều cảnh có độ nhất quán nhân vật cao",
+      "Kỹ sư phần mềm xây dựng quy trình tự động hoá đa bước từ kịch bản đến video thành phẩm"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 508,
+    "full_name": "crisng95/flowkit",
+    "language": "Python",
+    "license": "MIT",
+    "scanned": "2026-10-16",
+    "stars": 981,
+    "url": "https://github.com/crisng95/flowkit"
+  },
+  "lang": "vi",
+  "position": 1
+}
