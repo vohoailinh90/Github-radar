@@ -445,6 +445,13 @@ def test_a_continuation_mark_inside_a_comment_or_at_the_end_of_a_block_continues
     assert readme._has_comment("a # b") and readme._has_comment("# b") and not readme._has_comment("a#b") and not readme._has_comment("'a # b'")
 
 
+def test_a_cmd_prompt_needs_no_space_after_it_unless_the_path_is_a_file_or_the_arrow_is_doubled():
+    text = ("```console\nC:\\test>dir /x\nC:\\x\\run.exe>out.txt\nC:\\X\\RUN.EXE>out.txt\nC:\\logs\\app>>x\nC:\\v1.2>dir\n"
+            "C:\\tools\\run.exe > out.txt\nC:\\run.exe 2> err.txt\nC:\\a\\b.ps1>log\n```\n")
+    assert readme.setup_commands(text) == ["dir /x", "dir"]
+    assert readme.shells(text) == {"dir /x": "bat", "dir": "bat"}
+
+
 def test_a_cmd_prompt_may_hold_a_path_with_spaces_and_a_redirection_is_still_not_a_prompt():
     text = ("```console\nC:\\Program Files\\repo> winget install pkg\nC:\\tools\\run.exe > out.txt\nC:\\> dir\nC:\\x\\run.exe>out.txt\n```\n")
     assert readme.setup_commands(text) == ["winget install pkg", "dir"]

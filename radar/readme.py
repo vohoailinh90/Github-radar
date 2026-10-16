@@ -375,7 +375,9 @@ def is_local(url: str) -> bool:
 SHELL_LANGS = {"bash", "sh", "shell", "zsh", "fish", "ksh", "dash", "ash", "powershell", "pwsh", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
 POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)[ \t]?[$#]\s+"      # `user@host:~$ `, `[me@box ~]$ `, `root@host:/# `
-CMD_PROMPT = r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)>(?:\s+|$)"                                      # `C:\Users\me> `, `C:\Program Files\repo> `: a path, then `>` with no space before it (`run.exe > out` is a redirection)
+_NOT_A_FILE = "(?i:" + "".join(f"(?<!\\.{ext})" for ext in ("exe", "bat", "cmd", "com", "ps1", "py", "sh", "js")) + ")"        # `run.exe>out`: a file, not a folder
+CMD_PROMPT = (r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)"
+              r"(?:>(?:\s+|$)|" + _NOT_A_FILE + r">(?=[^\s>]))")      # `C:\Users\me> dir`, `C:\test>dir /x`; a space before the `>` or `run.exe>out` is a redirection
 PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")             # a prompt in a transcript (`console`): `$ `, `> `, `PS C:\\>`, the two above
 SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")        # a prompt in any other block: `> file` there is a redirection, a command
 
