@@ -71,6 +71,8 @@ python3 radar.py handoff            # mở PR nháp vào tool-marketing-studio
 
 Không cần chờ thứ Tư hay thứ Bảy: Actions → *Radar scan* → *Run workflow*, chọn một bộ ở ô `preset` (`ai-sau`, `repo-moi-noi`, `khoi-nghiep-saas`, `cong-cu-dev`, `quet-nhanh`) hoặc dán JSON vào ô `conditions`. Điều kiện chỉ áp dụng cho lần quét đó, được kiểm chặt trước khi gọi GitHub hay model, và được ghi vào báo cáo của lần chạy. Lịch tự chạy vẫn dùng `radar.yaml`. Chi tiết, cách thêm bộ mới và những gì cần thử tay một lần: [`docs/scan-conditions.md`](docs/scan-conditions.md). `python3 radar.py presets` liệt kê các bộ đã lưu và chi phí ước tính.
 
+**Hoặc bấm trên một trang:** mở [`docs/ui/index.html`](docs/ui/index.html) (tải về mở bằng trình duyệt, hoặc qua GitHub Pages), chọn bộ điều kiện, xem ước tính và bấm *Quét*. Trang chỉ gửi lệnh chạy workflow bằng một token chỉ có quyền Actions của repo này; mặc định là quét thử, quét thật cần gõ `QUET`. Cách tạo token, những gì đã/chưa kiểm: [`docs/ui.md`](docs/ui.md).
+
 ### Quét đúng một repo bạn chọn
 
 `python3 radar.py run --repo owner/tên --dry-run` kiểm tra repo (không gọi model, không ghi gì); bỏ `--dry-run` để viết bài.

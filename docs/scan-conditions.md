@@ -14,6 +14,8 @@ Lịch tự chạy vẫn là thứ Tư và thứ Bảy, dùng đúng `radar.yaml
 | `picks`, `langs` | Ô cũ. Nếu điền, chúng thắng cả `preset` lẫn `conditions` (cụ thể hơn) |
 | `repo`, `bucket` | Quét đúng một repo bạn chọn (xem README) |
 
+**Trên một trang (không cần mở Actions):** [`docs/ui/index.html`](ui/index.html), xem [`ui.md`](ui.md).
+
 **Trên máy có Python:** `python3 radar.py scan --preset ai-sau` (xem xếp hạng), `python3 radar.py run --dry-run --conditions '{"picks_per_run": 1}'`.
 `python3 radar.py presets` liệt kê các bộ đã lưu kèm chi phí ước tính.
 
