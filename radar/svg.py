@@ -246,14 +246,14 @@ def steps(items: list[dict], title: str) -> str:
     return _svg(w, y + 16, body, title, "; ".join(s["text"] for s in items))
 
 
-def roadmap(steps: list[dict], title: str, outcome: str, labels: dict) -> str:
+def roadmap(steps: list[dict], title: str, outcome: str, labels: dict, shells=None) -> str:
     """The route of a guide at a glance: one row per step, a chip with its number of commands, the result at the end."""
     w, pad, tx, cx = 1000, 32, 108, 68
     chip_w = 150
     body = [_text(pad, 46, wrap(title, 28, w - 2 * pad, 1), 28, INK, 700)]
     rows, y, centres = [], 80, []
     for i, step in enumerate(steps, 1):
-        cmds = readmelib.command_count(step.get("commands"))
+        cmds = readmelib.command_count(step.get("commands"), shells)
         head = wrap(step["title"], 23, w - tx - pad - (chip_w if cmds else 0) - 10, 2)
         why = wrap(step.get("why", ""), 17, w - tx - pad, 2)
         h = 18 + int(23 * 1.25 * len(head)) + (6 + int(17 * 1.35 * len(why)) if why else 0) + 18

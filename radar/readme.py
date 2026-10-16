@@ -806,13 +806,18 @@ def _compound_depth(text: str, fish: bool = False) -> int:
     text = SHELL_PROMPT.sub("", text.lstrip(), count=1)
     depth, word, quote, command_start, i = 0, "", "", True, 0
     names, defining, name_before_paren, empty_parens, previous = 0, False, False, False, ""
+    tests, counts_pending = 0, True            # `[[ ... ]]` still open; whether a definition that waits for its brace is open (not for `coproc`)
 
     def end_word() -> None:
-        nonlocal depth, word, command_start, names, defining, name_before_paren, previous
+        nonlocal depth, word, command_start, names, defining, name_before_paren, previous, tests, counts_pending
         if not word:
             return
         else_if = fish and word == "if" and previous == "else"          # fish: `else if` goes on the same block, it has no `end` of its own
         previous = word
+        if not fish and command_start and word == "[[":
+            tests += 1                                       # `[[ -f "$file"` over `&& -r "$file" ]]`
+        elif not fish and word == "]]":
+            tests = max(0, tests - 1)
         if command_start and (word in opens or (word == "{" and not fish)) and not else_if or defining and word == "{":
             depth += 1                                       # `function name {`, `name()` over `{`: the brace follows the head of the definition
             defining = False
@@ -822,8 +827,8 @@ def _compound_depth(text: str, fish: bool = False) -> int:
             names -= 1                                       # the name after `function`
         else:
             defining = False
-        if command_start and word == "function" and not fish:
-            defining, names = True, 1
+        if command_start and word in ("function", "coproc") and not fish:
+            defining, names, counts_pending = True, 1, word == "function"          # `coproc name {`: a simple command may follow `coproc` instead of a brace
         name_before_paren = (not fish and command_start and bool(re.fullmatch(r"[A-Za-z_][\w:.-]*", word))
                              and word not in COMMAND_FOLLOWS | COMPOUND_OPEN)
         command_start = command_start and word in COMMAND_FOLLOWS
@@ -858,7 +863,7 @@ def _compound_depth(text: str, fish: bool = False) -> int:
         elif ch == ")":
             end_word()
             if empty_parens and text[:i].rstrip().endswith("("):
-                defining, names = True, 0                    # `name()`: the body follows, as `{` on this line or on the next
+                defining, names, counts_pending = True, 0, True              # `name()`: the body follows, as `{` on this line or on the next
             command_start, empty_parens = True, False        # `a) cmd` in a `case`
         elif ch in "\n;&|":
             end_word()
@@ -872,7 +877,7 @@ def _compound_depth(text: str, fish: bool = False) -> int:
             word += ch
         i += 1
     end_word()
-    return depth + (1 if defining else 0)              # a definition whose body has not begun is open
+    return depth + tests + (1 if defining and counts_pending else 0)              # a definition whose body has not begun is open
 
 
 def _cmd_depth(text: str) -> int:
@@ -914,13 +919,13 @@ def _construct_open(lang: str, text: str) -> bool:
 
 def _open_group(lang: str, command: str, following: list[str]) -> int:
     """How many of the next lines finish a construct that is open at the end of the command (`python -c "` over the script and `"`, `if ...;
-    then` over its body and `fi`), 0 when it is not open or does not close within GRAMMAR_LOOKAHEAD lines. The line breaks, blank lines
+    then` over its body and `fi`), 0 when it is not open or does not close before the block ends. The line breaks, blank lines
     included, are part of it (a string's content, a script's statements), so the lines are kept apart as the data of the command, like the
     body of a heredoc, and not joined."""
     if not _typed(lang, command) or not _construct_open(lang, command):
         return 0
     text = command
-    for n, line in enumerate(following[:GRAMMAR_LOOKAHEAD], 1):
+    for n, line in enumerate(following, 1):
         text += "\n" + _piece(lang, line, command)
         if not _construct_open(lang, text):
             return n

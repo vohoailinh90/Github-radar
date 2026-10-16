@@ -214,7 +214,7 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], pos
             f"steps-{lang}.svg": svg.steps(hiw["steps"], t["how"]),
         }
         if draft.get("guide"):
-            files[f"path-{lang}.svg"] = svg.roadmap(draft["guide"]["steps"], t["roadmap"], draft["guide"]["outcome"], t)
+            files[f"path-{lang}.svg"] = svg.roadmap(draft["guide"]["steps"], t["roadmap"], draft["guide"]["outcome"], t, facts.get("shells"))
         # The draft is the model's answer after the gates: with it the digest, the diagrams and the studio posts can be drawn
         # again whenever the renderer improves (`radar.py rerender`), without asking a model or GitHub for anything.
         stored = {"lang": lang, "position": position, "facts": {k: facts[k] for k in META_KEYS}, "draft": draft}

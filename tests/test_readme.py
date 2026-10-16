@@ -862,7 +862,9 @@ def test_a_powershell_here_string_is_a_group_of_data_lines_up_to_the_mark_that_b
 def test_a_string_over_several_lines_is_a_group_whose_line_breaks_are_kept_in_a_shell_fence():
     blank = '```bash\npython -c "\nimport torch\n\nprint(torch.cuda.is_available())\n"\nls\n```\n'
     assert readme.heredocs(blank)[0] == [['python -c "', "import torch", "", "print(torch.cuda.is_available())", '"']]    # a blank line is part of the string
-    assert readme.heredocs('```bash\necho "it\n' + "line\n" * 25 + 'x"\nls\n```\n')[0] == []                      # too far away to be its end
+    far = readme.heredocs('```bash\necho "it\n' + "line\n" * 25 + 'x"\nls\n```\n')[0]
+    assert len(far) == 1 and len(far[0]) == 27                                                # the end can be any number of lines away, up to the end of the block
+    assert readme.heredocs('```bash\necho "it\n' + "line\n" * 25 + 'ls\n```\n')[0] == []        # one that never closes is not a command
     script = '```bash\npython -c "\nimport torch\nprint(torch.cuda.is_available())\n"\nls\n```\n'
     assert readme.heredocs(script) == ([['python -c "', "import torch", "print(torch.cuda.is_available())", '"']], ['python -c "', "ls"])
     assert readme.setup_commands(script) == ['python -c "', "import torch", "print(torch.cuda.is_available())", '"', "ls"]
@@ -1042,3 +1044,28 @@ def test_fish_blocks_are_groups_up_to_their_end_and_batch_parenthesized_blocks_a
     assert readme.heredocs(cmd) == ([["IF EXIST build (", "  del /q build\\*", ")"]], ["IF EXIST build (", "setup.bat"])
     assert readme.heredoc_data(["if test -d build", "rm -rf build", "end", "ls"], {"if test -d build": "fish"}) == [False, True, True, False]
     assert readme.heredoc_data(["IF EXIST build (", "del x", ")", "ls"], "bat") == [False, True, True, False]
+
+
+def test_a_construct_that_closes_far_from_its_opener_is_still_one_group_and_the_other_open_forms_are_tracked():
+    long = "```bash\nif true; then\n" + "echo x\n" * 30 + "rm -rf build\nfi\nls\n```\n"
+    groups, loose = readme.heredocs(long)
+    assert len(groups) == 1 and groups[0][0] == "if true; then" and groups[0][-1] == "fi" and len(groups[0]) == 33 and loose == ["if true; then", "ls"]
+    c = readme._compound_depth
+    for text, depth in (("[[ -f \"$file\"", 1), ("[[ -f \"$file\"\n  && -r \"$file\" ]]", 0), ("[[ -f x ]]", 0), ("echo ]]", 0), ("if [[ a\n ]]; then\n x\nfi", 0),
+                        ("coproc name {", 1), ("coproc name {\n echo a\n}", 0), ("coproc {", 1), ("coproc ls", 0), ("coproc name ls -l", 0)):
+        assert c(text) == depth, text
+    assert readme.heredocs("```bash\n[[ -f \"$f\"\n  && -r \"$f\" ]]\nls\n```\n")[0] == [['[[ -f "$f"', '  && -r "$f" ]]']]
+
+
+def test_the_roadmap_counts_the_commands_of_a_step_with_the_shell_of_the_facts():
+    from radar import svg
+    table = {'Write-Host "say `"': "powershell", "Get-Item x": "powershell", "if test -d build": "fish"}
+    ps = [{"title": "T", "why": "W", "commands": ['Write-Host "say `"', 'hi"', "Get-Item x"]}]
+    fish = [{"title": "T", "why": "W", "commands": ["if test -d build", "rm -rf build", "end", "ls"]}]
+    assert readme.command_count(ps[0]["commands"], table) == 2 and readme.command_count(fish[0]["commands"], table) == 2
+    assert readme.command_count(ps[0]["commands"]) != 2 and readme.command_count(fish[0]["commands"]) != 2         # POSIX rules read them differently
+    from radar.labels import L
+    chip = f"2 {L['en']['commands']}"
+    for steps in (ps, fish):
+        assert chip in svg.roadmap(steps, "R", "O", L["en"], table)                       # two commands, with the shell of the facts
+        assert chip not in svg.roadmap(steps, "R", "O", L["en"])                          # the POSIX default counts one
