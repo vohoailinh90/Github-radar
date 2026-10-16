@@ -902,3 +902,16 @@ def test_an_item_without_evidence_is_still_checked_for_its_other_fields():
     missing = mutate(lambda d: (d["guide"]["requirements"][0].update(evidence="", item=""), d["guide"]["troubleshooting"][0].update(evidence="", fix="")))
     texts = errs(missing)
     assert any("guide.requirements[0].item" in m for m in texts) and any("guide.troubleshooting[0].fix" in m for m in texts)
+
+
+def test_a_readme_with_its_commands_only_in_prose_still_asks_the_guide_for_them():
+    prose = "# Sample\n\nInstall it with `pip install sample-agent-kit`, then start it with `sample-agent run`. It needs `git` and `Python`.\n"
+    facts = {**FACTS, "readme": prose, "links": [], "blocks": []}
+    assert gates.prose_commands(prose) == ["pip install sample-agent-kit"]          # a name in a sentence (`git`) or an unknown program is not counted
+    bare = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]], facts=facts)
+    assert gates.command_coverage(bare, facts) == (0, 1)
+    assert any("the README shows 1 command line but the guide uses it" in m for m in errs(bare, facts=facts))
+    used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"]), facts=facts)
+    assert gates.command_coverage(used, facts) == (1, 1)
+    assert not any("command line" in m and "guide uses" in m for m in errs(used, facts=facts))
+    assert gates.command_coverage(bare, FACTS)[1] >= 2                                   # a README with code blocks counts those, as before

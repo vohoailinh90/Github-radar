@@ -432,11 +432,23 @@ def shown_commands(draft: dict) -> list[tuple[str, object]]:
     return [(field, c) for field, c in guide_commands(draft) if field.startswith("guide.") == has_guide]
 
 
+def prose_commands(readme: str) -> list[str]:
+    """The commands a README gives outside its code blocks, for a README that has none inside them (`Run `pip install tool`.`): a code span or a
+    line of prose that starts with a known program and has an argument. A single word (`git`, `npm`) is a name in a sentence, not a command."""
+    out: list[str] = []
+    for text, prompt in _prose_variants(readme):
+        shown = _shown(text, prompt)
+        if len(shown.split()) >= 2 and readmelib.is_command_line(shown) and shown not in out:
+            out.append(shown)
+    return out
+
+
 def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
-    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. Only the
-    commands the reader sees count, so a `try_it` next to a guide adds nothing."""
+    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. A README with no
+    command in a code block is counted by the commands in its prose (see `prose_commands`). Only the commands the reader sees count, so a
+    `try_it` next to a guide adds nothing."""
     shells = facts.get("shells") if isinstance(facts.get("shells"), dict) else None
-    wanted = _command_keys(readmelib.setup_commands(facts["readme"]), shells)
+    wanted = _command_keys(readmelib.setup_commands(facts["readme"]) or prose_commands(facts["readme"]), shells)
     by_field: dict[str, list] = {}
     for field, command in shown_commands(draft):
         by_field.setdefault(field, []).append(command)
