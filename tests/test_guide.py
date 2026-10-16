@@ -866,3 +866,9 @@ def test_a_command_the_readme_continues_with_a_backslash_outside_a_code_fence_is
     assert "docker run \\" not in shown and "docker build \\" not in shown          # the first line of a continued command is not a command, and neither is a command that never ends
     texts = gates.command_texts(text)
     assert "docker run --rm image" in texts and "docker run" not in texts and not any(key.startswith("docker build") for key in texts)
+
+
+def test_a_command_in_a_multi_backtick_code_span_is_one_command_for_the_gate():
+    shown = [t for t, _ in gates._prose_variants("Run ``echo `date` `` now and `ls -l` too.\n")]
+    assert shown == ["echo `date`", "ls -l"]
+    assert "echo" not in gates.command_texts("Run ``echo `date` `` now.\n") and "echo `date`" in gates.command_texts("Run ``echo `date` `` now.\n")

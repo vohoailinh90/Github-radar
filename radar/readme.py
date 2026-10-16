@@ -537,7 +537,10 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
         state = _ps_state(line)
         if state and state[3]:
             return False                           # a string is open: its line break is part of it, and in 'single quotes' the backtick is a character of it
-        return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
+        mark = _ps_state(physical)
+        if mark is not None and mark[2] < len(physical):
+            return False                           # `} # note \`: the backtick belongs to the comment (a PowerShell token starts after `{`, `}`, `[` too)
+        return (len(physical) - len(physical.rstrip("`"))) % 2 == 1          # ``` `` ``` is a backtick, so three are a backtick and the mark
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return (len(physical) - len(physical.rstrip("^"))) % 2 == 1                # `^^` is a caret, so `^^^` is a caret and the mark
     quote, _, commented, _ = _shell_state(line)
@@ -1455,7 +1458,7 @@ def shells(text: str) -> dict[str, str]:
         found.setdefault(key, shell)
     for line in prose_lines(text):                            # a command written with an unambiguous prompt outside a fence: `PS C:\\> Get-Date`
         line = line.strip()
-        for candidate in [line] + [span.strip() for span in re.findall(r"`([^`\n]+)`", line)]:
+        for candidate in [line] + [span.group(2).strip() for span in CODE_SPAN.finditer(line)]:
             shell = "powershell" if POWERSHELL_PROMPT.match(candidate) else "bat" if re.match(CMD_PROMPT, candidate) else ""
             key = norm_command(candidate) if shell else ""
             if key and not _is_comment(key):

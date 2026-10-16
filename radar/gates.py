@@ -340,7 +340,7 @@ def _prose_variants(readme: str):
                 yield line, readmelib.SHELL_PROMPT
                 yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
         for part in parts:
-            yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", part))
+            yield from ((m.group(2).strip(), readmelib.SHELL_PROMPT) for m in readmelib.CODE_SPAN.finditer(part))          # ``` ``echo `date` `` ``` is one span
 
 
 def _command_variants(readme: str):

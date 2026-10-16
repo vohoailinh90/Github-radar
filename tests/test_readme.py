@@ -1212,3 +1212,14 @@ def test_a_cmd_line_continues_after_an_odd_run_of_carets_and_not_after_an_even_o
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```bat\necho literal^^^\ndel file\n```\n") == ["echo literal^^ del file"]          # `^^` is a caret and the third escapes the line break
     assert lines("```bat\necho a^^\nver\necho b^\n  c\necho d^^^^^\n  e\n```\n") == ["echo a^^", "ver", "echo b c", "echo d^^^^ e"]
+
+
+def test_powershell_backtick_runs_and_comments_after_a_brace_and_multi_backtick_spans():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\nWrite-Output value```\nGet-Date\nWrite-Output a``\nls\nWrite-Host x `\n y\n```\n") == ["Write-Output value`` Get-Date", "Write-Output a``", "ls", "Write-Host x y"]
+    assert lines("```powershell\nif ($a) { x }# note `\nRemove-Item build\n```\n") == ["if ($a) { x }# note `", "Remove-Item build"]          # `# note` after `}` is a comment, its backtick is text
+    assert lines("```powershell\nWrite-Host a ` # note\nls\n```\n") == ["Write-Host a ` # note", "ls"]
+    spans = [span.group(2).strip() for span in readme.CODE_SPAN.finditer("Run ``echo `date` `` now and `ls -l` too.")]
+    assert spans == ["echo `date`", "ls -l"]
+    assert readme.shells("Try ``PS C:\\> echo `date` `` or `PS C:\\> Get-Date` here.\n") == {"echo `date`": "powershell", "Get-Date": "powershell"}
