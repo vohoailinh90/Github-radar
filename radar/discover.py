@@ -86,36 +86,50 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = No
 
     Two passes per topic, as in StarVelocity: "top" (the stars floor, what a plain star ranking finds) and "rising"
     (young repositories under a lower floor, which a star ranking never reaches). The Search API returns at most the
-    best 1,000 hits of one query, so a single query ordered by stars would show the same classics every run."""
+    best 1,000 hits of one query, so a single query ordered by stars would show the same classics every run.
+
+    A page is ordered by stars, so in a busy topic the rising page can fill up with young repositories that are already
+    above the stars floor and hide the ones between the two floors. Only then a second rising query asks for exactly
+    that band, so a quiet topic costs no extra call."""
     since = (today - dt.timedelta(days=int(cfg["max_days_since_push"]))).isoformat()
     rise = cfg["rising"]
     window = int(rise["created_within_days"])
-    passes = [("top", int(cfg["min_stars"]), "")]
-    if rise["enabled"] and int(rise["slots"]) > 0:
-        passes.append(("rising", int(rise["min_stars"]), f" created:>={(today - dt.timedelta(days=window)).isoformat()}"))
+    top_floor, rise_floor, per_page = int(cfg["min_stars"]), int(rise["min_stars"]), int(cfg["per_topic"])
+    born = f" created:>={(today - dt.timedelta(days=window)).isoformat()}"
+    rising_on = bool(rise["enabled"]) and int(rise["slots"]) > 0
     found: dict[str, dict] = {}
     dropped: dict[str, int] = {}
+
+    def search(bucket_id: str, topic: str, kind: str, stars: str, floor: int, extra: str = "") -> list[dict] | None:
+        query = f"topic:{topic} stars:{stars} pushed:>={since} archived:false fork:false{extra}"
+        try:
+            results = gh.search(query, per_page=per_page)
+        except HttpError as exc:
+            key = f"search failed (HTTP {exc.status})"
+            dropped[key] = dropped.get(key, 0) + 1
+            return None
+        for repo in results:
+            name = repo.get("full_name")
+            if not name or name in found:
+                continue
+            if kind == "rising" and _days(repo.get("created_at", "1970-01-01T00:00:00Z"), today) > window:
+                continue                             # the query asked for young repositories; an old one is not "rising"
+            why = eligible(repo, cfg, seen, today, min_stars=floor)
+            if why:
+                dropped[why] = dropped.get(why, 0) + 1
+                continue
+            found[name] = _candidate(repo, bucket_id, topic, cfg, today, hist)
+        return results
+
     for bucket in cfg["buckets"]:
         for topic in bucket["topics"]:
-            for kind, floor, extra in passes:
-                query = f"topic:{topic} stars:>={floor} pushed:>={since} archived:false fork:false{extra}"
-                try:
-                    results = gh.search(query, per_page=int(cfg["per_topic"]))
-                except HttpError as exc:
-                    key = f"search failed (HTTP {exc.status})"
-                    dropped[key] = dropped.get(key, 0) + 1
-                    continue
-                for repo in results:
-                    name = repo.get("full_name")
-                    if not name or name in found:
-                        continue
-                    if kind == "rising" and _days(repo.get("created_at", "1970-01-01T00:00:00Z"), today) > window:
-                        continue                         # the query asked for young repositories; an old one is not "rising"
-                    why = eligible(repo, cfg, seen, today, min_stars=floor)
-                    if why:
-                        dropped[why] = dropped.get(why, 0) + 1
-                        continue
-                    found[name] = _candidate(repo, bucket["id"], topic, cfg, today, hist)
+            search(bucket["id"], topic, "top", f">={top_floor}", top_floor)
+            if not rising_on:
+                continue
+            page = search(bucket["id"], topic, "rising", f">={rise_floor}", rise_floor, born)
+            if page and len(page) >= per_page and rise_floor < top_floor \
+                    and min(int(r.get("stargazers_count", 0)) for r in page) >= top_floor:
+                search(bucket["id"], topic, "rising", f"{rise_floor}..{top_floor - 1}", rise_floor, born)
     ranked = sorted(found.values(), key=lambda c: (-c["score"], c["full_name"]))
     return ranked, dropped
 

@@ -162,3 +162,39 @@ def test_the_rising_slot_goes_to_a_repository_the_plain_ranking_did_not_pick():
     assert on[0]["full_name"] == "o/young-small"                                    # the slot's pick comes first
     # nothing outside the plain picks to offer: they stay as they are
     assert {c["full_name"] for c in discover.pick(ranked[:2], cfg, TODAY)} == {"o/classic", "o/young-big"}
+
+
+def _search_paths(srv):
+    return [c["path"] for c in srv.calls if c["path"].startswith("/search")]
+
+
+def test_a_busy_topic_cannot_hide_the_young_repositories_between_the_two_floors():
+    hot = [make_repo(f"hot-{i}", "llm", 2000 + i, age_days=30) for i in range(16)]          # young and already above min_stars
+    emerging = make_repo("sample-emerging", "llm", 600, age_days=40)                           # young, between 300 and 1500
+    srv = fake_github([make_repo("giant", "llm", 90000, age_days=2000)] + hot + [emerging])
+    try:
+        ranked, _ = discover.candidates(GitHub(base=srv.url), CFG, {}, TODAY)
+    finally:
+        srv.close()
+    assert "example-org/sample-emerging" in [c["full_name"] for c in ranked]               # the first rising page was all >= 2000
+    band = [q for q in _search_paths(srv) if "stars%3A300..1499" in q]
+    assert len(band) == 1 and "topic%3Allm" in band[0] and "created%3A%3E%3D2026-06-16" in band[0]    # one extra call, for this topic only
+
+
+def test_a_quiet_topic_or_equal_floors_cost_no_extra_search():
+    few = [make_repo(f"hot-{i}", "llm", 2000 + i, age_days=30) for i in range(3)] + [make_repo("sample-emerging", "llm", 600, age_days=40)]
+    srv = fake_github(few)
+    try:
+        ranked, _ = discover.candidates(GitHub(base=srv.url), CFG, {}, TODAY)
+    finally:
+        srv.close()
+    assert "example-org/sample-emerging" in [c["full_name"] for c in ranked]               # the unbounded rising query already reached it
+    assert not [q for q in _search_paths(srv) if "..1499" in q]
+    full = [make_repo(f"hot-{i}", "llm", 2000 + i, age_days=30) for i in range(16)]
+    same = {**CFG, "rising": {**CFG["rising"], "min_stars": 1500}}                             # no band between equal floors
+    srv = fake_github(full)
+    try:
+        discover.candidates(GitHub(base=srv.url), same, {}, TODAY)
+    finally:
+        srv.close()
+    assert not [q for q in _search_paths(srv) if ".." in q]

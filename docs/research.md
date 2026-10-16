@@ -46,7 +46,7 @@ và dừng hẳn nếu bước quét trả về rỗng để khỏi ghi đè d�
 
 | | Trước | Sau |
 |---|---|---|
-| Tìm | Mỗi topic một truy vấn xếp theo sao, 15 kết quả đầu, sàn 1500 sao: chỉ thấy các repo đã nổi | Thêm lượt `rising` mỗi topic: repo tạo trong 120 ngày gần nhất, sàn 300 sao |
+| Tìm | Mỗi topic một truy vấn xếp theo sao, 15 kết quả đầu, sàn 1500 sao: chỉ thấy các repo đã nổi | Thêm lượt `rising` mỗi topic: repo tạo trong 120 ngày gần nhất, sàn 300 sao. Trang kết quả xếp theo sao, nên ở topic nóng nó đầy repo đã trên 1500 sao: khi đó (và chỉ khi đó) hỏi thêm một lượt đúng dải 300–1499 sao |
 | Tốc độ tăng | `sao / tuổi` (trung bình cả đời, không cần lịch sử) | Đo thật từ `state/stars.json` (mỗi lần quét chụp số sao); chưa có lịch sử thì lùi về `sao / tuổi`. Sau lần quét thứ hai (cách nhau 3–4 ngày) là đã đo được |
 | Chọn | Tốt nhất mỗi nhóm, xoay vòng | Như cũ, nhưng **1 suất** dành cho repo đang lên (tối đa một nửa số bài, tắt được) |
 | Chống số sao đáng ngờ | Không có | Hai **cờ chỉ để báo**: `few-forks` (dưới 10 fork trên 1.000 sao), `star-spike` (tăng từ 25% tổng sao trong một cửa sổ đo) |

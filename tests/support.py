@@ -103,11 +103,15 @@ def fake_github(repos: list[dict] | None = None, readme: str = README, fail: tup
         if path == "/search/repositories":
             q = parse_qs(url.query)["q"][0]
             topic = re.search(r"topic:(\S+)", q).group(1)
-            floor = re.search(r"stars:>=(\d+)", q)
+            low = re.search(r"stars:>=(\d+)", q) or re.search(r"stars:(\d+)\.\.\d+", q)
+            high = re.search(r"stars:\d+\.\.(\d+)", q)
             born = re.search(r"created:>=(\S+)", q)
-            return 200, {"items": [r for r in repos if topic in r["topics"]
-                                   and (not floor or r["stargazers_count"] >= int(floor.group(1)))
-                                   and (not born or r["created_at"][:10] >= born.group(1))]}
+            hits = [r for r in repos if topic in r["topics"]
+                    and (not low or r["stargazers_count"] >= int(low.group(1)))
+                    and (not high or r["stargazers_count"] <= int(high.group(1)))
+                    and (not born or r["created_at"][:10] >= born.group(1))]
+            hits.sort(key=lambda r: -r["stargazers_count"])                                    # sort=stars&order=desc
+            return 200, {"items": hits[:int(parse_qs(url.query).get("per_page", ["30"])[0])]}
         m = re.match(r"^/repos/([^/]+/[^/]+)/(readme|languages|git/trees/(.+))$", path)
         if m and m.group(2) == "readme":
             return 200, {"encoding": "base64", "content": base64.b64encode(readme.encode()).decode()}
