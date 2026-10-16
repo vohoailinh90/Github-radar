@@ -50,6 +50,11 @@ jobs:
     # self-hosted runner label to run on the VPS. Keep this repository PRIVATE if you do.
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 60
+    # A workflow_dispatch runs the workflow file of whichever branch it is started on, so a branch could remove any `if:` written in
+    # this file and read the secrets. Only a GitHub Environment can refuse the job on other branches: put RADAR_PR_TOKEN in the
+    # Environment secrets of "radar" (not in the repository secrets) and limit its deployment branches to main (docs/branch-protection.md).
+    # Until then this changes nothing: the repository secrets stay available and the environment is created without a restriction.
+    environment: radar
     env:
       DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
     steps:

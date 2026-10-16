@@ -14,7 +14,13 @@ GitHub → Settings (của tài khoản) → Developer settings → Personal acc
 | Repository permissions | **Contents: Read and write**, **Pull requests: Read and write** (Metadata: Read-only tự có). Không cần quyền nào khác |
 | Expiration | Ngắn (ví dụ 90 ngày) và ghi lại ngày hết hạn: token hết hạn thì lượt quét báo đỏ ở bước commit |
 
-Rồi: repo → Settings → Secrets and variables → Actions → **New repository secret**, tên `RADAR_PR_TOKEN`, dán token. Token chỉ nằm trong secret; workflow chỉ đưa nó cho bước commit, qua biến môi trường.
+**Đặt token vào Environment `radar`, không đặt vào Repository secrets.** Lý do: một lệnh chạy workflow thủ công chạy **file workflow của nhánh được chọn**, nên một nhánh (của ai có quyền ghi) có thể xóa mọi điều kiện `if:` trong file và đọc secret, rồi giữ token dài hạn có quyền ghi nội dung. Chỉ Environment mới từ chối được job ở nhánh khác. Job của workflow đã khai báo `environment: radar`; việc còn lại là của bạn:
+
+1. Repo → Settings → **Environments** → New environment, tên đúng `radar` (sau lần chạy đầu GitHub cũng tự tạo, nhưng chưa có hạn chế).
+2. Trong environment đó: **Deployment branches and tags** → **Selected branches and tags** → Add → `main`.
+3. **Environment secrets** → Add secret, tên `RADAR_PR_TOKEN`, dán token. Đừng tạo thêm một bản cùng tên trong *Repository secrets*: bản đó mọi nhánh đều đọc được.
+
+Từ đó workflow chỉ chạy được trên `main`: bấm *Run workflow* ở nhánh khác sẽ bị chặn ngay khi job bắt đầu. (Muốn thử workflow đang sửa trên nhánh khác, tạm thêm nhánh đó vào danh sách rồi gỡ ra.) Làm tương tự cho các khóa model và `STUDIO_REPO_TOKEN` thì chúng cũng được bảo vệ như vậy: chuyển vào Environment secrets rồi xóa bản ở Repository secrets. Chưa chuyển cũng không sao, lượt quét vẫn chạy như cũ.
 
 (Tùy chọn, tự động hợp nhất) Settings → General → tick **Allow auto-merge**; Settings → Secrets and variables → Actions → tab **Variables** → thêm `RADAR_AUTOMERGE` = `true`. Khi đó mỗi PR của lượt quét tự merge khi check `test` đạt. Không đặt biến này thì bạn (hoặc tôi, khi bạn nhờ) bấm Merge.
 
@@ -39,11 +45,12 @@ Settings → Branches → Add branch ruleset / rule cho `main`:
 
 ## Rủi ro và những gì chưa kiểm được
 
-- Token có quyền ghi nội dung của repo mạnh hơn token mặc định. Giữ nó ở dạng secret của repo, giới hạn một repo, hạn ngắn. Muốn chặt hơn: đặt nó thành secret của một *Environment* chỉ cho nhánh `main` và thêm `environment:` vào job (chưa làm vì cần bạn tạo lại secret ở đó).
+- Token có quyền ghi nội dung của repo mạnh hơn token mặc định: giới hạn một repo, hạn ngắn, và **đặt trong Environment `radar` chỉ cho nhánh `main`** như ở bước 1. Nếu để ở Repository secrets, ai có quyền ghi vào repo đều có thể lấy nó bằng một nhánh chạy workflow thủ công.
 - Đã kiểm bằng máy với git thật và GitHub giả: nhánh mới được đẩy, `main` không bị chạm, token không nằm trong argv hay URL, chạy lại không mở PR thứ hai, lỗi mở PR không làm mất kết quả, đường không-token giữ nguyên.
 - **Chưa kiểm với GitHub thật**, nên đừng coi là chắc chắn:
   - tên và đủ của các quyền (**Contents**, **Pull requests**) theo giao diện GitHub lúc viết: hãy đối chiếu khi tạo token;
   - việc PR do token này mở có **kích hoạt CI** hay không (bước 2 ở trên chính là phép thử);
   - việc token fine-grained có gọi được thao tác GraphQL bật auto-merge hay không, và cài đặt *Allow auto-merge* của repo;
+  - việc Environment `radar` với nhánh được phép là `main` có thật sự từ chối lần chạy ở nhánh khác (nên thử một lần sau khi cấu hình: bấm *Run workflow* ở một nhánh khác và thấy job bị chặn);
   - hành vi bên trong bản checkout thật của Actions (đã kiểm riêng rằng token được thêm vào chỉ gửi **một** tiêu đề xác thực, bằng một máy chủ cục bộ, nhưng chưa thử với `actions/checkout` thật).
 - Lỗi của git có thể lặp lại một đoạn trả lời của máy chủ; token và dạng base64 của nó bị thay bằng `***` trước khi in.

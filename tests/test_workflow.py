@@ -64,6 +64,13 @@ def test_the_scan_conditions_inputs_match_the_saved_presets_and_reach_only_the_s
     assert TEXT.count("inputs.preset") == 1 and TEXT.count("inputs.conditions") == 1
 
 
+def test_the_job_uses_the_radar_environment_so_the_owner_can_limit_where_the_token_is_available():
+    # A dispatch runs the workflow file of the branch it starts on, which could drop any `if:`; only an Environment with deployment
+    # branches limited to main refuses the job elsewhere. The environment is part of the contract of docs/branch-protection.md.
+    assert W["jobs"]["radar"]["environment"] == "radar"
+    assert "environment: radar" in TEXT and "Environment secrets" in (config.ROOT / "docs" / "branch-protection.md").read_text(encoding="utf-8")
+
+
 def test_the_schedule_does_not_set_any_condition():
     assert W[True]["schedule"] and "inputs.preset" not in str(W[True]["schedule"])   # a scheduled run has empty inputs: radar.yaml as it is
 
