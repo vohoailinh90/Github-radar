@@ -1,0 +1,60 @@
+<!-- radar: Moda canvas 1200x1622; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="343" fill="#0B1B3A"/>
+<rectangle x="0" y="343" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Tạo video ngắn từ một chủ đề với MoneyPrinterTurbo</text>
+<text x="60" y="269" width="1080" height="34" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Gõ một chủ đề, máy tự viết kịch bản, đọc lời, thêm phụ đề rồi ghép thành video</text>
+<text x="60" y="417" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="483" width="480" height="103" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="505" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mô hình ngôn ngữ</text>
+<text x="80" y="543" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Viết hoặc viết lại kịch bản video.</text>
+<rectangle x="660" y="483" width="480" height="103" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="505" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nguồn clip</text>
+<text x="680" y="543" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cung cấp clip nền: kho miễn phí hoặc tệp của bạn.</text>
+<rectangle x="60" y="660" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="682" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Giọng đọc và phụ đề</text>
+<text x="80" y="720" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Biến kịch bản thành tiếng và dòng chữ chạy theo tiếng.</text>
+<rectangle x="660" y="660" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="682" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bộ dựng video</text>
+<text x="680" y="720" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghép clip, giọng, chữ và nhạc thành video; ffmpeg thường tự tải về.</text>
+<line x1="540" y1="534.5" x2="660" y2="534.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="300" y1="586" x2="300" y2="660" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="586" x2="900" y2="660" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="722" x2="660" y2="722" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="866" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="932" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="954" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="954" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhận chủ đề</text>
+<text x="154" y="990" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bạn đưa chủ đề hoặc từ khóa; mô hình ngôn ngữ viết hoặc viết lại kịch bản, hoặc bạn tự dùng kịch bản của mình.</text>
+<line x1="584" y1="1006" x2="616" y2="1006" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="932" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="954" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="954" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lấy tư liệu hình</text>
+<text x="714" y="990" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hệ thống lấy clip từ kho miễn phí như Pexels hoặc Pixabay, hoặc dùng ảnh và video bạn tải lên.</text>
+<rectangle x="60" y="1104" width="520" height="125" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1126" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1126" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Thêm tiếng, chữ, nhạc</text>
+<text x="154" y="1162" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tạo giọng đọc, phụ đề tự động và nhạc nền với âm lượng chỉnh riêng được.</text>
+<line x1="584" y1="1166.5" x2="616" y2="1166.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1104" width="520" height="125" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1126" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1126" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ghép thành video</text>
+<text x="714" y="1162" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dựng thành video ngắn ở khổ dọc 9:16, ngang 16:9 hoặc vuông 1:1.</text>
+<text x="60" y="1311" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1377" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1417.8" x2="97.6" y2="1425" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1425" x2="110" y2="1409.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1397" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chia việc lớn thành các khâu độc lập: kịch bản, tư liệu, giọng đọc, phụ đề, nhạc, dựng</text>
+<rectangle x="430" y="1377" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1417.8" x2="467.6" y2="1425" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1425" x2="480" y2="1409.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1397" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một lõi xử lý, nhiều cửa vào: giao diện web, API và dòng lệnh</text>
+<rectangle x="800" y="1377" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1417.8" x2="837.6" y2="1425" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1425" x2="850" y2="1409.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1397" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cho phép thay từng khâu bằng nhà cung cấp khác hoặc nội dung của chính bạn</text>
+<text x="60" y="1559" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: harry0703/MoneyPrinterTurbo · Giấy phép: MIT · 131.800 sao · Quét ngày 2026-10-16</text>
+</content>

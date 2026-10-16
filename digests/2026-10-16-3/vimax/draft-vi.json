@@ -1,0 +1,346 @@
+{
+  "draft": {
+    "analogy": "Giống một đoàn làm phim thu nhỏ: biên kịch, người vẽ phân cảnh, đạo diễn và nhà sản xuất đều là AI, còn bạn chỉ nêu ý tưởng.",
+    "caveats": [
+      "Cần khóa API cho mô hình chat, mô hình ảnh và mô hình video; chi phí tùy nhà cung cấp, README không nêu giá",
+      "README chỉ ghi Linux và Windows làm môi trường; macOS không được nhắc đến",
+      "Chọn ảnh khung hình chính tạo 2 ứng viên cùng lúc, README ghi cách này có thể làm chi phí API cao hơn",
+      "README không mô tả từng nút trên giao diện web, nên hướng dẫn chỉ nêu những khả năng README liệt kê"
+    ],
+    "facebook": {
+      "caption": "Nêu một ý tưởng, nhóm agent AI lập kịch bản, phân cảnh rồi dựng thành video\n\nViMax nối biên kịch, phân cảnh, tạo ảnh và tạo video thành một quy trình.\nBài hướng dẫn từng bước trong repo chỉ cách cài và chạy giao diện web.",
+      "hashtags": [
+        "AI",
+        "OpenSource",
+        "VideoAI"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Giao diện chạy ngay trong terminal, dùng bàn phím.",
+        "term": "TUI"
+      },
+      {
+        "meaning": "Bảng phân cảnh: các khung hình phác thảo từng cảnh trước khi dựng.",
+        "term": "Storyboard"
+      },
+      {
+        "meaning": "Bước dựng ra tệp video cuối.",
+        "term": "Render"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Muốn tiết kiệm chi phí API, README cho biết việc chọn ảnh khung hình chính có thể tắt bằng cách đặt `num_candidates` bằng 1.",
+        "Thử chế độ Script2Video với kịch bản của bạn, hoặc chế độ AutoCameo đưa người hoặc thú cưng từ một ảnh vào truyện."
+      ],
+      "outcome": "Một dự án ViMax chạy trên máy bạn: bạn nêu ý tưởng ngắn, agent lập kịch bản, nhân vật và phân cảnh, rồi dựng thành video mà bạn xem lại được.",
+      "requirements": [
+        {
+          "detail": "README ghi môi trường là Linux và Windows.",
+          "evidence": "README",
+          "item": "Hệ điều hành Linux hoặc Windows",
+          "link_ref": null
+        },
+        {
+          "detail": "Để chạy lệnh git clone tải mã nguồn.",
+          "evidence": "README",
+          "item": "Git",
+          "link_ref": null
+        },
+        {
+          "detail": "Công cụ README dùng để quản lý môi trường Python.",
+          "evidence": "README",
+          "item": "uv",
+          "link_ref": 0
+        },
+        {
+          "detail": "Cần cho giao diện web. Không dùng giao diện web thì có thể bỏ qua.",
+          "evidence": "README",
+          "item": "Node.js 18 trở lên",
+          "link_ref": null
+        },
+        {
+          "detail": "README minh họa (file `configs/idea2video.yaml`) mô hình chat qua OpenRouter, ảnh bằng Nanobanana và video bằng Veo, đều qua API của Google.",
+          "evidence": "README",
+          "item": "Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Cài Git nếu máy chưa có.",
+            "Cài uv theo hướng dẫn cài đặt của uv.",
+            "Cài Node.js phiên bản 18 trở lên để dùng giao diện web.",
+            "Mở một cửa sổ terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 0,
+          "title": "Chuẩn bị Git, uv, Node.js và terminal",
+          "why": "Có đủ công cụ để cài và chạy dự án."
+        },
+        {
+          "commands": [
+            "git clone https://github.com/HKUDS/ViMax.git",
+            "cd ViMax",
+            "uv sync"
+          ],
+          "do": [
+            "Chạy ba lệnh dưới đây lần lượt: tải mã nguồn, vào thư mục dự án, cài thư viện bằng uv."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Tải mã nguồn và cài môi trường",
+          "why": "Có mã ViMax và các thư viện Python đi kèm."
+        },
+        {
+          "commands": [
+            "cp configs/agent.example.yaml configs/agent.local.yaml"
+          ],
+          "do": [
+            "Chạy lệnh sao chép file mẫu thành file cấu hình cục bộ."
+          ],
+          "evidence": "configs",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Tạo file cấu hình riêng từ file mẫu",
+          "why": "Giữ khóa API của bạn trong một file riêng, không đụng vào file mẫu."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở file `configs/agent.local.yaml` bằng trình soạn thảo.",
+            "Điền ba nhóm `llm`, `image` và `video` theo mẫu bên dưới; thay mọi giá trị giữ chỗ trong dấu < > bằng giá trị thật của bạn.",
+            "Mỗi nhóm cần `model`, `base_url` và `api_key`. Nhóm `llm` còn có `model_provider`; mẫu của README đặt giá trị là `openai`.",
+            "Cách khác: để file trống và đặt khóa bằng biến môi trường `VIMAX_LLM_API_KEY`, `VIMAX_IMAGE_API_KEY`, `VIMAX_VIDEO_API_KEY`."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 1,
+          "title": "Điền mô hình và khóa API vào file cấu hình",
+          "why": "Để agent biết gọi mô hình chat, mô hình ảnh và mô hình video nào."
+        },
+        {
+          "commands": [
+            "cd web",
+            "npm install",
+            "npm run dev"
+          ],
+          "do": [
+            "Chạy ba lệnh dưới đây lần lượt, bắt đầu từ thư mục gốc ViMax: vào thư mục web, cài thư viện giao diện, khởi động máy chủ.",
+            "Mở địa chỉ bên dưới trong trình duyệt."
+          ],
+          "evidence": "web",
+          "expect": "Giao diện web của ViMax mở được trên trình duyệt ở địa chỉ trên.",
+          "if_fails": "",
+          "link_ref": 2,
+          "title": "Cài và chạy giao diện web",
+          "why": "Mở không gian làm việc trên trình duyệt để trò chuyện với agent và dựng video."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Tạo một dự án có tên trong giao diện web rồi trò chuyện với ViMax Agent.",
+            "README mô tả ViMax làm được hai việc: từ một ý tưởng ngắn (Idea2Video) hoặc từ kịch bản có sẵn (Script2Video).",
+            "Ví dụ trong README: ý tưởng If a cat and a dog are best friends, what would happen when they meet a new cat? cùng yêu cầu For children, do not exceed 3 scenes. và phong cách Cartoon.",
+            "Xem lại các sản phẩm trung gian (kịch bản, nhân vật, bản xem trước phân cảnh), sửa kế hoạch nếu cần, rồi cho dựng."
+          ],
+          "evidence": "main_idea2video.py",
+          "expect": "",
+          "if_fails": "README không mô tả từng nút trên giao diện web; hãy làm theo gợi ý hiển thị trong giao diện.",
+          "link_ref": null,
+          "title": "Tạo dự án và nêu ý tưởng cho ViMax Agent",
+          "why": "Chạy quy trình từ ý tưởng đến video."
+        },
+        {
+          "commands": [
+            "vimax tui"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây từ thư mục gốc ViMax để mở TUI.",
+            "README còn có `vimax tui new` để bắt đầu phiên mới và `vimax tui resume` để tiếp tục phiên đã có."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "README không nói rõ lệnh vimax chạy được ngay sau uv sync hay không; nếu máy báo không tìm thấy lệnh, hãy dùng giao diện web ở bước trước.",
+          "link_ref": null,
+          "title": "Cách khác: dùng giao diện terminal (TUI)",
+          "why": "Làm cùng việc đó ngay trong terminal, không cần trình duyệt."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Chuyển tiếp cổng từ máy của bạn bằng lệnh `ssh -N -L 4173:127.0.0.1:4173 <user>@<server>` rồi mở địa chỉ như bình thường.",
+          "problem": "Chạy ViMax trên máy chủ từ xa nên không mở được địa chỉ trên máy bạn"
+        },
+        {
+          "evidence": "README",
+          "fix": "Đặt biến `VIMAX_WEB_PORT` khi chạy, ví dụ `VIMAX_WEB_PORT=4174 npm run dev`.",
+          "problem": "Cần đổi cổng giao diện web"
+        }
+      ],
+      "verify": "Bạn mở được giao diện web ở địa chỉ trên, tạo được dự án và trò chuyện với ViMax Agent. README nói giao diện cho xem kịch bản, phân cảnh và bản xem trước video đã dựng, nhưng không mô tả từng nút."
+    },
+    "hook": "Bạn nêu ý tưởng, nhóm agent AI lo kịch bản, phân cảnh, nhân vật rồi dựng thành video",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "web",
+          "name": "Giao diện web hoặc TUI",
+          "role": "Nơi bạn trò chuyện với agent, sửa kế hoạch và điều khiển việc dựng."
+        },
+        {
+          "evidence": "README",
+          "name": "Mô hình chat",
+          "role": "Viết kịch bản, phân cảnh; mô hình có thể nhìn ảnh còn dùng để chọn ảnh tốt nhất."
+        },
+        {
+          "evidence": "README",
+          "name": "Bộ tạo ảnh",
+          "role": "Tạo khung hình chính và ảnh tham chiếu để giữ nhân vật nhất quán."
+        },
+        {
+          "evidence": "README",
+          "name": "Bộ tạo video",
+          "role": "Biến khung hình thành các đoạn video rồi ghép lại."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Bạn nêu ý tưởng, kịch bản hoặc tiểu thuyết; agent lập kế hoạch kể chuyện.",
+          "title": "Nhận ý tưởng"
+        },
+        {
+          "evidence": "README",
+          "text": "Tạo nhân vật, kịch bản, phân cảnh và các cú máy cho từng cảnh.",
+          "title": "Lập kịch bản và phân cảnh"
+        },
+        {
+          "evidence": "README",
+          "text": "Điều phối ảnh tham chiếu và khung hình đầu để nhân vật nhất quán, rồi sinh các đoạn video.",
+          "title": "Tạo ảnh và video"
+        },
+        {
+          "evidence": "README",
+          "text": "Các cảnh và cú máy tương thích được tạo song song rồi ghép lại.",
+          "title": "Ghép thành video hoàn chỉnh"
+        }
+      ]
+    },
+    "learn": [
+      "Chia việc làm phim thành các vai nối tiếp nhau: biên kịch, phân cảnh, tạo ảnh, tạo video, ghép",
+      "Giữ nhân vật nhất quán bằng ảnh tham chiếu, khung hình đầu và liên tục máy quay",
+      "Một lõi, nhiều cửa vào: giao diện web, TUI và các script chạy thẳng",
+      "Tạo nhiều ứng viên song song rồi nhờ mô hình chọn: đổi thêm chi phí lấy chất lượng"
+    ],
+    "one_liner": "Khung làm việc mã nguồn mở nối kịch bản, phân cảnh, tạo ảnh, tạo video và ghép cuối thành một quy trình; có giao diện web, giao diện terminal (TUI) và script chạy thẳng.",
+    "problem": "Nhiều công cụ AI chỉ tạo vài giây hình, nhân vật dễ thay đổi giữa các khung và thiếu kịch bản, âm thanh, cấu trúc kể chuyện. ViMax điều phối cả chuỗi: viết kịch bản, phân cảnh, tạo nhân vật rồi dựng video.",
+    "title": "Dựng video nhiều cảnh từ một ý tưởng với ViMax",
+    "who_for": [
+      "Người muốn thử dựng video nhiều cảnh từ ý tưởng hoặc kịch bản",
+      "Lập trình viên nghiên cứu hệ thống nhiều agent cho sản xuất nội dung"
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "",
+        "OS: Linux, Windows"
+      ],
+      [
+        "yaml",
+        "llm:\n  model_provider: openai\n  model: <YOUR_LLM_MODEL>\n  base_url: <YOUR_LLM_BASE_URL>\n  api_key: <YOUR_API_KEY>\n\nimage:\n  model: <YOUR_IMAGE_MODEL>\n  base_url: <YOUR_IMAGE_BASE_URL>\n  api_key: <YOUR_API_KEY>\n\nvideo:\n  model: <YOUR_VIDEO_MODEL>\n  base_url: <YOUR_VIDEO_BASE_URL>\n  api_key: <YOUR_API_KEY>"
+      ],
+      [
+        "yaml",
+        "image_selection:\n  num_candidates: 2 # Set to 1 to disable selection."
+      ],
+      [
+        "yaml",
+        "chat_model:\n  init_args:\n    model: google/gemini-2.5-flash-lite-preview-09-2025\n    model_provider: openai\n    api_key: <YOUR_API_KEY>\n    base_url: https://openrouter.ai/api/v1\n\nimage_generator:\n  class_path: tools.ImageGeneratorNanobananaGoogleAPI\n  init_args:\n    api_key: <YOUR_API_KEY>\n\nvideo_generator:\n  class_path: tools.VideoGeneratorVeoGoogleAPI\n  init_args:\n    api_key: <YOUR_API_KEY>\n\nworking_dir: .working_dir/idea2video"
+      ],
+      [
+        "python",
+        "script = \\\n\"\"\"\nEXT. SCHOOL GYM - DAY\nA group of students are practicing basketball in the gym. The gym is large and open, with a basketball hoop at one end and a large crowd of spectators at the other end. John (18, male, tall, athletic) is the star player, and he is practicing his dribble and shot. Jane (17, female, short, athletic) is the assistant coach, and she is helping John with his practice. The other students are watching the practice and cheering for John.\nJohn: (dribbling the ball) I'm going to score a basket!\nJane: (smiling) Good job, John!\nJohn: (shooting the ball) Yes!\n...\n\"\"\"\nuser_requirement = \\\n\"\"\"\nFast-paced with no more than 20 shots.\n\"\"\"\nstyle = \"Animate Style\""
+      ]
+    ],
+    "bucket": "ai",
+    "forks": 1900,
+    "full_name": "HKUDS/ViMax",
+    "language": "Python",
+    "license": "MIT",
+    "links": [
+      [
+        "docs.astral.sh",
+        "https://docs.astral.sh/uv/getting-started/installation/"
+      ],
+      [
+        "github.com",
+        "https://github.com/HKUDS/ViMax.git"
+      ],
+      [
+        "http://127.0.0.1:4173",
+        "http://127.0.0.1:4173"
+      ],
+      [
+        "openrouter.ai",
+        "https://openrouter.ai/api/v1"
+      ],
+      [
+        "trendshift.io",
+        "https://trendshift.io/repositories/15299"
+      ],
+      [
+        "github.com",
+        "https://github.com/astral-sh/uv"
+      ],
+      [
+        "github.com",
+        "https://github.com/HKUDS/ViMax/releases/tag/v1.2.0"
+      ],
+      [
+        "www.youtube.com",
+        "https://www.youtube.com/@AI-Creator-is-here"
+      ],
+      [
+        "arxiv.org",
+        "https://arxiv.org/abs/2606.07649"
+      ],
+      [
+        "github.com",
+        "https://github.com/user-attachments/assets/5bad46b2-8276-4e1d-9480-3522640744b2"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "stars": 12700,
+    "url": "https://github.com/HKUDS/ViMax"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit fd4b72e of a shallow checkout, cut to 9352 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "position": 3
+}

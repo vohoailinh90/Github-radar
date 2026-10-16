@@ -1,0 +1,411 @@
+{
+  "draft": {
+    "analogy": "Giống một dây chuyền lắp ráp: nguyên liệu là video gốc, qua từng trạm nhận dạng, dịch, đọc và ghép, ra thành phẩm bằng ngôn ngữ mới.",
+    "caveats": [
+      "README nêu người dùng tự chịu trách nhiệm pháp lý khi gọi API bên thứ ba hoặc xử lý video có bản quyền",
+      "Tăng tốc GPU chỉ dùng cho card NVIDIA; bản đóng gói cần CUDA 12.8 và cuDNN 9.11",
+      "Giấy phép là GPL-3.0; hãy đọc điều khoản trước khi phân phối lại phần mềm",
+      "Một số dịch vụ dịch và lồng tiếng là API trực tuyến của bên thứ ba có thể tính phí"
+    ],
+    "facebook": {
+      "caption": "Một video tiếng này, một lệnh, ra video có phụ đề và giọng đọc tiếng khác\n\npyVideoTrans nối nhận dạng giọng nói, dịch, lồng tiếng và ghép video.\nBài hướng dẫn từng bước trong repo chỉ cách cài và dịch video đầu tiên.",
+      "hashtags": [
+        "AI",
+        "OpenSource",
+        "VideoAI"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Nhận dạng giọng nói tự động: chép lời nói thành chữ.",
+        "term": "ASR"
+      },
+      {
+        "meaning": "Chuyển chữ thành giọng đọc.",
+        "term": "TTS"
+      },
+      {
+        "meaning": "Định dạng tệp phụ đề có mốc thời gian.",
+        "term": "SRT"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử nhân bản giọng nói: README nhắc tới F5-TTS, CosyVoice và GPT-SoVITS.",
+        "Muốn nhanh hơn trên card NVIDIA, README có mục cài PyTorch hỗ trợ CUDA ở bước tùy chọn thứ năm."
+      ],
+      "outcome": "Một video đã dịch sang ngôn ngữ bạn chọn, có phụ đề và giọng lồng tiếng, tạo từ video gốc bằng pyVideoTrans trên máy của bạn.",
+      "requirements": [
+        {
+          "detail": "Bản đóng gói sẵn chạy trên Windows, không cần cấu hình Python. Các hệ khác cài từ mã nguồn.",
+          "evidence": "README",
+          "item": "Windows 10/11 (cách nhanh nhất) hoặc macOS/Linux/Windows cho nhà phát triển",
+          "link_ref": 0
+        },
+        {
+          "detail": "README khuyên dùng bản 3.10.",
+          "evidence": "README",
+          "item": "Python 3.10 (khi cài từ mã nguồn)",
+          "link_ref": null
+        },
+        {
+          "detail": "Phải được cài và khai báo trong biến môi trường. Trên Windows, có thể đặt ffmpeg.exe và ffprobe.exe vào thư mục dự án.",
+          "evidence": "README",
+          "item": "FFmpeg",
+          "link_ref": 2
+        },
+        {
+          "detail": "Công cụ quản lý thư viện README khuyên dùng.",
+          "evidence": "README",
+          "item": "uv (khi cài từ mã nguồn)",
+          "link_ref": 1
+        },
+        {
+          "detail": "Bạn có quyền xử lý video đó; README nhắc người dùng tự chịu trách nhiệm pháp lý.",
+          "evidence": "README",
+          "item": "Video cần dịch",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Tải bản đóng gói mới nhất ở trang phát hành.",
+            "Giải nén vào đường dẫn không có chữ Hán hay dấu cách, ví dụ `D:\\pyVideoTrans`. Đừng chạy trực tiếp trong file nén.",
+            "Nhấp đúp `sp.exe` trong thư mục vừa giải nén."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "Muốn dùng tăng tốc GPU thì README yêu cầu GPU NVIDIA đã cài CUDA 12.8 và cuDNN 9.11.",
+          "link_ref": 0,
+          "title": "Cách A, Windows: tải bản đóng gói và chạy sp.exe",
+          "why": "Dùng ngay không cần cài Python. Chọn cách này thì làm xong bước này rồi xuống phần kiểm tra kết quả: các bước sau là cách B."
+        },
+        {
+          "commands": [
+            "brew install libsndfile  git  python@3.10",
+            "brew uninstall --ignore-dependencies ffmpeg",
+            "brew tap homebrew-ffmpeg/ffmpeg",
+            "brew install homebrew-ffmpeg/ffmpeg/ffmpeg"
+          ],
+          "do": [
+            "Chạy lần lượt bốn lệnh dưới đây trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B, macOS: cài công cụ nền và FFmpeg",
+          "why": "Cài các thành phần mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên macOS; bỏ qua nếu dùng bản đóng gói hoặc hệ khác."
+        },
+        {
+          "commands": [
+            "sudo apt-get install ffmpeg libsndfile1-dev"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B, Linux (Ubuntu/Debian): cài FFmpeg",
+          "why": "Cài FFmpeg và thư viện âm thanh mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên Linux; bỏ qua nếu dùng bản đóng gói hoặc hệ khác."
+        },
+        {
+          "commands": [
+            "curl -LsSf https://astral.sh/uv/install.sh | sh",
+            "powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\""
+          ],
+          "do": [
+            "Chạy dòng đầu trên macOS hoặc Linux.",
+            "Chạy dòng thứ hai trong PowerShell trên Windows.",
+            "Nếu máy đã có uv thì bỏ qua bước này."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 1,
+          "title": "Cách B: cài uv",
+          "why": "Có công cụ quản lý thư viện để cài pyVideoTrans từ mã nguồn. Người dùng bản đóng gói bỏ qua bước này."
+        },
+        {
+          "commands": [
+            "git clone https://github.com/jianchang512/pyvideotrans.git",
+            "cd pyvideotrans",
+            "uv sync"
+          ],
+          "do": [
+            "Chạy ba lệnh dưới đây lần lượt: tải mã nguồn, vào thư mục dự án, cài thư viện.",
+            "Mặc định phần Whisper cho .NET và WebUI chưa được cài; README có các lệnh `uv sync --all-extras` và `uv sync --extra webui` nếu bạn cần."
+          ],
+          "evidence": "pyproject.toml",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B: tải mã nguồn và cài thư viện",
+          "why": "Có pyVideoTrans cùng thư viện của nó trong một môi trường riêng. Người dùng bản đóng gói bỏ qua bước này."
+        },
+        {
+          "commands": [
+            "uv run sp.py"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong thư mục dự án.",
+            "README cho biết phần mềm cho phép tạm dừng và hiệu đính thủ công ở các chặng nhận dạng, dịch và lồng tiếng."
+          ],
+          "evidence": "sp.py",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B: mở giao diện đồ họa",
+          "why": "Dịch video bằng cửa sổ phần mềm, có thể tạm dừng để sửa tay ở từng chặng. Bản đóng gói đã mở giao diện ở bước đầu, nên bỏ qua bước này."
+        },
+        {
+          "commands": [
+            "uv run cli.py --task vtv --name \"./video.mp4\" --source_language_code zh-cn --target_language_code en --voice_role \"en-US-GuyNeural\""
+          ],
+          "do": [
+            "Đặt file video vào thư mục dự án rồi sửa lệnh dưới đây cho khớp với video của bạn.",
+            "`--name` là đường dẫn video, `--source_language_code` là ngôn ngữ gốc, `--target_language_code` là ngôn ngữ đích, `--voice_role` là giọng đọc.",
+            "Chạy lệnh trong thư mục dự án. Mọi tham số được liệt kê trong tài liệu dòng lệnh của dự án."
+          ],
+          "evidence": "docs/cli.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B: dịch cả video bằng một lệnh",
+          "why": "Chạy trọn quy trình nhận dạng, dịch, lồng tiếng và ghép video không cần giao diện. Cần bản cài từ mã nguồn."
+        },
+        {
+          "commands": [
+            "uv run cli.py --task stt --name \"./audio.wav\" --model_name large-v3",
+            "uv run cli.py --task sts --name \"./subs.srt\" --target_language_code en",
+            "uv run cli.py --task tts --name \"./subs.srt\" --voice_role \"zh-CN-YunyangNeural\""
+          ],
+          "do": [
+            "Lệnh đầu chuyển âm thanh thành phụ đề (`stt`).",
+            "Lệnh thứ hai dịch một file phụ đề (`sts`).",
+            "Lệnh thứ ba đọc một file phụ đề thành giọng (`tts`)."
+          ],
+          "evidence": "cli.py",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B: các tác vụ lẻ: chỉ lấy phụ đề, chỉ dịch, chỉ đọc",
+          "why": "Làm riêng từng chặng khi bạn không cần cả quy trình. Cần bản cài từ mã nguồn."
+        },
+        {
+          "commands": [
+            "uv sync --extra webui",
+            "uv run webui.py"
+          ],
+          "do": [
+            "Chạy lần lượt hai lệnh dưới đây trong thư mục dự án."
+          ],
+          "evidence": "webui.py",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cách B: chạy giao diện web (tùy chọn)",
+          "why": "Dùng từ xa hoặc trong mạng nội bộ qua trình duyệt. Cần bản cài từ mã nguồn."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Giải nén vào thư mục không có chữ Hán hay dấu cách và đừng chạy trực tiếp trong file nén.",
+          "problem": "Bản Windows không chạy hoặc báo lỗi đường dẫn"
+        },
+        {
+          "evidence": "README",
+          "fix": "Cài FFmpeg và khai báo trong biến môi trường. Trên Windows có thể đặt `ffmpeg.exe` và `ffprobe.exe` vào thư mục dự án.",
+          "problem": "Báo thiếu FFmpeg"
+        },
+        {
+          "evidence": "docs/faq.md",
+          "fix": "README trỏ tới tài liệu hỏi đáp `docs/faq.md` và diễn đàn hỏi đáp trực tuyến, nơi có thể gửi log lỗi để AI phân tích tự động.",
+          "problem": "Gặp lỗi khác"
+        }
+      ],
+      "verify": "Bạn mở được phần mềm (giao diện, dòng lệnh hoặc web) và thu về video hoặc phụ đề đã dịch từ file gốc của mình. README nhấn mạnh có thể tạm dừng để hiệu đính ở từng chặng, nên hãy đọc lại phụ đề trước khi dùng."
+    },
+    "hook": "Một video tiếng này, một lệnh, ra video có phụ đề và giọng đọc tiếng khác",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Nhận dạng giọng nói (ASR)",
+          "role": "Chuyển lời nói trong video thành chữ có mốc thời gian."
+        },
+        {
+          "evidence": "README",
+          "name": "Dịch phụ đề",
+          "role": "Dịch chữ sang ngôn ngữ đích bằng LLM hoặc dịch máy."
+        },
+        {
+          "evidence": "README",
+          "name": "Tổng hợp giọng nói (TTS)",
+          "role": "Đọc bản dịch thành tiếng, có thể gán giọng khác nhau cho từng người nói."
+        },
+        {
+          "evidence": "README",
+          "name": "Ghép video",
+          "role": "Ghép tiếng và phụ đề vào video và canh khớp."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Chép lời từ video bằng mô hình cục bộ như Faster-Whisper hoặc API trực tuyến; có thể phân biệt người nói.",
+          "title": "Nhận dạng giọng nói"
+        },
+        {
+          "evidence": "README",
+          "text": "Dịch bằng mô hình ngôn ngữ như DeepSeek, ChatGPT hoặc Ollama chạy cục bộ, hoặc dịch máy truyền thống.",
+          "title": "Dịch phụ đề"
+        },
+        {
+          "evidence": "README",
+          "text": "Đọc bản dịch bằng Edge-TTS (miễn phí), dịch vụ thương mại hoặc mô hình nhân bản giọng.",
+          "title": "Tổng hợp giọng nói"
+        },
+        {
+          "evidence": "README",
+          "text": "Ghép tiếng và phụ đề vào video, canh khớp giữa hình và tiếng.",
+          "title": "Ghép và đồng bộ"
+        }
+      ]
+    },
+    "learn": [
+      "Một quy trình nhiều chặng nhưng cho dừng lại sửa tay ở từng chặng để giữ độ chính xác",
+      "Một lõi, ba cửa vào: giao diện đồ họa, dòng lệnh và web",
+      "Cho thay từng chặng bằng mô hình cục bộ hoặc API trực tuyến tùy nhu cầu và ngân sách"
+    ],
+    "one_liner": "Công cụ mã nguồn mở dịch video từ ngôn ngữ này sang ngôn ngữ khác: nhận dạng giọng nói, dịch phụ đề, lồng tiếng và ghép lại, dùng giao diện, dòng lệnh hoặc web.",
+    "problem": "Đưa một video sang ngôn ngữ khác nghĩa là chép lời, dịch, thu giọng rồi canh khớp hình và tiếng. pyVideoTrans nối các bước đó thành một quy trình, chạy được hoàn toàn trên máy bạn hoặc qua các API trực tuyến.",
+    "title": "Dịch video và lồng tiếng sang ngôn ngữ khác với pyVideoTrans",
+    "who_for": [
+      "Người làm nội dung muốn đưa video sang ngôn ngữ khác kèm phụ đề và lồng tiếng",
+      "Người cần chuyển hàng loạt âm thanh hoặc video thành phụ đề SRT"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 2400,
+    "full_name": "jianchang512/pyvideotrans",
+    "language": "Python",
+    "license": "GPL-3.0",
+    "links": [
+      [
+        "Click to download the latest pre-packaged version",
+        "https://github.com/jianchang512/pyvideotrans/releases"
+      ],
+      [
+        "uv",
+        "https://docs.astral.sh/uv/"
+      ],
+      [
+        "Download FFmpeg",
+        "https://ffmpeg.org/download.html"
+      ],
+      [
+        "astral.sh",
+        "https://astral.sh/uv/install.sh"
+      ],
+      [
+        "astral.sh",
+        "https://astral.sh/uv/install.ps1"
+      ],
+      [
+        "github.com",
+        "https://github.com/jianchang512/pyvideotrans.git"
+      ],
+      [
+        "download.pytorch.org",
+        "https://download.pytorch.org/whl/cu128"
+      ],
+      [
+        "Documentation",
+        "https://pyvideotrans.com"
+      ],
+      [
+        "Online Q&A",
+        "https://bbs.pyvideotrans.com"
+      ],
+      [
+        "www.python.org",
+        "https://www.python.org/"
+      ],
+      [
+        "FFmpeg",
+        "https://github.com/FFmpeg/FFmpeg"
+      ],
+      [
+        "PySide6",
+        "https://pypi.org/project/PySide6/"
+      ],
+      [
+        "sherpa-onnx",
+        "https://github.com/k2-fsa/sherpa-onnx"
+      ],
+      [
+        "faster-whisper",
+        "https://github.com/SYSTRAN/faster-whisper"
+      ],
+      [
+        "openai-whisper",
+        "https://github.com/openai/whisper"
+      ],
+      [
+        "edge-tts",
+        "https://github.com/rany2/edge-tts"
+      ],
+      [
+        "F5-TTS",
+        "https://github.com/SWivid/F5-TTS"
+      ],
+      [
+        "Confucius4-TTS",
+        "https://github.com/netease-youdao/Confucius4-TTS"
+      ],
+      [
+        "OmniVoice",
+        "https://github.com/k2-fsa/omnivoice"
+      ],
+      [
+        "CosyVoice",
+        "https://github.com/FunAudioLLM/CosyVoice"
+      ],
+      [
+        "Gradio",
+        "https://www.gradio.app/"
+      ],
+      [
+        "jianchang512",
+        "https://github.com/jianchang512"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "stars": 19400,
+    "url": "https://github.com/jianchang512/pyvideotrans"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit f9f35d1 of a shallow checkout, cut to 9599 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "position": 5
+}

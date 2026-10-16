@@ -19,10 +19,16 @@ flowchart LR
 
 ## Một bài học trông như thế nào
 
-`digests/<ngày>/<repo>/vi.md` gồm: thẻ tóm tắt (ảnh), **vấn đề** repo giải quyết, **hình dung đời thường**,
-**sơ đồ các mảnh ghép** và **các bước chạy** (SVG vẽ bằng script, không phải model vẽ), bảng căn cứ cho từng mảnh,
-**bài học thiết kế**, lệnh chạy thử (chép nguyên văn từ README), **lưu ý** trước khi dùng và bảng từ khóa.
-Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED") **không phải** câu trả lời gốc của model. Có nó thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota. Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn. Cạnh mỗi bài còn có `board-<ngôn ngữ>.excalidraw` (bảng nét vẽ tay, mở ở excalidraw.com), `moda-<ngôn ngữ>.xml` (markup để áp lên canvas Moda) và `drawio-<ngôn ngữ>.drawio` (sơ đồ có icon, mở ở app.diagrams.net), cũng do script vẽ từ bản nháp: [`docs/design-files.md`](docs/design-files.md).
+Mỗi repo thành một **hướng dẫn làm theo từng bước**, để người đọc chỉ cần nhìn tài liệu là tự làm được điều repo làm:
+`digests/<ngày>/<repo>/vi.md` gồm: thẻ tóm tắt (ảnh), **bạn sẽ làm ra được gì**, vấn đề repo giải quyết, **lưu ý** (phần cứng, chi phí, bản quyền),
+**chuẩn bị** (danh sách đánh dấu: phần mềm, phần cứng, tài khoản, khóa API, có liên kết lấy từ README), **lộ trình** (hình tóm tắt các bước),
+**làm theo từng bước** (mỗi bước: mục đích, việc cần làm, khối lệnh chép nguyên văn từ README, khối cấu hình mẫu in đúng như README, *bạn sẽ thấy*, *nếu không được*, căn cứ),
+**kiểm tra kết quả**, **lỗi thường gặp** (chỉ lỗi README tự nêu), **làm tiếp**; rồi mới đến phần giải thích bên trong (sơ đồ các mảnh ghép, bài học thiết kế, từ khóa).
+Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng dẫn làm video AI](docs/ai-video-guides.md) (5 repo, quét 16/10/2026).
+Bài cũ (trước khi có hướng dẫn) vẫn được vẽ như trước: `draft` không có khóa `guide` dùng bố cục giải thích cũ.
+Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED",
+hay các hướng dẫn viết trong phiên tương tác) **không phải** câu trả lời gốc của model free. Có bản nháp thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota.
+Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn, và báo cáo `state/runs/*.json` ghi `coverage` (bài dùng bao nhiêu trong số lệnh của README). Cạnh mỗi bài còn có `board-<ngôn ngữ>.excalidraw` (bảng nét vẽ tay, mở ở excalidraw.com), `moda-<ngôn ngữ>.xml` (markup để áp lên canvas Moda) và `drawio-<ngôn ngữ>.drawio` (sơ đồ có icon, mở ở app.diagrams.net), cũng do script vẽ từ bản nháp: [`docs/design-files.md`](docs/design-files.md).
 
 ## Vì sao tin được nội dung
 
@@ -31,12 +37,18 @@ Model chỉ viết lời giải thích; **script** quyết định bài có đư
 | Cổng | Chặn điều gì |
 |---|---|
 | Số liệu | Số nào không có trong dữ kiện của repo (README, sao, fork, tuổi...) bị loại: không bịa "nhanh hơn 95%" |
-| Căn cứ | Mỗi bước/mảnh ghép phải ghi `README` hoặc một đường dẫn **có thật** trong repo |
-| Lệnh cài | Lệnh trong "Tự thử" phải có **nguyên văn** trong README |
-| Liên kết | Không URL/tên miền do model viết; link repo do script thêm |
+| Căn cứ | Mỗi bước/mảnh ghép/yêu cầu/lỗi thường gặp phải ghi `README` hoặc một đường dẫn **có thật** trong repo |
+| Lệnh | Mỗi lệnh trong hướng dẫn phải là **một dòng** (hoặc một đoạn mã nội dòng) của README; lệnh README chia nhiều dòng bằng `\` được ghép thành một |
+| Chữ trong dấu backtick | Chữ model viết giữa dấu backtick (hiện ra như mã để chép) phải có trong README hoặc là đường dẫn có thật; không thể giấu một lệnh bịa trong câu văn |
+| Có lệnh khi README có lệnh | README có từ 2 dòng lệnh trở lên (trong khối mã) mà hướng dẫn không dùng lệnh nào trong số đó: bị chặn (một dòng văn xuôi của README không tính). README có từ 4 dòng lệnh mà hướng dẫn dùng dưới 2: cảnh báo |
+| Liên kết | Không URL/tên miền do model viết. Link repo do script thêm; link khác (trang khóa API, địa chỉ cục bộ như `localhost:8080`) model chỉ **chọn theo số** trong danh sách liên kết README mà script trích, script in ra. Link có tham số theo dõi/affiliate hoặc có phần `user@` bị loại; `localhost` giả (`localhost.example.org`) không được coi là địa chỉ cục bộ |
+| Khối cấu hình mẫu | File cấu hình/ví dụ (YAML, TOML...) model không gõ lại: nó chọn **theo số** một khối mã của README, script in nguyên văn kèm thụt lề |
+| Văn bản lạ trong bài | Mọi `*` và `<` trong câu văn của model hiện ra như chữ thường (không thành chữ nghiêng hay HTML); bộ kiểm tra không bao giờ ném lỗi dù model trả JSON sai hình dạng, chỉ trả danh sách lỗi |
 | Lời quảng cáo | "tốt nhất thế giới", "100%", "số 1"... bị chặn (vi/en/ja) |
 | Ngôn ngữ, độ dài | Đúng ngôn ngữ; tiêu đề, hook Facebook ≤125 ký tự, số lượng bước, v.v. |
 
+README dài được cắt **theo mục**, không cắt đầu: `radar/readme.py` giữ phần mở đầu và các mục về cài đặt, cấu hình, chạy, FAQ, bỏ trước
+các mục ảnh demo, cảm ơn, giấy phép, lịch sử sao (một README dài 28.000 ký tự có mục cài đặt ở ký tự 20.500 trước đây bị cắt mất mục đó).
 Bài vi phạm sau **một** vòng sửa sẽ bị giữ lại, không xuất. Model soát lỗi thuộc **họ model khác** model viết
 (`python3 radar.py doctor` cảnh báo nếu trùng). Chi tiết nguồn model miễn phí: [`docs/models.md`](docs/models.md).
 

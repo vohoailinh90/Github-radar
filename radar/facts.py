@@ -6,18 +6,15 @@ import datetime as dt
 import re
 from pathlib import Path
 
+from . import readme as readmelib
+
 PEEK_DIRS = ("src", "packages", "apps", "lib", "core", "cmd", "internal", "docs", "examples")
 
 
 def clean_readme(text: str, limit: int) -> str:
-    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)           # images and badges
-    text = re.sub(r"<img\b[^>]*>", "", text, flags=re.I)
-    text = re.sub(r"\n{3,}", "\n\n", text).strip()
-    if len(text) <= limit:
-        return text
-    cut = text[:limit]
-    return cut[:cut.rfind("\n")] if "\n" in cut else cut
+    """The README without comments and images (code blocks untouched, see readme.clean_markup), cut to `limit` characters by whole
+    sections (see readme.select)."""
+    return readmelib.select(readmelib.clean_markup(text), limit)
 
 
 def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
@@ -34,6 +31,7 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
             continue
     created = repo.get("created_at", "")[:10]
     languages = list(gh.languages(name))[:5]
+    text = clean_readme(gh.readme(name), int(cfg["readme_max_chars"]))
     return {
         "full_name": name,
         "url": repo.get("html_url") or f"https://github.com/{name}",
@@ -50,7 +48,10 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
         "age_years": max(0, (today - dt.date.fromisoformat(created)).days // 365) if created else 0,
         "branch": branch,
         "tree": tree[:budget],
-        "readme": clean_readme(gh.readme(name), int(cfg["readme_max_chars"])),
+        "readme": text,
+        "links": readmelib.links(text),               # [[label, url], ...]: the only addresses a guide may point to, by number
+        "blocks": readmelib.blocks(text),             # [[language, text], ...]: README samples (config files...) a guide may show, by number
+        "shells": readmelib.shells(text),             # {command: "powershell" | "bat"}: the shell the README writes a command line for
         "bucket": cand["bucket"],
         "topic": cand["topic"],
         "score": cand["score"],

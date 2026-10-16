@@ -1,0 +1,89 @@
+id: 05-pyvideotrans
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-16-3
+link: 05-pyvideotrans
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: Dịch video và lồng tiếng sang ngôn ngữ khác với pyVideoTrans
+  subtitle: 'Công cụ mã nguồn mở dịch video từ ngôn ngữ này sang ngôn ngữ khác: nhận dạng giọng nói, dịch
+    phụ đề, lồng tiếng và ghép lại, dùng giao diện, dòng lệnh hoặc web.'
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '19.400'
+  label: sao trên GitHub
+  caption: GPL-3.0 · Python
+- layout: quote
+  text: Đưa một video sang ngôn ngữ khác nghĩa là chép lời, dịch, thu giọng rồi canh khớp hình và tiếng.
+    pyVideoTrans nối các bước đó thành một quy trình, chạy được hoàn toàn trên máy bạn hoặc qua các API
+    trực tuyến.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Nhận dạng giọng nói: Chép lời từ video bằng mô hình cục bộ như Faster-Whisper hoặc API trực
+      tuyến; có thể phân biệt người nói.'
+  - text: 'Dịch phụ đề: Dịch bằng mô hình ngôn ngữ như DeepSeek, ChatGPT hoặc Ollama chạy cục bộ, hoặc
+      dịch máy truyền thống.'
+  - text: 'Tổng hợp giọng nói: Đọc bản dịch bằng Edge-TTS (miễn phí), dịch vụ thương mại hoặc mô hình
+      nhân bản giọng.'
+  - text: 'Ghép và đồng bộ: Ghép tiếng và phụ đề vào video, canh khớp giữa hình và tiếng.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Nhận dạng giọng nói (ASR)
+    text: Chuyển lời nói trong video thành chữ có mốc thời gian.
+  - emoji: ⚙️
+    title: Dịch phụ đề
+    text: Dịch chữ sang ngôn ngữ đích bằng LLM hoặc dịch máy.
+  - emoji: 🔌
+    title: Tổng hợp giọng nói (TTS)
+    text: Đọc bản dịch thành tiếng, có thể gán giọng khác nhau cho từng người nói.
+  - emoji: 📦
+    title: Ghép video
+    text: Ghép tiếng và phụ đề vào video và canh khớp.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Một quy trình nhiều chặng nhưng cho dừng lại sửa tay ở từng chặng để giữ độ chính xác
+  - 'Một lõi, ba cửa vào: giao diện đồ họa, dòng lệnh và web'
+  - Cho thay từng chặng bằng mô hình cục bộ hoặc API trực tuyến tùy nhu cầu và ngân sách
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: README nêu người dùng tự chịu trách nhiệm pháp lý khi gọi API bên thứ ba hoặc xử lý video có
+      bản quyền
+  - emoji: ⚠️
+    text: Tăng tốc GPU chỉ dùng cho card NVIDIA; bản đóng gói cần CUDA 12.8 và cuDNN 9.11
+  - emoji: ⚠️
+    text: Giấy phép là GPL-3.0; hãy đọc điều khoản trước khi phân phối lại phần mềm
+  - emoji: ⚠️
+    text: Một số dịch vụ dịch và lồng tiếng là API trực tuyến của bên thứ ba có thể tính phí
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Một video tiếng này, một lệnh, ra video có phụ đề và giọng đọc tiếng khác
+
+
+      pyVideoTrans nối nhận dạng giọng nói, dịch, lồng tiếng và ghép video.
+
+      Bài hướng dẫn từng bước trong repo chỉ cách cài và dịch video đầu tiên.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AI
+    - OpenSource
+    - VideoAI
