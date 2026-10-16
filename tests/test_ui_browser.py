@@ -175,6 +175,7 @@ def test_a_changed_value_goes_as_conditions_and_python_resolves_it_to_the_form(u
     wait(ui, "document.getElementById('msg').textContent.includes('quét thật')")
     inputs = ui.gh.posts()[0]["body"]["inputs"]
     assert inputs["dry_run"] == "false" and inputs["preset"] == "quet-nhanh" and all(isinstance(v, str) for v in inputs.values())
+    assert json.loads(inputs["conditions"]) == {"min_stars": 5000}                 # the one field changed, nothing of the page's snapshot
     cfg = config.load(path=config.ROOT / "radar.yaml", env={})
     overrides, label = conditions.from_env({"RADAR_PRESET": inputs["preset"], "RADAR_CONDITIONS": inputs["conditions"]}, [b["id"] for b in cfg["buckets"]])
     assert conditions.resolved(conditions.apply(cfg, overrides)) == json.loads(ui.input_value("#json")) and label == "quet-nhanh+custom"

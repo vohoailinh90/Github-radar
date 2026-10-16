@@ -78,3 +78,9 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | A run-list request still pending for repository A was not invalidated when the Repo field changed to a repository with no followed send, so its late answer filled the table while the form targeted B | true | every change of the Repo field now invalidates pending looks, stops the pending poll and empties the table; it looks again only when the new repository has a followed send; two tests (a held answer; a table with rows), mutations killed |
+
+## Codex review of head b20e99f (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | Changing one field made the page send its whole resolved snapshot as `conditions`; the runner applies that after its current preset and `radar.yaml`, so a page that had gone out of date pinned old values (and stale buckets could fail the run), against what `docs/ui.md` promised ("only the differences") | true: `dispatchInputs` serialised the whole object when anything differed | `delta`: only the fields that differ from the chosen preset go (`rising` setting by setting, `langs` and `buckets` whole, as the runner replaces those); tests: exact deltas for six changes, an empty delta for none and for key order, and the runner (`from_env`/`apply`) turns each delta into the values on the form; four mutations killed |

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UANEv3ofzdDq9xqptzCuDf3JzMJkzxPU2JDGC+e8Lo0='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-7fuKGGtQ/+kD/H0kcbZTR5K7+h6RlRmtN9N/fJ/HPLw='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -356,10 +356,25 @@ function problems(v) {
   if (!out.length && JSON.stringify(canon(v)).length > DATA.schema.max_json_chars) out.push("Điều kiện dài quá " + DATA.schema.max_json_chars + " ký tự");
   return out;
 }
-// What goes into the workflow's inputs. Values equal to what a preset (or radar.yaml) already gives need no inline conditions.
+// Only what the person changed: the fields whose value differs from the chosen preset (or radar.yaml). Everything else is left to the runner, which applies
+// the conditions on top of its own, current preset and radar.yaml; sending the whole snapshot would pin a page that has gone out of date. `rising` goes
+// setting by setting (the runner merges it that way); every other field, buckets included, goes whole (the runner replaces those whole).
+function delta(v, base) {
+  const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
+  const out = {};
+  for (const k of Object.keys(v)) {
+    if (k === "rising") {
+      const r = {};
+      for (const f of Object.keys(v.rising)) if (!same(v.rising[f], base.rising[f])) r[f] = v.rising[f];
+      if (Object.keys(r).length) out.rising = r;
+    } else if (!same(v[k], base[k])) out[k] = clone(v[k]);
+  }
+  return out;
+}
+// What goes into the workflow's inputs.
 function dispatchInputs(v, presetName, dry, single, bucket) {
-  const same = JSON.stringify(canon(v)) === JSON.stringify(canon(resolve(presetName)));
-  return { dry_run: dry ? "true" : "false", preset: presetName || "none", conditions: same ? "" : JSON.stringify(canon(v)),
+  const changed = delta(v, resolve(presetName));
+  return { dry_run: dry ? "true" : "false", preset: presetName || "none", conditions: Object.keys(changed).length ? JSON.stringify(canon(changed)) : "",
            repo: single || "", bucket: bucket || "" };
 }
 // A single repository skips the search and writes one repository in every language (radar/discover.py requested), whatever the number of posts says.

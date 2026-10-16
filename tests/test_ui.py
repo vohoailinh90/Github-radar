@@ -137,7 +137,7 @@ def _node(cases: list, schema: dict | None = None) -> list:
     data = json.dumps(data)
     program = f"""const DATA = {data};
 {_logic()}
-const fns = {{ isRepo, isBranch, merge, resolve, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
+const fns = {{ isRepo, isBranch, merge, resolve, delta, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
 process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
 """
@@ -344,3 +344,33 @@ def test_a_dry_run_keeps_the_search_and_drops_the_model_calls_and_pauses():
     assert dry == {**full, "model_calls": 0, "pace_seconds": 0} and dry["searches"] == full["searches"] > 0
     assert one_dry["searches"] == 0 and one_dry["model_calls"] == 0 and one_dry["pace_seconds"] == 0
     assert one_real["searches"] == 0 and one_real["model_calls"] == 2
+
+
+def test_only_the_fields_the_person_changed_are_sent_so_a_stale_page_cannot_pin_old_values():
+    base = conditions.resolved(_cfg())
+    quick = _python_values("quet-nhanh")
+    cases = [
+        ["dispatchInputs", [{**base, "picks_per_run": 5}, "", True, "", ""]],
+        ["dispatchInputs", [{**quick, "min_stars": 5000}, "quet-nhanh", False, "", ""]],
+        ["dispatchInputs", [{**base, "rising": {**base["rising"], "slots": 0}}, "", True, "", ""]],
+        ["dispatchInputs", [{**base, "langs": ["vi", "en"]}, "", True, "", ""]],
+        ["dispatchInputs", [{**base, "buckets": {"ai": base["buckets"]["ai"]}}, "", True, "", ""]],
+        ["dispatchInputs", [{**base, "rising": {**base["rising"], "slots": 2}, "picks_per_run": 4, "min_stars": 7}, "", True, "", ""]],
+        ["dispatchInputs", [quick, "quet-nhanh", True, "", ""]],
+    ]
+    sent = [json.loads(r["conditions"]) if r["conditions"] else None for r in _node(cases)]
+    assert sent == [{"picks_per_run": 5}, {"min_stars": 5000}, {"rising": {"slots": 0}}, {"langs": ["vi", "en"]},
+                    {"buckets": {"ai": base["buckets"]["ai"]}}, {"min_stars": 7, "picks_per_run": 4, "rising": {"slots": 2}}, None]
+    # and the runner turns each delta into exactly the values on the form, whatever else it holds
+    cfg = _cfg()
+    ids = [b["id"] for b in cfg["buckets"]]
+    for (_, (values, preset_name, *_)), changed in zip(cases, sent):
+        got, _label = conditions.from_env({"RADAR_PRESET": preset_name or "none", "RADAR_CONDITIONS": json.dumps(changed) if changed else ""}, ids)
+        assert conditions.resolved(conditions.apply(cfg, got)) == values
+
+
+def test_a_delta_is_empty_when_nothing_differs_and_ignores_key_order():
+    base = conditions.resolved(_cfg())
+    shuffled = {k: base[k] for k in reversed(list(base))}
+    shuffled["rising"] = {k: base["rising"][k] for k in reversed(list(base["rising"]))}
+    assert _node([["delta", [shuffled, base]]]) == [{}]
