@@ -1069,3 +1069,15 @@ def test_the_roadmap_counts_the_commands_of_a_step_with_the_shell_of_the_facts()
     for steps in (ps, fish):
         assert chip in svg.roadmap(steps, "R", "O", L["en"], table)                       # two commands, with the shell of the facts
         assert chip not in svg.roadmap(steps, "R", "O", L["en"])                          # the POSIX default counts one
+
+
+def test_a_powershell_try_catch_chain_and_a_do_while_are_one_command_and_a_long_pipeline_is_not_cut():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = "```powershell\ntry {\n  Remove-Item x\n  Write-Host ok\n} catch {\n  Write-Host failed\n} finally {\n  Write-Host done\n}\nGet-Item y\n```\n"
+    assert lines(text) == ["try { Remove-Item x; Write-Host ok } catch { Write-Host failed } finally { Write-Host done }", "Get-Item y"]
+    text = "```powershell\nif ($a) {\n x\n}\nelse {\n y\n}\ndo {\n z\n}\nwhile ($i -lt 3)\nwhile ($j) {\n w\n}\nls\n```\n"
+    assert lines(text) == ["if ($a) { x } else { y }", "do { z } while ($i -lt 3)", "while ($j) { w }", "ls"]          # a `while` after a plain block is a new loop
+    assert lines("```powershell\ntry {\n  x\n}\n\ncatch {\n  y\n}\n```\n") == ["try { x }", "", "catch { y }"]          # a blank line ends it
+    out = lines("```bash\nproducer |\n" + "tee x |\n" * 25 + "consumer\nls\n```\n")
+    assert len(out) == 2 and out[0].startswith("producer | tee x |") and out[0].endswith("| consumer") and out[0].count("tee x") == 25 and out[1] == "ls"

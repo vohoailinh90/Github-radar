@@ -633,9 +633,6 @@ def _ends_in_redirection(command: str) -> bool:
     return found.group(2) != ">" or not _closes_placeholder(code)                # a lone `>` may close a `<url>` placeholder
 
 
-GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
-
-
 def _piece(lang: str, line: str, command: str = "") -> str:
     """A physical line as it joins the command before it: without its margin and, in a transcript or after a command that was typed at a
     prompt (`$ docker run \\` over `> --rm image` in a `bash` fence), without the secondary prompt (`> `, PowerShell's `>> `, cmd's `More? `)."""
@@ -932,18 +929,30 @@ def _open_group(lang: str, command: str, following: list[str]) -> int:
     return 0
 
 
+def _ps_clause_follows(text: str, line: str) -> bool:
+    """Whether the line after a complete PowerShell command goes on with it: `catch`, `finally`, `else` or `elseif` after the `}` that closes
+    a `try` or an `if`, `while` or `until` after the `}` of a `do`. Alone, the first part is not a command, and the clause is not either."""
+    state = _ps_state(text)
+    code = text[:state[2]].rstrip() if state else ""
+    nxt = line.strip()
+    if not code.endswith("}"):
+        return False
+    return bool(re.match(r"(?i)(?:catch|finally|elseif|else)\b", nxt) or (re.match(r"(?i)(?:while|until)\b", nxt) and re.match(r"(?i)\s*do\b", code)))
+
+
 def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
-    """True when the shell's grammar leaves the command unfinished (`printf foo |`; in PowerShell a pipe, a comma or an open bracket at the
-    end of a line) and the next lines finish it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed, so that the lines are one command.
-    A string or a compound command left open is not joined (see `_open_group`): the line break is part of it."""
+    """True when the shell's grammar leaves the command unfinished (`printf foo |`; in PowerShell a pipe, a comma, an open bracket or an
+    operator at the end of a line, or a `}` that a `catch`, `finally` or `else` on the next line goes on from) and the next lines finish it
+    before a blank line or the end of the block, so that the lines are one command. A string or a compound command left open is not joined
+    (see `_open_group`): the line break is part of it."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, command) or _construct_open(lang, command):
         return False
     powershell = _is_powershell(lang, command)
     unfinished = _ps_open if powershell else _incomplete
     text = command
-    if unfinished(text) is not True:
+    if unfinished(text) is not True and not (powershell and following and _ps_clause_follows(text, following[0])):
         return False
-    for line in following[:GRAMMAR_LOOKAHEAD]:
+    for n, line in enumerate(following, 1):
         if not line.strip():
             return False
         text = _join(lang, text, line, None)
@@ -952,7 +961,7 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
         state = unfinished(text)
         if state is None:
             return False
-        if not state:
+        if not state and not (powershell and n < len(following) and _ps_clause_follows(text, following[n])):
             return True
     return False
 
