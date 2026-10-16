@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-VJpVPzyydw6GyY/xW4FY1hdRTtPTUWQ1daRgXYmBb5I='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dpbiB6y+SF1Rus5iq6U0Ip3SKn9l8hA8nAAzg4nFEic='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -447,7 +447,8 @@ function explain(status, data) {
   return "GitHub trả mã " + status + ".";
 }
 function repoName() { return $("repo").value.trim(); }
-function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10"; }
+// All runs of the workflow, scheduled ones too: they share the `radar` concurrency group, so a waiting scheduled scan can be replaced by a manual one.
+function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?per_page=10"; }
 // Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
 // could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
 function watching() { return watchOf(repoName()) !== null; }

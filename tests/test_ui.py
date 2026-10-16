@@ -122,6 +122,10 @@ def test_the_page_stays_small_enough_to_read():
     assert len(HTML.encode("utf-8")) < 60_000
 
 
+def test_the_run_list_is_not_filtered_by_event():
+    assert "event=" not in HTML.split("<body>", 1)[1].split("<script type=\"application/json\"", 1)[0] and "workflow_dispatch&" not in HTML
+
+
 def test_it_is_a_single_self_contained_file():
     assert not re.search(r"\b(src|href)=\"(?!#)", HTML.split("<body>", 1)[1].replace("</script>", "").split("<script", 1)[0])
 

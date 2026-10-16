@@ -120,3 +120,12 @@ Note on the process: this was the eleventh Codex round on this one page. The lat
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | The list read before a send may already hold a queued `workflow_dispatch` (waiting behind a running scan); the page used it only for the baseline and sent anyway, replacing it (`concurrency: radar` keeps one waiting run) | true: replacement of a waiting run is GitHub's rule, documented from the start, but the page did nothing to tell the person | not refused (what GitHub calls a run held by the group, `pending` or `queued`, is unverified, so a hard refusal could block legitimate sends): the page asks once ("gửi lúc này có thể thay nó") and sends on the second click; running runs do not trigger it; the answer is for one send and one waiting set, and does not carry over to a changed queue or a new session; tests and mutations killed; the unverified status value is listed in `docs/ui.md` |
+
+## Codex review (code and security) of head 928d53b
+
+The ordinary review of `928d53b` found nothing ("Didn't find any major issues"). The security review of the same head returned two P2 findings, both confirmed:
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The list read before a send was filtered by `event=workflow_dispatch`, so a scheduled scan waiting in the same `radar` concurrency group was not seen and a manual send could cancel it without the warning | true: the workflow's schedule and manual runs share the group | the filter is gone everywhere (the table now shows scheduled runs too); tests: no `event=` in any request, none in the page source; the mutation (filter back) is killed |
+| 2 | `docs/ui.md` said the token "only has the right to run workflows", which understates *Actions: Read and write* | true: it also cancels, re-runs and deletes runs and logs, disables and enables workflows and deletes caches and artifacts of the repository (it does not read or write code, secrets or variables, and cannot edit the workflow file) | the text lists what the permission allows and what it does not, says that an existing branch with a modified workflow could be run through the API (the page only runs the default branch) and that the `radar` Environment limited to `main` is what closes that, and what a leaked token costs; README and the page's own text agree |

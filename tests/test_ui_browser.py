@@ -439,7 +439,7 @@ def test_run_links_point_at_the_repository_the_list_was_asked_for(ui):
     original = ui.gh.handle
 
     def edit_the_field_meanwhile(route, request):
-        if request.url.endswith("/runs?event=workflow_dispatch&per_page=10"):
+        if request.url.endswith("/runs?per_page=10"):
             ui.evaluate("document.getElementById('repo').value = 'attacker/other'")          # typed while the request is in flight
         return original(route, request)
     ui.context.unroute("https://api.github.com/**")
@@ -939,6 +939,14 @@ def test_a_send_that_could_replace_a_waiting_run_asks_once_and_goes_on_the_secon
     ui.click("#go")
     wait(ui, "document.getElementById('msg').className.includes('warn')")
     assert len(ui.gh.posts()) == 1
+
+
+def test_the_list_read_before_a_send_is_not_limited_to_manual_runs(ui):
+    connect(ui)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    listed = [r["path"] for r in ui.gh.requests if r["method"] == "GET" and "/radar.yml/runs" in r["path"]]
+    assert listed and all(path.endswith("/runs?per_page=10") and "event=" not in path for path in listed)   # a waiting scheduled scan shares the group
 
 
 def test_a_run_that_is_only_running_does_not_make_the_page_ask(ui):
