@@ -72,3 +72,9 @@ The state of "the send I am following" lived in four loose variables that were r
 | 1 | The "per repository" tracking was still one object: a send to repository B replaced the one for A, so going back to A unlocked it while its run was queued | true | a `Map` keyed by repository; a send adds or replaces only its own repository's entry; "Quên token" clears all; test fails on the old page, mutations killed |
 
 Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, which does not let Playwright run the route handlers, so a clock jump could precede the page's own timer (a test race, not a page defect). They now wait with `wait_for_timeout` until the expected request count is reached; repeated runs are stable.
+
+## Codex review of head 1549385 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | A run-list request still pending for repository A was not invalidated when the Repo field changed to a repository with no followed send, so its late answer filled the table while the form targeted B | true | every change of the Repo field now invalidates pending looks, stops the pending poll and empties the table; it looks again only when the new repository has a followed send; two tests (a held answer; a table with rows), mutations killed |

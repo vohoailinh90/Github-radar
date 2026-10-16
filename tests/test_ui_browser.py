@@ -676,6 +676,38 @@ def test_an_older_run_list_answer_arriving_late_changes_nothing(browser):
     context.close()
 
 
+def test_a_run_list_still_loading_for_the_old_repository_does_not_land_in_the_new_ones_table(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 5, "status": "completed", "conclusion": "success", "created_at": now}]})
+    connect(page)
+    page.evaluate("window.__hold = true")
+    page.click("#refresh")                                                         # the list for REPO is on its way, held back
+    wait(page, "window.__held.length === 1")
+    page.fill("#repo", "someone/else")                                             # the form now targets another repository
+    page.evaluate("window.__release()")
+    page.wait_for_timeout(500)
+    assert page.eval_on_selector_all("#runs-body tr", "trs => trs.length") == 0    # the late answer for the old repository was dropped
+    context.close()
+
+
+def test_the_table_of_runs_is_emptied_when_another_repository_is_typed(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 5, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.click("#refresh")
+    wait(ui, "document.getElementById('runs-body').children.length === 1")
+    ui.fill("#repo", "someone/else")
+    assert ui.eval_on_selector_all("#runs-body tr", "trs => trs.length") == 0      # the rows belonged to the old repository
+
+
 def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (422, {"message": "nope"})

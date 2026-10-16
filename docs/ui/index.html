@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-q28Ccb91550kWQ2SpwxbKnZxUVuhei6z3S/CA8FN/NU='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UANEv3ofzdDq9xqptzCuDf3JzMJkzxPU2JDGC+e8Lo0='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -641,7 +641,15 @@ $("preset").addEventListener("change", () => {
   refresh();
 });
 for (const node of document.querySelectorAll("input, select")) {
-  const changed = () => { refresh(); if (node.id === "repo" && watching() && token() !== "") loadRuns(); };      // back on the repository I sent to: find out where its run stands
+  const changed = () => {
+    if (node.id === "repo") {                                       // another repository: whatever was being loaded for the old one must not land in this one's table
+      looks++;
+      clearTimeout(pollTimer);
+      $("runs-body").replaceChildren();
+    }
+    refresh();
+    if (node.id === "repo" && watching() && token() !== "") loadRuns();      // back on a repository I sent to: find out where its run stands
+  };
   node.addEventListener("input", changed);
   node.addEventListener("change", changed);
 }
