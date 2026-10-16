@@ -89,8 +89,8 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = No
     best 1,000 hits of one query, so a single query ordered by stars would show the same classics every run.
 
     A page is ordered by stars, so in a busy topic the rising page can fill up with young repositories that are already
-    above the stars floor and hide the ones between the two floors. Only then a second rising query asks for exactly
-    that band, so a quiet topic costs no extra call."""
+    above the stars floor and push the ones between the two floors off the page. Whenever the page is full and reaches
+    above the floor, a second rising query asks for exactly that band; a quiet topic costs no extra call."""
     since = (today - dt.timedelta(days=int(cfg["max_days_since_push"]))).isoformat()
     rise = cfg["rising"]
     window = int(rise["created_within_days"])
@@ -128,7 +128,7 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = No
                 continue
             page = search(bucket["id"], topic, "rising", f">={rise_floor}", rise_floor, born)
             if page and len(page) >= per_page and rise_floor < top_floor \
-                    and min(int(r.get("stargazers_count", 0)) for r in page) >= top_floor:
+                    and max(int(r.get("stargazers_count", 0)) for r in page) >= top_floor:
                 search(bucket["id"], topic, "rising", f"{rise_floor}..{top_floor - 1}", rise_floor, born)
     ranked = sorted(found.values(), key=lambda c: (-c["score"], c["full_name"]))
     return ranked, dropped

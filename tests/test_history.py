@@ -77,6 +77,9 @@ def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_
     path.write_text('{"o/ok": {"2026-10-01": 5}, "o/huge": {"2026-10-01": 1' + "0" * 400 + ', "2026-10-02": -3}}')   # an int() that succeeds but overflows later
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/f": {"2026-10-01": 0.9, "2026-10-02": true, "2026-10-03": "7", "2026-10-04": 5.0}}')
+    problems = []                                            # int() would have turned these into 0, 1, 7 and 5 without a word
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
     path.write_text('{"o/ok": {"2026-10-01": 5}}')
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []
@@ -89,5 +92,7 @@ def test_velocity_and_prune_survive_hand_edited_shapes():
     assert history.velocity({"o/i": {day(5): float("inf")}}, "o/i", 1100, D) is None       # int(inf) overflows
     assert history.velocity({"o/h": {day(5): 10**400}, "o/n": {day(5): -1}}, "o/h", 1100, D) is None     # (10**400 - n) / gap overflows a float
     assert history.velocity({"o/n": {day(5): -1}}, "o/n", 1100, D) is None
+    for lossy in (0.9, True, "7", 5.0):                                                      # coercions int() would accept
+        assert history.velocity({"o/l": {day(5): lossy}}, "o/l", 1100, D) is None, lossy
     history.prune(h, D, 60)
     assert "o/a" not in h and "o/c" not in h and h["o/b"][day(6)] == 1000     # prune filters by date; load is what drops bad values

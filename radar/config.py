@@ -16,8 +16,8 @@ DEFAULTS = {
     "min_stars": 1500,
     "max_days_since_push": 120,
     "per_topic": 15,
-    # A second search per topic for young repositories under a lower stars floor, and the share of picks reserved for them
-    # (never more than half). 0 slots switches the pass off. See docs/research.md.
+    # A second search per topic for young repositories under a lower stars floor, and the share of picks reserved for young
+    # repositories (any stars) that the plain ranking did not pick (never more than half). 0 slots switches the pass off. See docs/research.md.
     "rising": {"enabled": True, "slots": 1, "created_within_days": 120, "min_stars": 300},
     "history_days": 60,             # star snapshots older than this are dropped from state/stars.json
     "search_interval_seconds": 2.1,  # gap between Search API calls: its limit is 30 a minute, with a stricter hidden one on bursts

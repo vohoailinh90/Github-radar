@@ -18,11 +18,13 @@ MAX_STARS = 10**9         # far above any real repository; a stored count outsid
 
 
 def _count(value) -> int:
-    """A stored star count, or ValueError/TypeError/OverflowError when it is not a plausible one."""
-    stars = int(value)
-    if not 0 <= stars <= MAX_STARS:
-        raise ValueError(f"star count out of range: {str(stars)[:20]}")
-    return stars
+    """A stored star count, or ValueError/TypeError when it is not a plausible one. Only a real integer qualifies: int()
+    would turn 0.9 into 0 and True into 1, and the next scan would measure a huge false gain from them."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TypeError(f"star count is not an integer: {type(value).__name__}")
+    if not 0 <= value <= MAX_STARS:
+        raise ValueError(f"star count out of range: {str(value)[:20]}")
+    return value
 
 
 def load(path: Path, problems: list[str] | None = None) -> dict:

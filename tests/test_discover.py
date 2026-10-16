@@ -198,3 +198,34 @@ def test_a_quiet_topic_or_equal_floors_cost_no_extra_search():
     finally:
         srv.close()
     assert not [q for q in _search_paths(srv) if ".." in q]
+
+
+def test_the_band_query_also_runs_when_a_lower_band_repo_that_is_already_covered_fills_the_last_place_of_the_page():
+    hot = [make_repo(f"hot-{i}", "llm", 2000 + i, age_days=30) for i in range(14)]
+    covered = make_repo("covered-lower", "llm", 700, age_days=40)                           # takes place 15 of the rising page
+    emerging = make_repo("sample-emerging", "llm", 600, age_days=40)                         # hidden beyond it
+    srv = fake_github([make_repo("giant", "llm", 90000, age_days=2000)] + hot + [covered, emerging])
+    try:
+        ranked, _ = discover.candidates(GitHub(base=srv.url), CFG, {"example-org/covered-lower": {"covered": "2026-09-01"}}, TODAY)
+    finally:
+        srv.close()
+    assert "example-org/sample-emerging" in [c["full_name"] for c in ranked]
+    assert len([q for q in _search_paths(srv) if "stars%3A300..1499" in q]) == 1             # a full page that reaches above the floor
+
+
+def test_a_fast_climbing_repository_below_the_floor_wins_the_rising_slot_over_slower_proven_ones():
+    # the lower-floor pass is not decoration: with measured velocity its repository outscores young repos above the floor
+    hot = [make_repo(f"hot-{i}", "llm", 2000 + i, age_days=30) for i in range(5)]
+    repos = [make_repo("giant", "llm", 90000, age_days=2000), make_repo("classic", "llm", 50000, age_days=2000),
+             make_repo("sample-emerging", "llm", 1400, age_days=40)] + hot
+    hist = {f"example-org/hot-{i}": {day(6): 1980 + i} for i in range(5)}                     # +20 stars in 6 days
+    hist["example-org/sample-emerging"] = {day(6): 500}                                       # +900 stars in 6 days
+    cfg = {**CFG, "picks_per_run": 2}
+    srv = fake_github(repos)
+    try:
+        ranked, _ = discover.candidates(GitHub(base=srv.url), cfg, {}, TODAY, hist)
+    finally:
+        srv.close()
+    names = [c["full_name"] for c in discover.pick(ranked, cfg, TODAY)]
+    assert "example-org/sample-emerging" in names and not [n for n in names if "hot-" in n]
+    assert "example-org/sample-emerging" not in [c["full_name"] for c in discover.pick(ranked, {**cfg, "rising": {**CFG["rising"], "slots": 0}}, TODAY)]
