@@ -857,3 +857,12 @@ def test_a_fish_command_is_fenced_as_fish_with_a_caption_in_every_language():
         assert lines == [f"_{L[lang]['shell_bash']}_", "", "```bash", "pip install x", "```", "", f"_{L[lang]['shell_fish']}_", "", "```fish",
                          "set -Ux EDITOR vim", "```"], lang
     assert digest._command_blocks(facts, ["set -Ux EDITOR vim"], L["en"])[-3:] == ["```fish", "set -Ux EDITOR vim", "```"]
+
+
+def test_a_command_the_readme_continues_with_a_backslash_outside_a_code_fence_is_given_joined_and_never_cut():
+    text = "Run it:\n\n    docker run \\\n      --rm image\n\n    pip install x\n\nThen `ls` and `cat \\\n  f` follow.\n    docker build \\\n"
+    shown = [t for t, _ in gates._prose_variants(text)]
+    assert "docker run --rm image" in shown and "pip install x" in shown and "ls" in shown
+    assert "docker run \\" not in shown and "docker build \\" not in shown          # the first line of a continued command is not a command, and neither is a command that never ends
+    texts = gates.command_texts(text)
+    assert "docker run --rm image" in texts and "docker run" not in texts and not any(key.startswith("docker build") for key in texts)

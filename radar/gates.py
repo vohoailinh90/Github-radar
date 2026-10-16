@@ -323,12 +323,24 @@ def _command_like(line: str) -> bool:
 
 def _prose_variants(readme: str):
     """(text, prompt pattern) for the code spans in the lines of the README outside its code blocks, and for the lines themselves when
-    they look like a command (see `_command_like`): a sentence is not something to type."""
-    for line in (l.strip() for l in readmelib.prose_lines(readme)):
+    they look like a command (see `_command_like`): a sentence is not something to type. A command line that ends in a backslash goes on
+    in the next line, as in a code block (an indented block is prose to this scan): the joined command is the text, and a line left
+    unfinished is not offered, because it is not a command."""
+    lines = [l.strip() for l in readmelib.prose_lines(readme)]
+    i = 0
+    while i < len(lines):
+        line, parts = lines[i], [lines[i]]
+        i += 1
         if _command_like(line):
-            yield line, readmelib.SHELL_PROMPT
-            yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
-        yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
+            while readmelib._continues("", line, line) and i < len(lines) and lines[i]:
+                line = readmelib._join("", line[:-1].rstrip(), lines[i], readmelib._glue("", line))
+                parts.append(lines[i])
+                i += 1
+            if not readmelib._continues("", line, line):
+                yield line, readmelib.SHELL_PROMPT
+                yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
+        for part in parts:
+            yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", part))
 
 
 def _command_variants(readme: str):
