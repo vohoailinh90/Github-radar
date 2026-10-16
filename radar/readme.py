@@ -64,17 +64,21 @@ TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|trac
 
 
 def fence_opens(line: str):
-    """(fence, info string) if `line` opens a fenced code block, else None. The fence is the whole run of backticks or tildes: a block
-    opened with four closes only on a run of at least four of the same kind, so it can hold a three-backtick example."""
+    """((fence, columns of indentation), info string) if `line` opens a fenced code block, else None. The fence is the whole run of
+    backticks or tildes: a block opened with four closes only on a run of at least four of the same kind, so it can hold a
+    three-backtick example. The opening line may be indented as deep as its list item makes it."""
     m = FENCE.match(line.rstrip("\r\n"))
     if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):       # ```code``` inside a sentence is not a fence
         return None
-    return m.group(1), m.group(2).strip()
+    return (m.group(1), _width(line)), m.group(2).strip()
 
 
-def fence_closes(line: str, fence: str) -> bool:
+def fence_closes(line: str, fence) -> bool:
+    """A closing fence is the same character, at least as long, alone on its line and at most three columns deeper than the opening
+    one: four more make it a line of the code."""
+    chars, indent = fence
     m = re.match(r"^[ \t]*(`{3,}|~{3,})[ \t]*$", line.rstrip("\r\n"))
-    return bool(m) and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence)
+    return bool(m) and m.group(1)[0] == chars[0] and len(m.group(1)) >= len(chars) and _width(line) <= indent + 3
 
 
 def fence_step(line: str, fence):
@@ -528,7 +532,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
                 owners.append(opener)
-                if (line.lstrip("\t") if ends[0][1] else line) == ends[0][0]:        # the closing word alone on its line (`<<-`: after tabs)
+                bare = PROMPT.sub("", line) if lang in CONSOLE_LANGS else line         # a transcript shows `> ` before each line of the body
+                if (bare.lstrip("\t") if ends[0][1] else bare) == ends[0][0]:           # the closing word alone on its line (`<<-`: after tabs)
                     ends.pop(0)
                 continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
@@ -585,6 +590,20 @@ def heredocs(text: str) -> tuple[list[list[str]], list[str]]:
                 by_opener.setdefault(owner, [logical[owner]]).append(line)
         groups += by_opener.values()
     return groups, loose
+
+
+def command_count(commands) -> int:
+    """How many commands a list of command lines holds: a heredoc (its opening line, body and closing word, one entry each) is one."""
+    count, ends = 0, []
+    for command in commands if isinstance(commands, list) else []:
+        text = command if isinstance(command, str) else ""
+        if ends:
+            if (text.lstrip("\t") if ends[0][1] else text) == ends[0][0]:
+                ends.pop(0)
+        elif text.strip():
+            count += 1
+            ends = _heredoc_openers(text)
+    return count
 
 
 def code_lines(text: str) -> list[str]:

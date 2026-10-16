@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from xml.sax.saxutils import escape
 
+from . import readme as readmelib
+
 FONT = "system-ui,-apple-system,'Segoe UI','Noto Sans','Noto Sans CJK JP',sans-serif"
 INK, MUTED, LINE, BG = "#0f172a", "#475569", "#cbd5e1", "#ffffff"
 # fill, stroke, accent per layer (blue, teal, amber, violet): light fills keep INK text above 7:1.
@@ -251,7 +253,7 @@ def roadmap(steps: list[dict], title: str, outcome: str, labels: dict) -> str:
     body = [_text(pad, 46, wrap(title, 28, w - 2 * pad, 1), 28, INK, 700)]
     rows, y, centres = [], 80, []
     for i, step in enumerate(steps, 1):
-        cmds = len(step.get("commands") or [])
+        cmds = readmelib.command_count(step.get("commands"))
         head = wrap(step["title"], 23, w - tx - pad - (chip_w if cmds else 0) - 10, 2)
         why = wrap(step.get("why", ""), 17, w - tx - pad, 2)
         h = 18 + int(23 * 1.25 * len(head)) + (6 + int(17 * 1.35 * len(why)) if why else 0) + 18

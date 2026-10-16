@@ -199,6 +199,14 @@ def test_the_roadmap_is_wellformed_and_escapes_hostile_text(lang):
     assert GUIDE_T[lang]["steps"][1][0] in out
 
 
+def test_the_chip_of_a_step_counts_a_whole_heredoc_as_one_command():
+    heredoc = ["cat > big.yml <<EOF"] + [f"k{i}: {i}" for i in range(19)] + ["EOF"]
+    step = {"title": "Ghi tệp cấu hình", "why": "Tạo tệp.", "commands": heredoc + ["pip install sample-agent-kit"]}
+    out = svg.roadmap([step], "Lộ trình", "Kết quả", L["vi"])
+    assert f"2 {L['vi']['commands']}" in out and f"22 {L['vi']['commands']}" not in out
+    ET.fromstring(out)
+
+
 def test_the_roadmap_survives_ten_long_steps():
     steps = [{"title": "Một bước rất dài " * 6, "why": "Giải thích cũng rất dài " * 12, "commands": ["a"] * (i % 6)} for i in range(10)]
     ET.fromstring(svg.roadmap(steps, "Lộ trình", "Kết quả " * 40, L["vi"]))

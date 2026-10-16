@@ -395,6 +395,28 @@ def test_a_backslash_followed_by_a_space_does_not_continue_the_line():
     assert readme.code_blocks(text) == [("bash", ["echo a\\", "echo next", "docker run img"]), ("console", ["PS C:\\> Get-Item -Path x -Force", "$ tool \\", "> --flag"])]
 
 
+def test_a_heredoc_in_a_transcript_closes_on_its_closing_word_after_the_continuation_prompt():
+    text = "```console\n$ cat <<EOF\n> body\n> EOF\n$ pip install pkg\nInstalled\n```\n"
+    assert readme.heredocs(text) == ([["$ cat <<EOF", "> body", "> EOF"]], ["$ cat <<EOF", "$ pip install pkg", "Installed"])
+    assert readme.setup_commands(text) == ["cat <<EOF", "body", "EOF", "pip install pkg"]
+
+
+def test_a_closing_fence_is_at_most_three_columns_deeper_than_the_opening_one():
+    text = "```bash\npip install a\n    ```\npip install b\n```\n\nPara\n"
+    assert readme.code_blocks(text) == [("bash", ["pip install a", "    ```", "pip install b"])]          # four more: a line of the code
+    assert readme.code_blocks("* item\n\n    ```bash\n    pip install a\n    ```\n\n* two\n") == [("bash", ["pip install a"])]      # nested: any depth
+    assert readme.code_blocks("  ```bash\n  pip install a\n     ```\n\ntext\n") == [("bash", ["pip install a"])]                     # 2 + 3 columns
+    assert readme.code_blocks("  ```bash\n  pip install a\n      ```\ntext\n") == [("bash", ["  pip install a", "      ```", "text"])]      # 2 + 4: not a closing fence
+
+
+def test_a_heredoc_counts_as_one_command_in_a_list_of_commands():
+    heredoc = ["cat > f <<EOF"] + ["k: v"] * 19 + ["EOF"]
+    assert readme.command_count(heredoc) == 1 and readme.command_count(heredoc + ["pip install x", "", "echo ok"]) == 3
+    assert readme.command_count(["cat <<-'A'", "\tone", "\tA", "pip install y"]) == 2
+    assert readme.command_count(["cat <<EOF", "body"]) == 1 and readme.command_count([]) == 0
+    assert readme.command_count(None) == 0 and readme.command_count("pip install x") == 0 and readme.command_count([1, None, "ls"]) == 1
+
+
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
     text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
             "C:\\tools\\run.exe > out.txt\noutput line\n```\n")
@@ -464,7 +486,7 @@ def test_fences_of_each_kind_open_and_close_only_on_their_own():
     tilde = "~~~~sh\nmy-tool a\n~~~\nmy-tool b\n~~~~\n\n```sh\nmy-tool c\n~~~\nmy-tool d\n```\n"
     assert readme.code_blocks(tilde) == [("sh", ["my-tool a", "~~~", "my-tool b"]), ("sh", ["my-tool c", "~~~", "my-tool d"])]
     assert readme.fence_opens("```code``` in a sentence") is None and readme.fence_opens("``") is None
-    assert readme.fence_opens("   ````yaml extra")[0] == "````"
+    assert readme.fence_opens("   ````yaml extra") == (("````", 3), "yaml extra")                      # the fence and its indentation, then the info
 
 
 def test_a_fence_nested_in_a_list_item_is_found_whatever_its_indentation():
