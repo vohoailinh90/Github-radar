@@ -1,0 +1,96 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn thuê một trợ lý ảo ngồi bên cạnh máy tính, tự động bấm các nút trên trình duyệt thay vì bạn phải tự tay làm từng việc một.",
+    "caveats": [
+      "Cần mở sẵn tab trình duyệt đã đăng nhập, không chạy ngầm hoàn toàn headless được",
+      "Một số tính năng Veo có thể không được hỗ trợ trên API hàng loạt mới"
+    ],
+    "facebook": {
+      "caption": "Tự động hóa toàn bộ quy trình tạo video AI trên Google Flow với Python và Chrome Extension!",
+      "hashtags": [
+        "FlowKit",
+        "AI",
+        "Video",
+        "Python",
+        "Automation"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Giao thức gọi hàm từ xa (RPC) mà Google sử dụng cho các ứng dụng web của mình.",
+        "term": "batchexecute"
+      },
+      {
+        "meaning": "Giao thức truyền thông giúp Python Agent và tiện ích mở rộng Chrome trò chuyện với nhau theo thời gian thực.",
+        "term": "WebSocket"
+      }
+    ],
+    "hook": "Tạo video AI từ kịch bản đến YouTube hoàn chỉnh mà không cần thao tác thủ công từng bước trên web.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Python Agent",
+          "role": "Hệ thống trung tâm dùng FastAPI và SQLite để quản lý hàng đợi, xử lý hậu kỳ và giao tiếp."
+        },
+        {
+          "evidence": "README",
+          "name": "Chrome Extension",
+          "role": "Đóng vai trò cầu nối trình duyệt, xử lý mã thông báo reCAPTCHA và chạy RPC trực tiếp trong tab."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Mở một tab trình duyệt đã đăng nhập sẵn để duy trì phiên làm việc.",
+          "title": "Khởi động tab"
+        },
+        {
+          "evidence": "README",
+          "text": "Python Agent giao tiếp với Chrome Extension qua kết nối WebSocket để truyền các gói tin yêu cầu.",
+          "title": "Gửi yêu cầu qua WebSocket"
+        },
+        {
+          "evidence": "README",
+          "text": "Tiện ích mở rộng chạy các lệnh batchexecute RPC và xác thực reCAPTCHA ngay bên trong tab trình duyệt.",
+          "title": "Thực thi RPC trong trang"
+        }
+      ]
+    },
+    "learn": [
+      "Cách kết hợp Python Agent với tiện ích mở rộng Chrome qua WebSocket",
+      "Kỹ thuật xử lý yêu cầu trang web yêu cầu phiên đăng nhập thực tế",
+      "Tổ chức hệ thống tạo nội dung đa phương tiện tự động"
+    ],
+    "one_liner": "Hệ thống độc lập tự động tạo video AI qua Google Flow, sử dụng tiện ích mở rộng Chrome làm cầu nối trình duyệt để xử lý các yêu cầu RPC.",
+    "problem": "Người làm nội dung tốn nhiều thời gian thao tác thủ công trên Google Flow để tạo hình ảnh, video clip, lồng tiếng và ghép nối. Việc thiếu tự động hóa khiến quá trình sản xuất video dài trở nên chậm và lặp lại.",
+    "title": "Tự động hóa video AI với FlowKit và Google Flow",
+    "try_it": {
+      "commands": [],
+      "note": "Cần cài đặt tiện ích mở rộng Chrome và giữ một tab trình duyệt đã đăng nhập luôn mở."
+    },
+    "who_for": [
+      "Nhà sáng tạo nội dung YouTube",
+      "Lập trình viên muốn tự động hóa quy trình AI",
+      "Người dùng muốn tạo video hàng loạt"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 508,
+    "full_name": "crisng95/flowkit",
+    "language": "Python",
+    "license": "MIT",
+    "scanned": "2026-10-16",
+    "stars": 980,
+    "url": "https://github.com/crisng95/flowkit"
+  },
+  "lang": "vi",
+  "position": 1
+}

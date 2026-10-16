@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-16",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "candidates": 1,
+  "dropped": {},
+  "picks": [
+    {
+      "repo": "crisng95/flowkit",
+      "bucket": "ai",
+      "score": 10.3922,
+      "stars": 980
+    }
+  ],
+  "written": [
+    {
+      "repo": "crisng95/flowkit",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "requested": {
+    "repo": "crisng95/flowkit",
+    "bucket": "ai",
+    "warnings": [
+      "980 stars, below min_stars 1500"
+    ]
+  },
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-16"
+}
