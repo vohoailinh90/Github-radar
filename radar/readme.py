@@ -55,7 +55,9 @@ BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "h
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]]+")
 MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://[^\s)]+)(?:\s+\"[^\"]*\")?\)")
 HTML_LINK = re.compile(r"<a\b[^>]{0,300}?href=[\"'](https?://[^\"'\s>]+)[\"'][^>]{0,300}>(.{0,200}?)</a>", re.I | re.S)
-BARE_URL = re.compile(r"https?://(?:\[[0-9A-Fa-f:.]+\][^\s<>\"'`)\]]*|[^\s<>\"'`)\]]+)")      # `http://[::1]:8080/x` keeps its brackets
+_URL_CHAR = r"(?:(?![,;]https?://)[^\s<>\"'`)\]])"            # any character of an address, but not the comma or semicolon that begins the next one
+BARE_URL = re.compile(r"https?://(?:\[[0-9A-Fa-f:.]+\]" + _URL_CHAR + r"*|" + _URL_CHAR + r"+)")      # `http://[::1]:8080/x` keeps its brackets
+GLUED_URLS = re.compile(r"[,;]https?://")                        # `http://a:1,https://b`: two addresses with nothing between them, not one
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "[::1]")
 TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|track_id|promo|campaign|source|from)=", re.I)
 
@@ -105,6 +107,54 @@ def is_command_line(line: str) -> bool:
         return False
     first = text.split()[0].lower().lstrip("./")
     return first in COMMAND_WORDS or text.startswith(("./", ".\\"))
+
+
+COMMENT = re.compile(r"<!--.*?-->", re.S)
+IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+IMG_TAG = re.compile(r"<img\b[^>]*>", re.I)
+
+
+def _uncomment(text: str) -> str:
+    """The text without its HTML comments, a fenced code block excepted (what looks like a comment there is the code's). A comment
+    that is never closed is left as it is: it would otherwise swallow the rest of the README."""
+    lines = text.splitlines(keepends=True)
+    last_close = max((i for i, line in enumerate(lines) if "-->" in line), default=-1)
+    out, fence, hidden = [], None, False
+    for i, line in enumerate(lines):
+        if hidden:                                # inside a comment: dropped up to the line that closes it
+            end = line.find("-->")
+            if end < 0:
+                continue
+            hidden, line = False, line[end + 3:]
+        fence, on_fence = fence_step(line, fence)
+        if fence is not None or on_fence:
+            out.append(line)
+            continue
+        line = COMMENT.sub("", line)
+        start = line.find("<!--")
+        if start >= 0 and i < last_close:         # a comment that goes on over the next lines
+            line, hidden = line[:start], True       # what comes before it joins what comes after the closing `-->`
+        out.append(line)
+    return "".join(out)
+
+
+def clean_markup(text: str) -> str:
+    """The README without HTML comments, images and badges, and with runs of blank lines folded, everywhere except inside a fenced
+    code block: a configuration file, a template or a command there is kept exactly as the README has it, because a guide prints it."""
+    parts, run, fence = [], [], None
+    def flush():
+        chunk = IMG_TAG.sub("", IMAGE.sub("", "".join(run)))
+        parts.append(re.sub(r"\n{3,}", "\n\n", chunk))
+        run.clear()
+    for line in _uncomment(text).splitlines(keepends=True):
+        fence, on_fence = fence_step(line, fence)
+        if fence is None and not on_fence:
+            run.append(line)
+        else:
+            flush()
+            parts.append(line)
+    flush()
+    return "".join(parts).strip()
 
 
 def split_sections(text: str) -> list[Section]:
@@ -237,7 +287,7 @@ def _split(url: str):
 
 
 def url_ok(url: str) -> bool:
-    if len(url) > 200 or not URL_CHARS.fullmatch(url):
+    if len(url) > 200 or not URL_CHARS.fullmatch(url) or GLUED_URLS.search(url):
         return False
     parts = _split(url)
     if parts is None:

@@ -341,6 +341,6 @@
     "url": "https://github.com/HKUDS/ViMax"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit fd4b72e of a shallow checkout, cut to 9351 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit fd4b72e of a shallow checkout, cut to 9352 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
   "position": 3
 }

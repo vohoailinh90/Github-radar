@@ -12,12 +12,9 @@ PEEK_DIRS = ("src", "packages", "apps", "lib", "core", "cmd", "internal", "docs"
 
 
 def clean_readme(text: str, limit: int) -> str:
-    """The README without comments and images, cut to `limit` characters by whole sections (see readme.select)."""
-    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)           # images and badges
-    text = re.sub(r"<img\b[^>]*>", "", text, flags=re.I)
-    text = re.sub(r"\n{3,}", "\n\n", text).strip()
-    return readmelib.select(text, limit)
+    """The README without comments and images (code blocks untouched, see readme.clean_markup), cut to `limit` characters by whole
+    sections (see readme.select)."""
+    return readmelib.select(readmelib.clean_markup(text), limit)
 
 
 def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:

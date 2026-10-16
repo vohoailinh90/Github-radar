@@ -57,13 +57,13 @@
           "detail": "Để viết kịch bản. README liệt kê OpenAI, Google Gemini, DeepSeek… và cả Ollama chạy ngay trên máy.",
           "evidence": "README",
           "item": "Khóa API của một dịch vụ mô hình ngôn ngữ (LLM)",
-          "link_ref": 14
+          "link_ref": 15
         },
         {
           "detail": "Để tự lấy clip nền. README cũng liệt kê Pixabay (miễn phí) và Coverr.",
           "evidence": "README",
           "item": "Khóa API của nguồn clip, ví dụ Pexels (miễn phí)",
-          "link_ref": 37
+          "link_ref": 38
         },
         {
           "detail": "Nếu trang web mở ra trống, README khuyên đổi sang một trong hai trình duyệt này.",
@@ -162,7 +162,7 @@
           "evidence": "README",
           "expect": "Ở lần chạy đầu, dự án tự tạo file config.toml từ file mẫu config.example.toml, bạn không cần tạo tay.",
           "if_fails": "",
-          "link_ref": 37,
+          "link_ref": 38,
           "title": "Điền khóa API trong phần cài đặt cơ bản",
           "why": "Để hệ thống gọi được dịch vụ viết kịch bản và nguồn clip."
         },
@@ -372,8 +372,12 @@
         "http://127.0.0.1:8080/redoc"
       ],
       [
-        "localhost:3000,https:",
-        "http://localhost:3000,https://frontend.example.com"
+        "localhost:3000",
+        "http://localhost:3000"
+      ],
+      [
+        "frontend.example.com",
+        "https://frontend.example.com"
       ],
       [
         "gyan.dev",
@@ -478,10 +482,6 @@
       [
         "Pixabay（免费）",
         "https://pixabay.com/api/docs/"
-      ],
-      [
-        "Coverr",
-        "https://coverr.co/developers?ctx=header_navigation"
       ]
     ],
     "scanned": "2026-10-16",

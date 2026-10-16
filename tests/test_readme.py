@@ -219,6 +219,53 @@ def test_an_atx_heading_indented_by_up_to_three_spaces_is_a_section_boundary_and
     assert "pip install my-tool" in out and len(out) <= 1500
 
 
+def test_a_code_block_is_kept_verbatim_by_the_cleaning_of_the_readme_and_the_prose_around_it_is_cleaned():
+    """A sample is printed 'as the README has it': an HTML comment, an image or a run of blank lines inside a fence is the code's own."""
+    text = ("# Tool\n<!-- hidden note -->\nBadge ![b](http://x/y.svg) text <img src=\"a.png\"> more\n\n\n\nPara after blank run.\n\n"
+            "## Configuration\n\n```html\n<!-- keep this comment -->\n<img src=\"logo.png\">\n![alt](pic.png)\n\n\ntwo blank lines above\n```\n\n"
+            "<!--\n```bash\nrm -rf /hidden\n```\n-->\n\n## Install\n\n```bash\npip install tool\n```\n")
+    cleaned = factslib.clean_readme(text, 5000)
+    for kept in ("<!-- keep this comment -->", '<img src="logo.png">', "![alt](pic.png)", "\n\n\ntwo blank lines above"):
+        assert kept in cleaned, kept
+    for gone in ("hidden note", "rm -rf /hidden", "Badge ![b]", 'src="a.png"', "more\n\n\n"):
+        assert gone not in cleaned, gone
+    assert "text  more\n\nPara after blank run." in cleaned
+    assert readme.blocks(cleaned) == [["html", '<!-- keep this comment -->\n<img src="logo.png">\n![alt](pic.png)\n\n\ntwo blank lines above']]
+    assert "pip install tool" in readme.setup_commands(cleaned)
+
+
+def test_a_comment_that_is_never_closed_does_not_swallow_the_readme():
+    assert "still here" in readme.clean_markup("# T\n\ntext <!-- oops\n\nstill here\n")
+
+
+def test_cleaning_a_readme_without_code_blocks_is_what_the_plain_regexes_did():
+    import random
+    import re
+
+    def plain(text):
+        text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)
+        text = re.sub(r"<img\b[^>]*>", "", text, flags=re.I)
+        return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+    pieces = ["# T\n", "text\n", "\n", "\n\n", "<!-- one -->\n", "<!--\n", "-->\n", "a <!-- x --> b\n", "![b](u.svg) tail\n", "<img src=x>\n",
+              "<!-- start\n", "end -->\n", "tail <!-- open\n", "x --> after\n"]
+    rng = random.Random(7)
+    for _ in range(1500):
+        text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 12)))
+        assert readme.clean_markup(text) == plain(text), repr(text)
+
+
+def test_adjacent_addresses_with_nothing_between_them_are_separate_links():
+    text = ("Set `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://frontend.example.com;http://[::1]:8080,https://b.example.org/x` first.\n"
+            "Also [both](http://a.example.com,https://b.example.com) and https://c.example.com/list?ids=1,2 here.\n")
+    urls = [u for _, u in readme.links(text)]
+    assert urls == ["http://localhost:3000", "https://frontend.example.com", "http://[::1]:8080", "https://b.example.org/x",
+                    "http://a.example.com", "https://b.example.com", "https://c.example.com/list?ids=1,2"]      # the glued target of [both](...) is no link itself
+    assert not readme.url_ok("http://localhost:3000,https://frontend.example.com")
+    assert readme.url_ok("https://c.example.com/list?ids=1,2") and readme.url_ok("http://[::1]:8080/ui")
+
+
 def test_lines_that_only_look_like_a_setext_underline_are_not_headings():
     text = ("# Title\n\nPara\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- item\n---\n\nText\n\n---\n\n```\nTitle\n=====\n```\n\n"
             "> quote\n---\n\n---\nfront\n")
