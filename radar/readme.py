@@ -619,6 +619,7 @@ def _incomplete(command: str) -> bool:
     or a parenthesis is still open; a comment opens and closes nothing, so `producer | # note` still waits for the next command (the shell
     reads the code before the comment). A command that is complete is followed by output, and `> ` there (npm prints `> pkg@1.0.0 start`)
     is not a prompt."""
+    command = command.rstrip()                                # empty lines after the last one say nothing
     quote, depth, _, end = _shell_state(command)
     code = command[:end].rstrip()
     return bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||", "|&")) and not code.endswith(">|"))     # `>|` is a redirection
@@ -970,9 +971,10 @@ def _open_group(lang: str, command: str, following: list[str]) -> int:
         text += "\n" + piece
         ends = _heredoc_openers(piece) if heredocs and not inside else []
         if not _construct_open(lang, text):
-            if not ends:
-                return n
-            done = True                                               # `done <<EOF`: the body of the heredoc follows the closing word
+            if ends:
+                done = True                                           # `done <<EOF`: the body of the heredoc follows the closing word
+            elif not (heredocs and _incomplete(text)):
+                return n                                              # `fi |` goes on to the command that receives the pipe
     return 0
 
 
@@ -1049,6 +1051,8 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
         return False
     for n, line in enumerate(following, 1):
         if not line.strip():
+            if unfinished(text) is True:
+                continue                                   # `printf x |`, a blank line, `cat`: after an operator the shell reads on over empty lines
             return False
         text = _join(lang, text, line, None)
         if _construct_open(lang, text):
@@ -1196,6 +1200,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                     ends.pop(0)
                 continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
+                if pending and glue is None:
+                    continue                          # but not the wait for the command after `|`, `&&` or `||`: `_grammar_open` found it further down
                 if pending:
                     logical.append(pending)
                     owners.append(None)
@@ -1337,7 +1343,7 @@ def heredoc_data(commands, shells=None) -> list[bool]:
             if not _list_construct_open(text_so_far, shell):
                 if inner:
                     done = True
-                else:
+                elif not (posix and _incomplete(text_so_far)):
                     text_so_far = None
         else:
             flags.append(False)

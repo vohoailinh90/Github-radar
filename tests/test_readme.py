@@ -475,7 +475,7 @@ def test_an_apostrophe_in_sample_output_a_comment_or_a_blank_line_joins_nothing(
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```bash\n./run\nIt's working\npip install x\n```\n") == ["./run", "pip install x"]          # the quote never closes: it joins nothing and is not a command
-    assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "", "ls"]
+    assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "echo a | ls"]          # after a pipe the shell reads on over a blank line
     assert lines("```bash\necho \"a\n" + "line\n" * 25 + "z\"\npip install x\n```\n")[-1] == "pip install x"      # too far away to be the rest of it
     assert lines("```powershell\nGet-Item 'it's\nGet-Item x |\nSelect y\n```\n") == ["Get-Item 'it's", "Get-Item x | Select y"]        # PowerShell has its own grammar: a pipe at the end of a line continues it
 
@@ -725,7 +725,8 @@ def test_a_command_that_never_becomes_complete_is_not_a_command_but_output_and_s
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```bash\nls\nprintf foo |\n```\n") == ["ls"]
     assert lines("```bash\necho \"abc\n\nnpm install x\n```\n") == ["", "npm install x"]
-    assert lines("```sh\nmake &&\n\nmake test\n```\n") == ["", "make test"]
+    assert lines("```sh\nmake &&\n\nmake test\n```\n") == ["make && make test"]          # `&&` and a blank line: the command comes after it
+    assert lines("```sh\nmake &&\n\n```\n") == []                                       # and when it never comes the line is not a command
     assert lines("```console\n$ printf foo |\nDon't worry\n$ ls\n```\n") == ["Don't worry", "$ ls"]              # a typed line is dropped, an output line is not
     assert lines("```\nmessage: Don't panic\n```\n") == ["message: Don't panic"]                                # a sample in another language is not shell
     assert lines("```yaml\nmessage: it's \"x\n```\n") == ["message: it's \"x"]
@@ -1153,3 +1154,15 @@ def test_a_heredoc_inside_a_compound_command_and_a_here_string_inside_a_powershe
     assert readme.heredoc_data(["for f in a; do", "cat <<'E'", "x", "E", "done <<X", "body", "X", "ls"]) == [False, True, True, True, True, True, True, False]
     commands = ["if (-not (Test-Path .env)) {", '@"', "KEY='v", '"@ | Set-Content .env', "}", "Get-Date"]
     assert readme.heredoc_data(commands, "powershell") == [False, True, True, True, True, False] and readme.command_count(commands, "powershell") == 2
+
+
+def test_a_pipe_goes_on_over_blank_lines_and_a_compound_command_goes_on_to_the_command_that_receives_it():
+    def scanned(text):
+        return [(line, owner) for _, block, owners in readme._scan(text) for line, owner in zip(block, owners)]
+    assert scanned("```bash\nprintf x |\n\ncat\nls\n```\n") == [("printf x | cat", None), ("ls", None)]
+    assert scanned("```bash\nprintf x &&\n\n\necho y\n```\n") == [("printf x && echo y", None)]
+    assert scanned("```bash\nfoo \\\n\nbar\n```\n") == [("foo", None), ("", None), ("bar", None)]          # a backslash does not: the blank line ends the command
+    assert scanned("```bash\nif true; then\n  echo a\nfi |\n  sed 's/a/b/'\nls\n```\n") == [("if true; then", None), ("  echo a", 0), ("fi |", 0), ("  sed 's/a/b/'", 0), ("ls", None)]
+    assert scanned("```bash\nif true; then\n  echo a\nfi | # note\n\nsed 's/a/b/'\nls\n```\n") == [("if true; then", None), ("  echo a", 0), ("fi | # note", 0), ("", 0), ("sed 's/a/b/'", 0), ("ls", None)]
+    assert readme.heredoc_data(["if true; then", "echo a", "fi |", "sed s/a/b/", "ls"]) == [False, True, True, True, False]
+    assert readme.command_count(["if true; then", "echo a", "fi |", "sed s/a/b/", "ls"]) == 2
