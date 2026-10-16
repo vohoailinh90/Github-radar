@@ -1,0 +1,5 @@
+# The vendored impeccable skill is hashed byte for byte (.claude/skills/impeccable.lock.json) and its launcher is a POSIX
+# shell script: no end-of-line conversion, so a checkout with core.autocrlf=true keeps the committed LF bytes.
+.claude/skills/impeccable/** -text
+.claude/agents/impeccable-*.md -text
+docs/third-party/impeccable/** -text

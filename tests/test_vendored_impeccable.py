@@ -145,3 +145,12 @@ def test_snapshot_refuses_a_dirty_checkout(tmp_path, upstream):
     with pytest.raises(SystemExit, match="uncommitted"):
         vendor.snapshot(upstream, tmp_path / "root")
     assert not (tmp_path / "root").exists()
+
+
+@pytest.mark.skipif(shutil.which("git") is None or not (config.ROOT / ".git").exists(), reason="needs a git checkout")
+def test_every_locked_file_is_exempt_from_end_of_line_conversion():
+    """With core.autocrlf=true a checkout would turn the LF bytes the lock hashes (and the launcher's shebang) into CRLF."""
+    out = subprocess.run(["git", "-C", str(config.ROOT), "check-attr", "text", "--", *LOCK["files"]],
+                         check=True, capture_output=True, text=True).stdout
+    unset = {line.rsplit(": text: ", 1)[0] for line in out.splitlines() if line.endswith(": text: unset")}
+    assert unset == set(LOCK["files"])

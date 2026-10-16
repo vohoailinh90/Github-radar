@@ -48,4 +48,4 @@ python3 -m pytest -q
 git diff --stat                                                # đọc phần thay đổi trước khi commit
 ```
 
-`snapshot` từ chối chạy nếu bản clone có thay đổi chưa commit, để commit ghi trong lock mô tả đúng nội dung. Nó cũng chỉ chạy trên Linux, macOS hoặc WSL, vì Windows không có bit thực thi để ghi cho launcher; `check` bỏ qua riêng bit đó trên Windows (chưa thử trên Windows thật; nếu checkout đổi kết thúc dòng thì băm sha256 cũng sẽ lệch).
+`snapshot` từ chối chạy nếu bản clone có thay đổi chưa commit, để commit ghi trong lock mô tả đúng nội dung. Nó cũng chỉ chạy trên Linux, macOS hoặc WSL, vì Windows không có bit thực thi để ghi cho launcher; `check` bỏ qua riêng bit đó trên Windows. `.gitattributes` đặt `-text` cho các đường dẫn đã khóa, để checkout có `core.autocrlf=true` không đổi LF thành CRLF (sẽ làm lệch sha256 và hỏng dòng `#!/bin/sh` của launcher); cái này đã thử bằng một bản clone `autocrlf=true` trên Linux, chưa thử trên Windows thật. Repo đích dùng Windows cũng nên có các dòng `-text` tương ứng cho `.claude/skills/impeccable/**` và `.claude/agents/impeccable-*.md`.
