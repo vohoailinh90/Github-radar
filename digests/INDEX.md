@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-16-2](2026-10-16-2/README.md) — flowkit
 - [2026-10-16](2026-10-16/README.md) — flowkit
 - [2026-10-14](2026-10-14/README.md) — ant-design-pro, deepseek-harness
 - [2026-10-13-5](2026-10-13-5/README.md) — oh-my-claudecode

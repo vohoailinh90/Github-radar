@@ -37,7 +37,10 @@ DEFAULTS = {
     },
     "pace_seconds": 45,
     "max_run_minutes": 35,       # stop starting work after this: the workflow job is killed at 60 minutes and would lose everything
-    "readme_max_chars": 8000,       # the checker re-sends it with the draft: keep one request far below a 20,000 tokens/minute cap
+    # The checker re-sends it with the draft (about 7-8.5k tokens a request at 12,000 characters, 5.5-6.5k at 8,000). Mistral's cap is
+    # 20,000 tokens/minute; Groq's (the checker used now) is NOT measured: if models_log shows 429s from it, lower this (docs/models.md).
+    # 12,000 (was 8,000) because a long README often puts its Quick Start just past 8,000 (crisng95/flowkit: character 8,220).
+    "readme_max_chars": 12000,
     "tree_max_entries": 120,
     "studio": {"tool": "github-radar", "name": "GitHub Radar", "accent": "#0ea5e9", "platforms": ["facebook"]},
 }

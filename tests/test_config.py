@@ -42,6 +42,19 @@ def test_a_gemini_draft_is_checked_by_gpt_oss_first_and_a_gpt_oss_draft_by_anoth
         "mistral/mistral-small-2603", "google/gemini-flash-lite-latest", "groq/openai/gpt-oss-120b", "groq/openai/gpt-oss-20b"]    # same family only as a last resort
 
 
+def test_a_quick_start_just_past_8000_characters_still_reaches_the_prompt_and_the_cap_stays_well_under_the_checker_budget():
+    from radar import facts
+    cfg = config.load(path=config.ROOT / "radar.yaml", env={})
+    limit = cfg["readme_max_chars"]
+    readme = "# Tool\n\n" + "\n".join(f"Feature {i}: does one more useful thing in the pipeline." for i in range(150)) \
+        + "\n\n## Quick Start\n\n```bash\n./setup.sh\npip install -r requirements.txt\n```\n\n" + "More text. " * 4000
+    start = readme.index("./setup.sh")
+    assert 8000 < start < limit                                  # the case the old cap lost: the commands sit past 8,000
+    cut = facts.clean_readme(readme, limit)
+    assert "./setup.sh" in cut and "pip install -r requirements.txt" in cut and len(cut) <= limit
+    assert limit == config.DEFAULTS["readme_max_chars"] <= 16000  # a bigger cap must be a decision about the 20,000 tokens/minute budget
+
+
 def test_rising_and_pacing_defaults_validation_and_override():
     cfg = config.load(path=config.ROOT / "none.yaml", env={})
     assert cfg["rising"] == {"enabled": True, "slots": 1, "created_within_days": 120, "min_stars": 300}
