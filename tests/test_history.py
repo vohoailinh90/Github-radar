@@ -56,3 +56,25 @@ def test_save_and_load_round_trip_and_a_missing_file_is_empty(tmp_path):
     assert history.load(path) == {"o/a": {"2026-10-01": 1}, "o/b": {"2026-10-01": 2}}
     assert path.read_text(encoding="utf-8").index('"o/a"') < path.read_text(encoding="utf-8").index('"o/b"')   # stable diffs
     assert not path.with_suffix(".tmp").exists()
+
+
+def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_path):
+    path = tmp_path / "stars.json"
+    for text in ("", "{not json", "[]", "5"):
+        path.write_text(text)
+        problems = []
+        assert history.load(path, problems) == {} and len(problems) == 1, text
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/a": 5, "o/b": [1], "o/c": {"2026-10-02": "n/a", "soon": 3, "2026-10-03": null}}')
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}}')
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []
+
+
+def test_velocity_and_prune_survive_hand_edited_shapes():
+    h = {"o/a": 5, "o/b": {day(5): "n/a", day(4): None, day(6): 1000}, "o/c": [1]}
+    assert history.velocity(h, "o/a", 1100, D) is None and history.velocity(h, "o/c", 1100, D) is None
+    assert history.velocity(h, "o/b", 1100, D)["gap_days"] == 6                   # the readable point wins, the others are skipped
+    history.prune(h, D, 60)
+    assert "o/a" not in h and "o/c" not in h and h["o/b"][day(6)] == 1000     # prune filters by date; load is what drops bad values

@@ -262,3 +262,13 @@ def test_a_young_climbing_repository_gets_the_rising_slot(tmp_path, monkeypatch)
     rising = [p for p in report["picks"] if p["rising"]]
     assert [p["repo"] for p in rising] == ["example-org/sample-new-agent"] and len(report["picks"]) == 3
     assert "example-org/sample-new-agent" not in [p["repo"] for p in off["picks"]]
+
+
+def test_an_unreadable_history_file_is_reported_and_rebuilt_not_fatal(tmp_path, servers):
+    (tmp_path / "state").mkdir()
+    (tmp_path / "state" / "stars.json").write_text("{broken")
+    report = pipeline.run(cfg(), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert report["ok"] and "could not be read" in report["history"]["problems"][0]          # the scan went on, and said so
+    assert len(json.loads((tmp_path / "state" / "stars.json").read_text())) == 5              # rebuilt from today's totals
+    again = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    assert "problems" not in again["history"] and again["history"]["tracked"] == 5

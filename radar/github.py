@@ -14,8 +14,9 @@ MAX_RATE_WAIT = 60       # seconds a "Retry-After" may ask for before we give up
 
 
 class GitHub:
-    """`search_interval`: minimum seconds between two Search API calls. The search limit is 30 a minute, and GitHub also
-    answers a quick burst with a secondary limit (403/429 plus Retry-After), so scans space their searches out."""
+    """`search_interval`: minimum seconds between the *starts* of two Search API calls (a slow call shortens the real gap).
+    The search limit is 30 a minute, and GitHub also answers a quick burst with a secondary limit (403/429 plus
+    Retry-After), so scans space their searches out."""
 
     def __init__(self, token: str | None = None, base: str | None = None, sleep=time.sleep, clock=time.monotonic,
                  search_interval: float = 0.0):
@@ -38,7 +39,7 @@ class GitHub:
             except HttpError as exc:
                 told = exc.retry_after
                 if exc.status in (403, 429) and told is not None and told <= MAX_RATE_WAIT and attempt < 3:
-                    self.sleep(told + 1)             # the secondary rate limit says how long to wait: do exactly that
+                    self.sleep(told + 1)             # the secondary rate limit says how long to wait: that, plus a second of margin
                     continue
                 if exc.retryable and attempt < 3:
                     self.sleep(2 * attempt)

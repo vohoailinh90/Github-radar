@@ -70,6 +70,8 @@ def test_momentum_is_measured_when_a_snapshot_exists_and_lifetime_otherwise():
     assert round(measured["per_30d"]) == 3000                                              # 100 a day
     assert discover.score(repo, TODAY, hist) > discover.score(repo, TODAY)
     assert discover.score(repo, TODAY, {}) == discover.score(repo, TODAY)                   # no history: the old score exactly
+    # the pre-snapshot formula by hand: ln(1+20000) + 0.5*ln(1 + 20000/700*30) + 1 (pushed 5 days ago)
+    assert discover.score(make_repo("x", "llm", 20000), TODAY) == 14.2809
 
 
 def test_a_repository_that_lost_stars_scores_like_one_that_gained_none():

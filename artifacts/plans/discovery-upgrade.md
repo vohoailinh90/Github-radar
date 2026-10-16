@@ -14,7 +14,7 @@ No cross-service contract changes (`contracts/studio-layouts.json` untouched), s
    average stays as the fallback so the first scan behaves as before. Saved before any model call so a timed-out run keeps it.
 2. A second, "rising" search pass per topic (young repositories, lower stars floor) and `rising.slots` reserved picks (at most half
    of them). Without a reserved slot those repositories can never win on `ln(stars)`. Off with `rising.slots: 0`.
-3. Search pacing (2.1 s) and a wait of exactly `Retry-After` (<= 60 s) on 403/429, instead of dropping the topic on the first 403.
+3. Search pacing (2.1 s) and a wait of `Retry-After` + 1 s (<= 60 s) on 403/429, instead of dropping the topic on the first 403.
 4. Two report-only flags (`few-forks`, `star-spike`), `shortlist` and `history` in the run report. Flags never change score or drop a repo.
 5. Not changed: facts, prompts, gates, studio export. Velocity is not given to the model, so no new claim can enter a draft.
 

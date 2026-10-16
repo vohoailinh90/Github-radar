@@ -42,7 +42,8 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
     seen_path = root / "state" / "seen.json"
     seen = factslib.load_seen(seen_path)
     stars_path = root / "state" / "stars.json"
-    hist = history.load(stars_path)
+    history_problems: list[str] = []
+    hist = history.load(stars_path, history_problems)
     if only:
         cand, request_warnings = discover.requested(gh, only, cfg, seen, today, bucket, hist)
         ranked, dropped, picks = [cand], {}, [cand]
@@ -65,7 +66,7 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
               "shortlist": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"], "stars": c["repo"]["stargazers_count"],
                              "rising": c["rising"], "flags": c["flags"]}
                             for c in [c for c in ranked if c["full_name"] not in picked][:5]],
-              "history": {"tracked": len(hist), "measured": measured},
+              "history": {"tracked": len(hist), "measured": measured, **({"problems": history_problems} if history_problems else {})},
               "written": [], "held": [], "export_errors": [], "aborted": None, "ok": True}
     if only:
         report["requested"] = {"repo": cand["full_name"], "bucket": cand["bucket"], "warnings": request_warnings}

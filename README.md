@@ -83,7 +83,7 @@ Trên GitHub: Actions → *Radar scan* → *Run workflow*, điền ô `repo` (ô
 Điểm = `ln(sao) + 0,5·ln(1 + sao tăng trong 30 ngày) + 1 nếu có commit trong 30 ngày`. "Sao tăng" được **đo thật**: mỗi lần quét lưu số sao của mọi ứng viên
 vào `state/stars.json` (một điểm mỗi repo mỗi ngày), lần sau lấy hiệu số chia cho số ngày thật giữa hai lần chụp. Sau lần quét thứ hai là đã có số đo;
 trước đó dùng trung bình `sao / tuổi`. Mỗi topic được tìm hai lượt: **top** (từ `min_stars`) và **rising** (repo tạo trong `rising.created_within_days` ngày gần nhất, sàn `rising.min_stars`),
-và `rising.slots` suất trong mỗi lần quét dành cho repo đang lên mà xếp theo tổng sao thì không bao giờ tới lượt. Đặt `rising: {slots: 0}` để tắt.
+và `rising.slots` suất trong mỗi lần quét dành cho repo đang lên mà xếp theo tổng sao thì không bao giờ tới lượt (tối đa một nửa số bài: `RADAR_PICKS=1` thì chưa có suất nào). Đặt `rising: {slots: 0}` để tắt.
 
 `python3 radar.py scan` in bảng xếp hạng: dấu `*` sau cột sao/30 ngày là số đo thật, `[rising]` là repo trong suất đang lên, `[!few-forks]` và `[!star-spike]` là **cờ để bạn xem lại**
 (sao có thể bị mua, nhưng hai dấu hiệu này không chứng minh được; chúng không đổi điểm và không loại repo). `state/runs/<ngày>.json` có thêm `shortlist` (repo đứng ngay sau các repo được chọn)

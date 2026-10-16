@@ -50,7 +50,7 @@ và dừng hẳn nếu bước quét trả về rỗng để khỏi ghi đè d�
 | Tốc độ tăng | `sao / tuổi` (trung bình cả đời, không cần lịch sử) | Đo thật từ `state/stars.json` (mỗi lần quét chụp số sao); chưa có lịch sử thì lùi về `sao / tuổi`. Sau lần quét thứ hai (cách nhau 3–4 ngày) là đã đo được |
 | Chọn | Tốt nhất mỗi nhóm, xoay vòng | Như cũ, nhưng **1 suất** dành cho repo đang lên (tối đa một nửa số bài, tắt được) |
 | Chống số sao đáng ngờ | Không có | Hai **cờ chỉ để báo**: `few-forks` (dưới 10 fork trên 1.000 sao), `star-spike` (tăng từ 25% tổng sao trong một cửa sổ đo) |
-| Gọi Search API | 16 truy vấn liên tiếp, 403 là bỏ | Cách nhau 2,1 giây (hạn mức 30 lượt/phút); gặp 403/429 kèm `Retry-After` ≤ 60 giây thì chờ đúng thời gian đó rồi thử lại |
+| Gọi Search API | 16 truy vấn liên tiếp, 403 là bỏ | Cách nhau 2,1 giây (hạn mức 30 lượt/phút); gặp 403/429 kèm `Retry-After` ≤ 60 giây thì chờ đúng số giây đó cộng 1 giây rồi thử lại |
 | Báo cáo | Chỉ các repo được chọn | Thêm `shortlist` (5 repo đứng ngay sau), `rising`, `stars_per_30d`, `velocity` (`measured`/`lifetime`), `flags`, `history.measured` |
 
 Điểm số vẫn là `ln(sao) + 0,5·ln(1 + sao tăng/30 ngày) + 1 nếu có commit trong 30 ngày`. Chỉ đổi *nguồn* của số "sao tăng/30 ngày".

@@ -33,7 +33,8 @@ def cmd_scan(args, cfg) -> int:
     print("score    bucket       stars   stars/30d  repo   (* = measured from stored snapshots, else the lifetime average)")
     for c in ranked[:20]:
         mark = "*" if c["velocity"]["source"] == "measured" else " "
-        tags = (["rising"] if c["rising"] else []) + [f"!{f}" for f in c["flags"]]
+        on = cfg["rising"]["enabled"] and int(cfg["rising"]["slots"]) > 0
+        tags = (["rising"] if c["rising"] and on else []) + [f"!{f}" for f in c["flags"]]
         print(f"{c['score']:7.3f}  {c['bucket']:<10} {c['repo']['stargazers_count']:>7,}  {c['velocity']['per_30d']:>7,.0f}{mark}  "
               f"{c['full_name']}" + (f"  [{' '.join(tags)}]" if tags else ""))
     print(f"dropped: {json.dumps(dropped, ensure_ascii=False)}")
