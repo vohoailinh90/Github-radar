@@ -1030,6 +1030,19 @@ def test_a_powershell_expression_that_ends_in_any_binary_operator_goes_on_but_a_
     assert lines("```powershell\n" + "\n".join(keep) + "\n```\n") == list(keep)                             # a wildcard, a path, `-f` end a command
 
 
+def test_a_powershell_operator_written_against_its_left_operand_goes_on_but_a_wildcard_glued_to_an_argument_does_not():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = ("```powershell\n$x = $a*\n$b\n$y = 4-\n2\n$z = $p/\n$q\n$w = $a%\n3\n$u = $a??\n$b\n$r = 1..\n5\n$s = ($a)*\n2\n"
+            "$t = $a -and $b*\n$c\n$v = 'yes'-\n1\n$ok = $c -gt 1\n$m = ($ok)?\n'a' : 'b'\n```\n")
+    assert lines(text) == ["$x = $a* $b", "$y = 4- 2", "$z = $p/ $q", "$w = $a% 3", "$u = $a?? $b", "$r = 1.. 5", "$s = ($a)* 2",
+                           "$t = $a -and $b* $c", "$v = 'yes'- 1", "$ok = $c -gt 1", "$m = ($ok)? 'a' : 'b'"]
+    keep = ("$files = Get-ChildItem $dir*", "$r = Get-ChildItem $src/*", "$f = Get-ChildItem C:\\tmp\\*", "Get-ChildItem $dir*", "$n = Get-Item $env:",
+            "$i++", "$x = $a", "$e = $env:HOME", "$ok = $a?")
+    assert lines("```powershell\n" + "\n".join(keep) + "\n```\n") == list(keep)                      # a wildcard after a command's argument, a scope or a name ends a line
+    assert readme._ps_glued_operator("$x = $a*") and not readme._ps_glued_operator("$files = Get-ChildItem $dir*")
+
+
 def test_fish_blocks_are_groups_up_to_their_end_and_batch_parenthesized_blocks_are_groups_up_to_their_closing_parenthesis():
     c, d = readme._compound_depth, readme._cmd_depth
     for text, depth in (("if test -d build", 1), ("if test -d build\n rm -rf build\nend", 0), ("for i in 1 2 3; echo $i; end", 0), ("function setup", 1),

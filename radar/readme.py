@@ -683,6 +683,24 @@ PS_FORMAT_END = re.compile(r"\s-f$", re.I)                                  # `-
 PS_UNARY_END = re.compile(r"[=(,*/%]\s*(?:!|\+\+|--|[-+])$")                  # `$x = !`, `$y = -`, `$i = ++`: a prefix operator wants its operand (`$i++` is complete)
 PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
 PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+(?:[-*/%:?]|\?\?|\.\.)$")     # `$x = 4 -`, `$a ??`, `$a ..`, `$ok ?` over `'yes' :`: an operand and then a binary or ternary operator
+PS_GLUED_OPERATOR = re.compile(r"(?P<operand>[)\]}'\"]|\$[\w:.]+|\b\d[\w.]*)(?P<op>[-*/%:?]|\?\?|\.\.)$")          # `$a*`, `4-`, `($b)*`, `'x':`: the operator touches its left operand
+
+
+def _ps_glued_operator(code: str) -> bool:
+    """Whether the code of a PowerShell expression ends in a binary operator written against its left operand (`$x = $a*`, `$y = 4-`,
+    `$ok ? 'a':`). After a bracket or a quote the operator is one whatever stands before; after a variable or a number the operand must
+    sit where an expression has one (the start of the statement, after `=`, `(`, `,`, an operator), so that the wildcard of a command
+    (`$files = Get-ChildItem $dir*`) is still the end of a command. `$env:` and `$a?` belong to a variable name."""
+    found = PS_GLUED_OPERATOR.search(code)
+    if not found:
+        return False
+    operand, op = found.group("operand"), found.group("op")
+    if operand in ")]}'\"":
+        return True
+    if op in (":", "?"):
+        return False
+    before = code[:found.start()].rstrip()
+    return not before or before[-1] in "=(,[{+-*/%!" or bool(PS_OPERATOR_END.search(before))
 
 
 def _ps_continues(code: str, last: str) -> bool:
@@ -692,7 +710,7 @@ def _ps_continues(code: str, last: str) -> bool:
     code = code.rstrip()
     return (last in ("|", ",") or code.endswith(("&&", "||", "=")) or (code.endswith("+") and not code.endswith("++"))          # `$i++` is complete
             or bool(PS_OPERATOR_END.search(code))
-            or bool(PS_EXPRESSION.match(code) and (PS_OPERAND_THEN_OPERATOR.search(code) or PS_FORMAT_END.search(code) or PS_UNARY_END.search(code))))
+            or bool(PS_EXPRESSION.match(code) and (PS_OPERAND_THEN_OPERATOR.search(code) or _ps_glued_operator(code) or PS_FORMAT_END.search(code) or PS_UNARY_END.search(code))))
 
 
 def _ps_state(text: str):
