@@ -320,18 +320,26 @@ def _block_variants(readme: str):
         yield readmelib.strip_trailing_comment(line), prompt
 
 
+def _command_like(line: str) -> bool:
+    """Whether a whole README line outside the code blocks may be a command a reader types: it starts with a prompt, or its first word is
+    a known program written in lowercase (`First install the package.` and `Make sure it is on.` are sentences)."""
+    return bool(readmelib.SHELL_PROMPT.match(line)) or (not line[:1].isupper() and readmelib.is_command_line(line))
+
+
 def _prose_variants(readme: str):
-    """(text, prompt pattern) for the lines of the README outside its code blocks and the code spans in them."""
+    """(text, prompt pattern) for the code spans in the lines of the README outside its code blocks, and for the lines themselves when
+    they look like a command (see `_command_like`): a sentence is not something to type."""
     for line in (l.strip() for l in readmelib.prose_lines(readme)):
-        yield line, readmelib.SHELL_PROMPT
-        yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
+        if _command_like(line):
+            yield line, readmelib.SHELL_PROMPT
+            yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
         yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
 
 
 def _command_variants(readme: str):
     """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the lines of its
-    code blocks (see `_block_variants`), and outside the blocks whole lines and inline code spans. Each text also comes without a
-    trailing `# comment`."""
+    code blocks (see `_block_variants`), and outside the blocks inline code spans and the lines that look like a command (see
+    `_command_like`). Each text also comes without a trailing `# comment`."""
     yield from _block_variants(readme)
     yield from _prose_variants(readme)
 
@@ -364,7 +372,7 @@ def block_commands(readme: str) -> set[str]:
 
 
 def readme_commands(readme: str) -> set[str]:
-    """Whole README lines and inline-code spans: what a reader could copy from it."""
+    """Inline-code spans and the lines of the README that look like a command, besides its code blocks: what a reader could copy from it."""
     return set(command_texts(readme))
 
 
@@ -540,7 +548,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         if wanted >= 2 and isinstance(steps, list) and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
             problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "
                                     "(1-2 only when the README has fewer than 2 command lines to follow)"))
-        if wanted >= 1 and used == 0:            # any README line passes the command gate; only a command of a code block counts here
+        if wanted >= 1 and used == 0:            # a command line outside a code block or a code span passes the command gate; only a command of a code block counts here
             problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command line{'s' if wanted != 1 else ''} but the guide uses "
                                     f"{'none of them' if wanted != 1 else 'it'}; copy the ones a reader types, in order"))
         elif wanted >= 4 and used < 2:

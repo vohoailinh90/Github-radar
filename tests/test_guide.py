@@ -755,16 +755,21 @@ def test_two_readme_commands_that_differ_only_in_significant_spaces_are_both_kep
     assert gates.command_texts(TWO_SEDS)["sed 's/a b/x/' f"] == [first, second]
 
 
-def test_a_readme_prose_line_in_commands_does_not_satisfy_the_rule_that_a_guide_uses_the_readmes_commands():
+def test_a_readme_sentence_is_not_a_command_and_cannot_stand_in_for_one():
     prose = "Sample Agent Kit lets a small team run AI agents that read tickets and draft replies."
     d = make_draft(FACTS, "vi")
     for step in d["guide"]["steps"]:
         step["commands"] = []
     d["guide"]["steps"][0]["commands"] = [prose]
     found = errs(d)
-    assert any("uses none of them" in e for e in found) and not any("steps[0].commands" in e for e in found), found
-    d["guide"]["steps"][0]["commands"] = [prose, "pip install sample-agent-kit"]
+    assert any("steps[0].commands" in e and "not a line or code span of the README" in e for e in found), found
+    d["guide"]["steps"][0]["commands"] = ["pip install sample-agent-kit"]
     assert errs(d) == []
+    for sentence in ("First install the package before continuing.", "Make sure Python is installed.", "Go to the settings page.",
+                     "Set the key in the file."):
+        assert sentence not in gates.readme_commands(f"# T\n\n{sentence}\n"), sentence      # a known program word does not make a sentence a command
+    plain = "# T\n\npip install x\n\nRun `git clone y` first.\n\n$ make build\n"
+    assert {"pip install x", "git clone y", "make build"} <= gates.readme_commands(plain)         # a bare command line, a code span and a prompted line pass
 
 
 HEREDOC = README + "\n```bash\ncat > config.yaml <<EOF\nllm:\n  model: x\n\n  key: y\nEOF\n```\n"
@@ -826,3 +831,13 @@ def test_the_physical_lines_of_a_powershell_pipeline_are_not_commands_on_their_o
     assert "Get-ChildItem *.mp4 | Where-Object Length -gt 1MB" in texts
     assert "Get-ChildItem *.mp4 |" not in texts and "Where-Object Length -gt 1MB" not in texts
     assert gates.block_commands(pipeline) == {"Get-ChildItem *.mp4 | Where-Object Length -gt 1MB"}
+
+
+def test_the_data_of_a_heredoc_stays_in_the_shell_block_of_its_opener_even_when_a_line_of_it_is_a_powershell_command_elsewhere(tmp_path):
+    readme_text = ("# T\n\n## Setup\n\n```powershell\nWrite-Host hi\n```\n\n```bash\ncat > run.ps1 <<EOF\nWrite-Host hi\nEOF\n```\n")
+    facts = {**FACTS, "readme": readme_text, "links": [], "blocks": [], "shells": readme.shells(readme_text)}
+    assert facts["shells"] == {"Write-Host hi": "powershell"}
+    lines = digest._command_blocks(facts, ["cat > run.ps1 <<EOF", "Write-Host hi", "EOF"], L["en"])
+    assert lines == ["```bash", "cat > run.ps1 <<EOF", "Write-Host hi", "EOF", "```"]               # one block, the opener's shell
+    lines = digest._command_blocks(facts, ["Write-Host hi", "cat > run.ps1 <<EOF", "Write-Host hi", "EOF"], L["en"])
+    assert lines.count("```powershell") == 1 and lines.count("```bash") == 1 and lines[-3:] == ["Write-Host hi", "EOF", "```"]

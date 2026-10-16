@@ -767,3 +767,10 @@ def test_a_powershell_command_that_cannot_be_told_is_left_as_it_is_and_one_that_
     assert lines("```powershell\nWrite-Host \"a | b\" # |\nWrite-Host 'x,'\n```\n") == ["Write-Host \"a | b\" # |", "Write-Host 'x,'"]
     assert readme._ps_open("Get-ChildItem |") and readme._ps_open("foo (") and readme._ps_open("1,2,")
     assert readme._ps_open("Write-Host 'a |'") is False and readme._ps_open("foo { bar }") is False and readme._ps_open("foo 'x") is None
+
+
+def test_only_a_typed_command_chooses_the_shell_of_a_line_not_a_sample_an_output_line_or_heredoc_data():
+    text = ("```text\nGet-ChildItem\n```\n\n```powershell\nGet-ChildItem\nWrite-Host hi\n```\n\n"
+            "```bash\ncat <<EOF\nWrite-Host hi\nEOF\n```\n\n```console\n$ ls\ndir\n```\n\n```cmd\ndir\n```\n")
+    assert readme.shells(text) == {"Get-ChildItem": "powershell", "Write-Host hi": "powershell", "dir": "bat"}
+    assert readme.shells("```console\nPS C:\\> Get-Item x\nGet-Item y\n```\n") == {"Get-Item x": "powershell"}      # `Get-Item y` is output

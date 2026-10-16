@@ -946,21 +946,25 @@ def norm_command(text) -> str:
 
 def shells(text: str) -> dict[str, str]:
     """{comparable form of a command: "powershell" or "bat"} for the lines the README writes in a PowerShell or cmd block (or after a
-    `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. A line a Unix shell block also holds, or one
-    the README shows first in a Unix shell block, is not listed: the guide's default is a Unix shell."""
+    `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. Only a line that is typed counts: not the
+    output of a transcript, the data of a heredoc or a line of a sample. A line a Unix shell block also holds, or one the README shows
+    first in a Unix shell block, is not listed: the guide's default is a Unix shell."""
     found: dict[str, str] = {}
-    for lang, lines in code_blocks(text):
-        for line in lines:
-            key = norm_command(line)
-            if not key or key.startswith(("#", "//", "REM ", "::")):
-                continue
-            if lang in POWERSHELL_LANGS or (lang in CONSOLE_LANGS and POWERSHELL_PROMPT.match(line)):
-                shell = "powershell"
-            elif lang in CMD_LANGS or (lang in CONSOLE_LANGS and re.match(CMD_PROMPT, line)):
-                shell = "bat"
-            else:
-                shell = "bash"
-            found.setdefault(key, shell)
+    for lang, line, role, prompt in block_lines(text):
+        if prompt is None or role == "body":                  # transcript output and the data of a heredoc are not commands of any shell
+            continue
+        key = norm_command(line)
+        if not key or key.startswith(("#", "//", "REM ", "::")):
+            continue
+        if not (role or lang in SHELL_LANGS or lang in CONSOLE_LANGS or is_command_line(line)):
+            continue                                          # a sample or an output line of a block that is not a shell's
+        if lang in POWERSHELL_LANGS or (lang in CONSOLE_LANGS and POWERSHELL_PROMPT.match(line)):
+            shell = "powershell"
+        elif lang in CMD_LANGS or (lang in CONSOLE_LANGS and re.match(CMD_PROMPT, line)):
+            shell = "bat"
+        else:
+            shell = "bash"
+        found.setdefault(key, shell)
     return {key: shell for key, shell in found.items() if shell != "bash"}
 
 

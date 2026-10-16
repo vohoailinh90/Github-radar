@@ -77,10 +77,10 @@ def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
     PowerShell line is not fenced as bash. When a step has a shell other than bash, each block says which shell it is for."""
     table = facts.get("shells") if isinstance(facts.get("shells"), dict) else {}
     groups: list[tuple[str, list]] = []
-    for command in commands:
+    for command, data in zip(commands, readmelib.heredoc_data(commands)):
         shell = table.get(readmelib.norm_command(command))
         shell = shell if shell in ("powershell", "bat") else "bash"
-        if groups and (groups[-1][0] == shell or not str(command).strip()):        # a blank line stays in the block it is in
+        if groups and (data or groups[-1][0] == shell or not str(command).strip()):        # a blank line and the data of a heredoc stay in the block they are in
             groups[-1][1].append(command)
         else:
             groups.append((shell, [command]))
