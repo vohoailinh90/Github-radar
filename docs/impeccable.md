@@ -19,12 +19,15 @@ Phiên bản đang giữ: skill **4.6.0**, engine **0.1.15**, upstream commit gh
 Cách 1, chép bản đã được pin ở đây (từ gốc repo này):
 
 ```bash
-mkdir -p <repo-đích>/.claude/skills <repo-đích>/.claude/agents
+mkdir -p <repo-đích>/.claude/skills <repo-đích>/.claude/agents <repo-đích>/docs/third-party
 cp -a .claude/skills/impeccable <repo-đích>/.claude/skills/
 cp -a .claude/agents/impeccable-*.md <repo-đích>/.claude/agents/
+cp -a docs/third-party/impeccable <repo-đích>/docs/third-party/
 ```
 
-Chép vào `~/.claude/skills/` và `~/.claude/agents/` thì áp dụng cho mọi repo.
+Dòng cuối chép `LICENSE` và `NOTICE.md`: Apache-2.0 (điều 4) buộc mọi bản sao của skill mà bạn chia sẻ hay phân phối phải kèm giấy phép và thông báo ghi công. Đừng bỏ nó khi repo đích là repo chung hoặc công khai.
+
+Chép vào `~/.claude/skills/` và `~/.claude/agents/` thì áp dụng cho mọi repo của riêng bạn; bản đó không được phân phối cho ai nên không cần dòng cuối.
 
 Cách 2, cài thẳng từ upstream (lấy bản mới nhất, và cài cả hook): `npx impeccable install --providers=claude --scope=project` chạy ở gốc repo đích. Cách 3, trong Claude Code: `/plugin marketplace add pbakaus/impeccable`.
 
