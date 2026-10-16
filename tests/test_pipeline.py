@@ -37,6 +37,9 @@ def test_full_run_writes_digests_bundle_state_and_report(tmp_path, servers):
     assert len(repos) == 3
     md = (day / repos[0] / "vi.md").read_text(encoding="utf-8")
     assert "![" in md and "card-vi.svg" in md and "flow-vi.svg" in md and "```bash" in md
+    assert "Làm theo từng bước" in md and "path-vi.svg" in md and "- [ ] **" in md          # the guide, not only the explainer
+    assert "[the helpdesk key page](https://helpdesk.example.org/settings/keys)" in md      # a README address, printed by the renderer
+    assert all(w["coverage"] == {"readme_commands": 4, "used": 4} for w in report["written"])
     for svgfile in day.rglob("*.svg"):
         assert svgfile.read_text(encoding="utf-8").startswith("<svg")
     assert (day / "README.md").exists() and (tmp_path / "digests" / "INDEX.md").exists()

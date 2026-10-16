@@ -28,13 +28,38 @@ pip install sample-agent-kit
 sample-agent run --queue support
 ```
 
+## Configure
+
+Copy the example settings, then put your helpdesk key in `config.toml`:
+
+```bash
+cp config.example.toml config.toml
+```
+
+Get a key from [the helpdesk key page](https://helpdesk.example.org/settings/keys), then fill in the file:
+
+```toml
+[helpdesk]
+key = "YOUR_KEY"
+queue = "support"
+```
+
+## Web console
+
+```bash
+sample-agent console \\
+  --port 8080
+```
+
+Open http://localhost:8080 to see the queue. If the queue is empty, check that `config.toml` holds your key.
+
 ## How it works
 
 A *planner* reads a ticket, a *tool runner* calls your helpdesk, and a *memory* store keeps past answers.
 It has 3 built-in tools and supports 2 queue backends.
 """
 
-TREE = ["README.md", "LICENSE", "src/", "docs/", "examples/", "pyproject.toml"]
+TREE = ["README.md", "LICENSE", "src/", "docs/", "examples/", "pyproject.toml", "config.example.toml"]
 CHILDREN = {"src": ["planner.py", "tools/", "memory.py"], "docs": ["guide.md"], "examples": ["support.py"]}
 
 
@@ -193,10 +218,88 @@ T = {
 }
 
 
+GUIDE_T = {
+    "vi": {
+        "outcome": "Một agent chạy trên máy bạn, đọc hàng đợi phiếu hỗ trợ và soạn nháp trả lời.",
+        "req": [("Python và pip", "Cần để cài gói bằng pip."), ("Khóa của helpdesk", "Lấy ở trang khóa của helpdesk.")],
+        "steps": [("Cài gói", "Có chương trình trên máy.", ["Mở terminal.", "Chạy lệnh cài gói."], "Gói được cài xong."),
+                  ("Tạo file cấu hình", "Có file settings để điền.", ["Chép file mẫu thành file thật."], ""),
+                  ("Điền khóa helpdesk", "Agent đủ quyền đọc phiếu.", ["Mở `config.toml`.", "Dán khóa vào."], ""),
+                  ("Chạy agent", "Agent bắt đầu xử lý hàng đợi.", ["Chạy lệnh chạy agent."], ""),
+                  ("Mở giao diện web", "Nhìn thấy hàng đợi.", ["Chạy lệnh mở giao diện.", "Mở địa chỉ trong trình duyệt."],
+                   "Hàng đợi hiện ra.")],
+        "verify": "Hàng đợi phiếu hiện trên giao diện web.",
+        "trouble": ("Hàng đợi trống", "Kiểm tra `config.toml` đã có khóa của bạn."),
+        "next": ["Thử với một hàng đợi khác."],
+    },
+    "en": {
+        "outcome": "An agent running on your machine that reads the support-ticket queue and drafts replies.",
+        "req": [("Python and pip", "Needed to install the package with pip."), ("A helpdesk key", "Get it from the helpdesk key page.")],
+        "steps": [("Install the package", "The program is on your machine.", ["Open a terminal.", "Run the install command."], "The package installs."),
+                  ("Create the settings file", "A settings file to fill in exists.", ["Copy the example file to the real one."], ""),
+                  ("Add your helpdesk key", "The agent may read tickets.", ["Open `config.toml`.", "Paste the key."], ""),
+                  ("Run the agent", "The agent starts on the queue.", ["Run the agent command."], ""),
+                  ("Open the web console", "You can see the queue.", ["Run the console command.", "Open the address in a browser."],
+                   "The queue appears.")],
+        "verify": "The ticket queue shows in the web console.",
+        "trouble": ("The queue is empty", "Check that `config.toml` holds your key."),
+        "next": ["Try it with another queue."],
+    },
+    "ja": {
+        "outcome": "サポートチケットのキューを読み、返信の下書きを作るエージェントが手元のPCで動きます。",
+        "req": [("Python と pip", "pip でパッケージを入れるために必要です。"), ("ヘルプデスクのキー", "ヘルプデスクのキーのページで取得します。")],
+        "steps": [("パッケージを入れる", "手元でプログラムが使えます。", ["ターミナルを開きます。", "インストールのコマンドを実行します。"], "パッケージが入ります。"),
+                  ("設定ファイルを作る", "記入する設定ファイルができます。", ["見本のファイルを本物の名前にコピーします。"], ""),
+                  ("キーを書き込む", "エージェントがチケットを読めます。", ["`config.toml` を開きます。", "キーを貼り付けます。"], ""),
+                  ("エージェントを動かす", "キューの処理が始まります。", ["エージェントのコマンドを実行します。"], ""),
+                  ("Web コンソールを開く", "キューが見えます。", ["コンソールのコマンドを実行します。", "ブラウザでアドレスを開きます。"], "キューが表示されます。")],
+        "verify": "チケットのキューが Web コンソールに表示されます。",
+        "trouble": ("キューが空です", "`config.toml` に自分のキーがあるか確認します。"),
+        "next": ["別のキューでも試します。"],
+    },
+}
+GUIDE_COMMANDS = [["pip install sample-agent-kit"], ["cp config.example.toml config.toml"], [], ["sample-agent run --queue support"],
+                  ["sample-agent console --port 8080"]]
+GUIDE_EVIDENCE = ["README", "config.example.toml", "README", "README", "README"]
+
+
+def link_ref(facts: dict, needle: str) -> int | None:
+    """Position of the README link containing `needle`. Works on both shapes of `links`: [label, url] and the prompt's [n, label, url]."""
+    for i, entry in enumerate(facts.get("links") or []):
+        if needle in str(entry[-1]):
+            return i
+    return None
+
+
+def block_ref(facts: dict, needle: str) -> int | None:
+    """Position of the README code block whose first line contains `needle`. Works on facts built here ([lang, text]) and on the prompt's [n, lang, first line]."""
+    for i, entry in enumerate(facts.get("blocks") or []):
+        if needle in str(entry[-1]):
+            return i
+    return None
+
+
+def make_guide(facts: dict, lang: str = "vi") -> dict:
+    g = GUIDE_T[lang]
+    refs = [None, None, link_ref(facts, "helpdesk.example.org"), None, link_ref(facts, "localhost")]
+    snippets = [None, None, block_ref(facts, "[helpdesk]"), None, None]
+    return {
+        "outcome": g["outcome"],
+        "requirements": [{"item": a, "detail": b, "evidence": "README", "link_ref": link_ref(facts, "helpdesk.example.org") if i else None}
+                         for i, (a, b) in enumerate(g["req"])],
+        "steps": [{"title": t, "why": w, "do": do, "commands": GUIDE_COMMANDS[i], "expect": ex, "if_fails": "", "link_ref": refs[i],
+                   "snippet_ref": snippets[i], "evidence": GUIDE_EVIDENCE[i]} for i, (t, w, do, ex) in enumerate(g["steps"])],
+        "verify": g["verify"],
+        "troubleshooting": [{"problem": g["trouble"][0], "fix": g["trouble"][1], "evidence": "README"}],
+        "next": g["next"],
+    }
+
+
 ICONS = ["brain", "wrench", "database"]        # one per component of the fake drafts: planner, tool runner, memory
 
 
-def make_draft(facts: dict, lang: str = "vi", **overrides) -> dict:
+def make_draft(facts: dict, lang: str = "vi", legacy: bool = False, **overrides) -> dict:
+    """A good draft. `legacy=True` is the shape written before the guide existed: `try_it` instead of `guide`."""
     t = T[lang]
     evidence = ["README", "src/tools", "src/memory.py"]
     paths = ["src/planner.py", "src/tools", "src/memory.py"]
@@ -207,10 +310,13 @@ def make_draft(facts: dict, lang: str = "vi", **overrides) -> dict:
             "components": [{"name": a, "role": b, "icon": i, "evidence": e} for (a, b), e, i in zip(t["parts"], paths, ICONS)],
             "flow": [[0, 1], [1, 2], [2, 0]]},
         "who_for": t["who"], "learn": t["learn"],
-        "try_it": {"commands": ["pip install sample-agent-kit", "sample-agent run --queue support"], "note": t["note"]},
+        "guide": make_guide(facts, lang),
         "caveats": t["caveats"], "glossary": [{"term": t["term"][0], "meaning": t["term"][1]}],
         "facebook": {"caption": t["caption"], "hashtags": ["AI", "OpenSource", "Agent"]},
     }
+    if legacy:
+        del draft["guide"]
+        draft["try_it"] = {"commands": ["pip install sample-agent-kit", "sample-agent run --queue support"], "note": t["note"]}
     draft.update(overrides)
     return draft
 

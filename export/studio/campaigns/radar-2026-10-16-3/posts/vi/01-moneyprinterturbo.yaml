@@ -1,0 +1,87 @@
+id: 01-moneyprinterturbo
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-16-3
+link: 01-moneyprinterturbo
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: Tạo video ngắn từ một chủ đề với MoneyPrinterTurbo
+  subtitle: Công cụ mã nguồn mở nhận một chủ đề hoặc từ khóa, rồi tự tạo kịch bản, chọn clip, đọc lời,
+    tạo phụ đề, thêm nhạc nền và ghép thành video ngắn.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '131.800'
+  label: sao trên GitHub
+  caption: MIT · Python
+- layout: quote
+  text: 'Làm một video ngắn bằng tay đòi hỏi nhiều khâu: viết kịch bản, tìm clip, thu giọng đọc, gõ phụ
+    đề, chọn nhạc rồi dựng. MoneyPrinterTurbo gom các khâu đó thành một quy trình tự động, bạn chỉ cần
+    đưa chủ đề hoặc từ khóa.'
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Nhận chủ đề: Bạn đưa chủ đề hoặc từ khóa; mô hình ngôn ngữ viết hoặc viết lại kịch bản, hoặc
+      bạn tự dùng kịch bản của mình.'
+  - text: 'Lấy tư liệu hình: Hệ thống lấy clip từ kho miễn phí như Pexels hoặc Pixabay, hoặc dùng ảnh
+      và video bạn tải lên.'
+  - text: 'Thêm tiếng, chữ, nhạc: Tạo giọng đọc, phụ đề tự động và nhạc nền với âm lượng chỉnh riêng được.'
+  - text: 'Ghép thành video: Dựng thành video ngắn ở khổ dọc 9:16, ngang 16:9 hoặc vuông 1:1.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Mô hình ngôn ngữ
+    text: Viết hoặc viết lại kịch bản video.
+  - emoji: ⚙️
+    title: Nguồn clip
+    text: 'Cung cấp clip nền: kho miễn phí hoặc tệp của bạn.'
+  - emoji: 🔌
+    title: Giọng đọc và phụ đề
+    text: Biến kịch bản thành tiếng và dòng chữ chạy theo tiếng.
+  - emoji: 📦
+    title: Bộ dựng video
+    text: Ghép clip, giọng, chữ và nhạc thành video; ffmpeg thường tự tải về.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - 'Chia việc lớn thành các khâu độc lập: kịch bản, tư liệu, giọng đọc, phụ đề, nhạc, dựng'
+  - 'Một lõi xử lý, nhiều cửa vào: giao diện web, API và dòng lệnh'
+  - Cho phép thay từng khâu bằng nhà cung cấp khác hoặc nội dung của chính bạn
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Cần khóa API của dịch vụ mô hình ngôn ngữ và nguồn clip; README không nêu giá, hãy xem điều
+      khoản của từng nhà cung cấp
+  - emoji: ⚠️
+    text: Nhạc nền mặc định lấy từ YouTube; README ghi nếu vi phạm bản quyền thì xóa. Hãy tự kiểm tra
+      bản quyền clip, nhạc và font trước khi đăng
+  - emoji: ⚠️
+    text: GPU không bắt buộc, nhưng nên có nếu bạn bật faster-whisper hoặc tạo nhiều video
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Gõ một chủ đề, nhận về một video ngắn có kịch bản, giọng đọc và phụ đề
+
+
+      MoneyPrinterTurbo nối các khâu làm video thành một quy trình tự động.
+
+      Bài hướng dẫn từng bước trong repo giúp bạn tự chạy thử trên máy mình.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AI
+    - OpenSource
+    - VideoAI

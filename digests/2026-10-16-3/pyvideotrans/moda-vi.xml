@@ -1,0 +1,61 @@
+<!-- radar: Moda canvas 1200x1666; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="343" fill="#0B1B3A"/>
+<rectangle x="0" y="343" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Dịch video và lồng tiếng sang ngôn ngữ khác với pyVideoTrans</text>
+<text x="60" y="269" width="1080" height="34" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Một video tiếng này, một lệnh, ra video có phụ đề và giọng đọc tiếng khác</text>
+<text x="60" y="417" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="483" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="505" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhận dạng giọng nói (ASR)</text>
+<text x="80" y="543" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chuyển lời nói trong video thành chữ có mốc thời gian.</text>
+<rectangle x="660" y="483" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="505" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Dịch phụ đề</text>
+<text x="680" y="543" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dịch chữ sang ngôn ngữ đích bằng LLM hoặc dịch máy.</text>
+<rectangle x="60" y="681" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="703" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tổng hợp giọng nói (TTS)</text>
+<text x="80" y="741" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đọc bản dịch thành tiếng, có thể gán giọng khác nhau cho từng người nói.</text>
+<rectangle x="660" y="681" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="703" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ghép video</text>
+<text x="680" y="741" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghép tiếng và phụ đề vào video và canh khớp.</text>
+<line x1="540" y1="545" x2="660" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="607" x2="900" y2="644" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="644" x2="300" y2="644" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="644" x2="300" y2="681" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="743" x2="660" y2="743" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="887" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="953" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="975" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="975" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhận dạng giọng nói</text>
+<text x="154" y="1011" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chép lời từ video bằng mô hình cục bộ như Faster-Whisper hoặc API trực tuyến; có thể phân biệt người nói.</text>
+<line x1="584" y1="1027" x2="616" y2="1027" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="953" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="975" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="975" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Dịch phụ đề</text>
+<text x="714" y="1011" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dịch bằng mô hình ngôn ngữ như DeepSeek, ChatGPT hoặc Ollama chạy cục bộ, hoặc dịch máy truyền thống.</text>
+<rectangle x="60" y="1125" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1147" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1147" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tổng hợp giọng nói</text>
+<text x="154" y="1183" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đọc bản dịch bằng Edge-TTS (miễn phí), dịch vụ thương mại hoặc mô hình nhân bản giọng.</text>
+<line x1="584" y1="1199" x2="616" y2="1199" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1125" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1147" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1147" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ghép và đồng bộ</text>
+<text x="714" y="1183" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghép tiếng và phụ đề vào video, canh khớp giữa hình và tiếng.</text>
+<text x="60" y="1355" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1421" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1461.8" x2="97.6" y2="1469" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1469" x2="110" y2="1453.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1441" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một quy trình nhiều chặng nhưng cho dừng lại sửa tay ở từng chặng để giữ độ chính xác</text>
+<rectangle x="430" y="1421" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1461.8" x2="467.6" y2="1469" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1469" x2="480" y2="1453.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1441" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một lõi, ba cửa vào: giao diện đồ họa, dòng lệnh và web</text>
+<rectangle x="800" y="1421" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1461.8" x2="837.6" y2="1469" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1469" x2="850" y2="1453.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1441" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cho thay từng chặng bằng mô hình cục bộ hoặc API trực tuyến tùy nhu cầu và ngân sách</text>
+<text x="60" y="1603" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: jianchang512/pyvideotrans · Giấy phép: GPL-3.0 · 19.400 sao · Quét ngày 2026-10-16</text>
+</content>

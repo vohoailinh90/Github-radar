@@ -40,3 +40,19 @@ Routing: dimensions ambiguity 1, scope 2, architecture 1, dependencies 2, risk 1
   can still pass: every digest carries a "read the original repository" notice and the studio keeps the human approval.
 - Written-out numbers ("one hundred") are not checked; the number gate reads digits only. The vendor-family table knows common model names only.
 - Template bilingual rule vs English CLI: decided to follow the studio's precedent (content is multilingual, tooling is English).
+
+## Update 2026-10-16: digests become step-by-step guides (T2, claude lane)
+
+Requirement: the digests were too thin; a reader should be able to follow one alone and reach the result the repository shows.
+Routing: dimensions ambiguity 1, scope 2, architecture 1, dependencies 1, risk 1, verification 1 = 7 -> T2, no override; required agent `code-reviewer`.
+
+- `radar/readme.py`: a README over the limit is cut by whole sections (install/config/run/FAQ first, galleries/thanks/licence last, original order kept),
+  and its links and shell commands are extracted by script. Before, the head was kept and a Quick Start past character 12,000 was lost.
+- Draft gains a `guide` block (outcome, requirements, steps with verbatim commands, expect, if_fails, verify, troubleshooting, next). It is optional in the schema so stored drafts still render;
+  `write_one` requires it. `try_it` is only needed when there is no guide.
+- New gates: guide commands are README code-block lines, code spans or command-like lines outside a block (a sentence is not one; continuations joined), backtick text must come from the README or the tree, `link_ref` must index `facts["links"]`, a guide that uses none of the README's command lines is refused (the README's code blocks show at least one), a guide needs 3-10 steps when the README shows two or more command lines and 1-10 otherwise (a paper, a list, a model card), and each command block is fenced in the shell the README writes it for (`facts["shells"]`: PowerShell, cmd, fish) with a caption naming it when a step mixes shells.
+- Links: the model never writes a URL; it picks an entry of `facts["links"]` by number and the renderer prints it (tracking/affiliate links never enter the list). CLAUDE.md rule updated.
+- Not verified here: free-model answers (token size of the longer answer and of the checker request), and nobody ran the five AI-video guides' steps on a real machine.
+- After the independent review (code-reviewer, 2026-10-16): `gates.check` no longer raises on any JSON shape (systematic test over every key path and nine odd values; also fixed the same defect in older fields);
+  `readme.select` never exceeds its limit (it did by up to 490 characters); `is_local` compares the host exactly and links with a `user@` part are dropped; `links` is bounded and bisects;
+  configuration samples are shown by `snippet_ref` into `facts["blocks"]` (README code blocks that are not shell), printed as the README has them; guide prose escapes `*` and `<` outside code spans.

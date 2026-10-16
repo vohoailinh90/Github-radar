@@ -1,0 +1,91 @@
+id: 04-videolingo
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-16-3
+link: 04-videolingo
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: Làm phụ đề và lồng tiếng cho video với VideoLingo
+  subtitle: Công cụ mã nguồn mở gom nhận dạng giọng nói, dịch phụ đề, cắt phụ đề và lồng tiếng trong một
+    giao diện Streamlit, xuất tệp phụ đề và video có phụ đề hoặc lồng…
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '18.800'
+  label: sao trên GitHub
+  caption: Apache-2.0 · Python
+- layout: quote
+  text: Muốn đưa một video sang ngôn ngữ khác, bạn phải chép lời, cắt phụ đề cho vừa màn hình, dịch cho
+    nhất quán rồi thu lại giọng đọc. VideoLingo nối các bước đó thành một quy trình, có ghi log và chạy
+    tiếp được từ chỗ dừng.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Lấy video và nhận dạng giọng nói: Tải video qua yt-dlp nếu cần, rồi nhận dạng lời ở mức từng
+      từ bằng Qwen3-ASR và ForcedAligner.'
+  - text: 'Cắt phụ đề: Dùng xử lý ngôn ngữ và AI để chia phụ đề, với giới hạn độ dài chỉnh được.'
+  - text: 'Dịch có thuật ngữ: Dịch trực tiếp, tùy chọn phản tư và viết lại tự nhiên, dựa trên thuật ngữ
+      tùy chỉnh và thuật ngữ do AI tạo.'
+  - text: 'Lồng tiếng và ghép: Dịch vụ TTS đọc bản dịch, rồi xuất phụ đề và video có phụ đề hoặc lồng
+      tiếng.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Giao diện Streamlit
+    text: Nơi nhập cấu hình, đưa video vào và điều khiển từng bước.
+  - emoji: ⚙️
+    title: Nhận dạng giọng nói
+    text: Chép lời có mốc thời gian từng từ; mặc định chạy cục bộ.
+  - emoji: 🔌
+    title: Mô hình dịch (LLM)
+    text: Cắt, dịch và viết lại phụ đề qua API tương thích OpenAI.
+  - emoji: 📦
+    title: Lồng tiếng (TTS)
+    text: Đọc bản dịch bằng GPT-SoVITS, OpenAI, Edge TTS và các dịch vụ khác.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - 'Chia việc khó thành các chặng nối tiếp: nhận dạng, cắt, dịch, lồng tiếng'
+  - Kết hợp thuật ngữ do người dùng đặt với thuật ngữ do AI tạo để bản dịch nhất quán
+  - Ghi log chi tiết và cho chạy tiếp từ chỗ dừng, dùng lại kết quả đã thành công
+  - Để mỗi khâu (nhận dạng, dịch, lồng tiếng) thay được bằng nhà cung cấp khác
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Chất lượng bản dịch phụ thuộc âm thanh gốc, ngôn ngữ và mô hình bạn chọn; README tự nhắc phải
+      kiểm tra phụ đề
+  - emoji: ⚠️
+    text: Bước lồng tiếng không tự gán giọng riêng cho từng người nói
+  - emoji: ⚠️
+    text: Nhận dạng cục bộ dùng một ngôn ngữ chính cho mỗi đoạn; lời nói trộn nhiều ngôn ngữ không được
+      đảm bảo chính xác
+  - emoji: ⚠️
+    text: Dịch vụ LLM và một số dịch vụ nhận dạng, lồng tiếng là của bên thứ ba và có thể tính phí
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Đưa một video vào, nhận phụ đề đã dịch và có thể cả bản lồng tiếng
+
+
+      VideoLingo nối nhận dạng giọng nói, dịch, cắt phụ đề và lồng tiếng trong một giao diện.
+
+      Bài hướng dẫn từng bước trong repo chỉ cách cài và chạy lần đầu.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AI
+    - OpenSource
+    - VideoAI

@@ -1,0 +1,361 @@
+{
+  "draft": {
+    "analogy": "Giống một xưởng dịch phim thu nhỏ: có người nghe lời, người chia dòng phụ đề, người dịch và người lồng tiếng, bạn chỉ cần đưa phim vào.",
+    "caveats": [
+      "Chất lượng bản dịch phụ thuộc âm thanh gốc, ngôn ngữ và mô hình bạn chọn; README tự nhắc phải kiểm tra phụ đề",
+      "Bước lồng tiếng không tự gán giọng riêng cho từng người nói",
+      "Nhận dạng cục bộ dùng một ngôn ngữ chính cho mỗi đoạn; lời nói trộn nhiều ngôn ngữ không được đảm bảo chính xác",
+      "Dịch vụ LLM và một số dịch vụ nhận dạng, lồng tiếng là của bên thứ ba và có thể tính phí"
+    ],
+    "facebook": {
+      "caption": "Đưa một video vào, nhận phụ đề đã dịch và có thể cả bản lồng tiếng\n\nVideoLingo nối nhận dạng giọng nói, dịch, cắt phụ đề và lồng tiếng trong một giao diện.\nBài hướng dẫn từng bước trong repo chỉ cách cài và chạy lần đầu.",
+      "hashtags": [
+        "AI",
+        "OpenSource",
+        "VideoAI"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Nhận dạng giọng nói tự động: chép lời nói thành chữ.",
+        "term": "ASR"
+      },
+      {
+        "meaning": "Chuyển chữ thành giọng đọc.",
+        "term": "TTS"
+      },
+      {
+        "meaning": "Thư viện Python dựng giao diện web đơn giản.",
+        "term": "Streamlit"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử thuật ngữ tùy chỉnh để bản dịch nhất quán hơn: README nói công cụ kết hợp thuật ngữ của bạn với thuật ngữ do AI tạo.",
+        "Thử các giọng lồng tiếng khác như GPT-SoVITS hoặc Edge TTS để so sánh."
+      ],
+      "outcome": "Một giao diện VideoLingo chạy trên máy bạn, xuất tệp phụ đề đã dịch cho video của bạn, và tùy chọn video có phụ đề hoặc video lồng tiếng.",
+      "requirements": [
+        {
+          "detail": "README nói hỗ trợ cả ba; macOS dùng được cả Apple Silicon lẫn Intel.",
+          "evidence": "README",
+          "item": "Windows, macOS hoặc Linux",
+          "link_ref": null
+        },
+        {
+          "detail": "Lần chạy đầu tự tải và cài uv, Python 3.12, thư viện và FFmpeg nên cần mạng.",
+          "evidence": "README",
+          "item": "Kết nối Internet",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần địa chỉ API, khóa và tên mô hình trả được JSON có cấu trúc. README gợi ý OpenLux và liệt kê sẵn mã mô hình đề xuất.",
+          "evidence": "README",
+          "item": "Một dịch vụ LLM tương thích OpenAI Chat Completions",
+          "link_ref": 5
+        },
+        {
+          "detail": "README không hướng dẫn cài hai công cụ này. Trên Windows, OneKeyStart.bat tự cài uv nên bạn không cần làm tay.",
+          "evidence": "README",
+          "item": "Git và uv (khi cài từ mã nguồn)",
+          "link_ref": null
+        },
+        {
+          "detail": "README nói công cụ có thể tải video YouTube bằng yt-dlp.",
+          "evidence": "README",
+          "item": "Video cần xử lý",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Tải Source code (zip) ở bản Release mới nhất, giải nén ra Desktop hoặc thư mục khác rồi mở thư mục đó.",
+            "Nhấp đúp `OneKeyStart.bat` và giữ cửa sổ mở. Lần đầu nó tự cài uv, Python 3.12, thư viện và FFmpeg."
+          ],
+          "evidence": "OneKeyStart.bat",
+          "expect": "Cài xong, VideoLingo tự mở trên trình duyệt.",
+          "if_fails": "",
+          "link_ref": 1,
+          "title": "Windows: tải gói và chạy OneKeyStart.bat",
+          "why": "Cài và mở VideoLingo chỉ bằng vài cú nhấp chuột. Bỏ qua bước này nếu bạn dùng macOS hoặc Linux."
+        },
+        {
+          "commands": [
+            "git clone https://github.com/Huanshere/VideoLingo.git && cd VideoLingo",
+            "uv run start.py"
+          ],
+          "do": [
+            "Cài Git và uv nếu máy chưa có: README không nêu cách cài, hãy dùng trang chính thức của từng công cụ.",
+            "Chạy lệnh đầu để tải mã nguồn và vào thư mục dự án.",
+            "Chạy lệnh thứ hai để cài thư viện còn thiếu và khởi động.",
+            "Lần sau muốn mở lại, chạy `uv run start.py` trong thư mục VideoLingo."
+          ],
+          "evidence": "start.py",
+          "expect": "",
+          "if_fails": "README chỉ nói bản Windows tự mở trình duyệt, không nêu giao diện mở ở địa chỉ nào sau lệnh này; nếu không thấy, hãy xem thông báo trong terminal.",
+          "link_ref": null,
+          "title": "macOS, Linux (hoặc Windows) cài từ mã nguồn",
+          "why": "Cách cài chung cho mọi hệ điều hành. Bỏ qua bước này nếu bạn đã làm xong bước Windows."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Trên giao diện, nhìn sang thanh bên (sidebar).",
+            "Nhập địa chỉ API, khóa và tên mô hình của dịch vụ LLM bạn chọn: dịch vụ tương thích OpenAI Chat Completions nào cũng được.",
+            "README gợi ý OpenLux; địa chỉ API của nó ở liên kết dưới. Mã mô hình README nêu: `gpt-6-luna` (hợp giá), `gpt-6-sol` (chất lượng tốt hơn), `claude-opus-5-5` (chất lượng cao nhất)."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 5,
+          "title": "Nhập địa chỉ API, khóa và mô hình ở thanh bên",
+          "why": "Để VideoLingo gọi được mô hình ngôn ngữ làm bước dịch."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Nhận dạng giọng nói: mặc định chạy cục bộ bằng Qwen3-ASR cùng ForcedAligner. Bạn có thể chọn ElevenLabs hoặc MAI-Transcribe-2 ở thanh bên; âm thanh khi đó được gửi tới nhà cung cấp và có thể tính phí.",
+            "Lồng tiếng: README liệt kê OpenAI, Fish Audio, SiliconFlow, GPT-SoVITS, Edge TTS và F5-TTS."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Chọn cách nhận dạng giọng nói và lồng tiếng",
+          "why": "Quyết định giọng nói được nhận dạng và đọc lại bằng dịch vụ nào."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Thêm video cần xử lý vào giao diện (README nói có thể tải video YouTube).",
+            "Chạy các bước xử lý. Bạn có thể tạm dừng, tiếp tục hoặc dừng ở bất kỳ bước nào.",
+            "Mở kết quả: tệp phụ đề, và video có phụ đề hoặc lồng tiếng nếu bạn chọn. README nhắc thư mục `output/` khi nói về quy trình và log."
+          ],
+          "evidence": "docs",
+          "expect": "",
+          "if_fails": "README không mô tả từng nút trên màn hình; xem tài liệu bắt đầu nhanh trong thư mục docs của dự án.",
+          "link_ref": null,
+          "title": "Đưa video vào và chạy xử lý",
+          "why": "Chạy trọn quy trình: nhận dạng, cắt phụ đề, dịch và lồng tiếng."
+        },
+        {
+          "commands": [
+            "uv run start.py --api"
+          ],
+          "do": [
+            "Cấu hình file `config.yaml` rồi chạy lệnh dưới đây từ thư mục gốc dự án; lần đầu nó cài thêm thư viện còn thiếu.",
+            "Xem tài liệu tương tác của các điểm cuối ở địa chỉ bên dưới."
+          ],
+          "evidence": "api.py",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 4,
+          "title": "Cách khác: dùng HTTP API cho script hoặc agent",
+          "why": "Điều khiển VideoLingo bằng chương trình thay vì bấm trên giao diện."
+        },
+        {
+          "commands": [
+            "docker build -t videolingo .",
+            "docker run -d -p 8501:8501 --gpus all videolingo"
+          ],
+          "do": [
+            "Cài Docker, trình điều khiển GPU tương thích và NVIDIA Container Toolkit (liên kết bên dưới).",
+            "Chạy lệnh dựng image, rồi lệnh chạy container.",
+            "Lệnh chạy mở cổng 8501 ra máy bạn (`-p 8501:8501`); hãy mở trình duyệt vào cổng đó."
+          ],
+          "evidence": "Dockerfile",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 3,
+          "title": "Cách khác: chạy bằng Docker (Linux có GPU NVIDIA)",
+          "why": "Đóng gói VideoLingo vào container."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Xem `output/gpt_log/error.json`. Kết quả đã thành công được dùng lại khi chạy lại, nên đừng xóa toàn bộ thư mục output ngay từ đầu.",
+          "problem": "Một bước dùng LLM bị lỗi"
+        },
+        {
+          "evidence": "README",
+          "fix": "Tạp âm nền và mô hình căn chỉnh theo ngôn ngữ ảnh hưởng kết quả; README nói tách giọng nói có thể giúp. Số và ký hiệu có thể thiếu mốc thời gian đáng tin, hãy kiểm tra phụ đề.",
+          "problem": "Phụ đề nhận dạng sai hoặc lệch thời gian"
+        },
+        {
+          "evidence": "README",
+          "fix": "Chất lượng và thời lượng phụ thuộc bản dịch, dịch vụ TTS và tốc độ nói; README cho biết chỉnh tốc độ không đảm bảo tự nhiên hay khớp hoàn hảo.",
+          "problem": "Giọng lồng tiếng nghe không tự nhiên hoặc lệch khớp"
+        }
+      ],
+      "verify": "Bạn mở được giao diện VideoLingo và lấy được tệp phụ đề đã dịch cho video của mình. README nhắc hãy kiểm tra lại phụ đề, vì chất lượng phụ thuộc âm thanh gốc, ngôn ngữ và mô hình bạn chọn."
+    },
+    "hook": "Đưa một video vào, nhận phụ đề đã dịch và có thể cả bản lồng tiếng bằng ngôn ngữ khác",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Giao diện Streamlit",
+          "role": "Nơi nhập cấu hình, đưa video vào và điều khiển từng bước."
+        },
+        {
+          "evidence": "README",
+          "name": "Nhận dạng giọng nói",
+          "role": "Chép lời có mốc thời gian từng từ; mặc định chạy cục bộ."
+        },
+        {
+          "evidence": "README",
+          "name": "Mô hình dịch (LLM)",
+          "role": "Cắt, dịch và viết lại phụ đề qua API tương thích OpenAI."
+        },
+        {
+          "evidence": "README",
+          "name": "Lồng tiếng (TTS)",
+          "role": "Đọc bản dịch bằng GPT-SoVITS, OpenAI, Edge TTS và các dịch vụ khác."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Tải video qua yt-dlp nếu cần, rồi nhận dạng lời ở mức từng từ bằng Qwen3-ASR và ForcedAligner.",
+          "title": "Lấy video và nhận dạng giọng nói"
+        },
+        {
+          "evidence": "README",
+          "text": "Dùng xử lý ngôn ngữ và AI để chia phụ đề, với giới hạn độ dài chỉnh được.",
+          "title": "Cắt phụ đề"
+        },
+        {
+          "evidence": "README",
+          "text": "Dịch trực tiếp, tùy chọn phản tư và viết lại tự nhiên, dựa trên thuật ngữ tùy chỉnh và thuật ngữ do AI tạo.",
+          "title": "Dịch có thuật ngữ"
+        },
+        {
+          "evidence": "README",
+          "text": "Dịch vụ TTS đọc bản dịch, rồi xuất phụ đề và video có phụ đề hoặc lồng tiếng.",
+          "title": "Lồng tiếng và ghép"
+        }
+      ]
+    },
+    "learn": [
+      "Chia việc khó thành các chặng nối tiếp: nhận dạng, cắt, dịch, lồng tiếng",
+      "Kết hợp thuật ngữ do người dùng đặt với thuật ngữ do AI tạo để bản dịch nhất quán",
+      "Ghi log chi tiết và cho chạy tiếp từ chỗ dừng, dùng lại kết quả đã thành công",
+      "Để mỗi khâu (nhận dạng, dịch, lồng tiếng) thay được bằng nhà cung cấp khác"
+    ],
+    "one_liner": "Công cụ mã nguồn mở gom nhận dạng giọng nói, dịch phụ đề, cắt phụ đề và lồng tiếng trong một giao diện Streamlit, xuất tệp phụ đề và video có phụ đề hoặc lồng tiếng.",
+    "problem": "Muốn đưa một video sang ngôn ngữ khác, bạn phải chép lời, cắt phụ đề cho vừa màn hình, dịch cho nhất quán rồi thu lại giọng đọc. VideoLingo nối các bước đó thành một quy trình, có ghi log và chạy tiếp được từ chỗ dừng.",
+    "title": "Làm phụ đề và lồng tiếng cho video với VideoLingo",
+    "who_for": [
+      "Người làm nội dung muốn có phụ đề hoặc bản lồng tiếng cho video bằng ngôn ngữ khác",
+      "Người học hoặc dạy ngoại ngữ cần phụ đề hai ngôn ngữ"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 2100,
+    "full_name": "Huanshere/VideoLingo",
+    "language": "Python",
+    "license": "Apache-2.0",
+    "links": [
+      [
+        "github.com",
+        "https://github.com/user-attachments/assets/e065fe4c-3694-477f-b4d6-316917df7c0a"
+      ],
+      [
+        "latest Release",
+        "https://github.com/Huanshere/VideoLingo/releases/latest"
+      ],
+      [
+        "github.com",
+        "https://github.com/Huanshere/VideoLingo.git"
+      ],
+      [
+        "NVIDIA Container Toolkit",
+        "https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html"
+      ],
+      [
+        "localhost:8000/docs",
+        "http://localhost:8000/docs"
+      ],
+      [
+        "api.openlux.ai",
+        "https://api.openlux.ai/v1"
+      ],
+      [
+        "Try VL Now!",
+        "https://videolingo.io"
+      ],
+      [
+        "trendshift.io",
+        "https://trendshift.io/repositories/12200"
+      ],
+      [
+        "github.com",
+        "https://github.com/user-attachments/assets/a5c3d8d1-2b29-4ba9-b0d0-25896829d951"
+      ],
+      [
+        "github.com",
+        "https://github.com/user-attachments/assets/47d965b2-b4ab-4a0b-9d08-b49a7bf3508c"
+      ],
+      [
+        "Qwen3-ASR",
+        "https://github.com/Qwen/Qwen3-ASR"
+      ],
+      [
+        "MLX Audio",
+        "https://github.com/Blaizzy/mlx-audio"
+      ],
+      [
+        "whisperX",
+        "https://github.com/m-bain/whisperX"
+      ],
+      [
+        "yt-dlp",
+        "https://github.com/yt-dlp/yt-dlp"
+      ],
+      [
+        "jsonrepair",
+        "https://github.com/mangiucugna/json_repair"
+      ],
+      [
+        "BELLE",
+        "https://github.com/LianjiaTech/BELLE"
+      ],
+      [
+        "Issues",
+        "https://github.com/Huanshere/VideoLingo/issues"
+      ],
+      [
+        "Pull Requests",
+        "https://github.com/Huanshere/VideoLingo/pulls"
+      ],
+      [
+        "@Huanshere",
+        "https://twitter.com/Huanshere"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "stars": 18800,
+    "url": "https://github.com/Huanshere/VideoLingo"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 01f8434 of a shallow checkout, cut to 7756 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "position": 4
+}

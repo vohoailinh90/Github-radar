@@ -1,0 +1,65 @@
+<!-- radar: Moda canvas 1200x1821; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Làm phụ đề và lồng tiếng cho video với VideoLingo</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Đưa một video vào, nhận phụ đề đã dịch và có thể cả bản lồng tiếng bằng ngôn ngữ khác</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Giao diện Streamlit</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nơi nhập cấu hình, đưa video vào và điều khiển từng bước.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhận dạng giọng nói</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chép lời có mốc thời gian từng từ; mặc định chạy cục bộ.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mô hình dịch (LLM)</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cắt, dịch và viết lại phụ đề qua API tương thích OpenAI.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lồng tiếng (TTS)</text>
+<text x="680" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đọc bản dịch bằng GPT-SoVITS, OpenAI, Edge TTS và các dịch vụ khác.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="777" x2="660" y2="777" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="175" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lấy video và nhận dạng giọng nói</text>
+<text x="154" y="1072" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tải video qua yt-dlp nếu cần, rồi nhận dạng lời ở mức từng từ bằng Qwen3-ASR và ForcedAligner.</text>
+<line x1="584" y1="1074.5" x2="616" y2="1074.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="175" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cắt phụ đề</text>
+<text x="714" y="1045" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dùng xử lý ngôn ngữ và AI để chia phụ đề, với giới hạn độ dài chỉnh được.</text>
+<rectangle x="60" y="1186" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1208" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1208" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Dịch có thuật ngữ</text>
+<text x="154" y="1244" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dịch trực tiếp, tùy chọn phản tư và viết lại tự nhiên, dựa trên thuật ngữ tùy chỉnh và thuật ngữ do AI tạo.</text>
+<line x1="584" y1="1260" x2="616" y2="1260" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1186" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1208" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1208" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lồng tiếng và ghép</text>
+<text x="714" y="1244" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dịch vụ TTS đọc bản dịch, rồi xuất phụ đề và video có phụ đề hoặc lồng tiếng.</text>
+<text x="60" y="1416" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1482" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1522.8" x2="97.6" y2="1530" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1530" x2="110" y2="1514.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1502" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chia việc khó thành các chặng nối tiếp: nhận dạng, cắt, dịch, lồng tiếng</text>
+<rectangle x="615" y="1482" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1522.8" x2="652.6" y2="1530" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1530" x2="665" y2="1514.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1502" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Kết hợp thuật ngữ do người dùng đặt với thuật ngữ do AI tạo để bản dịch nhất quán</text>
+<rectangle x="60" y="1606" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1646.8" x2="97.6" y2="1654" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1654" x2="110" y2="1638.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1626" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Ghi log chi tiết và cho chạy tiếp từ chỗ dừng, dùng lại kết quả đã thành công</text>
+<rectangle x="615" y="1606" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1646.8" x2="652.6" y2="1654" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1654" x2="665" y2="1638.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1626" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Để mỗi khâu (nhận dạng, dịch, lồng tiếng) thay được bằng nhà cung cấp khác</text>
+<text x="60" y="1758" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Huanshere/VideoLingo · Giấy phép: Apache-2.0 · 18.800 sao · Quét ngày 2026-10-16</text>
+</content>

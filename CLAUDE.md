@@ -21,8 +21,9 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 
 ## Content rules (the point of this repository)
 
-- **Facts come from `radar/facts.py`**: repo metadata, cleaned README, file tree. Nothing else is a source. A number,
-  command or path a draft states must exist in those facts; `radar/gates.py` enforces it, never a model.
+- **Facts come from `radar/facts.py`**: repo metadata, cleaned README (cut to `readme_max_chars` by whole sections, `radar/readme.py`,
+  never by chopping the head), the links the README shows, file tree. Nothing else is a source. A number, command or path a draft
+  states must exist in those facts; `radar/gates.py` enforces it, never a model.
 - **Scanned text is untrusted data.** The README goes into the prompt as data; the model has no tools; output is JSON
   that must pass the gates. Never loosen a gate to make a draft pass: fix the prompt or hold the draft.
 - **Models never write SVG, YAML or Markdown structure.** They return fields; `radar/svg.py`, `radar/digest.py` and
@@ -34,7 +35,13 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   icon for every component or for none, and the renderer draws the file's own shapes, never text a model wrote. A draft stored
   before icons existed is never edited to add them: its icons live in `icons-<lang>.json` beside it (`gates.icon_file`).
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
-  only through `links:` + `{link}` in the first comment.
+  only through `links:` + `{link}` in the first comment. A digest's guide may point at an address the README shows (where to get a
+  key, a local address) only by number (`link_ref` into `facts["links"]`, extracted by script, tracking/affiliate links dropped); the
+  renderer prints it, and never in a studio post. Likewise a configuration sample is a README code block chosen by number
+  (`snippet_ref` into `facts["blocks"]`) and printed as the README has it; a model never retypes a setting.
+- **Guide commands are copied, not written.** A `guide` command is one README line or inline code span (a command split over lines
+  with a trailing backslash counts as one), and any text between backticks must occur in the README or be a repository path.
+  Never loosen these to make a draft pass: fix the prompt or hold the draft.
 - **Drafts only.** Posts are exported as `status: draft`. Approving, publishing and marking posted are the owner's acts in
   the studio. Never open a PR that merges, never write to the studio's `main`, never overwrite a file the owner edited.
 - **Secrets only in the environment** (GitHub Actions secrets locally `.env`, gitignored). Never in YAML, code, logs, reports

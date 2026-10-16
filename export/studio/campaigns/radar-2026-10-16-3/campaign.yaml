@@ -1,0 +1,17 @@
+tool: github-radar
+langs:
+- vi
+platforms:
+- facebook
+goal: 'Share what 5 popular free GitHub projects teach, scanned on 2026-10-16-3: one clear explanation
+  per project, so readers learn the idea and save the post.'
+links:
+  01-moneyprinterturbo: https://github.com/harry0703/MoneyPrinterTurbo
+  02-wan2-2: https://github.com/Wan-Video/Wan2.2
+  03-vimax: https://github.com/HKUDS/ViMax
+  04-videolingo: https://github.com/Huanshere/VideoLingo
+  05-pyvideotrans: https://github.com/jianchang512/pyvideotrans
+utm:
+  medium: social
+  campaign: radar-2026-10-16-3
+schedule: []
