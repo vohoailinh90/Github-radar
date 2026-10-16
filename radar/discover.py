@@ -160,7 +160,8 @@ def pick(ranked: list[dict], cfg: dict, today: dt.date) -> list[dict]:
     slots = min(int(rise["slots"]), total // 2) if rise["enabled"] else 0
     plain = _rotate(ranked, order, total)
     names = {c["full_name"] for c in plain}
-    extra = _rotate([c for c in ranked if c.get("rising") and c["full_name"] not in names], order, slots)
+    # copies, flagged `slot`: "rising" only says a repository is young, `slot` says which picks really used a reserved slot
+    extra = [dict(c, slot=True) for c in _rotate([c for c in ranked if c.get("rising") and c["full_name"] not in names], order, slots)]
     # weakest first; of two equal scores the later pick goes, since the rotation took it after the other
     weakest = sorted(range(len(plain)), key=lambda i: (plain[i]["score"], -i))[:len(extra)]
     return extra + [c for i, c in enumerate(plain) if i not in weakest]

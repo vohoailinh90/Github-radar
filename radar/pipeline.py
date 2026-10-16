@@ -63,7 +63,7 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
     picked = {c["full_name"] for c in picks}
     report = {"date": date, "dry_run": dry_run, "langs": cfg["langs"], "candidates": len(ranked), "dropped": dropped,
               "picks": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"], "stars": c["repo"]["stargazers_count"],
-                         "rising": c["rising"], "stars_per_30d": round(c["velocity"]["per_30d"]),
+                         "rising": c["rising"], "slot": bool(c.get("slot")), "stars_per_30d": round(c["velocity"]["per_30d"]),
                          "velocity": c["velocity"]["source"], "flags": c["flags"]} for c in picks],
               # What came next, so the owner can see how close it was and tune radar.yaml without guessing.
               "shortlist": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"], "stars": c["repo"]["stargazers_count"],

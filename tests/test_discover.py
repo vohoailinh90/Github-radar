@@ -133,6 +133,9 @@ def test_pick_reserves_a_slot_for_a_rising_repository_that_stars_alone_would_nev
     ranked = sorted(top + [rising], key=lambda c: -c["score"])
     names = [c["full_name"] for c in discover.pick(ranked, {**CFG, "picks_per_run": 3}, TODAY)]
     assert names[0] == "o/new" and len(names) == 3 and len(set(names)) == 3
+    picked = discover.pick(ranked, {**CFG, "picks_per_run": 3}, TODAY)
+    assert [c["full_name"] for c in picked if c.get("slot")] == ["o/new"]                 # only the pick that used the slot carries the flag
+    assert not [c for c in ranked if c.get("slot")]                                       # the ranked candidates themselves are not marked
     assert "o/new" not in [c["full_name"] for c in discover.pick(ranked, {**CFG, "picks_per_run": 1}, TODAY)]   # 1 pick: no slot
     off = {**CFG, "picks_per_run": 3, "rising": {**CFG["rising"], "slots": 0}}
     assert "o/new" not in [c["full_name"] for c in discover.pick(ranked, off, TODAY)]

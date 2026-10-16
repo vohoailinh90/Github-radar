@@ -261,6 +261,8 @@ def test_a_young_climbing_repository_gets_the_rising_slot(tmp_path, monkeypatch)
         srv.close()
     rising = [p for p in report["picks"] if p["rising"]]
     assert [p["repo"] for p in rising] == ["example-org/sample-new-agent"] and len(report["picks"]) == 3
+    assert [p["repo"] for p in report["picks"] if p["slot"]] == ["example-org/sample-new-agent"]        # "rising" = young, "slot" = used a slot
+    assert not any(p["slot"] for p in off["picks"])
     assert "example-org/sample-new-agent" not in [p["repo"] for p in off["picks"]]
 
 
