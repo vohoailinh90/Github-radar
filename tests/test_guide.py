@@ -303,3 +303,39 @@ def test_a_stored_link_with_an_unparsable_host_is_never_printed_and_never_raises
     d = mutate(lambda d: d["guide"]["steps"][2].update(link_ref=0), facts=hostile)
     _, md = render(tmp_path, d, facts=hostile)
     assert "[HOST]" not in md
+
+
+CONSOLE_README = README + "\n```console\n> npm install x\nPS C:\\> pip install y\n$ make\n```\n"
+CONSOLE_FACTS = {**FACTS, "readme": CONSOLE_README, "links": readme.links(CONSOLE_README), "blocks": readme.blocks(CONSOLE_README)}
+
+
+def test_a_command_copied_with_its_prompt_is_shown_without_it_and_both_forms_pass_the_gate(tmp_path):
+    for commands in (["> npm install x", "PS C:\\> pip install y", "$ make"], ["npm install x", "pip install y", "make"]):
+        d = make_draft(CONSOLE_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=commands, evidence="README")
+        assert not any("commands" in e for e in errs(d, CONSOLE_FACTS)), commands
+        md = render(tmp_path / str(len(commands[0])), d, facts=CONSOLE_FACTS)[1]
+        assert "```bash\nnpm install x\npip install y\nmake\n```" in md and "> npm install" not in md and "PS C:" not in md
+
+
+def test_the_commands_of_a_readme_with_a_prompt_count_as_coverage():
+    d = make_draft(CONSOLE_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["npm install x"])
+    assert gates.command_coverage(d, CONSOLE_FACTS)[1] == 7               # the four of the fixture plus the three prompted lines
+
+
+def test_model_prose_in_the_tables_of_the_guide_is_shown_literally(tmp_path):
+    d = mutate(lambda d: (d["guide"]["troubleshooting"][0].update(problem="Thiếu <MODEL> và *đậm* | cột", fix="Mở <details> và xem *chữ*"),
+                          d["how_it_works"]["components"][0].update(name="Tên *x*", role="Vai <b>trò</b>")))
+    _, md = render(tmp_path, d)
+    row = next(line for line in md.splitlines() if "MODEL" in line)
+    assert row.startswith("| Thiếu &lt;MODEL> và \\*đậm\\* \\| cột | Mở &lt;details> và xem \\*chữ\\* |")
+    part = next(line for line in md.splitlines() if "Vai" in line)
+    assert part.startswith("| **Tên \\*x\\*** | Vai &lt;b>trò&lt;/b> |")
+    assert "<b>" not in md and "<details>" not in md
+
+
+def test_the_image_alt_text_of_a_guide_cannot_close_the_image_or_open_markup(tmp_path):
+    d = mutate(lambda d: d.update(title="Tên ] lạ <i>x</i> *y*"))
+    first = render(tmp_path, d)[1].splitlines()[2]
+    assert first == "![Tên  lạ ix/i y](card-vi.svg)"

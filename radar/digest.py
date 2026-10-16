@@ -64,7 +64,18 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 
 def _command(text) -> str:
-    return re.sub(r"\s+", " ", str(text)).lstrip("$ ").strip()
+    """One line to type: whitespace collapsed and a shell prompt (`$ `, `> `, `PS C:\\>`) dropped, as readme.setup_commands recognises them."""
+    return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip()).strip()
+
+
+def _gcell(text) -> str:
+    """A table cell holding model prose: `_g` (literal `*` and `<`), then the pipes and newlines a cell cannot hold."""
+    return _cell(_g(text))
+
+
+def _alt(text) -> str:
+    """Image alt text without anything that could close the `![...]` or open markup."""
+    return re.sub(r"[\[\]<>*_`]", "", _cell(text))
 
 
 def _evidence(value, t: dict) -> str:
@@ -74,7 +85,7 @@ def _evidence(value, t: dict) -> str:
 def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     """The how-to document: outcome, what to prepare, a route, then every step with its commands and what to expect."""
     g, hiw = draft["guide"], draft["how_it_works"]
-    md = [f"# {_g(draft['title'])}", "", f"![{_cell(draft['title'])}](card-{lang}.svg)", "",
+    md = [f"# {_g(draft['title'])}", "", f"![{_alt(draft['title'])}](card-{lang}.svg)", "",
           f"> {_g(draft['hook'])}", "", f"**{_g(draft['one_liner'])}**", "",
           f"## 🎯 {t['outcome']}", "", _g(g["outcome"]), "",
           f"## {t['problem']}", "", _g(draft["problem"]), "", f"> 💡 **{t['analogy']}:** {_g(draft['analogy'])}", "",
@@ -106,7 +117,7 @@ def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     md += [f"## ✔️ {t['verify']}", "", _g(g["verify"]), ""]
     if g.get("troubleshooting"):
         md += [f"## 🩹 {t['trouble']}", "", f"| {t['problem_col']} | {t['fix_col']} | {t['evidence']} |", "|---|---|---|"]
-        md += [f"| {_cell(x['problem'])} | {_cell(x['fix'])} | `{_cell(x['evidence'])}` |" for x in g["troubleshooting"]]
+        md += [f"| {_gcell(x['problem'])} | {_gcell(x['fix'])} | `{_cell(x['evidence'])}` |" for x in g["troubleshooting"]]
         md.append("")
     if g.get("next"):
         md += [f"## 🚀 {t['next']}", ""] + [f"- {_g(x)}" for x in g["next"]] + [""]
@@ -114,7 +125,7 @@ def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     for i, step in enumerate(hiw["steps"], 1):
         md.append(f"{i}. **{_g(step['title'])}**: {_g(step['text'])} _({t['evidence']}: `{_cell(step['evidence'])}`)_")
     md += ["", f"### {t['parts']}", "", f"| | {t['parts']} | {t['evidence']} |", "|---|---|---|"]
-    md += [f"| **{_cell(c['name'])}** | {_cell(c['role'])} | `{_cell(c['evidence'])}` |" for c in hiw["components"]]
+    md += [f"| **{_gcell(c['name'])}** | {_gcell(c['role'])} | `{_cell(c['evidence'])}` |" for c in hiw["components"]]
     md += ["", f"## {t['learn']}", ""] + [f"- {_g(x)}" for x in draft["learn"]]
     if draft["glossary"]:
         md += ["", f"## {t['glossary']}", ""] + [f"- **{_g(x['term'])}**: {_g(x['meaning'])}" for x in draft["glossary"]]
@@ -143,7 +154,7 @@ def concept_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     md += ["", f"## {t['who']}", ""] + [f"- {_md(x)}" for x in draft["who_for"]]
     md += ["", f"## {t['try']}", ""]
     cmds = draft["try_it"]["commands"]
-    md += (["```bash"] + [re.sub(r"\s+", " ", str(c)).lstrip("$ ").strip() for c in cmds] + ["```"]) if cmds else [t["no_cmd"]]
+    md += (["```bash"] + [_command(c) for c in cmds] + ["```"]) if cmds else [t["no_cmd"]]
     if draft["try_it"].get("note"):
         md += ["", _md(draft["try_it"]["note"])]
     md += ["", f"## {t['caveats']}", ""] + [f"- {_md(x)}" for x in draft["caveats"]]

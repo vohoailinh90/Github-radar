@@ -291,7 +291,8 @@ def _flat(text: str) -> str:
 
 
 def _norm_cmd(text: str) -> str:
-    return re.sub(r"^(?:[$>]\s+)", "", re.sub(r"\s+", " ", str(text)).strip())
+    """A command or README line in one comparable form: whitespace collapsed, a shell prompt (`$ `, `> `, `PS C:\\>`) dropped."""
+    return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip())
 
 
 def readme_commands(readme: str) -> set[str]:
