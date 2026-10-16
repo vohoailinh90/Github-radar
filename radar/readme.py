@@ -570,10 +570,10 @@ def strip_trailing_comment(line: str) -> str:
 
 
 def _shell_state(text: str) -> tuple[str, int, bool, int]:
-    """(the quote or backquote still open at the end, the parentheses still open, whether a `# comment` starts in the last line, where the
+    """(the quote or backquote still open at the end, the parentheses and `${ ... }` expansions still open, whether a `# comment` starts in the last line, where the
     code ends: at that comment or at the end of the text) for a POSIX shell command line, or the lines of a group joined by line breaks. A
     comment runs to the end of its line and opens and closes nothing; what stands before it counts."""
-    quote, depth, backquote, i, comment = "", 0, False, 0, -1
+    quote, depth, backquote, i, comment, expansions = "", 0, False, 0, -1, 0
     while i < len(text):
         ch = text[i]
         if quote:
@@ -599,6 +599,10 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
             comment = i
             i = text.find("\n", i) if "\n" in text[i:] else len(text)          # the rest of the line is the comment's
             continue
+        elif ch == "$" and text[i + 1:i + 2] == "{":
+            depth, expansions, i = depth + 1, expansions + 1, i + 1          # `${value:-` over `default}`: the expansion ends at its closing brace
+        elif ch == "}" and expansions:
+            depth, expansions = max(0, depth - 1), expansions - 1
         elif ch == "(":
             depth += 1
         elif ch == ")":
@@ -652,8 +656,10 @@ def _is_powershell(lang: str, command: str) -> bool:
     return lang in POWERSHELL_LANGS or bool(POWERSHELL_PROMPT.match(command))
 
 
-PS_WORD_OPERATORS = ("and", "or", "xor", "eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match", "notmatch", "contains", "notcontains",
-                     "in", "notin", "is", "isnot", "as", "join", "split", "replace", "band", "bor", "bxor", "shl", "shr")      # `-f` is also the abbreviation of `-Force`: not here
+PS_WORD_OPERATORS = ("and", "or", "xor", "is", "isnot", "as", "join", "band", "bor", "bxor", "shl", "shr")
+PS_COMPARISONS = ("eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match", "notmatch", "contains", "notcontains", "in", "notin", "replace", "split")
+PS_OPERATOR_END = re.compile(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + "|[ci]?(?:" + "|".join(PS_COMPARISONS) + "))$", re.I)       # `-ceq`, `-ireplace`: case-qualified
+PS_FORMAT_END = re.compile(r"\s-f$", re.I)                                  # `-f` is also the abbreviation of `-Force`: only in a statement that is an expression
 PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
 PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+[-*/%]$")     # `$x = 4 -`: an operand and then a binary operator
 
@@ -663,8 +669,8 @@ def _ps_continues(code: str, last: str) -> bool:
     comma, an operator (`+`, `=`, a pipeline chain's `&&` and `||`, `-and`, `-eq`, `-join` ...), or `-`, `*`, `/`, `%` after an operand in
     a statement that is an expression (`$x = 4 -`). A wildcard or a path ends a command (`Get-ChildItem *`, `Copy-Item $src *`)."""
     code = code.rstrip()
-    return (last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(re.search(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + r")$", code, re.I))
-            or bool(PS_EXPRESSION.match(code) and PS_OPERAND_THEN_OPERATOR.search(code)))
+    return (last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(PS_OPERATOR_END.search(code))
+            or bool(PS_EXPRESSION.match(code) and (PS_OPERAND_THEN_OPERATOR.search(code) or PS_FORMAT_END.search(code))))
 
 
 def _ps_state(text: str):

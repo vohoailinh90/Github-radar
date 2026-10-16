@@ -1110,3 +1110,14 @@ def test_a_powershell_header_and_the_brace_of_its_block_on_the_next_line_are_one
     assert lines("```powershell\nGet-Process | foreach\nWrite-Host hi\nGet-Help function\n```\n") == ["Get-Process | foreach", "Write-Host hi", "Get-Help function"]
     assert lines("```powershell\ndo\n{\n  z\n}\nwhile ($i -lt 3)\nls\n```\n") == ["do { z } while ($i -lt 3)", "ls"]
     assert lines("```powershell\nWrite-Output \"Done; if needed, rerun\"\nWrite-Host 'a; else'\n```\n") == ['Write-Output "Done; if needed, rerun"', "Write-Host 'a; else'"]          # a string is no header
+
+
+def test_a_parameter_expansion_split_over_lines_is_one_group_and_every_powershell_binary_operator_goes_on():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert [(line, owner) for _, block, owners in readme._scan("```bash\necho ${value:-\ndefault}\nls\n```\n") for line, owner in zip(block, owners)] == [("echo ${value:-", None), ("default}", 0), ("ls", None)]
+    assert lines("```bash\necho ${a:-$(date +%Y\n)}\nls\n```\n") == ["echo ${a:-$(date +%Y", ")}", "ls"]          # a substitution inside an expansion
+    assert lines("```bash\necho \"${HOME}\" ${#arr[@]} ${x}\nls\n```\n") == ["echo \"${HOME}\" ${#arr[@]} ${x}", "ls"]          # complete on one line: nothing waits
+    assert lines("```bash\necho ${value:-\n```\n") == []                                      # an expansion that never closes is not a command
+    text = "```powershell\n$x = \"{0}\" -f\n  5\n$y = $a -ceq\n  $b\n$z = $a -ireplace\n  'x'\n$w = $a -clike\n  'b*'\nRemove-Item x -f\nls\n```\n"
+    assert lines(text) == ['$x = "{0}" -f 5', "$y = $a -ceq $b", "$z = $a -ireplace 'x'", "$w = $a -clike 'b*'", "Remove-Item x -f", "ls"]          # `-f` after a command is `-Force`
