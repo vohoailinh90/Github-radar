@@ -1,0 +1,55 @@
+<!-- radar: Moda canvas 1200x1615; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">FlowKit: Cầu nối tự động hoá tạo video AI từ Google Flow</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Làm sao gọi API của một dịch vụ web không có REST API mở và bắt buộc phải đăng nhập trên trình duyệt?</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Python Agent</text>
+<text x="80" y="577" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dịch vụ FastAPI và SQLite quản lý hàng đợi, xử lý hậu kỳ và điều phối dữ liệu qua WebSocket.</text>
+<rectangle x="460" y="517" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chrome Extension</text>
+<text x="480" y="577" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Service worker đóng vai trò cầu nối, lấy token reCAPTCHA và thực thi RPC trực tiếp trong ngữ cảnh trang.</text>
+<rectangle x="860" y="517" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Trình duyệt mở sẵn</text>
+<text x="880" y="604" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tab trình duyệt giữ phiên đăng nhập hợp lệ với cookie và token bảo mật cần thiết để ký RPC.</text>
+<line x1="340" y1="613.5" x2="460" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="613.5" x2="860" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="792" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="858" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="880" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="880" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tiếp nhận tác vụ</text>
+<text x="154" y="916" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Python agent tiếp nhận kịch bản, xử lý logic hàng đợi và gửi dữ liệu yêu cầu sang Chrome extension thông qua kết nối WebSocket nội bộ.</text>
+<line x1="584" y1="943" x2="616" y2="943" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="858" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="880" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="880" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Xác thực và ký RPC</text>
+<text x="714" y="916" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chrome extension hoạt động ngay trong tab dịch vụ, tự lấy token reCAPTCHA, gắn cookie phiên và gửi batchexecute RPC hợp lệ tới máy chủ.</text>
+<rectangle x="60" y="1052" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1074" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1074" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Sinh hình ảnh và clip</text>
+<text x="154" y="1110" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Google Flow tiếp nhận lệnh và tạo ảnh thực thể tham chiếu, ảnh cảnh quay cùng các đoạn video ngắn 8 giây thông qua mô hình Omni Flash.</text>
+<line x1="584" y1="1137" x2="616" y2="1137" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1052" width="520" height="170" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1074" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1074" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Hậu kỳ và đóng gói</text>
+<text x="714" y="1110" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Agent tải các clip hoàn thành, ghép nối theo mốc thời gian giọng đọc narration, tạo ảnh thumbnail và chuẩn bị dữ liệu xuất bản video hoàn chỉnh.</text>
+<text x="60" y="1304" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1370" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1410.8" x2="97.6" y2="1418" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1418" x2="110" y2="1402.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1390" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Kỹ thuật Browser Bridge: dùng extension để tương tác với web app bảo mật thay vì cố chạy headless</text>
+<rectangle x="430" y="1370" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1410.8" x2="467.6" y2="1418" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1418" x2="480" y2="1402.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1390" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đồng nhất nhân vật đa cảnh: tạo ảnh tham chiếu một lần để áp dụng xuyên suốt chuỗi khung hình</text>
+<rectangle x="800" y="1370" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1410.8" x2="837.6" y2="1418" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1418" x2="850" y2="1402.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1390" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Thiết kế pipeline phân tầng: tách biệt rõ ràng giữa điều phối tác vụ, giao tiếp mạng và hậu kỳ media</text>
+<text x="60" y="1552" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: crisng95/flowkit · Giấy phép: MIT · 981 sao · Quét ngày 2026-10-16</text>
+</content>

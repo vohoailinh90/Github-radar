@@ -1,0 +1,13 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Thư mục mã nguồn",
+      "icon": "code"
+    },
+    {
+      "name": "Thư mục tài liệu",
+      "icon": "book-open"
+    }
+  ]
+}

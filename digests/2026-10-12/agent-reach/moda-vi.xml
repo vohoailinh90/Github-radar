@@ -1,0 +1,63 @@
+<!-- radar: Moda canvas 1200x1789; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="146" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="146" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Phần mềm</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Agent Reach: Trang bị khả năng đọc Internet cho AI Agent</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">AI Agent biết viết code nhưng lại mù tịt khi cần tìm kiếm web? Agent Reach giúp kết nối đa nền tảng.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">agent-reach CLI</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bộ điều phối quản lý cài đặt, kiểm tra môi trường và định tuyến truy cập cho Agent.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Multi-backend Router</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Danh sách công cụ ưu tiên và dự phòng cho từng nền tảng như Jina Reader, yt-dlp, bili-cli.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Skill Config</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tập tin cấu hình hướng dẫn Agent nhận diện cú pháp gọi lệnh cho từng nền tảng được kích hoạt.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Doctor Diagnostic</text>
+<text x="680" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mô-đun kiểm tra trạng thái hoạt động và phát hiện lỗi kết nối của các kênh dữ liệu.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="300" y1="641" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="900" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Kiểm tra an toàn</text>
+<text x="154" y="1045" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lệnh cài đặt mặc định chỉ kiểm tra môi trường hệ thống như Node.js hay gh CLI, chỉ ghi file và cài gói khi có cờ ủy quyền cụ thể.</text>
+<line x1="584" y1="1072" x2="616" y2="1072" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Định tuyến backend</text>
+<text x="714" y="1045" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mỗi nền tảng được cấu hình danh sách công cụ ưu tiên kèm dự phòng; hệ thống tự đổi đường dẫn nếu công cụ chính bị nền tảng chặn.</text>
+<rectangle x="60" y="1181" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1203" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1203" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Đăng ký kỹ năng</text>
+<text x="154" y="1239" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghi thông tin hướng dẫn vào tập tin kỹ năng để AI Agent tự gọi trực tiếp các công cụ dòng lệnh mà không cần qua tầng bọc trung gian.</text>
+<line x1="584" y1="1266" x2="616" y2="1266" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1181" width="520" height="170" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1203" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1203" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chẩn đoán đường truyền</text>
+<text x="714" y="1239" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lệnh doctor kiểm tra toàn diện tình trạng kết nối của từng nền tảng và chỉ rõ kênh nào thông, kênh nào cần cấu hình thêm.</text>
+<text x="60" y="1433" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1499" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1539.8" x2="97.6" y2="1547" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1547" x2="110" y2="1531.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1519" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mô hình Capability Layer: Đóng vai trò chọn lọc, định tuyến và kiểm tra thay vì tự viết lại toàn bộ công cụ cào web từ đầu.</text>
+<rectangle x="430" y="1499" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1539.8" x2="467.6" y2="1547" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1547" x2="480" y2="1531.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1519" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cơ chế Fallback nhiều tầng: Chuẩn bị sẵn backend thay thế giúp hệ thống tiếp tục chạy khi một công cụ bị nền tảng chặn.</text>
+<rectangle x="800" y="1499" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1539.8" x2="837.6" y2="1547" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1547" x2="850" y2="1531.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1519" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Bảo mật quyền hạn tối thiểu: Mặc định kiểm tra môi trường không can thiệp file, chỉ thay đổi hệ thống khi có xác nhận rõ ràng.</text>
+<text x="60" y="1726" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Panniantong/Agent-Reach · Giấy phép: MIT · 96.575 sao · Quét ngày 2026-10-12</text>
+</content>

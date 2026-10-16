@@ -1,0 +1,57 @@
+<!-- radar: Moda canvas 1200x1661; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Playwright: Tự động hóa và kiểm thử web đa trình duyệt</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Làm sao để test một website trên Chrome, Firefox và Safari mà chỉ cần viết kịch bản duy nhất một lần?</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="166" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Playwright Test</text>
+<text x="80" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Trình chạy kiểm thử đầu-cuối hỗ trợ chạy song song, tự động chờ và assertions hướng web.</text>
+<rectangle x="460" y="545" width="280" height="166" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Playwright Core</text>
+<text x="480" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hạt nhân điều khiển trực tiếp các engine trình duyệt Chromium, Firefox và WebKit.</text>
+<rectangle x="860" y="545" width="280" height="166" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Trace Viewer</text>
+<text x="880" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Công cụ giao diện giúp xem lại từng bước thực thi, ảnh chụp DOM và lưu lượng mạng khi kiểm thử.</text>
+<line x1="340" y1="628" x2="460" y2="628" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="793" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="859" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="881" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="881" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Định vị và tự động chờ</text>
+<text x="154" y="917" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Playwright sử dụng các bộ định vị (locators) mô phỏng góc nhìn người dùng và tự động chờ phần tử sẵn sàng hành động mà không cần hẹn giờ thủ công.</text>
+<line x1="584" y1="944" x2="616" y2="944" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="859" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="881" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="881" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cô lập ngữ cảnh kiểm thử</text>
+<text x="714" y="917" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mỗi kịch bản kiểm thử chạy trong một Browser Context riêng biệt tương tự profile trình duyệt mới, giúp cô lập dữ liệu với chi phí tối thiểu.</text>
+<rectangle x="60" y="1053" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1075" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1075" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chạy song song và ghi lại trace</text>
+<text x="154" y="1111" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các bài kiểm thử mặc định chạy song song ở chế độ headless trên các trình duyệt, đồng thời có thể thu thập trace, ảnh chụp và video để điều tra khi gặp sự cố.</text>
+<line x1="584" y1="1138" x2="616" y2="1138" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1053" width="520" height="170" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1075" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1075" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Kết nối tác vụ AI</text>
+<text x="714" y="1111" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cung cấp máy chủ MCP và giao diện dòng lệnh CLI để các AI agent tương tác với web thông qua cây trợ năng mà không cần phân tích hình ảnh.</text>
+<text x="60" y="1305" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1371" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1411.8" x2="97.6" y2="1419" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1419" x2="110" y2="1403.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1391" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cơ chế auto-wait và web-first assertions giúp loại bỏ hoàn toàn các khoảng thời gian chờ cứng, giảm thiểu flaky test.</text>
+<rectangle x="430" y="1371" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1411.8" x2="467.6" y2="1419" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1419" x2="480" y2="1403.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1391" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tạo Browser Context mới nhẹ hơn nhiều so với mở cả tiến trình trình duyệt mới, giúp cách ly dữ liệu kiểm thử hiệu quả.</text>
+<rectangle x="800" y="1371" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1411.8" x2="837.6" y2="1419" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1419" x2="850" y2="1403.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1391" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Dùng cây trợ năng (accessibility tree) để AI tương tác phần tử web chính xác và tiết kiệm token hơn so với nhận diện hình ảnh.</text>
+<text x="60" y="1598" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: microsoft/playwright · Giấy phép: Apache-2.0 · 97.646 sao · Quét ngày 2026-10-13</text>
+</content>
