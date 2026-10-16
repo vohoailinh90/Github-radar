@@ -13,6 +13,7 @@ vendor = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(vendor)
 
 LOCK = json.loads((config.ROOT / vendor.LOCK).read_text(encoding="utf-8"))
+posix_only = pytest.mark.skipif(not vendor.POSIX, reason="the executable bit exists only in POSIX file modes")
 
 
 @pytest.fixture
@@ -46,9 +47,20 @@ def test_a_stray_file_next_to_the_skill_is_reported(copy):
                                      "not in the lock: .claude/skills/impeccable/notes.md"]
 
 
+@posix_only
 def test_the_launcher_must_stay_executable(copy):
     (copy / ".claude" / "skills" / "impeccable" / "scripts" / "impeccable").chmod(0o644)
     assert vendor.problems(copy) == ["not executable .claude/skills/impeccable/scripts/impeccable"]
+
+
+def test_where_there_is_no_executable_bit_it_is_not_checked_and_snapshot_refuses(copy, monkeypatch):
+    """A Windows checkout reports no executable bit for the (extension-less) launcher: that is not drift."""
+    monkeypatch.setattr(vendor, "POSIX", False)
+    (copy / ".claude" / "skills" / "impeccable" / "scripts" / "impeccable").chmod(0o644)
+    assert vendor.problems(copy) == []
+    with pytest.raises(SystemExit, match="Linux, macOS or WSL"):
+        vendor.snapshot(copy / "nowhere", copy)
+    assert vendor.problems(copy) == []
 
 
 def test_a_missing_lock_is_reported(tmp_path):
@@ -97,6 +109,7 @@ def upstream(tmp_path):
     return up
 
 
+@posix_only
 def test_snapshot_vendors_a_checkout_and_drops_what_upstream_removed(tmp_path, upstream):
     root = tmp_path / "root"
     (root / ".claude" / "agents").mkdir(parents=True)
@@ -113,6 +126,7 @@ def test_snapshot_vendors_a_checkout_and_drops_what_upstream_removed(tmp_path, u
     assert (root / ".claude" / "agents" / "architect.md").read_text(encoding="utf-8") == "routing roster"
 
 
+@posix_only
 def test_snapshot_changes_nothing_when_upstream_is_not_what_it_expects(tmp_path, upstream):
     root = tmp_path / "root"
     vendor.snapshot(upstream, root)
@@ -125,6 +139,7 @@ def test_snapshot_changes_nothing_when_upstream_is_not_what_it_expects(tmp_path,
     assert vendor.problems(root) == []
 
 
+@posix_only
 def test_snapshot_refuses_a_dirty_checkout(tmp_path, upstream):
     (upstream / "LICENSE").write_text("edited", encoding="utf-8")
     with pytest.raises(SystemExit, match="uncommitted"):

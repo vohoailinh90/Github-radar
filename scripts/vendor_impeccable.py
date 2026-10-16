@@ -27,6 +27,8 @@ AGENTS = Path(".claude") / "agents"
 THIRD_PARTY = Path("docs") / "third-party" / "impeccable"
 UPSTREAM = "https://github.com/pbakaus/impeccable"
 LICENSE_ID = "Apache-2.0"
+# Only POSIX file modes carry an executable bit; Windows reports none for scripts/impeccable (it runs impeccable.cmd there).
+POSIX = os.name == "posix"
 
 
 def vendored_files(root: Path) -> list[str]:
@@ -58,7 +60,7 @@ def problems(root: Path = HERE) -> list[str]:
     for p in sorted(set(here) & set(locked)):
         if sha256(root / p) != locked[p]:
             out.append(f"changed {p}")
-    for p in lock["executable"]:
+    for p in lock["executable"] if POSIX else []:
         if (root / p).is_file() and not is_executable(root / p):
             out.append(f"not executable {p}")
     return out
@@ -72,6 +74,8 @@ def skill_version(skill: Path) -> str:
 
 
 def snapshot(upstream: Path, root: Path = HERE) -> None:
+    if not POSIX:
+        raise SystemExit("snapshot: run it on Linux, macOS or WSL; this platform cannot record the launcher's executable bit")
     git = ["git", "-C", str(upstream)]
     if subprocess.run(git + ["status", "--porcelain"], capture_output=True, text=True, check=True).stdout.strip():
         raise SystemExit("snapshot: the checkout has uncommitted changes, so no commit describes it")

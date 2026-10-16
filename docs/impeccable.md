@@ -48,4 +48,4 @@ python3 -m pytest -q
 git diff --stat                                                # đọc phần thay đổi trước khi commit
 ```
 
-`snapshot` từ chối chạy nếu bản clone có thay đổi chưa commit, để commit ghi trong lock mô tả đúng nội dung.
+`snapshot` từ chối chạy nếu bản clone có thay đổi chưa commit, để commit ghi trong lock mô tả đúng nội dung. Nó cũng chỉ chạy trên Linux, macOS hoặc WSL, vì Windows không có bit thực thi để ghi cho launcher; `check` bỏ qua riêng bit đó trên Windows (chưa thử trên Windows thật; nếu checkout đổi kết thúc dòng thì băm sha256 cũng sẽ lệch).
