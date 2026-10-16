@@ -213,3 +213,9 @@ def test_lines_that_only_look_like_a_setext_underline_are_not_headings():
     text = ("# Title\n\nPara\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- item\n---\n\nText\n\n---\n\n```\nTitle\n=====\n```\n\n"
             "> quote\n---\n\n---\nfront\n")
     assert [s.title for s in readme.split_sections(text)] == ["Title"]
+
+
+def test_a_redirection_at_the_start_of_a_line_of_a_shell_block_is_kept_but_a_prompt_is_dropped():
+    text = "```bash\n> output.log\n$ make\nPS C:\\> dir\n```\n\n```console\n> make test\n```\n"
+    assert readme.setup_commands(text) == ["> output.log", "make", "dir", "make test"]
+    assert readme.prose_lines("a\n```\nb\n```\nc\n") == ["a", "c"]

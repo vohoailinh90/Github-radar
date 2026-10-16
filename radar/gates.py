@@ -303,22 +303,27 @@ def _norm_cmd(text: str) -> str:
 
 
 def _command_variants(readme: str):
-    """Every text of the README a reader could copy as a command, as the README has it: whole lines, a line without its trailing
-    `# comment`, inline code spans, and a command written over several lines joined into one."""
-    for line in readme.splitlines():
-        yield line
-        yield re.split(r"\s+#\s", line)[0]
-        yield from (m.group(1) for m in re.finditer(r"`([^`\n]+)`", line))
-    yield from readmelib.code_lines(readme)
+    """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the logical lines
+    of its code blocks (a command written over several lines is ONE line; its pieces are not commands), and outside the blocks whole
+    lines and inline code spans. Each text also comes without a trailing `# comment`."""
+    for lang, lines in readmelib.code_blocks(readme):
+        for line in lines:
+            yield line, readmelib.prompt_for(lang)
+            yield re.split(r"\s+#\s", line)[0], readmelib.prompt_for(lang)
+    for line in readmelib.prose_lines(readme):
+        yield line, readmelib.SHELL_PROMPT
+        yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
+        yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
 
 
 def command_map(readme: str) -> dict[str, str]:
-    """{comparable form: the README's own text of it}: the prompt is dropped and the ends trimmed, the spaces inside are kept."""
+    """{comparable form: the README's own text of it}: a prompt is dropped where it is one (see readme.prompt_for) and the ends
+    trimmed; the spaces inside are kept. The first text found wins, and the code blocks come first."""
     out: dict[str, str] = {}
-    for text in _command_variants(readme):
+    for text, prompt in _command_variants(readme):
         key = _norm_cmd(text)
         if key:
-            out.setdefault(key, readmelib.PROMPT.sub("", text.strip()).strip())
+            out.setdefault(key, prompt.sub("", text.strip()).strip())
     return out
 
 
@@ -338,7 +343,7 @@ def canonicalize(draft: dict, facts: dict) -> dict:
     def fix(command):
         if not isinstance(command, str):
             return command
-        stripped = readmelib.PROMPT.sub("", command.strip()).strip()
+        stripped = readmelib.SHELL_PROMPT.sub("", command.strip()).strip()
         return stripped if stripped in exact else table.get(_norm_cmd(command), command)
 
     guide = out.get("guide")

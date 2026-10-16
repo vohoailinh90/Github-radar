@@ -64,9 +64,10 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 
 def _command(text) -> str:
-    """One line to type: only a leading shell prompt (`$ `, `> `, `PS C:\\>`, as readme.setup_commands recognises them) and the ends are
-    removed. What lies between is kept as it is: a quoted argument such as `'s/foo  bar/baz/'` depends on its spaces."""
-    return readmelib.PROMPT.sub("", str(text).strip()).strip()
+    """One line to type, as stored. A guide's commands are the README's own text (gates.canonicalize), so only the ends are trimmed
+    and a leading `$ ` or `PS C:\\>` that an older draft kept is dropped; a leading `> ` is a redirection in a shell block and stays.
+    What lies between is kept: a quoted argument such as `'s/foo  bar/baz/'` depends on its spaces."""
+    return readmelib.SHELL_PROMPT.sub("", str(text).strip()).strip()
 
 
 def _gcell(text) -> str:

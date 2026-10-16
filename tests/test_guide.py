@@ -362,7 +362,7 @@ def test_a_command_copied_with_its_prompt_is_shown_without_it_and_both_forms_pas
         d = make_draft(CONSOLE_FACTS, "vi")
         d["guide"]["steps"][0].update(commands=commands, evidence="README")
         assert not any("commands" in e for e in errs(d, CONSOLE_FACTS)), commands
-        md = render(tmp_path / str(len(commands[0])), d, facts=CONSOLE_FACTS)[1]
+        md = render(tmp_path / str(len(commands[0])), gates.canonicalize(d, CONSOLE_FACTS), facts=CONSOLE_FACTS)[1]      # as write_one stores it
         assert "```bash\nnpm install x\npip install y\nmake\n```" in md and "> npm install" not in md and "PS C:" not in md
 
 
@@ -426,3 +426,31 @@ def test_the_renderer_removes_only_the_prompt_and_the_ends_of_a_command(tmp_path
     d = make_draft(SED_FACTS, "vi")
     d["guide"]["steps"][0].update(commands=["$ sed 's/foo  bar/baz/' file   "], evidence="README")
     assert "```bash\nsed 's/foo  bar/baz/' file\n```" in render(tmp_path, d, facts=SED_FACTS)[1]
+
+
+REDIRECT_README = README + "\n```bash\n> output.log\n$ echo hi > out.txt\n```\n\n```console\n> npm install x\n```\n"
+REDIRECT_FACTS = {**FACTS, "readme": REDIRECT_README, "links": readme.links(REDIRECT_README), "blocks": readme.blocks(REDIRECT_README)}
+
+
+def test_a_leading_redirection_in_a_shell_block_is_a_command_not_a_prompt(tmp_path):
+    """`> output.log` in a bash block truncates a file; only a console transcript uses `> ` as a prompt."""
+    assert readme.setup_commands(REDIRECT_README)[-3:] == ["> output.log", "echo hi > out.txt", "npm install x"]
+    d = make_draft(REDIRECT_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["> output.log", "$ echo hi > out.txt", "> npm install x"], evidence="README")
+    assert not any("commands" in e for e in errs(d, REDIRECT_FACTS))
+    fixed = gates.canonicalize(d, REDIRECT_FACTS)["guide"]["steps"][0]["commands"]
+    assert fixed == ["> output.log", "echo hi > out.txt", "npm install x"]
+    d["guide"]["steps"][0]["commands"] = ["output.log"]                             # the prompt-less form of a redirection is the same key ...
+    assert gates.canonicalize(d, REDIRECT_FACTS)["guide"]["steps"][0]["commands"] == ["> output.log"]        # ... and is put right
+    md = render(tmp_path, gates.canonicalize(d, REDIRECT_FACTS), facts=REDIRECT_FACTS)[1]
+    assert "```bash\n> output.log\n```" in md
+
+
+def test_a_piece_of_a_command_the_readme_splits_over_lines_is_not_a_command():
+    text = README + "\n```bash\ntorchrun --nproc_per_node=8 generate.py \\\n  --task t2v-A14B \\\n  --size 1280\n```\n"
+    facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}
+    whole = "torchrun --nproc_per_node=8 generate.py --task t2v-A14B --size 1280"
+    for command, ok in ((whole, True), ("--size 1280", False), ("--task t2v-A14B --size 1280", False), ("torchrun --nproc_per_node=8 generate.py", False)):
+        d = make_draft(facts, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, facts))) is ok, command

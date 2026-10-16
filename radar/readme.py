@@ -273,7 +273,8 @@ def is_local(url: str) -> bool:
 
 SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
-PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*)")
+PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*)")             # a prompt in a transcript (`console`): `$ `, `> ` or `PS C:\\>`
+SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*)")          # a prompt in any other block: `> file` there is a redirection, a command
 
 
 def code_blocks(text: str) -> list[tuple[str, list[str]]]:
@@ -311,14 +312,32 @@ def code_lines(text: str) -> list[str]:
     return [line for _, lines in code_blocks(text) for line in lines]
 
 
+def prompt_for(lang: str):
+    """The prompt pattern that applies to a code block: all of them in a transcript, only the unambiguous ones elsewhere."""
+    return PROMPT if lang in CONSOLE_LANGS else SHELL_PROMPT
+
+
+def prose_lines(text: str) -> list[str]:
+    """The README's lines outside its fenced code blocks (the fence lines themselves are left out too)."""
+    out, fence = [], None
+    for line in text.splitlines():
+        m = FENCE.match(line)
+        if m:
+            fence = None if fence == m.group(1) else (fence or m.group(1))
+        elif fence is None:
+            out.append(line)
+    return out
+
+
 def setup_commands(text: str) -> list[str]:
     """What a person types, from the README's code blocks: every line of a block tagged as a shell; in a `console` transcript only
     the lines after a prompt (`$ `, `> `, `PS C:\\>`), because the rest is output; in any other block the lines that start with a
-    known program. Comments and the prompt are dropped."""
+    known program. A prompt is dropped where it is one: a leading `> ` in a `bash` block is a redirection and stays."""
     out = []
     for lang, lines in code_blocks(text):
+        rx = prompt_for(lang)
         for line in lines:
-            prompt = PROMPT.match(line)
+            prompt = rx.match(line)
             bare = line[prompt.end():] if prompt else line
             if not bare or bare.startswith(("#", "//", "REM ", "::")):
                 continue
