@@ -166,13 +166,15 @@ def test_a_stale_or_unknown_icon_file_stops_that_run_and_changes_nothing(tmp_pat
     assert snapshot(tmp_path) == before
 
 
-def test_a_file_that_is_not_json_is_reported_not_a_crash(tmp_path, servers):
+@pytest.mark.parametrize("content", ["{ not json", "", "\ufeff{}", "[" * 100000, "null"])
+def test_a_file_that_is_not_usable_json_is_reported_not_a_crash(tmp_path, servers, content):
     old_run(tmp_path)
     files = write_files(tmp_path)
-    files[0].write_text("{ not json", encoding="utf-8")
+    files[0].write_text(content, encoding="utf-8")
     before = snapshot(tmp_path)
     report = pipeline.rerender(cfg(langs=["vi", "en"]), tmp_path)
-    assert "icon file does not fit its draft" in report["skipped"]["2026-10-14"] and snapshot(tmp_path) == before
+    assert "icon file does not fit its draft" in report["skipped"]["2026-10-14"] and "not a JSON object" in report["skipped"]["2026-10-14"]
+    assert snapshot(tmp_path) == before
 
 
 def test_a_draft_that_names_its_own_icons_keeps_them_whatever_the_file_says(tmp_path, servers):

@@ -181,7 +181,7 @@ def icon_file(draft: dict, data) -> list[Problem]:
     model, so it gets the same refusal of an unknown name as a draft does, plus the check that it still belongs to its draft."""
     rows = data.get("components") if isinstance(data, dict) else None
     if not isinstance(rows, list):
-        return [Problem("error", "icons", "needs a `components` list of {name, icon}")]
+        return [Problem("error", "icons", "is not a JSON object with a `components` list of {name, icon}")]
     comps = (draft.get("how_it_works") or {}).get("components") or []
     if len(rows) != len(comps):
         return [Problem("error", "icons", f"{len(rows)} rows for {len(comps)} components")]
