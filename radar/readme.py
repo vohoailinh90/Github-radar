@@ -792,33 +792,40 @@ def _typed(lang: str, command: str) -> bool:
 
 COMPOUND_OPEN = {"if", "for", "while", "until", "case", "select"}      # a construct that goes on to its closing word, over several lines
 COMPOUND_CLOSE = {"fi", "done", "esac"}
-COMMAND_FOLLOWS = {"then", "do", "else", "elif", "if", "while", "until", "!", "{", "time"}      # the word after one of these begins a command
+COMMAND_FOLLOWS = {"then", "do", "else", "elif", "if", "while", "until", "!", "{", "time", "and", "or", "not"}      # the word after one of these begins a command
+FISH_OPEN = {"if", "for", "while", "function", "switch", "begin"}                                     # fish closes each of them with `end`
+FISH_CLOSE = {"end"}
 
 
-def _compound_depth(text: str) -> int:
+def _compound_depth(text: str, fish: bool = False) -> int:
     """How many compound commands of a POSIX shell are still open at the end of the text: `if`, `for`, `while`, `until`, `case` and `select`
-    until `fi`, `done` or `esac`, and a `{ ... }` group (also the body of `name() {`). A keyword counts where a command begins, outside quotes
-    and comments, so `echo if`, `"fi"` and `${x}` are not keywords."""
+    until `fi`, `done` or `esac`, and a `{ ... }` group (also the body of `name() {`); for fish `if`, `for`, `while`, `function`, `switch` and
+    `begin` until `end`. A keyword counts where a command begins, outside quotes and comments, so `echo if`, `"fi"` and `${x}` are not
+    keywords."""
+    opens, closes = (FISH_OPEN, FISH_CLOSE) if fish else (COMPOUND_OPEN, COMPOUND_CLOSE)
     text = SHELL_PROMPT.sub("", text.lstrip(), count=1)
     depth, word, quote, command_start, i = 0, "", "", True, 0
-    names, defining, name_before_paren, empty_parens = 0, False, False, False
+    names, defining, name_before_paren, empty_parens, previous = 0, False, False, False, ""
 
     def end_word() -> None:
-        nonlocal depth, word, command_start, names, defining, name_before_paren
+        nonlocal depth, word, command_start, names, defining, name_before_paren, previous
         if not word:
             return
-        if command_start and (word in COMPOUND_OPEN or word == "{") or defining and word == "{":
+        else_if = fish and word == "if" and previous == "else"          # fish: `else if` goes on the same block, it has no `end` of its own
+        previous = word
+        if command_start and (word in opens or (word == "{" and not fish)) and not else_if or defining and word == "{":
             depth += 1                                       # `function name {`, `name()` over `{`: the brace follows the head of the definition
             defining = False
-        elif command_start and (word in COMPOUND_CLOSE or word == "}"):
+        elif command_start and (word in closes or (word == "}" and not fish)):
             depth = max(0, depth - 1)
         elif defining and names:
             names -= 1                                       # the name after `function`
         else:
             defining = False
-        if command_start and word == "function":
+        if command_start and word == "function" and not fish:
             defining, names = True, 1
-        name_before_paren = command_start and bool(re.fullmatch(r"[A-Za-z_][\w:.-]*", word)) and word not in COMMAND_FOLLOWS | COMPOUND_OPEN
+        name_before_paren = (not fish and command_start and bool(re.fullmatch(r"[A-Za-z_][\w:.-]*", word))
+                             and word not in COMMAND_FOLLOWS | COMPOUND_OPEN)
         command_start = command_start and word in COMMAND_FOLLOWS
         word = ""
 
@@ -868,17 +875,41 @@ def _compound_depth(text: str) -> int:
     return depth + (1 if defining else 0)              # a definition whose body has not begun is open
 
 
+def _cmd_depth(text: str) -> int:
+    """How many parentheses of a batch (cmd) block are still open at the end of the text: `IF EXIST build (` over its commands and `)`. A
+    parenthesis in double quotes or after the escape `^`, and a `REM` or `::` line, does not count; a `)` with nothing open counts for nothing."""
+    depth = 0
+    for line in text.splitlines():
+        line = re.sub(CMD_PROMPT, "", line.lstrip(), count=1) if re.match(CMD_PROMPT, line.lstrip()) else line
+        if _is_comment(line):
+            continue
+        quote, i = False, 0
+        while i < len(line):
+            ch = line[i]
+            if ch == "^":
+                i += 2
+                continue
+            if ch == '"':
+                quote = not quote
+            elif not quote and ch == "(":
+                depth += 1
+            elif not quote and ch == ")":
+                depth = max(0, depth - 1)
+            i += 1
+    return depth
+
+
 def _construct_open(lang: str, text: str) -> bool:
     """True when a construct that goes on over several lines is still open at the end of the text: a string (a quote of a POSIX shell, a
     PowerShell string), a parenthesis (a subshell, a command substitution) or a compound command of a POSIX shell (`if [ -d build ]; then`
     until `fi`). A line break inside one of these separates statements, so the lines are not joined with a space."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, text):
-        return False
+        return _cmd_depth(text) > 0
     if _is_powershell(lang, text):
         state = _ps_state(text)
         return bool(state and state[3])
     quote, parens, _, _ = _shell_state(text)
-    return bool(quote) or parens > 0 or _compound_depth(text) > 0
+    return bool(quote) or parens > 0 or _compound_depth(text, lang == "fish") > 0
 
 
 def _open_group(lang: str, command: str, following: list[str]) -> int:
@@ -1007,12 +1038,12 @@ def _dangling(lang: str, command: str) -> bool:
     """True when a command line of a POSIX shell or PowerShell is left unfinished for good (`printf foo |`, a quote that never closes):
     the shell waits for more input, so it is not a command the README gives. Only what is typed counts: the output lines of a transcript and the
     lines of a block in another language (a sample with an apostrophe in it) are kept as they are."""
-    if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
-        return False
     typed = _typed(lang, command)
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
+        return typed and _cmd_depth(command) > 0
     if _is_powershell(lang, command):
         return typed and _ps_open(command) is True
-    return typed and (_incomplete(command) or _ends_in_redirection(command) or _compound_depth(command) > 0)
+    return typed and (_incomplete(command) or _ends_in_redirection(command) or _compound_depth(command, lang == "fish") > 0)
 
 
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
@@ -1175,7 +1206,7 @@ def heredoc_data(commands, shells=None) -> list[bool]:
     several lines or a compound command (`if ...; then` over its body and `fi`), that is its body, its closing word, the lines that finish
     it, so that it is printed as it is. `shells` says which shell the commands are for, to read a string with that shell's rules: a name
     ("powershell") for all of them, or {comparable form of a command: shell} as `shells()` gives it."""
-    flags, ends, text_so_far, ps = [], [], None, False
+    flags, ends, text_so_far, shell = [], [], None, ""
     for command in commands if isinstance(commands, (list, tuple)) else []:
         text = command if isinstance(command, str) else ""
         if ends:
@@ -1185,25 +1216,28 @@ def heredoc_data(commands, shells=None) -> list[bool]:
         elif text_so_far is not None:
             flags.append(True)
             text_so_far += "\n" + text
-            if not _list_construct_open(text_so_far, ps):
+            if not _list_construct_open(text_so_far, shell):
                 text_so_far = None
         else:
             flags.append(False)
             if text.strip():
                 ends = _heredoc_openers(text)
-                ps = (shells == "powershell") if isinstance(shells, str) else (shells or {}).get(norm_command(text)) == "powershell"
-                if not ends and _list_construct_open(text, ps):
+                shell = shells if isinstance(shells, str) else (shells or {}).get(norm_command(text), "")
+                if not ends and _list_construct_open(text, shell):
                     text_so_far = text
     return flags
 
 
-def _list_construct_open(text: str, powershell: bool) -> bool:
-    """`_construct_open` for the text of a command in a list, where the shell is told by the caller and not by a fence or a prompt."""
-    if powershell:
+def _list_construct_open(text: str, shell: str) -> bool:
+    """`_construct_open` for the text of a command in a list, where the shell ("powershell", "bat", "fish" or "" for a POSIX shell) is told by
+    the caller and not by a fence or a prompt."""
+    if shell == "bat":
+        return _cmd_depth(text) > 0
+    if shell == "powershell":
         state = _ps_state(text)
         return bool(state and state[3])
     quote, parens, _, _ = _shell_state(text)
-    return bool(quote) or parens > 0 or _compound_depth(text) > 0
+    return bool(quote) or parens > 0 or _compound_depth(text, shell == "fish") > 0
 
 
 def command_count(commands, shells=None) -> int:

@@ -1023,3 +1023,22 @@ def test_a_powershell_expression_that_ends_in_any_binary_operator_goes_on_but_a_
     assert lines(text) == ["$x = 4 - 2", "$y = 3 * 4", "$z = $y / 2", "$w = ($x + 1) % 2", "$a = 1 -as [string]", "$b = 5 -is [int]", "$c = 'a' -in @('a')"]
     keep = ("Get-ChildItem *", "Copy-Item $src *", "$files = Get-ChildItem C:\\tmp\\*", "Get-ChildItem C:\\tmp\\", "Remove-Item $p -f", "Get-Process | %x")
     assert lines("```powershell\n" + "\n".join(keep) + "\n```\n") == list(keep)                             # a wildcard, a path, `-f` end a command
+
+
+def test_fish_blocks_are_groups_up_to_their_end_and_batch_parenthesized_blocks_are_groups_up_to_their_closing_parenthesis():
+    c, d = readme._compound_depth, readme._cmd_depth
+    for text, depth in (("if test -d build", 1), ("if test -d build\n rm -rf build\nend", 0), ("for i in 1 2 3; echo $i; end", 0), ("function setup", 1),
+                        ("function setup\n echo a\nend", 0), ("switch $x\n case a\n echo a\nend", 0), ("begin; echo a; end", 0), ("echo end", 0),
+                        ("if a\n x\nelse if b\n y\nelse\n z\nend", 0), ("if a; if b; end", 1)):
+        assert c(text, True) == depth, text
+    assert c("if true; then", False) == 1 and c("end", False) == 0 and c("if test -d build", False) == 1             # POSIX rules for any other shell
+    for text, depth in (("IF EXIST build (", 1), ("IF EXIST build (\n del /q build\\*\n)", 0), ("echo (hello)", 0), ("echo Done :)", 0), ("if x (echo a) else (echo b)", 0),
+                        ("for %%f in (*.mp4) do (", 1), ("echo ^( open", 0), ('echo "( "', 0), ("rem (", 0), ("C:\\> IF a (", 1)):
+        assert d(text) == depth, text
+    fish = "```fish\nif test -d build\n  rm -rf build\nend\nls\n```\n"
+    assert readme.heredocs(fish) == ([["if test -d build", "  rm -rf build", "end"]], ["if test -d build", "ls"])
+    assert readme.heredocs("```fish\nif test -d build\n  rm -rf build\n```\n") == ([], ["  rm -rf build"])      # no `end`: the opener is never offered on its own
+    cmd = "```cmd\nIF EXIST build (\n  del /q build\\*\n)\nsetup.bat\n```\n"
+    assert readme.heredocs(cmd) == ([["IF EXIST build (", "  del /q build\\*", ")"]], ["IF EXIST build (", "setup.bat"])
+    assert readme.heredoc_data(["if test -d build", "rm -rf build", "end", "ls"], {"if test -d build": "fish"}) == [False, True, True, False]
+    assert readme.heredoc_data(["IF EXIST build (", "del x", ")", "ls"], "bat") == [False, True, True, False]
