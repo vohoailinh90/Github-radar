@@ -311,14 +311,14 @@ def _block_variants(readme: str):
             if lang in readmelib.CONSOLE_LANGS and not prompt.match(line):       # a transcript: the lines without a prompt are output
                 continue
             yield line, prompt
-            yield re.split(r"\s+#\s", line)[0], prompt
+            yield readmelib.strip_trailing_comment(line), prompt
 
 
 def _prose_variants(readme: str):
     """(text, prompt pattern) for the lines of the README outside its code blocks and the code spans in them."""
     for line in (l.strip() for l in readmelib.prose_lines(readme)):
         yield line, readmelib.SHELL_PROMPT
-        yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
+        yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
         yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
 
 

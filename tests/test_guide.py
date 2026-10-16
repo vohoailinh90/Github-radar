@@ -624,6 +624,18 @@ def test_a_command_after_a_conventional_transcript_prompt_is_a_command_and_the_o
     assert {"pip install prompt-tool", "winget install prompt-tool"} <= set(readme.setup_commands(PROMPT_README))
 
 
+QUOTE_README = README + "\n```bash\nexport MESSAGE=\"hello # world\"\npip install quote-tool  # installs it\n```\n"
+QUOTE_FACTS = {**FACTS, "readme": QUOTE_README, "links": readme.links(QUOTE_README), "blocks": readme.blocks(QUOTE_README)}
+
+
+def test_a_command_cut_at_a_hash_inside_quotes_is_not_a_command_but_a_real_trailing_comment_is_dropped():
+    for command, ok in (('export MESSAGE="hello # world"', True), ('export MESSAGE="hello', False), ("pip install quote-tool", True),
+                        ("pip install quote-tool  # installs it", True), ("pip install quote-tool  # installs", False)):
+        d = make_draft(QUOTE_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, QUOTE_FACTS))) is ok, command
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

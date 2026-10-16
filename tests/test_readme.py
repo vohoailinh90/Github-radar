@@ -373,6 +373,28 @@ def test_a_cmd_transcript_continues_a_line_with_a_caret_and_drops_the_more_promp
     assert readme.setup_commands(text) == ["echo hello world", "echo done ^^", "dir"]
 
 
+def test_a_comment_is_stripped_only_when_the_shell_would_read_it_as_one():
+    strip = readme.strip_trailing_comment
+    assert strip("pip install x  # note") == "pip install x" and strip("echo 'a # b' # c") == "echo 'a # b'" and strip("echo # x") == "echo"
+    for line in ('export MESSAGE="hello # world"', "echo 'a # b'", "echo a\\ # b", "echo a #b", "echo a#", 'echo "x \\" # y"'):
+        assert strip(line) == line, line
+
+
+def test_a_heredoc_ends_on_the_closing_word_alone_on_its_line_and_only_tabs_may_precede_it_after_a_dash():
+    plain = "```bash\ncat <<EOF\n  EOF\nreal body\nEOF\npip install pkg\n```\n"
+    assert readme.heredocs(plain) == ([["cat <<EOF", "  EOF", "real body", "EOF"]], ["cat <<EOF", "pip install pkg"])
+    dashed = "```bash\ncat <<-EOF\n\tbody\n\tEOF\npip install pkg\n```\n"
+    assert readme.heredocs(dashed) == ([["cat <<-EOF", "\tbody", "\tEOF"]], ["cat <<-EOF", "pip install pkg"])
+    spaces = "```bash\ncat <<-EOF\n  body\n  EOF\npip install pkg\n```\n"                    # spaces do not count as tabs: it never closes
+    assert readme.heredocs(spaces)[0] == [["cat <<-EOF", "  body", "  EOF", "pip install pkg"]]
+    assert readme._heredoc_openers("cat <<-EOF <<'B'") == [("EOF", True), ("B", False)]
+
+
+def test_a_backslash_followed_by_a_space_does_not_continue_the_line():
+    text = "```bash\necho a\\  \necho next\ndocker run \\\n  img\n```\n\n```console\nPS C:\\> Get-Item `\n-Path x `\n-Force\n$ tool \\ \n> --flag\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["echo a\\", "echo next", "docker run img"]), ("console", ["PS C:\\> Get-Item -Path x -Force", "$ tool \\", "> --flag"])]
+
+
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
     text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
             "C:\\tools\\run.exe > out.txt\noutput line\n```\n")

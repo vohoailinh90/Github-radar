@@ -424,18 +424,46 @@ HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^']+)'|\"([^\"]+)\"|\\?([^\s;&|<>()'\"
 HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh"} | CONSOLE_LANGS
 
 
-def _continues(lang: str, line: str) -> bool:
-    """True when `line` goes on in the next one, by the mark of its shell: a backslash (not the end of a Windows path such as
-    `cd C:\\`), a backtick in PowerShell or a line after a PowerShell prompt, a caret in `cmd` and `bat`."""
+def _continues(lang: str, line: str, physical: str | None = None) -> bool:
+    """True when the line goes on in the next one, by the mark of its shell: a backslash (not the end of a Windows path such as
+    `cd C:\\`), a backtick in PowerShell or a line after a PowerShell prompt, a caret in `cmd`, `bat` or after a cmd prompt. `line` is
+    the command so far (its start tells the shell) and `physical` the line as written: the mark must be its very last character, a
+    space after it escapes the space and the line ends there."""
+    physical = line if physical is None else physical
     if lang in POWERSHELL_LANGS or POWERSHELL_PROMPT.match(line):
-        return re.search(r"(?<!`)`$", line) is not None
+        return re.search(r"(?<!`)`$", physical) is not None
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
-        return re.search(r"(?<!\^)\^$", line) is not None
-    return (len(line) - len(line.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(line)       # `\\` at the end is an escaped backslash
+        return re.search(r"(?<!\^)\^$", physical) is not None
+    return (len(physical) - len(physical.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(physical)       # `\\` at the end is an escaped backslash
+
+
+def strip_trailing_comment(line: str) -> str:
+    """The line without a trailing ` # comment`: a `#` that follows whitespace and is followed by whitespace, outside quotes and not escaped
+    (`export MESSAGE="hello # world"` keeps its `#`)."""
+    quote, i = "", 0
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            i += 2 if ch == "\\" and quote == '"' else 1
+            quote = "" if i <= len(line) and ch == quote else quote
+        elif ch == "\\":
+            i += 2
+        elif ch in "'\"":
+            quote, i = ch, i + 1
+        elif ch.isspace() and line[i + 1:i + 2] == "#" and (i + 2 >= len(line) or line[i + 2].isspace()):
+            return line[:i].rstrip()
+        else:
+            i += 1
+    return line
 
 
 def _heredoc_ends(line: str) -> list[str]:
-    """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each.
+    """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each."""
+    return [word for word, _ in _heredoc_openers(line)]
+
+
+def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
+    """(word that ends the heredoc, whether `<<-` lets leading tabs be dropped before it) for each heredoc a command line opens.
     A `<<` inside quotes, after a backslash, in a `# comment`, in `$(( ))` or `(( ))` arithmetic, or as `<<<` (a here-string) opens nothing."""
     ends, i, quote, arithmetic = [], 0, "", 0
     while i < len(line):
@@ -463,7 +491,7 @@ def _heredoc_ends(line: str) -> list[str]:
         elif line.startswith("<<", i):
             word = HEREDOC_WORD.match(line, i + 2)
             if word:
-                ends.append(next(g for g in word.groups() if g))
+                ends.append((next(g for g in word.groups() if g), line.startswith("-", i + 2)))
             i = word.end() if word else i + 2
         else:
             i += 1
@@ -500,7 +528,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
                 owners.append(opener)
-                if line.strip() == ends[0]:
+                if (line.lstrip("\t") if ends[0][1] else line) == ends[0][0]:        # the closing word alone on its line (`<<-`: after tabs)
                     ends.pop(0)
                 continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
@@ -518,13 +546,13 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 pending = f"{pending} {piece}"
             else:
                 pending = line.rstrip()
-            if _continues(lang, pending):
+            if _continues(lang, pending, line):
                 pending = pending[:-1].rstrip()
                 continue
             logical.append(pending)
             owners.append(None)
             if lang in HEREDOC_LANGS:
-                ends = _heredoc_ends(pending)
+                ends = _heredoc_openers(pending)
                 opener = len(logical) - 1
             pending = ""
         if pending:
