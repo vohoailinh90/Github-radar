@@ -1223,3 +1223,13 @@ def test_powershell_backtick_runs_and_comments_after_a_brace_and_multi_backtick_
     spans = [span.group(2).strip() for span in readme.CODE_SPAN.finditer("Run ``echo `date` `` now and `ls -l` too.")]
     assert spans == ["echo `date`", "ls -l"]
     assert readme.shells("Try ``PS C:\\> echo `date` `` or `PS C:\\> Get-Date` here.\n") == {"echo `date`": "powershell", "Get-Date": "powershell"}
+
+
+def test_a_parenthesis_in_a_cmd_variable_reference_groups_nothing():
+    def scanned(text):
+        return [(line, owner) for _, block, owners in readme._scan(text) for line, owner in zip(block, owners)]
+    assert scanned("```bat\necho %value:(=%\ndel build\n```\n") == [("echo %value:(=%", None), ("del build", None)]
+    assert scanned("```bat\necho !var:(=! ok\ndel build\n```\n") == [("echo !var:(=! ok", None), ("del build", None)]          # delayed expansion
+    assert readme._cmd_depth("echo %ProgramFiles(x86)%") == 0 and readme._cmd_depth("echo 100% (done)") == 0 and readme._cmd_depth("IF x (") == 1
+    assert scanned("```bat\nIF EXIST build (\n  echo %ProgramFiles(x86)%\n)\nver\n```\n") == [("IF EXIST build (", None), ("  echo %ProgramFiles(x86)%", 0), (")", 0), ("ver", None)]
+    assert scanned("```bat\nfor %%i in (a b) do echo %%i\nver\n```\n") == [("for %%i in (a b) do echo %%i", None), ("ver", None)]          # a loop variable is not a reference

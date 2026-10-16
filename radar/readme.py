@@ -937,9 +937,13 @@ def _compound_depth(text: str, fish: bool = False) -> int:
     return depth + tests + (1 if defining and counts_pending else 0)              # a definition whose body has not begun is open
 
 
+CMD_EXPANSION = re.compile(r'%[^%\s"]+%|![^!\s"]+!')          # a variable reference of cmd: `%name%`, `%name:search=replace%`, delayed `!name!`
+
+
 def _cmd_depth(text: str) -> int:
     """How many parentheses of a batch (cmd) block are still open at the end of the text: `IF EXIST build (` over its commands and `)`. A
-    parenthesis in double quotes or after the escape `^`, and a `REM` or `::` line, does not count; a `)` with nothing open counts for nothing."""
+    parenthesis in double quotes or after the escape `^`, in a variable reference (`%value:(=%`), and a `REM` or `::` line, does not count;
+    a `)` with nothing open counts for nothing."""
     depth = 0
     for line in text.splitlines():
         line = re.sub(CMD_PROMPT, "", line.lstrip(), count=1) if re.match(CMD_PROMPT, line.lstrip()) else line
@@ -950,6 +954,10 @@ def _cmd_depth(text: str) -> int:
             ch = line[i]
             if ch == "^":
                 i += 2
+                continue
+            expansion = CMD_EXPANSION.match(line, i) if ch in "%!" else None
+            if expansion:
+                i = expansion.end()                  # `%value:(=%`, `%ProgramFiles(x86)%`: the parentheses of a variable substitution group nothing
                 continue
             if ch == '"':
                 quote = not quote
