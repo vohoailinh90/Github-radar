@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass
 from decimal import Decimal
 
-from . import readme as readmelib, urls
+from . import icons, readme as readmelib, urls
 
 HYPE = {
     "en": ["best ever", "#1", "number one", "revolutionary", "game changer", "guaranteed", "100%", "world's best"],
@@ -238,6 +238,14 @@ def _how_it_works_schema(hiw: dict) -> list[Problem]:
             p.append(Problem("error", f"components[{i}]", "needs name, role and evidence"))
         elif len(str(c["role"])) > LIMITS["component"] or len(str(c["name"])) > 40:
             p.append(Problem("error", f"components[{i}]", "name over 40 or role over 160 chars"))
+    # `icon` is optional (drafts stored before it existed have none), but all or none: a row of cards with one bare card looks broken.
+    given = [isinstance(c, dict) and c.get("icon") not in (None, "") for c in comps]
+    if any(given):
+        for i, (c, has) in enumerate(zip(comps, given)):
+            if not has:
+                p.append(Problem("error", f"components[{i}]", "icon missing: give every component an icon, or none"))
+            elif not isinstance(c["icon"], str) or c["icon"] not in icons.NAMES:
+                p.append(Problem("error", f"components[{i}]", f"icon {c['icon']!r} is not one of the ICONS names"))
     flow = hiw.get("flow")
     if not isinstance(flow, list) or len(flow) > 12:
         p.append(Problem("error", "flow", "must be a list of at most 12 [from, to] pairs"))

@@ -28,7 +28,7 @@ Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng d
 Bài cũ (trước khi có hướng dẫn) vẫn được vẽ như trước: `draft` không có khóa `guide` dùng bố cục giải thích cũ.
 Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED",
 hay các hướng dẫn viết trong phiên tương tác) **không phải** câu trả lời gốc của model free. Có bản nháp thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota.
-Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn, và báo cáo `state/runs/*.json` ghi `coverage` (bài dùng bao nhiêu trong số lệnh của README). Cạnh mỗi bài còn có `board-<ngôn ngữ>.excalidraw` (bảng nét vẽ tay, mở ở excalidraw.com) và `moda-<ngôn ngữ>.xml` (markup để áp lên canvas Moda), cũng do script vẽ từ bản nháp: [`docs/design-files.md`](docs/design-files.md).
+Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn, và báo cáo `state/runs/*.json` ghi `coverage` (bài dùng bao nhiêu trong số lệnh của README). Cạnh mỗi bài còn có `board-<ngôn ngữ>.excalidraw` (bảng nét vẽ tay, mở ở excalidraw.com), `moda-<ngôn ngữ>.xml` (markup để áp lên canvas Moda) và `drawio-<ngôn ngữ>.drawio` (sơ đồ có icon, mở ở app.diagrams.net), cũng do script vẽ từ bản nháp: [`docs/design-files.md`](docs/design-files.md).
 
 ## Vì sao tin được nội dung
 

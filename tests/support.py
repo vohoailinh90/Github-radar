@@ -295,6 +295,9 @@ def make_guide(facts: dict, lang: str = "vi") -> dict:
     }
 
 
+ICONS = ["brain", "wrench", "database"]        # one per component of the fake drafts: planner, tool runner, memory
+
+
 def make_draft(facts: dict, lang: str = "vi", legacy: bool = False, **overrides) -> dict:
     """A good draft. `legacy=True` is the shape written before the guide existed: `try_it` instead of `guide`."""
     t = T[lang]
@@ -304,7 +307,7 @@ def make_draft(facts: dict, lang: str = "vi", legacy: bool = False, **overrides)
         "title": t["title"], "hook": t["hook"], "one_liner": t["problem"][:150], "problem": t["problem"], "analogy": t["analogy"],
         "how_it_works": {
             "steps": [{"title": a, "text": b, "evidence": e} for (a, b), e in zip(t["steps"], evidence)],
-            "components": [{"name": a, "role": b, "evidence": e} for (a, b), e in zip(t["parts"], paths)],
+            "components": [{"name": a, "role": b, "icon": i, "evidence": e} for (a, b), e, i in zip(t["parts"], paths, ICONS)],
             "flow": [[0, 1], [1, 2], [2, 0]]},
         "who_for": t["who"], "learn": t["learn"],
         "guide": make_guide(facts, lang),
