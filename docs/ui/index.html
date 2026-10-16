@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-B0cW91rj0fCcM3MmyQ1zD74rn22z+s8sMC7LKUY/zaM='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-lMTpPdCLBP8cQxKZQtE0lJzkJ3AdxkipHj3SbZFiGcM='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -296,9 +296,9 @@ function isRepo(text) {
   return parts.length === 2 && parts.every((p) => SEGMENT.test(p) && p !== "." && p !== "..");
 }
 // A branch name as `git check-ref-format` reads it. It only ever travels inside JSON (never a shell or a URL), so this guards against a wrong
-// answer, not against injection: it must not refuse names GitHub allows, such as release@next.
+// answer, not against injection: it must not refuse names GitHub allows, such as release@next. (Git sets no length limit, so neither does this.)
 function isBranch(name) {
-  return typeof name === "string" && name.length > 0 && name.length <= 255 && !/[\x00-\x20\x7f~^:?*[\\]/.test(name) && !name.includes("..") &&
+  return typeof name === "string" && name.length > 0 && !/[\x00-\x20\x7f~^:?*[\\]/.test(name) && !name.includes("..") &&
     !name.includes("@{") && name !== "@" && !/^[-/.]|[/.]$|\/\/|\/\.|\.lock(\/|$)/.test(name);
 }
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
@@ -464,7 +464,7 @@ async function checkToken() {
     if (flow.status !== 200) return say("connect-msg", explain(flow.status, flow.data), "bad");
     branch = { repo: repoKey(repo), name };
     if (repoName() !== repo) return say("connect-msg", "Tên repo đã đổi trong lúc kiểm tra: bấm kiểm tra lại.", "warn");
-    say("connect-msg", "Token đọc được repo và workflow radar.yml (sẽ chạy trên nhánh " + name + "). Quyền ghi Actions chưa kiểm được: GitHub chỉ cho biết khi bạn gửi lượt đầu.", "ok");
+    say("connect-msg", "Token đọc được repo và workflow radar.yml (sẽ chạy trên nhánh " + name.slice(0, 80) + "). Quyền ghi Actions chưa kiểm được: GitHub chỉ cho biết khi bạn gửi lượt đầu.", "ok");
   } catch (e) {
     say("connect-msg", "Không kết nối được api.github.com.", "bad");
   }

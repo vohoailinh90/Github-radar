@@ -97,3 +97,9 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | "Quên token" pressed while the dispatch was in flight: the late answer recreated the watch, the token was empty so no look could follow, and putting the token back only refreshed the button, leaving it locked with nothing to resolve it | true | "Quên token" now ends the session: a send under way when it is pressed leaves no watch behind (guards after the branch lookup, the list read, the POST, and in the failure path) and says the command may have reached GitHub; a token put back while a send is followed makes the page look again (on leaving the field, which fires where `change` does not, and on "Kiểm tra token"); and the page says why the button is off. Tests for each, with a held and a lost answer; mutations killed. |
+
+## Codex review of head d5cccb4 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The branch check kept a 255-character cap that the git ref rules do not have, so a hierarchical default branch of more than 255 characters was refused | true: `git check-ref-format` sets no total length | the cap is gone (the value only goes into JSON; GitHub does its own checking); the name is cut to 80 characters where the page shows it; table cases at 256, 301 and 5000 characters; the mutation (cap back) is killed |

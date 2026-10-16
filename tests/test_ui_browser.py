@@ -876,7 +876,7 @@ def test_nothing_is_sent_when_the_runs_cannot_be_listed_first(ui):
     assert "Chưa gửi" in text(ui, "#msg") and ui.gh.posts() == [] and ui.is_enabled("#go")
 
 
-@pytest.mark.parametrize("branch", ["release@next", "feature+plus", "v1.0/hot_fix", "a" * 150])
+@pytest.mark.parametrize("branch", ["release@next", "feature+plus", "v1.0/hot_fix", "a" * 150, "a" * 150 + "/" + "b" * 150])
 def test_any_branch_name_git_allows_can_be_dispatched(ui, branch):
     ui.gh.routes[("GET", f"/repos/{REPO}")] = (200, {"default_branch": branch})
     connect(ui)

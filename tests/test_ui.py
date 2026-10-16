@@ -315,7 +315,7 @@ def test_a_single_repository_is_estimated_as_one_repository_without_a_search():
 
 
 @pytest.mark.parametrize("name,ok", [("main", True), ("master", True), ("release@next", True), ("feature+plus", True), ("v1.0/hotfix_2", True),
-                                     ("a" * 255, True), ("üñí", True), ("a" * 256, False), ("", False), ("main; echo pwned", False), ("a b", False),
+                                     ("a" * 255, True), ("üñí", True), ("a" * 256, True), ("a" * 150 + "/" + "b" * 150, True), ("a" * 5000, True), ("", False), ("main; echo pwned", False), ("a b", False),
                                      ("x..y", False), ("../../x", False), ("a@{b", False), ("@", False), ("-x", False), ("/a", False), ("a/", False),
                                      ("a//b", False), ("a/.b", False), (".a", False), ("a.", False), ("a.lock", False), ("a.lock/b", False),
                                      ("a:b", False), ("a?b", False), ("a*b", False), ("a[b", False), ("a\\b", False), ("a\x01b", False), ("a~b", False),
