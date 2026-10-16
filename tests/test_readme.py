@@ -209,6 +209,16 @@ def test_setext_and_html_headings_are_section_boundaries_so_a_late_install_secti
     assert "pip install my-tool" in out and "Set the key." in out and "Gallery 11" not in out and len(out) <= 3000
 
 
+def test_an_atx_heading_indented_by_up_to_three_spaces_is_a_section_boundary_and_one_by_four_is_code():
+    """Markdown allows 0-3 spaces before the #'s: with column zero only, the install section stayed glued to the showcase before it."""
+    text = ("# Tool\n\nPitch.\n\n  ## Showcase\n\n" + "pretty picture words. " * 400 + "\n\n"
+            "   ## Installation\n\n```bash\npip install my-tool\n```\n\n"
+            "    ## four spaces is a code block\n\n #hashtag is not a heading\n")
+    assert [(s.level, s.title) for s in readme.split_sections(text)] == [(1, "Tool"), (2, "Showcase"), (2, "Installation")]
+    out = readme.select(text, 1500)
+    assert "pip install my-tool" in out and len(out) <= 1500
+
+
 def test_lines_that_only_look_like_a_setext_underline_are_not_headings():
     text = ("# Title\n\nPara\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- item\n---\n\nText\n\n---\n\n```\nTitle\n=====\n```\n\n"
             "> quote\n---\n\n---\nfront\n")

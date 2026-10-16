@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")                # a code fence opens with three or more backticks or tildes
-HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
+HEADING = re.compile(r"^ {0,3}(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")        # up to three spaces of indentation; four make a code block
 SETEXT = re.compile(r"^ {0,3}(=+|-{3,})[ \t]*$")                 # the line under `Title`: === is level 1, --- is level 2
 HTML_HEADING = re.compile(r"^\s*<h([1-6])\b[^>]{0,200}>(.{1,200}?)</h\1>\s*$", re.I)      # <h2 align="center">Install</h2>
 NOT_TITLE = ("#", ">", "|", "-", "*", "+", "<", "`", "~", "!", "[")      # a line that starts like something else is not a Setext title
