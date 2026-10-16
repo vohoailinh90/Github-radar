@@ -1065,7 +1065,8 @@ def test_a_dry_run_estimate_promises_no_model_calls_and_no_pauses(ui):
     assert "lượt tìm" in dry and "quét thử nên không gọi model và không nghỉ" in dry and "lượt gọi model và" not in dry
     ui.uncheck("#dry")
     real = text(ui, "#estimate")
-    assert "ít nhất 6 lượt gọi model" in real and "90 giây nghỉ" in real and "không gọi model" not in real       # a floor: fix rounds and retries add more
+    assert "khoảng 6 lượt gọi model nếu tìm đủ số bài" in real and "90 giây nghỉ" in real and "không gọi model" not in real
+    assert "ít nhất 6" not in real and "vòng sửa và thử lại sẽ thêm" in real       # neither a floor nor exact: fewer repositories means fewer calls, fix rounds add more
     ui.check("#dry")
     assert text(ui, "#estimate") == dry
 
@@ -1075,9 +1076,9 @@ def test_the_estimate_for_one_repository_has_no_search_and_one_posts_worth_of_ca
     assert "lượt tìm" in text(ui, "#estimate") and "quét đúng một repo" not in text(ui, "#estimate")
     ui.fill("#single", "owner/name")
     estimate = text(ui, "#estimate")
-    assert "quét đúng một repo" in estimate and "lượt tìm" not in estimate and "ít nhất 2 lượt gọi model" in estimate and " 0 giây nghỉ" in estimate
+    assert "quét đúng một repo" in estimate and "lượt tìm" not in estimate and "khoảng 2 lượt gọi model (vòng sửa" in estimate and " 0 giây nghỉ" in estimate
     ui.check("#lang-en")
-    assert "ít nhất 4 lượt gọi model" in text(ui, "#estimate") and " 45 giây nghỉ" in text(ui, "#estimate")
+    assert "khoảng 4 lượt gọi model (vòng sửa" in text(ui, "#estimate") and " 45 giây nghỉ" in text(ui, "#estimate")
     ui.fill("#single", "")
     assert "lượt tìm" in text(ui, "#estimate")
 

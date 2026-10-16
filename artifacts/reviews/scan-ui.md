@@ -149,3 +149,9 @@ The standard review found nothing ("Didn't find any major issues"). The security
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 (P1) | `docs/ui.md` offered GitHub Pages; every site of an owner shares `https://<owner>.github.io`, so a script in a sibling site can open this page (`window.open`) and read the token field (same-origin windows reach into each other; the CSP and the frame check do not stop it) | true; the design review had noted the shared origin, but the guide still recommended it | (1) the page refuses to take a token on `*.github.io`: it shows a warning, disables the field and the check, and every use of the token goes through one function that returns nothing there; (2) the guide no longer offers Pages, says why, and names the isolated alternatives (the file itself, or `http://localhost:<port>` through `python3 -m http.server`); browser tests serve the page at three github.io origins (token refused, nothing sent even if forced) and at four other origins (accepted: own domain, localhost, look-alike names); mutations killed. An own custom domain is called safe in principle and untried here. |
+
+## Codex review of head c281b95 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The previous wording ("at least N model calls") is also wrong: when discovery finds fewer repositories than `picks_per_run`, `pipeline.run` writes only the real picks, so the count can be higher than the real number of calls and is not a lower bound | true: it is a bound only under "every pick is filled"; fix rounds and retries push the other way | the page says "about N model calls if all the picks are found (fewer if repositories are missing; fix rounds and retries add more)"; for a single repository (always one pick) only the second caveat; browser tests assert both wordings and that "at least" is gone |
