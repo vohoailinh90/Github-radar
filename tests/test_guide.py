@@ -795,3 +795,26 @@ def test_a_step_may_list_up_to_twelve_lines_of_commands_so_a_heredoc_fits():
     assert not any("needs 0-12" in e for e in errs(d))
     d["guide"]["steps"][0]["commands"].append("pip install sample-agent-kit")
     assert any("needs 0-12" in e for e in errs(d))
+
+
+ONLY_HEREDOC = "# Tool\n\nA tool.\n\n## Setup\n\n```bash\ncat > config.yaml <<EOF\nllm:\n  model: x\n\n  # keep this\n  key: y\nEOF\n```\n"
+ONLY_HEREDOC_FACTS = {**FACTS, "readme": ONLY_HEREDOC, "links": [], "blocks": []}
+
+
+def test_a_heredoc_is_one_command_in_the_coverage_so_a_readme_with_only_that_needs_no_third_step():
+    group = ["cat > config.yaml <<EOF", "llm:", "  model: x", "", "  # keep this", "  key: y", "EOF"]
+    d = make_draft(ONLY_HEREDOC_FACTS, "vi")
+    d["guide"]["steps"] = d["guide"]["steps"][:2]
+    for step in d["guide"]["steps"]:
+        step.pop("link_ref", None), step.pop("snippet_ref", None)
+        step["commands"] = []
+    for requirement in d["guide"]["requirements"]:
+        requirement.pop("link_ref", None), requirement.pop("snippet_ref", None)
+    for entry in d["guide"]["troubleshooting"]:
+        entry.pop("link_ref", None), entry.pop("snippet_ref", None)
+    d["guide"]["steps"][0]["commands"] = group
+    assert gates.command_coverage(d, ONLY_HEREDOC_FACTS) == (1, 1)                 # not (7, 6): one command, not seven lines
+    found = [p for p in gates.check(d, ONLY_HEREDOC_FACTS, "vi", require_guide=True) if p.level == "error"]
+    assert not any("3-10 steps" in p.message for p in found), found
+    d["guide"]["steps"][0]["commands"] = []
+    assert gates.command_coverage(d, ONLY_HEREDOC_FACTS) == (0, 1)

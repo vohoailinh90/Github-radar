@@ -51,7 +51,19 @@ COMMAND_WORDS = {"git", "pip", "pip3", "python", "python3", "py", "uv", "uvx", "
                  "docker-compose", "conda", "mamba", "cd", "cp", "mv", "mkdir", "curl", "wget", "huggingface-cli", "hf",
                  "modelscope", "apt", "apt-get", "brew", "winget", "choco", "bash", "sh", "make", "source", "export",
                  "set", "cargo", "go", "pipx", "poetry", "ollama", "ffmpeg", "streamlit", "torchrun", "chmod",
-                 "dnf", "yum", "pacman", "apk", "zypper", "snap", "flatpak"}
+                 "dnf", "yum", "pacman", "apk", "zypper", "snap", "flatpak",
+                 # shell basics and system tools
+                 "ls", "cat", "echo", "rm", "touch", "tar", "unzip", "zip", "ssh", "scp", "rsync", "grep", "sed", "awk", "ln", "find",
+                 "tee", "kill", "which", "pwd", "alias", "unset", "ulimit", "systemctl", "service", "journalctl", "crontab", "nano", "vim",
+                 "nvidia-smi", "nvcc", "ldconfig", "ffprobe", "magick",
+                 # languages and their package managers
+                 "node", "nodejs", "deno", "java", "javac", "mvn", "gradle", "dotnet", "nuget", "php", "composer", "ruby", "gem", "bundle",
+                 "rails", "rake", "mix", "iex", "swift", "flutter", "dart", "rustup", "rustc", "gcc", "g++", "clang", "cmake", "ninja",
+                 "julia", "rscript", "sbt", "opam", "pytest", "tox", "nox", "ruff", "black", "mypy", "jupyter", "ipython", "virtualenv",
+                 "pyenv", "nvm", "fnm", "volta", "corepack", "pdm", "hatch", "rye", "pixi", "accelerate", "deepspeed", "wandb",
+                 # clouds, containers and hosting
+                 "kubectl", "helm", "minikube", "terraform", "tofu", "pulumi", "ansible", "ansible-playbook", "vagrant", "podman", "nerdctl",
+                 "aws", "az", "gcloud", "gsutil", "gh", "glab", "heroku", "vercel", "netlify", "firebase", "supabase", "flyctl", "wrangler"}
 WRAPPERS = {"sudo", "doas", "time", "nohup", "exec", "command", "env", "nice", "xargs"}      # a command line may start with one of these before its program
 BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "hits.seeyoufarcry")      # badges and counters
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]()]+")

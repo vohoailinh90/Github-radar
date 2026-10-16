@@ -687,3 +687,15 @@ def test_a_comment_after_a_control_operator_opens_no_heredoc_and_hides_no_comman
         assert not readme._has_comment(line), line
     assert readme._heredoc_openers("cat <<EOF;# note") == [("EOF", False)]
     assert not readme._incomplete("echo hi;# it's here") and readme._incomplete("echo hi; echo 'it")
+
+
+def test_the_common_programs_of_other_ecosystems_are_commands_in_an_untagged_block():
+    for command in ("kubectl apply -f deployment.yaml", "terraform init", "dotnet run", "ls -la", "cat config.yaml", "Rscript run.R",
+                    "az login", "gcloud auth login", "helm install x ./chart", "mvn package", "sudo systemctl start x"):
+        text = f"## Install\n\n```\n{command}\n```\n"
+        assert readme.is_command_line(command), command
+        assert readme.setup_commands(text) == [command], command
+        assert readme.blocks(text) == [], command                             # a command block, not a sample to copy
+    for line in ("hello world", "Next steps are below", "Server started on port 8000", "name: value"):
+        assert not readme.is_command_line(line), line
+        assert readme.setup_commands(f"```\n{line}\n```\n") == []

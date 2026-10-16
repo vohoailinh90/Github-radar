@@ -417,9 +417,19 @@ def shown_commands(draft: dict) -> list[tuple[str, object]]:
 def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
     """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. Only the
     commands the reader sees count, so a `try_it` next to a guide adds nothing."""
-    wanted = {_norm_cmd(c) for c in readmelib.setup_commands(facts["readme"])}
-    used = {_norm_cmd(c) for _, c in shown_commands(draft) if isinstance(c, str)}
+    wanted = _command_keys(readmelib.setup_commands(facts["readme"]))
+    by_field: dict[str, list] = {}
+    for field, command in shown_commands(draft):
+        by_field.setdefault(field, []).append(command)
+    used = set().union(*(_command_keys(commands) for commands in by_field.values()))
     return len(used & wanted), len(wanted)
+
+
+def _command_keys(commands: list) -> set[str]:
+    """The comparable form of each command of a list of command lines. A heredoc (its opening line, body and closing word) is one
+    command, keyed by its opening line: its body lines are data and not commands to count."""
+    return {key for command, data in zip(commands, readmelib.heredoc_data(commands))
+            if not data and isinstance(command, str) and (key := _norm_cmd(command))}
 
 
 def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
