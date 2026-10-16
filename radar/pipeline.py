@@ -10,7 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import contract, digest, discover, facts as factslib, gates, history, studio_export
+from . import conditions, contract, digest, discover, facts as factslib, gates, history, studio_export
 from .llm import AllModelsFailed, Gateway
 from .net import HttpError
 from .write import write_one
@@ -61,7 +61,10 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
         if history_problems or json.dumps(hist, sort_keys=True) != before:
             history.save(stars_path, hist)
     picked = {c["full_name"] for c in picks}
-    report = {"date": date, "dry_run": dry_run, "langs": cfg["langs"], "candidates": len(ranked), "dropped": dropped,
+    report = {"date": date, "dry_run": dry_run, "langs": cfg["langs"],
+              # what this scan ran with, as final values (not just a preset name, which can be edited later)
+              "conditions": {"label": cfg.get("scan_label"), "resolved": conditions.resolved(cfg)},
+              "candidates": len(ranked), "dropped": dropped,
               "picks": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"], "stars": c["repo"]["stargazers_count"],
                          "rising": c["rising"], "slot": bool(c.get("slot")), "stars_per_30d": round(c["velocity"]["per_30d"]),
                          "velocity": c["velocity"]["source"], "flags": c["flags"]} for c in picks],

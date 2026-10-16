@@ -1,0 +1,39 @@
+{
+  "presets": {
+    "ai-sau": {
+      "label": "AI: quét sâu mảng AI",
+      "conditions": {
+        "buckets": {"ai": ["llm", "ai-agents", "rag", "machine-learning"]},
+        "picks_per_run": 3
+      }
+    },
+    "repo-moi-noi": {
+      "label": "Repo mới nổi (tạo trong 90 ngày)",
+      "conditions": {
+        "picks_per_run": 4,
+        "rising": {"enabled": true, "slots": 2, "created_within_days": 90, "min_stars": 200}
+      }
+    },
+    "khoi-nghiep-saas": {
+      "label": "Khởi nghiệp và SaaS",
+      "conditions": {
+        "buckets": {"startup": ["saas", "startup", "boilerplate", "indie-hacker"]},
+        "picks_per_run": 2
+      }
+    },
+    "cong-cu-dev": {
+      "label": "Công cụ cho lập trình viên",
+      "conditions": {
+        "buckets": {"software": ["developer-tools", "self-hosted", "cli", "productivity"]},
+        "picks_per_run": 2
+      }
+    },
+    "quet-nhanh": {
+      "label": "Quét nhanh: 1 bài",
+      "conditions": {
+        "picks_per_run": 1,
+        "rising": {"enabled": false, "slots": 0}
+      }
+    }
+  }
+}

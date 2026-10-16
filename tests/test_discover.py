@@ -232,3 +232,13 @@ def test_a_fast_climbing_repository_below_the_floor_wins_the_rising_slot_over_sl
     names = [c["full_name"] for c in discover.pick(ranked, cfg, TODAY)]
     assert "example-org/sample-emerging" in names and not [n for n in names if "hot-" in n]
     assert "example-org/sample-emerging" not in [c["full_name"] for c in discover.pick(ranked, {**cfg, "rising": {**CFG["rising"], "slots": 0}}, TODAY)]
+
+
+def test_one_pick_cannot_use_a_slot_so_the_rising_queries_are_not_sent():
+    srv = fake_github([make_repo("old", "llm", 9000), young()])
+    try:
+        ranked, _ = discover.candidates(GitHub(base=srv.url), {**CFG, "picks_per_run": 1}, {}, TODAY)
+    finally:
+        srv.close()
+    assert not [q for q in _search_paths(srv) if "created" in q]                      # half of one pick is zero slots
+    assert [c["full_name"] for c in ranked] == ["example-org/old"]

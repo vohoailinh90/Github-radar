@@ -42,6 +42,25 @@ def test_secrets_are_only_passed_as_environment_to_the_steps_that_need_them():
     assert "--ping" not in next(s for s in steps if s.get("name") == "Doctor (keys)")["run"]
 
 
+def test_the_scan_conditions_inputs_match_the_saved_presets_and_reach_only_the_scan_step():
+    from radar import conditions
+    inputs = W[True]["workflow_dispatch"]["inputs"]
+    assert inputs["preset"]["type"] == "choice" and inputs["preset"]["default"] == "none"
+    assert inputs["preset"]["options"] == ["none", *conditions.load_presets()]          # a preset added to the file must be offered here
+    assert inputs["conditions"]["type"] == "string" and inputs["conditions"]["default"] == ""
+    steps = W["jobs"]["radar"]["steps"]
+    users = [s.get("name") for s in steps if any("inputs.preset" in str(v) or "inputs.conditions" in str(v) for v in (s.get("env") or {}).values())]
+    assert users == ["Scan, write, check, export"]                                      # the doctor steps and the hand-off do not need them
+    scan = next(s for s in steps if s.get("name") == "Scan, write, check, export")
+    assert scan["env"]["RADAR_PRESET"] == "${{ inputs.preset }}" and scan["env"]["RADAR_CONDITIONS"] == "${{ inputs.conditions }}"
+    # data in an environment variable, never text in a command: the two inputs appear nowhere else in the file
+    assert TEXT.count("inputs.preset") == 1 and TEXT.count("inputs.conditions") == 1
+
+
+def test_the_schedule_does_not_set_any_condition():
+    assert W[True]["schedule"] and "inputs.preset" not in str(W[True]["schedule"])   # a scheduled run has empty inputs: radar.yaml as it is
+
+
 # --- the commit step, run for real in a throwaway repository -------------------------------------------------------
 import os
 import subprocess
