@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import config, contract, pipeline
+from . import config, contract, history, pipeline
 from .github import GitHub
 from .llm import PROVIDER_KEYS, Gateway, base_url, family, has_key, split_model
 from .net import HttpError, request_json
@@ -21,13 +21,22 @@ def _date(value: str | None) -> dt.date:
     return dt.date.fromisoformat(value) if value else dt.datetime.now(dt.timezone.utc).date()
 
 
+def _github(cfg) -> GitHub:
+    return GitHub(search_interval=float(cfg["search_interval_seconds"]))
+
+
 def cmd_scan(args, cfg) -> int:
     from . import discover, facts
-    gh = GitHub()
+    gh = _github(cfg)
     seen = facts.load_seen(ROOT / "state" / "seen.json")
-    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date))
+    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date), history.load(ROOT / "state" / "stars.json"))
+    print("score    bucket       stars   stars/30d  repo   (* = measured from stored snapshots, else the lifetime average)")
     for c in ranked[:20]:
-        print(f"{c['score']:7.3f}  {c['bucket']:<10} {c['repo']['stargazers_count']:>7,}  {c['full_name']}")
+        mark = "*" if c["velocity"]["source"] == "measured" else " "
+        on = cfg["rising"]["enabled"] and int(cfg["rising"]["slots"]) > 0
+        tags = (["rising"] if c["rising"] and on else []) + [f"!{f}" for f in c["flags"]]
+        print(f"{c['score']:7.3f}  {c['bucket']:<10} {c['repo']['stargazers_count']:>7,}  {c['velocity']['per_30d']:>7,.0f}{mark}  "
+              f"{c['full_name']}" + (f"  [{' '.join(tags)}]" if tags else ""))
     print(f"dropped: {json.dumps(dropped, ensure_ascii=False)}")
     return 0 if ranked else 1
 
@@ -37,7 +46,7 @@ def cmd_run(args, cfg) -> int:
     # RADAR_REPO is how the workflow passes its input (never through the shell command line).
     only = (os.environ.get("RADAR_REPO", "") if args.repo is None else args.repo).strip() or None
     bucket = (os.environ.get("RADAR_BUCKET", "") if args.bucket is None else args.bucket).strip() or None
-    report = pipeline.run(cfg, GitHub(), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
+    report = pipeline.run(cfg, _github(cfg), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
                           pace=float(cfg.get("pace_seconds", 3)), only=only, bucket=bucket)
     print(json.dumps({k: v for k, v in report.items() if k != "models_log"}, indent=2, ensure_ascii=False))
     return 0 if report["ok"] else 1

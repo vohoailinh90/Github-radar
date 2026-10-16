@@ -1,0 +1,98 @@
+import datetime as dt
+
+from radar import history
+
+D = dt.date(2026, 10, 14)
+
+
+def day(n: int) -> str:
+    return (D - dt.timedelta(days=n)).isoformat()
+
+
+def test_a_second_observation_the_same_day_replaces_the_first():
+    h = {}
+    history.record(h, "o/a", D, 100)
+    history.record(h, "o/a", D, 120)
+    assert h == {"o/a": {D.isoformat(): 120}}
+
+
+def test_velocity_divides_by_the_real_gap_not_the_nominal_window():
+    h = {"o/a": {day(4): 1000}}
+    v = history.velocity(h, "o/a", 1100, D)
+    assert v == {"per_day": 25.0, "gap_days": 4, "gained": 100}
+
+
+def test_velocity_prefers_the_observation_closest_to_a_week():
+    h = {"o/a": {day(3): 1090, day(8): 1000, day(20): 800}}
+    assert history.velocity(h, "o/a", 1100, D)["gap_days"] == 8        # |8-7| beats |3-7|
+    assert history.velocity({"o/a": {day(3): 1090, day(20): 800}}, "o/a", 1100, D)["gap_days"] == 3
+
+
+def test_unknown_is_none_never_zero():
+    assert history.velocity({}, "o/a", 1100, D) is None
+    assert history.velocity({"o/b": {day(5): 1}}, "o/a", 1100, D) is None
+    for gap in (0, 2, 22, 60):                                           # today's own point, too fresh, too old
+        assert history.velocity({"o/a": {day(gap): 1000}}, "o/a", 1100, D) is None, gap
+
+
+def test_a_repository_that_lost_stars_reports_a_negative_velocity_for_the_caller_to_clamp():
+    assert history.velocity({"o/a": {day(5): 1000}}, "o/a", 990, D)["per_day"] == -2.0
+
+
+def test_a_malformed_stored_date_is_ignored_not_fatal():
+    assert history.velocity({"o/a": {"yesterday": 5, day(5): 1000}}, "o/a", 1100, D)["gained"] == 100
+
+
+def test_prune_drops_old_points_and_empty_repositories():
+    h = {"o/a": {day(100): 1, day(5): 2}, "o/gone": {day(100): 3}}
+    history.prune(h, D, 60)
+    assert h == {"o/a": {day(5): 2}}
+
+
+def test_save_and_load_round_trip_and_a_missing_file_is_empty(tmp_path):
+    path = tmp_path / "state" / "stars.json"
+    assert history.load(path) == {}
+    history.save(path, {"o/b": {"2026-10-01": 2}, "o/a": {"2026-10-01": 1}})
+    assert history.load(path) == {"o/a": {"2026-10-01": 1}, "o/b": {"2026-10-01": 2}}
+    assert path.read_text(encoding="utf-8").index('"o/a"') < path.read_text(encoding="utf-8").index('"o/b"')   # stable diffs
+    assert not path.with_suffix(".tmp").exists()
+
+
+def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_path):
+    path = tmp_path / "stars.json"
+    for text in ("", "{not json", "[]", "5"):
+        path.write_text(text)
+        problems = []
+        assert history.load(path, problems) == {} and len(problems) == 1, text
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/a": 5, "o/b": [1], "o/c": {"2026-10-02": "n/a", "soon": 3, "2026-10-03": null}}')
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    for only_repo_level in ('{"o/ok": {"2026-10-01": 5}, "o/a": 5}', '{"o/ok": {"2026-10-01": 5}, "o/b": [1]}', '{"o/ok": {"2026-10-01": 5}, "o/n": null}'):
+        path.write_text(only_repo_level)                    # the only damage is a repository whose value is not an object: still reported
+        problems = []
+        assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1, only_repo_level
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/big": {"2026-10-01": 1e100000, "2026-10-02": NaN}}')   # json.loads turns these into inf and nan
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/huge": {"2026-10-01": 1' + "0" * 400 + ', "2026-10-02": -3}}')   # an int() that succeeds but overflows later
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/f": {"2026-10-01": 0.9, "2026-10-02": true, "2026-10-03": "7", "2026-10-04": 5.0}}')
+    problems = []                                            # int() would have turned these into 0, 1, 7 and 5 without a word
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}}')
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []
+
+
+def test_velocity_and_prune_survive_hand_edited_shapes():
+    h = {"o/a": 5, "o/b": {day(5): "n/a", day(4): None, day(6): 1000}, "o/c": [1]}
+    assert history.velocity(h, "o/a", 1100, D) is None and history.velocity(h, "o/c", 1100, D) is None
+    assert history.velocity(h, "o/b", 1100, D)["gap_days"] == 6                   # the readable point wins, the others are skipped
+    assert history.velocity({"o/i": {day(5): float("inf")}}, "o/i", 1100, D) is None       # int(inf) overflows
+    assert history.velocity({"o/h": {day(5): 10**400}, "o/n": {day(5): -1}}, "o/h", 1100, D) is None     # (10**400 - n) / gap overflows a float
+    assert history.velocity({"o/n": {day(5): -1}}, "o/n", 1100, D) is None
+    for lossy in (0.9, True, "7", 5.0):                                                      # coercions int() would accept
+        assert history.velocity({"o/l": {day(5): lossy}}, "o/l", 1100, D) is None, lossy
+    history.prune(h, D, 60)
+    assert "o/a" not in h and "o/c" not in h and h["o/b"][day(6)] == 1000     # prune filters by date; load is what drops bad values

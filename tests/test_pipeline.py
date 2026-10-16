@@ -124,7 +124,7 @@ def test_a_failing_search_is_counted_not_fatal(tmp_path, monkeypatch):
         report = pipeline.run(cfg(), GitHub(base=bad.url, sleep=lambda s: None), Gateway(), tmp_path, TODAY, dry_run=True)
     finally:
         bad.close()
-    assert report["dropped"]["search failed (HTTP 403)"] == 1 and report["picks"]
+    assert report["dropped"]["search failed (HTTP 403)"] == 2 and report["picks"]       # the topic is searched twice: top and rising
 
 
 def test_a_refused_bundle_leaves_repos_unremembered_so_they_are_offered_again(tmp_path, servers, monkeypatch):
@@ -209,3 +209,94 @@ def test_the_readme_cap_really_limits_what_reaches_both_prompts(tmp_path, monkey
     for user in users:                                  # the writer prompt and the checker prompt
         readme = user.split("<<<README\n", 1)[1].split("\nREADME>>>", 1)[0]
         assert 0 < len(readme) <= 12000
+
+
+# ---- star snapshots, the shortlist and the rising slot ----------------------------------------------------------------
+
+def test_a_real_run_stores_todays_star_totals_for_every_candidate(tmp_path, servers):
+    report = go(tmp_path, servers)
+    stored = json.loads((tmp_path / "state" / "stars.json").read_text())
+    assert len(stored) == report["candidates"] == 5
+    assert stored["example-org/sample-flow-engine"] == {"2026-10-14": 31000}
+    assert report["history"] == {"tracked": 5, "measured": 0}                  # first scan: nothing to compare with yet
+
+
+def test_the_snapshot_is_kept_even_when_every_model_fails(tmp_path, servers):
+    gh, llm = servers
+    llm.script = lambda kind, facts, lang, n: (503, {"error": "down"})
+    report = pipeline.run(cfg(), GitHub(), Gateway(sleep=lambda s: None, attempts_per_model=1), tmp_path, TODAY)
+    assert report["aborted"] and not (tmp_path / "state" / "seen.json").exists()
+    assert len(json.loads((tmp_path / "state" / "stars.json").read_text())) == 5
+
+
+def test_a_later_scan_measures_velocity_from_the_stored_snapshot_and_a_dry_run_leaves_it_alone(tmp_path, servers):
+    stars = tmp_path / "state" / "stars.json"
+    stars.parent.mkdir()
+    stars.write_text(json.dumps({"example-org/sample-flow-engine": {"2026-10-09": 30000}}))      # 5 days ago, 31,000 now
+    before = stars.read_text()
+    report = pipeline.run(cfg(picks_per_run=5), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)    # all 5 candidates are picked
+    assert report["history"] == {"tracked": 1, "measured": 1}
+    flow = next(p for p in report["picks"] if p["repo"] == "example-org/sample-flow-engine")
+    assert flow["velocity"] == "measured" and flow["stars_per_30d"] == 6000                    # +1,000 in 5 days = 200 a day
+    assert stars.read_text() == before
+
+
+def test_the_shortlist_is_what_came_next_and_never_repeats_a_pick(tmp_path, servers):
+    report = pipeline.run(cfg(picks_per_run=2), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    picked = {p["repo"] for p in report["picks"]}
+    listed = [s["repo"] for s in report["shortlist"]]
+    assert len(listed) == 3 and not (picked & set(listed))
+    assert [s["score"] for s in report["shortlist"]] == sorted((s["score"] for s in report["shortlist"]), reverse=True)
+
+
+def test_a_young_climbing_repository_gets_the_rising_slot(tmp_path, monkeypatch):
+    from tests.support import catalogue, make_repo
+    srv = fake_github(catalogue() + [make_repo("sample-new-agent", "llm", 700, age_days=45)])
+    monkeypatch.setenv("GITHUB_API_URL", srv.url)
+    try:
+        report = pipeline.run(cfg(picks_per_run=3), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+        off = pipeline.run(cfg(picks_per_run=3, rising={"enabled": False, "slots": 1, "created_within_days": 120, "min_stars": 300}),
+                           GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    finally:
+        srv.close()
+    rising = [p for p in report["picks"] if p["rising"]]
+    assert [p["repo"] for p in rising] == ["example-org/sample-new-agent"] and len(report["picks"]) == 3
+    assert [p["repo"] for p in report["picks"] if p["slot"]] == ["example-org/sample-new-agent"]        # "rising" = young, "slot" = used a slot
+    assert not any(p["slot"] for p in off["picks"])
+    assert "example-org/sample-new-agent" not in [p["repo"] for p in off["picks"]]
+
+
+def test_an_unreadable_history_file_is_reported_and_rebuilt_not_fatal(tmp_path, servers):
+    (tmp_path / "state").mkdir()
+    (tmp_path / "state" / "stars.json").write_text("{broken")
+    report = pipeline.run(cfg(), GitHub(), Gateway(sleep=lambda s: None), tmp_path, TODAY)
+    assert report["ok"] and "could not be read" in report["history"]["problems"][0]          # the scan went on, and said so
+    assert len(json.loads((tmp_path / "state" / "stars.json").read_text())) == 5              # rebuilt from today's totals
+    again = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    assert "problems" not in again["history"] and again["history"]["tracked"] == 5
+
+
+def test_a_cleaned_and_pruned_history_is_saved_even_when_no_repository_qualifies(tmp_path, monkeypatch):
+    srv = fake_github([])                                                         # every search answers with nothing
+    monkeypatch.setenv("GITHUB_API_URL", srv.url)
+    stars = tmp_path / "state" / "stars.json"
+    stars.parent.mkdir()
+    stars.write_text(json.dumps({"o/old": {"2026-05-01": 5}, "o/bad": 7}))      # 166 days old (retention is 60), and a damaged entry
+    try:
+        report = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY)
+        assert report["candidates"] == 0 and "dropped entries" in report["history"]["problems"][0]
+        assert json.loads(stars.read_text()) == {}                                # cleaned and pruned on disk, not only in memory
+        again = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    finally:
+        srv.close()
+    assert "problems" not in again["history"]                                    # the warning does not repeat on the next scan
+
+
+def test_an_empty_scan_with_no_history_does_not_create_one(tmp_path, monkeypatch):
+    srv = fake_github([])
+    monkeypatch.setenv("GITHUB_API_URL", srv.url)
+    try:
+        report = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY)
+    finally:
+        srv.close()
+    assert report["candidates"] == 0 and not (tmp_path / "state" / "stars.json").exists()

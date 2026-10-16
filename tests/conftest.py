@@ -3,6 +3,12 @@ import pytest
 from tests.support import FakeLLM, fake_github
 
 
+@pytest.fixture(autouse=True)
+def no_search_pacing(monkeypatch):
+    """The CLI spaces Search API calls by 2.1 s: a test that drives it must not really wait (~65 s for one scan)."""
+    monkeypatch.setenv("RADAR_SEARCH_INTERVAL", "0")
+
+
 @pytest.fixture
 def servers(monkeypatch):
     gh, llm = fake_github(), FakeLLM()

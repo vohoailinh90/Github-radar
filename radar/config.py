@@ -16,6 +16,11 @@ DEFAULTS = {
     "min_stars": 1500,
     "max_days_since_push": 120,
     "per_topic": 15,
+    # A second search per topic for young repositories under a lower stars floor, and the share of picks reserved for young
+    # repositories (any stars) that the plain ranking did not pick (never more than half). 0 slots switches the pass off. See docs/research.md.
+    "rising": {"enabled": True, "slots": 1, "created_within_days": 120, "min_stars": 300},
+    "history_days": 60,             # star snapshots older than this are dropped from state/stars.json
+    "search_interval_seconds": 2.1,  # gap between Search API calls: its limit is 30 a minute, with a stricter hidden one on bursts
     # SPDX ids (lower case). "Free" here means a licence anyone may use without paying.
     "licenses": ["mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause", "isc", "mpl-2.0", "gpl-2.0",
                  "gpl-3.0", "lgpl-2.1", "lgpl-3.0", "agpl-3.0", "unlicense", "0bsd", "cc0-1.0"],
@@ -57,12 +62,14 @@ def load(path: Path | None = None, env: dict | None = None) -> dict:
         if not isinstance(data, dict):
             raise ValueError(f"{path}: expected a mapping at the top level")
         cfg = deep_merge(DEFAULTS, data)
-    # Scheduled runs override without editing the file: RADAR_LANGS=vi,en  RADAR_PICKS=2
+    # Scheduled runs override without editing the file: RADAR_LANGS=vi,en  RADAR_PICKS=2  RADAR_SEARCH_INTERVAL=0
     # RADAR_MODELS_WRITER="google/x mistral/y"
     if env.get("RADAR_LANGS"):
         cfg["langs"] = [x for x in env["RADAR_LANGS"].replace(",", " ").split() if x]
     if env.get("RADAR_PICKS"):
         cfg["picks_per_run"] = int(env["RADAR_PICKS"])
+    if env.get("RADAR_SEARCH_INTERVAL"):
+        cfg["search_interval_seconds"] = float(env["RADAR_SEARCH_INTERVAL"])
     for role in ("writer", "checker"):
         if env.get(f"RADAR_MODELS_{role.upper()}"):
             cfg["models"][role] = env[f"RADAR_MODELS_{role.upper()}"].replace(",", " ").split()
@@ -78,6 +85,13 @@ def validate(cfg: dict) -> None:
         raise ValueError("picks_per_run must be between 1 and 10")
     if float(cfg["max_run_minutes"]) <= 0:
         raise ValueError("max_run_minutes must be positive")
+    rise = cfg["rising"]
+    if not 0 <= int(rise["slots"]) <= int(cfg["picks_per_run"]) or int(rise["created_within_days"]) < 1 or int(rise["min_stars"]) < 0:
+        raise ValueError("rising needs slots between 0 and picks_per_run, created_within_days >= 1 and min_stars >= 0")
+    if int(cfg["history_days"]) < 21:
+        raise ValueError("history_days must be at least 21: velocity compares today with a snapshot up to 21 days old")
+    if float(cfg["search_interval_seconds"]) < 0:
+        raise ValueError("search_interval_seconds cannot be negative")
     for bucket in cfg["buckets"]:
         if not bucket.get("id") or not bucket.get("topics"):
             raise ValueError("every bucket needs an id and at least one topic")
