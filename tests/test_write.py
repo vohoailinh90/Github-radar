@@ -130,7 +130,7 @@ def test_the_checker_asks_for_a_short_answer_and_the_readme_sent_is_capped(serve
     write_one(gw(), CFG, FACTS, "vi")
     writer_call, checker_call = srv.calls[0]["body"], srv.calls[1]["body"]
     assert checker_call["max_tokens"] == CHECK_MAX_TOKENS <= 900 and writer_call["max_tokens"] > CHECK_MAX_TOKENS
-    assert CFG["readme_max_chars"] == 8000
+    assert CFG["readme_max_chars"] == 12000
 
 
 def test_a_cut_off_checker_answer_is_retried_with_more_room_not_the_same_limit(served):

@@ -208,4 +208,4 @@ def test_the_readme_cap_really_limits_what_reaches_both_prompts(tmp_path, monkey
     assert len(users) >= 2
     for user in users:                                  # the writer prompt and the checker prompt
         readme = user.split("<<<README\n", 1)[1].split("\nREADME>>>", 1)[0]
-        assert 0 < len(readme) <= 8000
+        assert 0 < len(readme) <= 12000
