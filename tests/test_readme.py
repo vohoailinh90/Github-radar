@@ -1013,3 +1013,13 @@ def test_a_here_string_keeps_a_block_comment_marker_in_its_data():
     assert readme.heredocs(text) == ([['$x = @"', "literal <# not a comment #> text", '"@']], ['$x = @"', "Get-Item  y"])
     raw = "```powershell\n$y = @'\n<# raw #>\n'@ | Out-Null\nGet-Item z\n```\n"
     assert readme.heredocs(raw) == ([["$y = @'", "<# raw #>", "'@ | Out-Null"]], ["$y = @'", "Get-Item z"])
+
+
+def test_a_powershell_expression_that_ends_in_any_binary_operator_goes_on_but_a_wildcard_argument_does_not():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = ("```powershell\n$x = 4 -\n2\n$y = 3 *\n4\n$z = $y /\n2\n$w = ($x + 1) %\n2\n$a = 1 -as\n[string]\n$b = 5 -is\n[int]\n"
+            "$c = 'a' -in\n@('a')\n```\n")
+    assert lines(text) == ["$x = 4 - 2", "$y = 3 * 4", "$z = $y / 2", "$w = ($x + 1) % 2", "$a = 1 -as [string]", "$b = 5 -is [int]", "$c = 'a' -in @('a')"]
+    keep = ("Get-ChildItem *", "Copy-Item $src *", "$files = Get-ChildItem C:\\tmp\\*", "Get-ChildItem C:\\tmp\\", "Remove-Item $p -f", "Get-Process | %x")
+    assert lines("```powershell\n" + "\n".join(keep) + "\n```\n") == list(keep)                             # a wildcard, a path, `-f` end a command

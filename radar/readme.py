@@ -650,14 +650,18 @@ def _is_powershell(lang: str, command: str) -> bool:
 
 
 PS_WORD_OPERATORS = ("and", "or", "xor", "eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match", "notmatch", "contains", "notcontains",
-                     "join", "split", "replace", "band", "bor", "bxor", "shl", "shr")      # `-f` is also the abbreviation of `-Force`: not here
+                     "in", "notin", "is", "isnot", "as", "join", "split", "replace", "band", "bor", "bxor", "shl", "shr")      # `-f` is also the abbreviation of `-Force`: not here
+PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
+PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+[-*/%]$")     # `$x = 4 -`: an operand and then a binary operator
 
 
 def _ps_continues(code: str, last: str) -> bool:
     """Whether the code of a PowerShell line, which ends in the character `last`, ends in something that wants the next line: a pipe or a
-    comma, an operator (`+`, `=`, a pipeline chain's `&&` and `||`, `-and`, `-eq`, `-join` ...). A path or a wildcard may end in `*` or `/`."""
+    comma, an operator (`+`, `=`, a pipeline chain's `&&` and `||`, `-and`, `-eq`, `-join` ...), or `-`, `*`, `/`, `%` after an operand in
+    a statement that is an expression (`$x = 4 -`). A wildcard or a path ends a command (`Get-ChildItem *`, `Copy-Item $src *`)."""
     code = code.rstrip()
-    return last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(re.search(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + r")$", code, re.I))
+    return (last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(re.search(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + r")$", code, re.I))
+            or bool(PS_EXPRESSION.match(code) and PS_OPERAND_THEN_OPERATOR.search(code)))
 
 
 def _ps_state(text: str):
