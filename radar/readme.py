@@ -14,7 +14,7 @@ from bisect import bisect_right
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
-FENCE = re.compile(r"^\s{0,3}(```|~~~)")
+FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")                # a code fence opens with three or more backticks or tildes
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
 SETEXT = re.compile(r"^ {0,3}(=+|-{3,})[ \t]*$")                 # the line under `Title`: === is level 1, --- is level 2
 HTML_HEADING = re.compile(r"^\s*<h([1-6])\b[^>]{0,200}>(.{1,200}?)</h\1>\s*$", re.I)      # <h2 align="center">Install</h2>
@@ -61,6 +61,28 @@ LOCAL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "[::1]")
 TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|track_id|promo|campaign|source|from)=", re.I)
 
 
+def fence_opens(line: str):
+    """(fence, info string) if `line` opens a fenced code block, else None. The fence is the whole run of backticks or tildes: a block
+    opened with four closes only on a run of at least four of the same kind, so it can hold a three-backtick example."""
+    m = FENCE.match(line.rstrip("\r\n"))
+    if not m or (m.group(1)[0] == "`" and "`" in m.group(2)):       # ```code``` inside a sentence is not a fence
+        return None
+    return m.group(1), m.group(2).strip()
+
+
+def fence_closes(line: str, fence: str) -> bool:
+    m = re.match(r"^[ \t]*(`{3,}|~{3,})[ \t]*$", line.rstrip("\r\n"))
+    return bool(m) and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence)
+
+
+def fence_step(line: str, fence):
+    """(the fence still open after `line`, whether `line` is a fence line). Inside a block only a matching closing fence counts."""
+    if fence is None:
+        opened = fence_opens(line)
+        return (opened[0], True) if opened else (None, False)
+    return (None, True) if fence_closes(line, fence) else (fence, False)
+
+
 @dataclass
 class Section:
     level: int
@@ -93,20 +115,19 @@ def split_sections(text: str) -> list[Section]:
     sections = [Section(0, "", [])]
     fence = None
     for line in text.splitlines(keepends=True):
-        m = FENCE.match(line)
-        if m:
-            fence = None if fence == m.group(1) else (fence or m.group(1))
+        fence, on_fence = fence_step(line, fence)
+        outside = fence is None and not on_fence
         bare = line.rstrip("\r\n")
-        head = None if fence or m else HEADING.match(bare)
+        head = HEADING.match(bare) if outside else None
         if head:
             sections.append(Section(len(head.group(1)), re.sub(r"[*_`]", "", head.group(2)).strip(), [line]))
             continue
-        html = None if fence or m else HTML_HEADING.match(bare)
+        html = HTML_HEADING.match(bare) if outside else None
         if html:
             title = re.sub(r"<[^>]*>|[*_`]", "", html.group(2)).strip()
             sections.append(Section(int(html.group(1)), title, [line]))
             continue
-        under = None if fence or m else SETEXT.match(bare)
+        under = SETEXT.match(bare) if outside else None
         if under and len(sections[-1].lines) > (1 if sections[-1].level else 0):
             title = sections[-1].lines[-1]
             if title.strip() and not title.lstrip().startswith(NOT_TITLE) and not SETEXT.match(title.rstrip("\r\n")):
@@ -140,9 +161,10 @@ def _head(lines: list[str], room: int) -> str:
     for line in lines:
         if size + len(line) > room:
             break
-        m = FENCE.match(line)
-        if m:
-            fence, fence_at = (None, None) if fence == m.group(1) else (fence or m.group(1), len(out) if not fence else fence_at)
+        before = fence
+        fence, _ = fence_step(line, fence)
+        if before is None and fence is not None:
+            fence_at = len(out)                       # a code block opens here
         out.append(line)
         size += len(line)
     if fence is not None and fence_at is not None:
@@ -281,15 +303,16 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     blocks: list[tuple[str, list[str]]] = []
     fence, lang, lines, pending = None, "", [], ""
     for line in text.splitlines():
-        m = FENCE.match(line)
-        if m:
-            if fence is None:
-                fence, lang, lines, pending = m.group(1), line.strip()[3:].strip().split(" ")[0].lower(), [], ""
-            elif fence == m.group(1):
+        before = fence
+        fence, on_fence = fence_step(line, fence)
+        if on_fence:
+            if before is None:
+                info = fence_opens(line)[1]
+                lang, lines, pending = (info.split(" ")[0].lower() if info else ""), [], ""
+            else:
                 if pending:
                     lines.append(pending)
                 blocks.append((lang, lines))
-                fence = None
             continue
         if fence is None:
             continue
@@ -322,10 +345,8 @@ def prose_lines(text: str) -> list[str]:
     """The README's lines outside its fenced code blocks (the fence lines themselves are left out too)."""
     out, fence = [], None
     for line in text.splitlines():
-        m = FENCE.match(line)
-        if m:
-            fence = None if fence == m.group(1) else (fence or m.group(1))
-        elif fence is None:
+        fence, on_fence = fence_step(line, fence)
+        if fence is None and not on_fence:
             out.append(line)
     return out
 
@@ -356,13 +377,14 @@ def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 180
     value_at = _value_at(text)
     found, fence, lang, lines, start, pos = [], None, "", [], 0, 0
     for line in text.splitlines(keepends=True):
-        m = FENCE.match(line)
-        if m and fence is None:
-            fence, lang, lines, start = m.group(1), line.strip()[3:].strip().split(" ")[0].lower(), [], pos
-        elif m and fence == m.group(1):
+        before = fence
+        fence, on_fence = fence_step(line, fence)
+        if on_fence and before is None:
+            info = fence_opens(line)[1]
+            lang, lines, start = (info.split(" ")[0].lower() if info else ""), [], pos
+        elif on_fence:
             body = textwrap.dedent("".join(lines)).strip("\n")
             found.append((start, lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", lang) else "", body))
-            fence = None
         elif fence is not None:
             lines.append(line.rstrip("\r\n") + "\n")
         pos += len(line)

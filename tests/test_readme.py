@@ -233,3 +233,33 @@ def test_the_secondary_prompt_of_a_wrapped_transcript_command_is_not_part_of_the
     assert readme.code_lines(transcript) == ["$ tool --flag --other", "$ next"]
     shell = "```bash\ntool \\\n> out.log\n```\n"                  # in a shell block `> out.log` is a redirection that continues the command
     assert readme.setup_commands(shell) == ["tool > out.log"]
+
+
+FOUR = "## Install\n\n````bash\nmy-tool --flag\n```\n# not a heading\n```\nmy-tool run\n````\n\n## After\n\ntext\n"
+
+
+def test_a_block_opened_with_four_backticks_holds_a_three_backtick_example():
+    """The fence is the whole run: a closing fence needs at least as many characters of the same kind, and the language is `bash`."""
+    assert readme.code_blocks(FOUR) == [("bash", ["my-tool --flag", "```", "# not a heading", "```", "my-tool run"])]
+    assert readme.setup_commands(FOUR)[0] == "my-tool --flag" and readme.setup_commands(FOUR)[-1] == "my-tool run"
+    assert readme.blocks(FOUR) == []                                  # a shell block is not offered as a config sample
+    assert [s.title for s in readme.split_sections(FOUR)] == ["Install", "After"]          # the `#` line inside is not a heading
+    assert readme.prose_lines(FOUR) == ["## Install", "", "", "## After", "", "text"]
+
+
+def test_a_cut_never_lands_inside_a_four_backtick_block():
+    text = "# T\n\nintro\n\n## Install\n\nsteps\n\n````md\n" + "line\n```\ninner\n```\n" * 40 + "````\n\n## Tail\n\n" + "words " * 400
+    out = readme.select(text, 900)
+    assert len(out) <= 900 and out.count("````") % 2 == 0
+
+
+def test_fences_of_each_kind_open_and_close_only_on_their_own():
+    tilde = "~~~~sh\nmy-tool a\n~~~\nmy-tool b\n~~~~\n\n```sh\nmy-tool c\n~~~\nmy-tool d\n```\n"
+    assert readme.code_blocks(tilde) == [("sh", ["my-tool a", "~~~", "my-tool b"]), ("sh", ["my-tool c", "~~~", "my-tool d"])]
+    assert readme.fence_opens("```code``` in a sentence") is None and readme.fence_opens("``") is None
+    assert readme.fence_opens("   ````yaml extra")[0] == "````"
+
+
+def test_a_fence_nested_in_a_list_item_is_found_whatever_its_indentation():
+    text = "1. Install:\n\n     ```bash\n     pip install x\n     ```\n"
+    assert readme.setup_commands(text) == ["pip install x"]
