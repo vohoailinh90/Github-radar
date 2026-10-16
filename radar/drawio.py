@@ -27,8 +27,8 @@ def _attr(text) -> str:
     return html.escape(_XML_BAD.sub("", str(text)), quote=True)
 
 
-def _n(value: float) -> str:
-    return f"{value:.1f}".rstrip("0").rstrip(".")
+def _n(value: float, digits: int = 1) -> str:
+    return f"{value:.{digits}f}".rstrip("0").rstrip(".")
 
 
 def _label(blocks: list[dict]) -> str:
@@ -65,7 +65,7 @@ class _Cells:
         if ends:
             geometry += f'<mxPoint x="{_n(ends[0][0])}" y="{_n(ends[0][1])}" as="sourcePoint"/><mxPoint x="{_n(ends[1][0])}" y="{_n(ends[1][1])}" as="targetPoint"/>'
         if waypoints:
-            geometry += '<Array as="points">' + "".join(f'<mxPoint x="{_n(x)}" y="{_n(y)}"/>' for x, y in waypoints) + "</Array>"
+            geometry += '<Array as="points">' + "".join(f'<mxPoint x="{_n(x, 2)}" y="{_n(y, 2)}"/>' for x, y in waypoints) + "</Array>"
         self.rows.append(f'<mxCell id="{cid}" style="{style}" edge="1" parent="{parent}"{terms}>{geometry}</mxGeometry></mxCell>')
         return cid
 
@@ -73,49 +73,82 @@ class _Cells:
 def _connector_style(hop: bool = False, **ports) -> str:
     base = (f"html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=1;endSize=4;strokeColor={CORAL};strokeWidth=4;"
             "exitPerimeter=0;entryPerimeter=0;" + ("jumpStyle=arc;jumpSize=14;" if hop else ""))
-    return base + "".join(f"{k}={v};" for k, v in ports.items())
+    return base + "".join(f"{k}={_n(v, 4)};" for k, v in ports.items())
 
 
 def _component_edges(cells: _Cells, ids: dict[int, str], boxes: dict[int, dict], links: list[tuple[int, int]]) -> None:
-    """One connector per link. Neighbours join side to side; a longer hop leaves through the side that faces its target and runs
-    in its own lane, so two links that cross the same gap (A->D and B->C) stay two lines and meet at one hop."""
+    """One connector per link, and no two connectors on one line.
+
+    The grid has at most two rows. Neighbours join straight, side to side or top to bottom. Every other link leaves and enters a
+    card's top or bottom and runs along its own horizontal lane in the gap between the rows (or above the first row for an
+    arc over a card). Where a line leaves or enters is a slot: all the vertical stubs of one column share the column's width
+    and each gets its own slot, so two stubs that meet in one column (one hanging from the upper card, one rising to the lower
+    card) are never collinear, and A->B next to B->A are two lines."""
     xs = sorted({b["x"] for b in boxes.values()})
     ys = sorted({b["y"] for b in boxes.values()})
     col = {i: xs.index(b["x"]) for i, b in boxes.items()}
     row = {i: ys.index(b["y"]) for i, b in boxes.items()}
-    groups: dict[tuple, list[tuple[int, int]]] = {}
+    centre = lambda i: (boxes[i]["x"] + boxes[i]["w"] / 2, boxes[i]["y"] + boxes[i]["h"] / 2)
+
+    specs = []                                  # kind, from, to, side of `from`, side of `to`, lane pool
     for a, b in links:
-        if row[a] != row[b]:
-            groups.setdefault(("gap",) + tuple(sorted((row[a], row[b]))), []).append((a, b))
-        elif abs(col[a] - col[b]) > 1:
-            groups.setdefault(("arc", row[a]), []).append((a, b))
-    both_ways = {(a, b) for a, b in links if (b, a) in links}        # A->B and B->A between neighbours run side by side, not on one line
-    for a, b in links:
-        ba, bb = boxes[a], boxes[b]
-        f = (0.3 if a < b else 0.7) if (a, b) in both_ways else 0.5
         if row[a] == row[b] and abs(col[a] - col[b]) == 1:
             right = col[b] > col[a]
-            cells.edge(_connector_style(exitX=int(right), exitY=f, entryX=int(not right), entryY=f), source=ids[a], target=ids[b])
+            specs.append(("side", a, b, "right" if right else "left", "left" if right else "right", None))
         elif col[a] == col[b] and abs(row[a] - row[b]) == 1:
             down = row[b] > row[a]
-            cells.edge(_connector_style(exitX=f, exitY=int(down), entryX=f, entryY=int(not down)), source=ids[a], target=ids[b])
-        elif row[a] == row[b]:                                   # over the cards between: an arc above the row
-            group = groups[("arc", row[a])]
-            k, m = group.index((a, b)), len(group)
-            f = 0.5 if m == 1 else 0.3 + 0.4 * k / (m - 1)
-            lane = ba["y"] - 16 - 12 * min(k, 2)
-            cells.edge(_connector_style(True, exitX=f, exitY=0, entryX=f, entryY=0), source=ids[a], target=ids[b],
-                       waypoints=[(ba["x"] + f * ba["w"], lane), (bb["x"] + f * bb["w"], lane)])
+            specs.append(("vertical", a, b, "bottom" if down else "top", "top" if down else "bottom", None))
+        elif row[a] == row[b]:                  # over the cards between: an arc above the row, in the gap above row 1 or over row 0
+            specs.append(("arc", a, b, "top", "top", ("gap", row[a] - 1) if row[a] else ("above", 0)))
         else:
-            group = groups[("gap",) + tuple(sorted((row[a], row[b])))]
-            k, m = group.index((a, b)), len(group)
-            f = 0.5 if m == 1 else 0.3 + 0.4 * k / (m - 1)
             down = row[b] > row[a]
-            upper = [bx for i, bx in boxes.items() if row[i] == min(row[a], row[b])]
-            lower = [bx for i, bx in boxes.items() if row[i] == max(row[a], row[b])]
-            lane = (max(bx["y"] + bx["h"] for bx in upper) + min(bx["y"] for bx in lower)) / 2 + (k - (m - 1) / 2) * LANE
-            cells.edge(_connector_style(True, exitX=f, exitY=int(down), entryX=f, entryY=int(not down)), source=ids[a], target=ids[b],
-                       waypoints=[(ba["x"] + f * ba["w"], lane), (bb["x"] + f * bb["w"], lane)])
+            specs.append(("gap", a, b, "bottom" if down else "top", "top" if down else "bottom", ("gap", min(row[a], row[b]))))
+
+    # slots: tokens that must not share a place, grouped by where they sit, ordered by where the other end is
+    groups: dict[tuple, list[tuple[float, int, str]]] = {}
+    for n, (kind, a, b, sa, sb, pool) in enumerate(specs):
+        if kind == "side":
+            groups.setdefault(("side", a, sa), []).append((centre(b)[1], n, "a"))
+            groups.setdefault(("side", b, sb), []).append((centre(a)[1], n, "b"))
+        elif kind == "vertical":                # one token: both ends are the same x, so the line is straight
+            groups.setdefault(("col", min(row[a], row[b]), col[a]), []).append((0.0, n, "ab"))
+        elif pool == ("above", 0):
+            groups.setdefault(("top", a), []).append((centre(b)[0], n, "a"))
+            groups.setdefault(("top", b), []).append((centre(a)[0], n, "b"))
+        else:                                   # a stub in the gap between the rows, in the column of its card
+            groups.setdefault(("col", pool[1], col[a]), []).append((centre(b)[0], n, "a"))
+            groups.setdefault(("col", pool[1], col[b]), []).append((centre(a)[0], n, "b"))
+    fraction: dict[tuple[int, str], float] = {}
+    for tokens in groups.values():
+        for i, (_, n, end) in enumerate(sorted(tokens)):
+            for e in end if end != "ab" else ("a", "b"):
+                fraction[(n, e)] = round((i + 1) / (len(tokens) + 1), 4)
+
+    # lanes: one pool per gap (links across it and arcs in it) and one above the first row, each link its own line
+    pools: dict[tuple, list[int]] = {}
+    for n, spec in enumerate(specs):
+        if spec[5] is not None:
+            pools.setdefault(spec[5], []).append(n)
+    lane: dict[int, float] = {}
+    for pool, members in pools.items():
+        if pool[0] == "above":
+            top = min(b["y"] for i, b in boxes.items() if row[i] == 0)
+            lane.update({n: top - 16 - 14 * k for k, n in enumerate(members)})
+        else:
+            above = max(b["y"] + b["h"] for i, b in boxes.items() if row[i] == pool[1])
+            below = min(b["y"] for i, b in boxes.items() if row[i] == pool[1] + 1)
+            lane.update({n: above + (below - above) * (k + 1) / (len(members) + 1) for k, n in enumerate(members)})
+
+    point = {"right": lambda f: (1, f), "left": lambda f: (0, f), "bottom": lambda f: (f, 1), "top": lambda f: (f, 0)}
+    for n, (kind, a, b, sa, sb, pool) in enumerate(specs):
+        (ex, ey), (nx, ny) = point[sa](fraction[(n, "a")]), point[sb](fraction[(n, "b")])
+        ports = dict(exitX=ex, exitY=ey, entryX=nx, entryY=ny)
+        if pool is None:
+            cells.edge(_connector_style(**ports), source=ids[a], target=ids[b])
+            continue
+        ba, bb = boxes[a], boxes[b]
+        cells.edge(_connector_style(True, **ports), source=ids[a], target=ids[b],
+                   waypoints=[(ba["x"] + ex * ba["w"], lane[n]), (bb["x"] + nx * bb["w"], lane[n])])
 
 
 def diagram(facts: dict, draft: dict, t: dict) -> str:

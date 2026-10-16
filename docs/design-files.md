@@ -41,7 +41,7 @@ Moda **không** chạy được trong lượt quét: connector Moda nằm trong 
 Kiểm tay ngày 2026-10-16 với bài `flowkit` (`digests/2026-10-16-2/`) qua connector Moda: nhận cả dòng chú thích đầu tệp, tạo 51 phần tử, không cảnh báo, không co cỡ chữ. Phép kiểm này cần connector nên **không nằm trong bộ test**; bộ test chỉ chứng minh những gì không cần Moda (chữ, bố cục, escape, tính lặp lại).
 
 ### Giới hạn của hình
-- Excalidraw và Moda: hai cạnh ngược chiều (A→B và B→A) được vẽ chồng lên nhau thành một mũi tên hai đầu, và nhiều cung bắc qua cùng một hàng dùng chung một làn: không mất cạnh nào, nhưng khó phân biệt khi `flow` dày. Bản draw.io tách chúng: mỗi mũi tên một cổng và một làn riêng, chỗ giao nhau có nét nhảy (tối đa ba cung riêng biệt trên một hàng; từ cung thứ tư chúng dùng chung làn).
+- Excalidraw và Moda: hai cạnh ngược chiều (A→B và B→A) được vẽ chồng lên nhau thành một mũi tên hai đầu, và nhiều cung bắc qua cùng một hàng dùng chung một làn: không mất cạnh nào, nhưng khó phân biệt khi `flow` dày. Bản draw.io tách chúng: mỗi mũi tên một cổng ra/vào và một làn ngang riêng trong khoảng trống giữa hai hàng, chỗ giao nhau có nét nhảy; `tests/test_drawio.py` thử hàng trăm `flow` ngẫu nhiên (2-6 thành phần, tối đa 12 cạnh, cả hai chiều) để không hai đường nào nằm chồng lên nhau và không đường nào đi qua một thẻ. Khi `flow` rất dày (hơn khoảng 8 mũi tên qua cùng một khoảng trống) các làn chỉ cách nhau vài px.
 - Thẻ "các mảnh ghép" xếp theo thứ tự chỉ số (2 hoặc 3 cột), không theo độ sâu phụ thuộc như `flow-<ngôn ngữ>.svg`.
 - Chữ draw.io dùng Helvetica (mặc định của draw.io, tự thay font khác cho tiếng Việt và tiếng Nhật), không phải Be Vietnam Pro như Moda.
 

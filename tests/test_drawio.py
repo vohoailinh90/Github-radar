@@ -8,7 +8,10 @@ gives the same bytes (`rerender` relies on that); and a draft that names no icon
 import base64
 import html
 import json
+import random
 import re
+import shutil
+import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -17,6 +20,7 @@ import pytest
 from radar import boards, drawio, excalidraw, icons, moda, pipeline
 from radar.github import GitHub
 from radar.labels import L
+from radar.config import ROOT
 from radar.llm import Gateway
 from tests.support import TODAY, make_draft
 from tests.test_boards import FACTS, HOSTILE, LANGS, allowed, cfg, compact, extreme, snapshot
@@ -180,25 +184,91 @@ def test_every_flow_edge_is_one_attached_connector_and_steps_hand_off_to_the_nex
     assert hand_offs == {(steps[0], steps[1])}                                              # 3 steps: two share a row, the third is alone
 
 
+def paths(cells):
+    """The polyline of every component connector as draw.io draws it: leave the port, run to the lane, along it, into the port."""
+    cards = {pic.get("parent"): absolute(cells[pic.get("parent")], cells) for pic in images(cells)}
+    out = []
+    for e in connectors(cells):
+        if e.get("source") not in cards:
+            continue
+        s, (ax, ay, aw, ah), (bx, by, bw, bh) = style(e), cards[e.get("source")], cards[e.get("target")]
+        points = [(ax + float(s["exitX"]) * aw, ay + float(s["exitY"]) * ah)]
+        points += [(float(p.get("x")), float(p.get("y"))) for p in e.findall("mxGeometry/Array/mxPoint")]
+        points.append((bx + float(s["entryX"]) * bw, by + float(s["entryY"]) * bh))
+        out.append((e, points))
+    return out, list(cards.values())
+
+
+def segments(points):
+    return list(zip(points, points[1:]))
+
+
+def overlap(p, q, tol=1.0):
+    """True when two axis-parallel segments lie on one line and share more than `tol` px of it."""
+    (x1, y1), (x2, y2) = p
+    (u1, v1), (u2, v2) = q
+    if abs(x1 - x2) < 0.05 and abs(u1 - u2) < 0.05 and abs(x1 - u1) < 0.5:
+        return min(max(y1, y2), max(v1, v2)) - max(min(y1, y2), min(v1, v2)) > tol
+    if abs(y1 - y2) < 0.05 and abs(v1 - v2) < 0.05 and abs(y1 - v1) < 0.5:
+        return min(max(x1, x2), max(u1, u2)) - max(min(x1, x2), min(u1, u2)) > tol
+    return False
+
+
+def enters(seg, card, inset=2.0):
+    (x1, y1), (x2, y2) = seg
+    x, y, w, h = card
+    return (min(x1, x2) < x + w - inset and max(x1, x2) > x + inset and min(y1, y2) < y + h - inset and max(y1, y2) > y + inset)
+
+
+def check_lines(draft):
+    _, cells = parse(drawio.diagram(FACTS, draft, L["en"]))
+    drawn, cards = paths(cells)
+    flat = []
+    for e, points in drawn:
+        for seg in segments(points):
+            (x1, y1), (x2, y2) = seg
+            assert abs(x1 - x2) < 0.05 or abs(y1 - y2) < 0.05, ("not orthogonal", e.get("id"), seg)       # a jog would be a different route
+            assert not any(enters(seg, card) for card in cards), ("runs across a card", e.get("id"), seg)
+            flat.append((e.get("id"), seg))
+    for i, (ei, si) in enumerate(flat):
+        for ej, sj in flat[i + 1:]:
+            assert ei == ej or not overlap(si, sj), ("two connectors on one line", ei, si, ej, sj)
+    return len(drawn)
+
+
 def test_links_that_would_share_a_line_get_their_own_ports_and_lanes():
-    """A->D and B->C cross a gap together; A->B and B->A, A->C and C->A face each other: none may share a lane or a port, or two
-    arrows read as one."""
+    """A->D and B->C cross a gap together; A->B and B->A face each other; A->D, A->E and B->E share cards and stubs: no two
+    connectors may lie on one line, or two arrows read as one."""
     draft = with_icons(extreme("en"))
     draft["how_it_works"]["components"] = draft["how_it_works"]["components"][:4]        # 2 columns: 0 1 / 2 3
     for flow in ([[0, 3], [1, 2]], [[0, 2], [2, 0]], [[0, 1], [1, 0]], [[0, 3], [3, 0], [1, 2]]):
         draft["how_it_works"]["flow"] = flow
-        _, cells = parse(drawio.diagram(FACTS, draft, L["en"]))
-        comp = {pic.get("parent") for pic in images(cells)}
-        edges = [c for c in connectors(cells) if c.get("source") in comp]
-        assert len(edges) == len(flow)
-        # a line is its two attachment points, whichever way the arrow points: A->C and C->A at the same ports would be one line
-        lines = [frozenset({(e.get("source"), style(e)["exitX"], style(e)["exitY"]), (e.get("target"), style(e)["entryX"], style(e)["entryY"])})
-                 for e in edges]
-        assert len(set(lines)) == len(lines), (flow, lines)
-        with_lane = [e for e in edges if e.find("mxGeometry/Array") is not None]
-        lanes = [e.find("mxGeometry/Array/mxPoint").get("y") for e in with_lane]
-        assert len(set(lanes)) == len(lanes), (flow, lanes)
-        assert all(style(e).get("jumpStyle") == "arc" for e in with_lane)
+        assert check_lines(draft) == len(flow), flow
+    draft = with_icons(extreme("en"))                                                        # 3 columns: 0 1 2 / 3 4 5
+    for flow in ([[0, 3], [0, 4], [1, 4], [3, 4]], [[0, 2], [2, 0], [3, 5], [5, 3]], [[0, 5], [5, 0], [2, 3], [3, 2], [1, 4], [4, 1]]):
+        draft["how_it_works"]["flow"] = flow
+        assert check_lines(draft) == len(flow), flow
+
+
+def test_a_hop_marks_every_connector_that_runs_in_a_lane():
+    draft = with_icons(extreme("en"))
+    draft["how_it_works"]["flow"] = [[0, 4], [1, 3], [0, 2], [3, 5]]                          # two cross the gap, two arc over a card
+    _, cells = parse(drawio.diagram(FACTS, draft, L["en"]))
+    drawn, _ = paths(cells)
+    with_lane = [e for e, _ in drawn if e.find("mxGeometry/Array") is not None]
+    assert len(with_lane) == 4 and all(style(e).get("jumpStyle") == "arc" for e in with_lane)
+
+
+@pytest.mark.parametrize("seed", range(6))
+def test_no_flow_a_draft_may_list_puts_two_connectors_on_one_line_or_a_connector_across_a_card(seed):
+    rng = random.Random(seed)
+    for _ in range(40):
+        n = rng.randint(2, 6)
+        draft = with_icons(extreme("en"))
+        draft["how_it_works"]["components"] = draft["how_it_works"]["components"][:n]
+        edges = [[a, b] for a in range(n) for b in range(n) if a != b]
+        draft["how_it_works"]["flow"] = rng.sample(edges, rng.randint(1, min(12, len(edges))))
+        check_lines(draft)
 
 
 # --- safety: a README sentence cannot become markup --------------------------------------------------------------------------------
@@ -249,3 +319,10 @@ def test_icons_in_the_stored_draft_are_what_the_diagram_draws_after_a_run(tmp_pa
             (tmp_path / p).unlink()
     assert pipeline.rerender(cfg(langs=["vi", "en", "ja"]), tmp_path)["rerendered"] == ["2026-10-14"]
     assert snapshot(tmp_path) == before
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git is not installed")
+def test_git_keeps_the_hashed_icon_bytes_as_they_are_on_a_checkout_that_converts_line_endings():
+    for name in ("radar/icons/bell.svg", "radar/icons/index.json", "docs/third-party/lucide/LICENSE"):
+        out = subprocess.run(["git", "check-attr", "text", name], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        assert out.strip().endswith("text: unset"), out
