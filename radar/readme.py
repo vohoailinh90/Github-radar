@@ -429,7 +429,7 @@ def _continues(lang: str, line: str) -> bool:
         return re.search(r"(?<!`)`$", line) is not None
     if lang in CMD_LANGS:
         return re.search(r"(?<!\^)\^$", line) is not None
-    return line.endswith("\\") and not DRIVE_ROOT.search(line)
+    return (len(line) - len(line.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(line)       # `\\` at the end is an escaped backslash
 
 
 def _heredoc_ends(line: str) -> list[str]:
@@ -437,11 +437,9 @@ def _heredoc_ends(line: str) -> list[str]:
     return [next(g for g in m.groups() if g) for m in HEREDOC.finditer(line)]
 
 
-def code_blocks(text: str) -> list[tuple[str, list[str]]]:
-    """(language tag, logical lines) of each fenced code block, in order. A line ending in its shell's continuation mark is joined with
-    the next (the padding of the continuation is dropped), except in the body of a heredoc, which is data. Everything else is kept as the README has it: the indentation of a line (a
-    heredoc body, a YAML sample) and the blank lines between lines; only the indentation common to the whole block, which belongs to
-    the Markdown container (a list item), is removed. Blank lines at the start and end of a block are dropped."""
+def _scan(text: str) -> list[tuple[str, list[str], list]]:
+    """(language tag, logical lines, owners) of each fenced code block, in order; `owners[i]` is None for an ordinary line and, for a
+    line of the body of a heredoc (its closing word included), the index of the line that opened it."""
     raw: list[tuple[str, list[str]]] = []
     fence, lang, lines = None, "", []
     for line in text.splitlines():
@@ -457,21 +455,28 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
             lines.append(line)
     if fence is not None:                         # an unclosed block runs to the end of the README
         raw.append((lang, lines))
-    blocks: list[tuple[str, list[str]]] = []
+    blocks: list[tuple[str, list[str], list]] = []
     for lang, lines in raw:
         body = dedent(lines)
-        logical, pending, ends = [], "", []
+        while body and not body[0].strip():       # blank lines at the start and end of a block are dropped
+            body.pop(0)
+        while body and not body[-1].strip():
+            body.pop()
+        logical, owners, pending, ends, opener = [], [], "", [], None
         for line in body:
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
+                owners.append(opener)
                 if line.strip() == ends[0]:
                     ends.pop(0)
                 continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
                 if pending:
                     logical.append(pending)
+                    owners.append(None)
                     pending = ""
                 logical.append("")
+                owners.append(None)
                 continue
             if pending:
                 piece = line.strip()
@@ -484,17 +489,41 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
                 pending = pending[:-1].rstrip()
                 continue
             logical.append(pending)
+            owners.append(None)
             if lang in HEREDOC_LANGS:
                 ends = _heredoc_ends(pending)
+                opener = len(logical) - 1
             pending = ""
         if pending:
             logical.append(pending)
-        while logical and not logical[0]:
-            logical.pop(0)
-        while logical and not logical[-1]:
-            logical.pop()
-        blocks.append((lang, logical))
+            owners.append(None)
+        blocks.append((lang, logical, owners))
     return blocks
+
+
+def code_blocks(text: str) -> list[tuple[str, list[str]]]:
+    """(language tag, logical lines) of each fenced code block, in order. A line ending in its shell's continuation mark is joined with
+    the next (the padding of the continuation is dropped), except in the body of a heredoc, which is data. Everything else is kept as
+    the README has it: the indentation of a line (a heredoc body, a YAML sample) and the blank lines between lines; only the
+    indentation common to the whole block, which belongs to the Markdown container (a list item), is removed. Blank lines at the
+    start and end of a block are dropped."""
+    return [(lang, logical) for lang, logical, _ in _scan(text)]
+
+
+def heredocs(text: str) -> tuple[list[list[str]], list[str]]:
+    """(groups, loose) for the README's code blocks. A group is a heredoc as [the line that opens it, its body lines..., the closing
+    word]: a body line is not a command on its own, the whole group is what a reader types. `loose` is every other logical line."""
+    groups: list[list[str]] = []
+    loose: list[str] = []
+    for _, logical, owners in _scan(text):
+        by_opener: dict[int, list[str]] = {}
+        for line, owner in zip(logical, owners):
+            if owner is None:
+                loose.append(line)
+            else:
+                by_opener.setdefault(owner, [logical[owner]]).append(line)
+        groups += by_opener.values()
+    return groups, loose
 
 
 def code_lines(text: str) -> list[str]:

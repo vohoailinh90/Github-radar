@@ -565,6 +565,35 @@ def test_the_only_command_line_of_a_readme_has_to_be_in_the_guide():
     assert not any("guide.steps" in e for e in errs(short_guide(PAPER_FACTS, 1), PAPER_FACTS))                   # a README with no command line asks for none
 
 
+GROUP_README = (README + "\n```bash\ncat > conf.yml <<EOF\nmodel: x\n\nkey: y\nEOF\npip install heredoc-tool\ncat > other.yml <<'EOF'\nmodel: z\nEOF\n```\n")
+GROUP_FACTS = {**FACTS, "readme": GROUP_README, "links": readme.links(GROUP_README), "blocks": readme.blocks(GROUP_README)}
+GROUP = ["cat > conf.yml <<EOF", "model: x", "", "key: y", "EOF"]
+
+
+def test_a_heredoc_is_listed_whole_or_not_at_all():
+    """`model: x` or `EOF` alone is not a command, and an opening line without its body waits for input."""
+    ok = [GROUP, GROUP + ["pip install heredoc-tool"], ["pip install heredoc-tool"] + GROUP, GROUP + ["cat > other.yml <<'EOF'", "model: z", "EOF"]]
+    bad = [["model: x"], ["EOF"], ["key: y"], GROUP[:1], GROUP[:2], GROUP[:4], GROUP[1:], ["model: x"] + GROUP, GROUP[:3] + ["pip install heredoc-tool"],
+           ["cat > conf.yml <<EOF", "model: x", "key: y", "EOF"]]
+    for commands, good in [(c, True) for c in ok] + [(c, False) for c in bad]:
+        d = make_draft(GROUP_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=commands, evidence="README")
+        found = [e for e in errs(d, GROUP_FACTS) if "steps[0].commands" in e]
+        assert (not found) is good, (commands, found)
+    d = make_draft(GROUP_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["model: x"], evidence="README")
+    d["guide"]["steps"][1].update(commands=GROUP, evidence="README")
+    assert [e for e in errs(d, GROUP_FACTS) if "commands" in e] and not any("steps[1].commands" in e for e in errs(d, GROUP_FACTS))      # per step
+
+
+def test_a_line_that_is_a_command_elsewhere_in_the_readme_may_stand_alone_even_if_a_heredoc_holds_it_too():
+    text = README + "\n```bash\ncat <<EOF\nsame line\nEOF\nsame line\n```\n"
+    facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}
+    d = make_draft(facts, "vi")
+    d["guide"]["steps"][0].update(commands=["same line"], evidence="README")
+    assert not any("steps[0].commands" in e for e in errs(d, facts))
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

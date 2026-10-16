@@ -331,6 +331,20 @@ def test_the_shell_a_readme_writes_a_command_line_for_is_known_when_it_is_not_a_
     assert readme.shells("```bash\nls\n```\n") == {} and readme.shells("no code") == {}
 
 
+def test_only_an_unescaped_backslash_continues_a_line():
+    text = "```bash\nprintf '%s\\n' C:\\\\\necho next\nprintf a \\\\\n  b\nprintf c \\\\\\\n  d\ndocker run \\\n  img\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["printf '%s\\n' C:\\\\", "echo next", "printf a \\\\", "  b", "printf c \\\\ d", "docker run img"])]
+
+
+def test_a_heredoc_is_one_group_from_its_opening_line_to_its_closing_word():
+    text = ("```bash\ncat > conf.yml <<EOF\nmodel: x\n\nkey: y\nEOF\npip install tool\ncat <<-'A' <<B\n  one\nA\ntwo\nB\n```\n"
+            "\n```powershell\nGet-Item x\n```\n")
+    groups, loose = readme.heredocs(text)
+    assert groups == [["cat > conf.yml <<EOF", "model: x", "", "key: y", "EOF"], ["cat <<-'A' <<B", "  one", "A", "two", "B"]]
+    assert loose == ["cat > conf.yml <<EOF", "pip install tool", "cat <<-'A' <<B", "Get-Item x"]                      # the openers and the lines outside any heredoc
+    assert readme.heredocs("```bash\nls\n```\n") == ([], ["ls"]) and readme.heredocs("no code") == ([], [])
+
+
 def test_adjacent_addresses_with_nothing_between_them_are_separate_links():
     text = ("Set `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://frontend.example.com;http://[::1]:8080,https://b.example.org/x` first.\n"
             "Also [both](http://a.example.com,https://b.example.com) and https://c.example.com/list?ids=1,2 here.\n")

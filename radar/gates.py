@@ -313,15 +313,20 @@ def _block_variants(readme: str):
             yield re.split(r"\s+#\s", line)[0], prompt
 
 
+def _prose_variants(readme: str):
+    """(text, prompt pattern) for the lines of the README outside its code blocks and the code spans in them."""
+    for line in (l.strip() for l in readmelib.prose_lines(readme)):
+        yield line, readmelib.SHELL_PROMPT
+        yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
+        yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
+
+
 def _command_variants(readme: str):
     """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the lines of its
     code blocks (see `_block_variants`), and outside the blocks whole lines and inline code spans. Each text also comes without a
     trailing `# comment`."""
     yield from _block_variants(readme)
-    for line in (l.strip() for l in readmelib.prose_lines(readme)):
-        yield line, readmelib.SHELL_PROMPT
-        yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
-        yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
+    yield from _prose_variants(readme)
 
 
 def _shown(text: str, prompt) -> str:
@@ -417,6 +422,37 @@ def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
     return out
 
 
+def _heredoc_problems(draft: dict, readme: str) -> list[Problem]:
+    """A heredoc is one command made of several lines: its opening line, its body and its closing word. A list of commands may not
+    hold a line that only the heredoc has (a body line, the closing word) without the whole group around it, nor an opening line
+    without the rest: alone they are a different command, or one that waits for input."""
+    found, loose = readmelib.heredocs(readme)
+    groups = [[_norm_cmd(line) for line in group] for group in found]
+    if not groups:
+        return []
+    openers = {group[0] for group in groups}
+    elsewhere = {_norm_cmd(line) for line in loose} | {_norm_cmd(text) for text, _ in _prose_variants(readme)}         # a line that is a command on its own too
+    only_in_heredocs = {key for group in groups for key in group[1:] if key} - elsewhere
+    by_field: dict[str, list[str]] = {}
+    for field, cmd in guide_commands(draft):
+        if isinstance(cmd, str):
+            by_field.setdefault(field, []).append(_norm_cmd(cmd))
+    out = []
+    for field, keys in by_field.items():
+        i = 0
+        while i < len(keys):
+            whole = next((group for group in groups if group[0] == keys[i] and keys[i:i + len(group)] == group), None)
+            if whole:
+                i += len(whole)
+                continue
+            if keys[i] in openers:
+                out.append(Problem("error", field, f"command opens a heredoc but its body and closing word do not follow it as the README has them: {keys[i]!r}"))
+            elif keys[i] in only_in_heredocs:
+                out.append(Problem("error", field, f"command is a line of a heredoc, not a command: copy the whole heredoc from its opening line: {keys[i]!r}"))
+            i += 1
+    return out
+
+
 def language_ok(draft: dict, lang: str) -> bool:
     text = " ".join(t for _, t in texts(draft))
     letters = [c for c in text if c.isalpha()]
@@ -460,6 +496,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         # a backtick is shell (command substitution) only in a line of a code block; around a span of prose it is Markdown
         if not isinstance(cmd, str) or "\n" in cmd or len(shown) < 3 or shown not in known or ("`" in shown and shown not in typed):
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
+    problems += _heredoc_problems(draft, facts["readme"])
     guide = draft.get("guide")
     if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):
         links, blocks = len(facts.get("links") or []), len(facts.get("blocks") or [])
