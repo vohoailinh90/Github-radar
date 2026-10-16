@@ -644,6 +644,20 @@ def test_a_command_cut_at_a_hash_inside_quotes_is_not_a_command_but_a_real_trail
         assert (not any("steps[0].commands" in e for e in errs(d, QUOTE_FACTS))) is ok, command
 
 
+SAMPLE_README = (README + "\n```yaml\nmodel: llama\nport: 8080\n```\n\n```python\nimport os\nprint('x')\n```\n\n```\ncat > s.yml <<EOF\nmodel: z\nEOF\n```\n\n"
+                 "```bash\ncat <<EOF\nnever closed\n```\n")
+SAMPLE_FACTS = {**FACTS, "readme": SAMPLE_README, "links": readme.links(SAMPLE_README), "blocks": readme.blocks(SAMPLE_README)}
+
+
+def test_a_line_of_a_configuration_or_code_sample_is_not_a_command_but_a_heredoc_is_whole_and_an_unfinished_one_is_none():
+    for commands, ok in ((["model: llama"], False), (["port: 8080"], False), (["import os"], False), (["print('x')"], False),
+                         (["cat > s.yml <<EOF", "model: z", "EOF"], True), (["cat > s.yml <<EOF", "model: z"], False), (["cat <<EOF"], False),
+                         (["never closed"], False)):
+        d = make_draft(SAMPLE_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=commands, evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, SAMPLE_FACTS))) is ok, commands
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

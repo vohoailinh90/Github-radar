@@ -420,6 +420,8 @@ def dedent(lines: list[str]) -> list[str]:
     return [_drop_columns(line, margin) if line.strip() else "" for line in lines]
 
 
+SECONDARY_PROMPT = re.compile(r"^>\s+")                                        # what a shell shows when a command goes on over several lines
+PRIMARY_PROMPT = re.compile(r"^(?:\$\s+|" + POSIX_PROMPT + ")")                # a prompt after which `> ` is that secondary prompt and not a new command
 POWERSHELL_LANGS = {"powershell", "ps1"}                                   # a backtick at the end of a line continues it
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
@@ -459,6 +461,29 @@ def strip_trailing_comment(line: str) -> str:
         else:
             i += 1
     return line
+
+
+def _incomplete(command: str) -> bool:
+    """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `&&` or `||`, or a quote
+    or a parenthesis is still open. A command that is complete is followed by output, and `> ` there (npm prints `> pkg@1.0.0 start`) is not a prompt."""
+    quote, depth, i = "", 0, 0
+    while i < len(command):
+        ch = command[i]
+        if quote:
+            i += 2 if ch == "\\" and quote == '"' else 1
+            quote = "" if i <= len(command) and ch == quote else quote
+            continue
+        if ch == "\\":
+            i += 2
+            continue
+        if ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        i += 1
+    return bool(quote) or depth > 0 or command.rstrip().endswith(("|", "&&", "||"))
 
 
 def _heredoc_ends(line: str) -> list[str]:
@@ -544,6 +569,12 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 logical.append("")
                 owners.append(None)
                 continue
+            if (lang in CONSOLE_LANGS and not pending and logical and owners[-1] is None and SECONDARY_PROMPT.match(line.strip())
+                    and PRIMARY_PROMPT.match(logical[-1]) and _incomplete(logical[-1])):      # `$ printf foo |` then `> sed ...`: the shell asked for more
+                logical[-1] = f"{logical[-1]} {SECONDARY_PROMPT.sub('', line.strip()).rstrip()}"
+                if _continues(lang, logical[-1], line):
+                    logical[-1] = logical[-1][:-1].rstrip()
+                continue
             if pending:
                 piece = line.strip()
                 if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag` (`>> -Flag` in PowerShell, `More? ` in cmd): the shell's secondary prompt
@@ -563,6 +594,9 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
         if pending:
             logical.append(pending)
             owners.append(None)
+        if ends:                                  # the block ends before the closing word: a command that waits for ever is not one the README gives
+            del logical[opener:]
+            del owners[opener:]
         blocks.append((lang, logical, owners))
     return blocks
 
@@ -574,6 +608,16 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     indentation common to the whole block, which belongs to the Markdown container (a list item), is removed. Blank lines at the
     start and end of a block are dropped."""
     return [(lang, logical) for lang, logical, _ in _scan(text)]
+
+
+def block_lines(text: str) -> list[tuple[str, str, bool]]:
+    """(language tag, logical line, whether it is part of a heredoc: its opening line, its body or its closing word) for every logical
+    line of the README's code blocks."""
+    out = []
+    for lang, logical, owners in _scan(text):
+        openers = {owner for owner in owners if owner is not None}
+        out += [(lang, line, owner is not None or i in openers) for i, (line, owner) in enumerate(zip(logical, owners))]
+    return out
 
 
 def heredocs(text: str) -> tuple[list[list[str]], list[str]]:

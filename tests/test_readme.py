@@ -385,8 +385,8 @@ def test_a_heredoc_ends_on_the_closing_word_alone_on_its_line_and_only_tabs_may_
     assert readme.heredocs(plain) == ([["cat <<EOF", "  EOF", "real body", "EOF"]], ["cat <<EOF", "pip install pkg"])
     dashed = "```bash\ncat <<-EOF\n\tbody\n\tEOF\npip install pkg\n```\n"
     assert readme.heredocs(dashed) == ([["cat <<-EOF", "\tbody", "\tEOF"]], ["cat <<-EOF", "pip install pkg"])
-    spaces = "```bash\ncat <<-EOF\n  body\n  EOF\npip install pkg\n```\n"                    # spaces do not count as tabs: it never closes
-    assert readme.heredocs(spaces)[0] == [["cat <<-EOF", "  body", "  EOF", "pip install pkg"]]
+    spaces = "```bash\ncat <<-EOF\n  body\n  EOF\npip install pkg\n```\n"                    # spaces do not count as tabs: it never closes ...
+    assert readme.heredocs(spaces) == ([], []) and readme.code_blocks(spaces) == [("bash", [])]          # ... and a heredoc that never closes is no command
     assert readme._heredoc_openers("cat <<-EOF <<'B'") == [("EOF", True), ("B", False)]
 
 
@@ -415,6 +415,25 @@ def test_a_heredoc_counts_as_one_command_in_a_list_of_commands():
     assert readme.command_count(["cat <<-'A'", "\tone", "\tA", "pip install y"]) == 2
     assert readme.command_count(["cat <<EOF", "body"]) == 1 and readme.command_count([]) == 0
     assert readme.command_count(None) == 0 and readme.command_count("pip install x") == 0 and readme.command_count([1, None, "ls"]) == 1
+
+
+def test_a_secondary_prompt_continues_the_command_before_it_only_when_that_command_is_incomplete():
+    text = ("```console\n$ printf foo |\n> sed s/foo/bar/\n$ echo \"multi\n> line\"\n$ (cd x &&\n> ls)\n"
+            "$ npm start\n> myapp@1.0.0 start\n> node index.js\nServer started\n```\n")
+    assert readme.code_blocks(text) == [("console", ["$ printf foo | sed s/foo/bar/", '$ echo "multi line"', "$ (cd x && ls)", "$ npm start",
+                                                    "> myapp@1.0.0 start", "> node index.js", "Server started"])]
+    assert readme.setup_commands(text)[:4] == ["printf foo | sed s/foo/bar/", 'echo "multi line"', "(cd x && ls)", "npm start"]
+    assert readme.code_blocks("```console\n> npm install x\n> npm run build\n```\n") == [("console", ["> npm install x", "> npm run build"])]
+    for done in ("pip install x", "echo 'a | b'", "echo \"a\" && ls", "echo a \\| b", "(ls)"):
+        assert not readme._incomplete(done), done
+    for open_ in ("ls |", "make &&", "a ||", "echo \"x", "echo 'x", "(cd x", "echo $(ls"):
+        assert readme._incomplete(open_), open_
+
+
+def test_a_heredoc_that_never_reaches_its_closing_word_is_not_a_command():
+    text = "```bash\nls\ncat <<EOF\nline one\npip install pkg\n```\n\n```bash\ncat <<EOF\nbody\nEOF\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["ls"]), ("bash", ["cat <<EOF", "body", "EOF"])]
+    assert readme.heredocs(text) == ([["cat <<EOF", "body", "EOF"]], ["ls", "cat <<EOF"])           # the first block's opener and body are gone
 
 
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
