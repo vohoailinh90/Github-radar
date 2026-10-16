@@ -7,6 +7,7 @@ the repository, and every command to run appears verbatim in the README.
 
 from __future__ import annotations
 
+import copy
 import re
 from dataclasses import dataclass
 from decimal import Decimal
@@ -301,14 +302,52 @@ def _norm_cmd(text: str) -> str:
     return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip())
 
 
+def _command_variants(readme: str):
+    """Every text of the README a reader could copy as a command, as the README has it: whole lines, a line without its trailing
+    `# comment`, inline code spans, and a command written over several lines joined into one."""
+    for line in readme.splitlines():
+        yield line
+        yield re.split(r"\s+#\s", line)[0]
+        yield from (m.group(1) for m in re.finditer(r"`([^`\n]+)`", line))
+    yield from readmelib.code_lines(readme)
+
+
+def command_map(readme: str) -> dict[str, str]:
+    """{comparable form: the README's own text of it}: the prompt is dropped and the ends trimmed, the spaces inside are kept."""
+    out: dict[str, str] = {}
+    for text in _command_variants(readme):
+        key = _norm_cmd(text)
+        if key:
+            out.setdefault(key, readmelib.PROMPT.sub("", text.strip()).strip())
+    return out
+
+
 def readme_commands(readme: str) -> set[str]:
     """Whole README lines and inline-code spans: what a reader could copy from it."""
-    found = set()
-    for line in readme.splitlines():
-        found |= {_norm_cmd(line), _norm_cmd(re.split(r"\s+#\s", line)[0])}
-        found |= {_norm_cmd(m.group(1)) for m in re.finditer(r"`([^`\n]+)`", line)}
-    found |= {_norm_cmd(c) for c in readmelib.code_lines(readme)}      # one command written over several lines with a trailing \
-    return {c for c in found if c}
+    return set(command_map(readme))
+
+
+def canonicalize(draft: dict, facts: dict) -> dict:
+    """The draft with every command replaced by the README's own text of it. The gate compares commands with their spaces collapsed
+    (a model may normalise them), but a guide must show the README's spaces: `sed 's/foo  bar/baz/'` is not `sed 's/foo bar/baz/'`.
+    A command the README does not hold is left as it is, for the gate to refuse."""
+    out = copy.deepcopy(draft)
+    table = command_map(facts["readme"])
+    exact = set(table.values())
+
+    def fix(command):
+        if not isinstance(command, str):
+            return command
+        stripped = readmelib.PROMPT.sub("", command.strip()).strip()
+        return stripped if stripped in exact else table.get(_norm_cmd(command), command)
+
+    guide = out.get("guide")
+    for _, step in _dicts(guide.get("steps") if isinstance(guide, dict) else None):
+        if isinstance(step.get("commands"), list):
+            step["commands"] = [fix(c) for c in step["commands"]]
+    if isinstance(out.get("try_it"), dict) and isinstance(out["try_it"].get("commands"), list):
+        out["try_it"]["commands"] = [fix(c) for c in out["try_it"]["commands"]]
+    return out
 
 
 def guide_commands(draft: dict) -> list[tuple[str, object]]:

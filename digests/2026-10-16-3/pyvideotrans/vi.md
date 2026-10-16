@@ -70,7 +70,7 @@ _Đánh dấu từng mục khi đã có đủ._
 _Gõ hoặc dán từng dòng, theo thứ tự._
 
 ```bash
-brew install libsndfile git python@3.10
+brew install libsndfile  git  python@3.10
 brew uninstall --ignore-dependencies ffmpeg
 brew tap homebrew-ffmpeg/ffmpeg
 brew install homebrew-ffmpeg/ffmpeg/ffmpeg

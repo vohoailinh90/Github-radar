@@ -289,6 +289,7 @@ def test_the_gates_never_raise_when_any_known_field_name_is_added_to_any_object_
             gates.schema(draft)
             gates.check(draft, FACTS, "vi", require_guide=True)
             gates.command_coverage(draft, FACTS)
+            gates.canonicalize(draft, FACTS)
             tried += 1
     assert tried == len(objects) * len(keys) and len(objects) >= 15
 
@@ -386,3 +387,42 @@ def test_the_image_alt_text_of_a_guide_cannot_close_the_image_or_open_markup(tmp
     d = mutate(lambda d: d.update(title="Tên ] lạ <i>x</i> *y*"))
     first = render(tmp_path, d)[1].splitlines()[2]
     assert first == "![Tên  lạ ix/i y](card-vi.svg)"
+
+
+def test_the_index_of_a_run_shows_the_outcome_title_and_summary_of_a_guide_as_plain_text(tmp_path):
+    d = make_draft(FACTS, "vi")
+    d["guide"]["outcome"] = "Dựng <MODEL> với *đậm*"
+    d["title"], d["one_liner"] = "Tên <b>lạ</b> *x*", "Tóm tắt <i>y</i>"
+    digest.render_index(tmp_path, "2026-10-14", [{"facts": FACTS, "drafts": {"vi": d}}], "vi")
+    text = (tmp_path / "digests" / "2026-10-14" / "README.md").read_text(encoding="utf-8")
+    assert "Dựng &lt;MODEL> với \\*đậm\\*" in text and "<b>" not in text and "<i>" not in text and "<MODEL>" not in text
+
+
+SED_README = README + "\n```bash\nsed 's/foo  bar/baz/' file\n```\n"
+SED_FACTS = {**FACTS, "readme": SED_README, "links": readme.links(SED_README), "blocks": readme.blocks(SED_README)}
+
+
+def test_a_command_keeps_the_spaces_the_readme_has_even_if_the_model_collapsed_them(tmp_path):
+    collapsed, exact = "sed 's/foo bar/baz/' file", "sed 's/foo  bar/baz/' file"
+    d = make_draft(SED_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=[collapsed], evidence="README")
+    assert not any("commands" in e for e in errs(d, SED_FACTS))                  # the gate compares with spaces collapsed ...
+    fixed = gates.canonicalize(d, SED_FACTS)
+    assert fixed["guide"]["steps"][0]["commands"] == [exact] and d["guide"]["steps"][0]["commands"] == [collapsed]   # ... the stored draft does not
+    assert f"```bash\n{exact}\n```" in render(tmp_path, fixed, facts=SED_FACTS)[1]
+    again = gates.canonicalize(fixed, SED_FACTS)
+    assert again == fixed                                                        # idempotent
+
+
+def test_canonicalize_restores_the_readme_text_of_a_prompted_command_and_leaves_an_unknown_one_alone():
+    d = make_draft(CONSOLE_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["> npm  install x", "PS C:\\> pip install y", "never in the readme"], evidence="README")
+    out = gates.canonicalize(d, CONSOLE_FACTS)["guide"]["steps"][0]["commands"]
+    assert out == ["npm install x", "pip install y", "never in the readme"]       # still refused by the gate, as before
+    assert any("never in the readme" in e for e in errs(d, CONSOLE_FACTS))
+
+
+def test_the_renderer_removes_only_the_prompt_and_the_ends_of_a_command(tmp_path):
+    d = make_draft(SED_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["$ sed 's/foo  bar/baz/' file   "], evidence="README")
+    assert "```bash\nsed 's/foo  bar/baz/' file\n```" in render(tmp_path, d, facts=SED_FACTS)[1]

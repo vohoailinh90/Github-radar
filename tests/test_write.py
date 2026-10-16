@@ -168,3 +168,14 @@ def test_a_good_draft_reports_how_much_of_the_readme_commands_it_used(served):
     served()
     res = write_one(gw(), CFG, FACTS, "vi")
     assert res["coverage"] == {"readme_commands": 4, "used": 4}
+
+
+def test_a_passing_draft_is_stored_with_the_readmes_own_spelling_of_its_commands(served):
+    readme = README + "\n```bash\nsed 's/foo  bar/baz/' file\n```\n"
+    facts = {**FACTS, "readme": readme}
+    draft = make_draft(facts, "vi")
+    draft["guide"]["steps"][0].update(commands=["sed 's/foo bar/baz/' file"], evidence="README")
+    served(lambda kind, f, lang, n: draft if kind == "writer" else None)
+    res = write_one(gw(), CFG, facts, "vi")
+    assert res["status"] == "ok"
+    assert res["draft"]["guide"]["steps"][0]["commands"] == ["sed 's/foo  bar/baz/' file"]

@@ -133,4 +133,6 @@ def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
         used, wanted = gates.command_coverage(draft, facts)
         result["coverage"] = {"readme_commands": wanted, "used": used}
     result["status"] = "held" if gates.errors(problems) else "ok"
+    if result["status"] == "ok":
+        result["draft"] = gates.canonicalize(draft, facts)      # the commands as the README spells them, spaces included
     return result

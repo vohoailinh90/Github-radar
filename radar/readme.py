@@ -16,6 +16,9 @@ from urllib.parse import urlsplit
 
 FENCE = re.compile(r"^\s{0,3}(```|~~~)")
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
+SETEXT = re.compile(r"^ {0,3}(=+|-{3,})[ \t]*$")                 # the line under `Title`: === is level 1, --- is level 2
+HTML_HEADING = re.compile(r"^\s*<h([1-6])\b[^>]{0,200}>(.{1,200}?)</h\1>\s*$", re.I)      # <h2 align="center">Install</h2>
+NOT_TITLE = ("#", ">", "|", "-", "*", "+", "<", "`", "~", "!", "[")      # a line that starts like something else is not a Setext title
 GAP = "[... other sections of the README omitted ...]"
 INTRO_CHARS = 1800            # the opening (title and pitch) is always kept, up to this much
 MIN_PART = 500                # a section that does not fit whole is kept in part only when at least this much room is left
@@ -84,19 +87,33 @@ def is_command_line(line: str) -> bool:
 
 
 def split_sections(text: str) -> list[Section]:
-    """Sections in order. The first holds everything before the first heading (it may be empty). A `#` line inside a fenced
-    code block is a comment of that code, not a heading."""
+    """Sections in order. The first holds everything before the first heading (it may be empty). A heading is an ATX line
+    (`## Install`), a Setext title (`Install` over `-------`) or a one-line HTML heading (`<h2>Install</h2>`). A `#` line inside a
+    fenced code block is a comment of that code, not a heading."""
     sections = [Section(0, "", [])]
     fence = None
     for line in text.splitlines(keepends=True):
         m = FENCE.match(line)
         if m:
             fence = None if fence == m.group(1) else (fence or m.group(1))
-        head = None if fence else HEADING.match(line.rstrip("\n"))
+        bare = line.rstrip("\r\n")
+        head = None if fence or m else HEADING.match(bare)
         if head:
             sections.append(Section(len(head.group(1)), re.sub(r"[*_`]", "", head.group(2)).strip(), [line]))
-        else:
-            sections[-1].lines.append(line)
+            continue
+        html = None if fence or m else HTML_HEADING.match(bare)
+        if html:
+            title = re.sub(r"<[^>]*>|[*_`]", "", html.group(2)).strip()
+            sections.append(Section(int(html.group(1)), title, [line]))
+            continue
+        under = None if fence or m else SETEXT.match(bare)
+        if under and len(sections[-1].lines) > (1 if sections[-1].level else 0):
+            title = sections[-1].lines[-1]
+            if title.strip() and not title.lstrip().startswith(NOT_TITLE) and not SETEXT.match(title.rstrip("\r\n")):
+                sections[-1].lines.pop()
+                sections.append(Section(1 if under.group(1).startswith("=") else 2, re.sub(r"[*_`]", "", title).strip(), [title, line]))
+                continue
+        sections[-1].lines.append(line)
     if not sections[0].lines:
         sections.pop(0)
     return sections

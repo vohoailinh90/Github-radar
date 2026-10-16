@@ -195,3 +195,21 @@ def test_a_console_block_without_typed_lines_is_a_sample_and_one_with_them_is_no
     transcript = "```console\n$ my-tool run\nStarted\n```\n"
     assert readme.blocks(output_only) == [["console", "Starting server on port 8000\nDone"]]
     assert readme.blocks(transcript) == []
+
+
+def test_setext_and_html_headings_are_section_boundaries_so_a_late_install_section_survives():
+    """`Installation` over `-----` and `<h2>Install</h2>` are headings: with ATX-only parsing the README was one section and the cut kept its start."""
+    text = ("My Tool\n=======\n\nPitch.\n\n"
+            + "".join(f"Gallery {i}\n---------\n\n" + "pretty picture words. " * 60 + "\n\n" for i in range(12))
+            + "Installation\n------------\n\n```bash\npip install my-tool\n```\n\n<h2 align=\"center\">Configuration</h2>\n\nSet the key.\n")
+    sections = readme.split_sections(text)
+    assert [(s.level, s.title) for s in sections][:2] == [(1, "My Tool"), (2, "Gallery 0")]
+    assert [(s.level, s.title) for s in sections][-2:] == [(2, "Installation"), (2, "Configuration")]
+    out = readme.select(text, 3000)
+    assert "pip install my-tool" in out and "Set the key." in out and "Gallery 11" not in out and len(out) <= 3000
+
+
+def test_lines_that_only_look_like_a_setext_underline_are_not_headings():
+    text = ("# Title\n\nPara\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- item\n---\n\nText\n\n---\n\n```\nTitle\n=====\n```\n\n"
+            "> quote\n---\n\n---\nfront\n")
+    assert [s.title for s in readme.split_sections(text)] == ["Title"]

@@ -489,6 +489,6 @@
     "url": "https://github.com/harry0703/MoneyPrinterTurbo"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 4b7b965 of a shallow checkout, cut to 11926 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 4b7b965 of a shallow checkout, cut to 11187 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
   "position": 1
 }

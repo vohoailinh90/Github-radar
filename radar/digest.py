@@ -64,8 +64,9 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 
 def _command(text) -> str:
-    """One line to type: whitespace collapsed and a shell prompt (`$ `, `> `, `PS C:\\>`) dropped, as readme.setup_commands recognises them."""
-    return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip()).strip()
+    """One line to type: only a leading shell prompt (`$ `, `> `, `PS C:\\>`, as readme.setup_commands recognises them) and the ends are
+    removed. What lies between is kept as it is: a quoted argument such as `'s/foo  bar/baz/'` depends on its spaces."""
+    return readmelib.PROMPT.sub("", str(text).strip()).strip()
 
 
 def _gcell(text) -> str:
@@ -211,10 +212,11 @@ def render_index(root: Path, date: str, entries: list[dict], lang: str) -> list[
     md = [f"# {t['radar_title']} · {date}", "", f"![{t['stars_chart']}](stars.svg)", "", f"## {t['picks']}", ""]
     for e in entries:
         f, d = e["facts"], e["drafts"].get(lang) or next(iter(e["drafts"].values()))
-        md.append(f"- **[{d['title']}]({slug(f['full_name'])}/{lang if lang in e['drafts'] else next(iter(e['drafts']))}.md)** "
-                  f"({t['bucket'][f['bucket']]}) — {d['one_liner']}")
+        title, one_liner = (_g(d["title"]), _g(d["one_liner"])) if d.get("guide") else (d["title"], d["one_liner"])
+        md.append(f"- **[{title}]({slug(f['full_name'])}/{lang if lang in e['drafts'] else next(iter(e['drafts']))}.md)** "
+                  f"({t['bucket'][f['bucket']]}) — {one_liner}")
         if d.get("guide"):                  # what the reader ends up with, and how long the way is, before opening the guide
-            md.append(f"  - 🎯 {_md(d['guide']['outcome'])} · 🪜 {len(d['guide']['steps'])} {t['steps_n']}")
+            md.append(f"  - 🎯 {_g(d['guide']['outcome'])} · 🪜 {len(d['guide']['steps'])} {t['steps_n']}")
     md.append("")
     index = folder / "README.md"
     index.write_text("\n".join(md), encoding="utf-8")
