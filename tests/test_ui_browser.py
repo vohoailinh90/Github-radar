@@ -557,10 +557,12 @@ def test_the_wait_for_a_run_that_never_shows_up_ends_after_two_minutes(browser):
     context.close()
 
 
-def _with_a_fake_clock(browser):
+def _with_a_fake_clock(browser, hold=False):
     context = browser.new_context()
     gh = Github()
     context.route("https://api.github.com/**", gh.handle)
+    if hold:
+        context.add_init_script(HOLD)
     page = context.new_page()
     page.clock.install(time=dt.datetime.now(dt.timezone.utc))
     page.goto(PAGE_URL)
@@ -625,6 +627,45 @@ def test_a_send_to_a_second_repository_does_not_forget_the_first_ones_run(ui):
     assert len(ui.gh.posts()) == posts_here + 1
     ui.fill("#repo", REPO)
     assert ui.is_disabled("#go")                                                   # the first repository's run is still known to be queued
+
+
+def test_the_same_repository_in_another_spelling_is_the_same_repository(ui):
+    connect(ui)
+    shouting = REPO.upper()                                                        # GitHub reads owner and name without regard to case
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{shouting}")] = (200, {"default_branch": "main"})
+    ui.gh.routes[("POST", f"/repos/{shouting}/actions/workflows/radar.yml/dispatches")] = (204, None)
+    for spelling in (shouting, REPO, REPO.title()):                                # one repository: whatever the spelling, the same answer
+        ui.gh.routes[("GET", f"/repos/{spelling}/actions/workflows/radar.yml/runs")] = (
+            200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.fill("#repo", shouting)
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.fill("#repo", REPO)                                                         # the same repository, written differently
+    assert ui.is_disabled("#go")
+    ui.fill("#repo", REPO.title())
+    assert ui.is_disabled("#go")
+
+
+def test_a_returning_repository_stays_locked_until_its_reload_has_succeeded_even_after_the_wait_ran_out(browser):
+    context, page = _with_a_fake_clock(browser, hold=True)
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    connect(page)
+    page.click("#go")
+    wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    settle(page, 2)                                                                # accepted, nothing listed yet
+    page.fill("#repo", "someone/else")                                             # leaving: the looking for this send stops
+    page.clock.fast_forward(130_000)                                               # more than the two-minute wait passes unobserved
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]})
+    page.evaluate("window.__hold = true")
+    page.fill("#repo", REPO)                                                       # back: the reload starts but its answer is held
+    wait(page, "window.__held.length === 1")
+    assert page.is_disabled("#go")                                                 # not yet looked at: the run may well be there
+    page.evaluate("window.__release()")
+    wait(page, "document.getElementById('runs-body').children.length === 1")
+    assert page.is_disabled("#go") and "Đang chờ" in text(page, "#runs-body")      # it was: still queued
+    context.close()
 
 
 def test_runs_of_another_repository_are_never_taken_for_mine(ui):

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-7fuKGGtQ/+kD/H0kcbZTR5K7+h6RlRmtN9N/fJ/HPLw='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+KB6uldDPZN3FPUngDI1PcsgahuMWqHD1w19qcUKxq0='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -403,9 +403,10 @@ let sending = false;
 let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
 // The send I am following in each repository I sent to (so typing another name, even sending there, and coming back keeps the lock):
 // repo -> { sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
-//   active: was that run last seen queued or running }.
+//   active: was that run last seen queued or running, checked: when a look at the list last succeeded }.
 const watches = new Map();
-const watchOf = (repo) => watches.get(repo) || null;
+const repoKey = (repo) => repo.toLowerCase();                  // GitHub reads owner and repository names without regard to case (the pattern allows ASCII only)
+const watchOf = (repo) => watches.get(repoKey(repo)) || null;
 const DISCOVERY_MS = 120000;
 
 function say(id, text, kind) {
@@ -442,7 +443,9 @@ function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.ym
 // Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
 // could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
 function watching() { return watchOf(repoName()) !== null; }
-function holds(w) { return w !== null && (w.active || (!w.seen && Date.now() - w.sentAt < DISCOVERY_MS)); }      // does this send still forbid another one
+// Does this send still forbid another one? While its run is active; or while it has not been listed yet, until a look that SUCCEEDED after the wait
+// found nothing: not looking, or a look that failed, is not evidence that there is no run.
+function holds(w) { return w !== null && (w.active || (!w.seen && !(w.checked >= w.sentAt + DISCOVERY_MS))); }
 function busy() { return sending || holds(watchOf(repoName())); }
 
 async function checkToken() {
@@ -457,7 +460,7 @@ async function checkToken() {
     if (!isBranch(name)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
     const flow = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml");
     if (flow.status !== 200) return say("connect-msg", explain(flow.status, flow.data), "bad");
-    branch = { repo, name };
+    branch = { repo: repoKey(repo), name };
     if (repoName() !== repo) return say("connect-msg", "Tên repo đã đổi trong lúc kiểm tra: bấm kiểm tra lại.", "warn");
     say("connect-msg", "Token đọc được repo và workflow radar.yml (sẽ chạy trên nhánh " + name + "). Quyền ghi Actions chưa kiểm được: GitHub chỉ cho biết khi bạn gửi lượt đầu.", "ok");
   } catch (e) {
@@ -546,13 +549,13 @@ async function go() {
   say("msg", "Đang gửi lệnh…");
   let attempt = null;                                                   // set once the send is under way: from then on a run may exist
   try {
-    let ref = branch.repo === repo ? branch.name : "";
+    let ref = branch.repo === repoKey(repo) ? branch.name : "";
     if (!ref) {
       const info = await call("GET", "/repos/" + repo);
       const name = info.status === 200 && info.data && info.data.default_branch;
       if (!isBranch(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
       ref = name;
-      branch = { repo, name };
+      branch = { repo: repoKey(repo), name };
     }
     const inputs = dispatchInputs(v, presetName, dry, singleRepo, bucket);
     const listed = await call("GET", runsPath(repo));                       // what exists before the send, to recognise the run the send starts
@@ -582,7 +585,7 @@ async function go() {
 
 // From a send that may have started a run: recognise that run by its id and keep the button off until it is listed (or the wait ends).
 function watchSent(attempt, repo) {
-  watches.set(repo, { sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false });
+  watches.set(repoKey(repo), { sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false, checked: 0 });
   $("confirm").value = "";
 }
 
@@ -614,7 +617,7 @@ async function loadRuns() {
                 el("td", state.text + (mine ? " (lượt bạn vừa gửi)" : "")), el("td"));
       tr.lastChild.append(link);
     }
-    if (mineOf !== null) { mineOf.active = mineActive; mineOf.seen = mineOf.seen || seenMine; }
+    if (mineOf !== null) { mineOf.active = mineActive; mineOf.seen = mineOf.seen || seenMine; mineOf.checked = Date.now(); }
     $("runs-body").replaceChildren(...rows);
   } catch (e) {
     if (look === looks) say("msg", "Không tải được danh sách lượt chạy.", "bad");

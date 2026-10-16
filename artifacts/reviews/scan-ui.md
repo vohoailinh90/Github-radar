@@ -84,3 +84,10 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | Changing one field made the page send its whole resolved snapshot as `conditions`; the runner applies that after its current preset and `radar.yaml`, so a page that had gone out of date pinned old values (and stale buckets could fail the run), against what `docs/ui.md` promised ("only the differences") | true: `dispatchInputs` serialised the whole object when anything differed | `delta`: only the fields that differ from the chosen preset go (`rising` setting by setting, `langs` and `buckets` whole, as the runner replaces those); tests: exact deltas for six changes, an empty delta for none and for key order, and the runner (`from_env`/`apply`) turns each delta into the values on the form; four mutations killed |
+
+## Codex review of head 14f1979 (2 findings, both P2, both confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | Leaving a repository stopped the looking for its send; coming back after the two-minute wait the page treated the wait as over (nothing had been seen) and enabled the button before the reload could find the still-active run | true | the wait is over only when a look that SUCCEEDED after the deadline found nothing (`checked`); not looking or a failed look is not evidence; a held-reload test with a fake clock fails on the old page; mutations killed |
+| 2 | Watches were keyed by the exact text, but GitHub reads owner and repository names without regard to case, so `Owner/Repo` and `owner/repo` were two repositories | true | keys (and the branch cache) are lower-cased (the pattern is ASCII only); a test sends to one spelling and checks two others |
