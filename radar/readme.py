@@ -768,15 +768,25 @@ def _strip_ps_block_comments(lines: list[str]) -> list[str]:
     """The lines of a PowerShell block without its `<# ... #>` comments (one or several lines, outside strings, here-strings and `#` comments):
     everything from `<#` through `#>` is comment text, even a line that looks like a command. A line that is only comment is dropped; a
     comment that never closes runs to the end of the block. The lines of a here-string, up to the one that begins with its closing mark,
-    are data and stay as they are."""
-    out, inside, here_end = [], False, ""
+    are data and stay as they are, and so are the lines of a string that goes on over several lines (`'first`, `<# literal #>`, `last'`). A
+    quote that never closes is not read across lines: it was an apostrophe in a line of text."""
+    out, quote = _strip_ps(lines, True)
+    return _strip_ps(lines, False)[0] if quote else out
+
+
+def _strip_ps(lines: list[str], carry: bool) -> tuple[list[str], str]:
+    """`_strip_ps_block_comments` and the quote that is still open at the end of the block; `carry` says whether a quote that is open at the
+    end of a line goes on in the next."""
+    out, inside, here_end, quote = [], False, "", ""
     for line in lines:
         if here_end:
             out.append(line)
             if line.startswith(here_end):
                 here_end = ""
             continue
-        kept, i, quote = "", 0, ""
+        kept, i, in_string = "", 0, bool(quote)
+        if not carry:
+            quote = ""
         while i < len(line):
             if inside:
                 end = line.find("#>", i)
@@ -802,10 +812,12 @@ def _strip_ps_block_comments(lines: list[str]) -> list[str]:
             kept, i = kept + ch, i + 1
         if kept.strip() or not line.strip():
             out.append(kept.rstrip() if kept.strip() else kept)
-        if not inside:                                                         # `@"` leaves a quote open at the end of the line: it is a here-string
+        if not inside and not in_string:                                       # `@"` leaves a quote open at the end of the line: it is a here-string
             opens = _here_string_openers(kept)
             here_end = opens[0][0] if opens else ""
-    return out
+            if here_end:
+                quote = ""
+    return out, quote
 
 
 def _typed(lang: str, command: str) -> bool:

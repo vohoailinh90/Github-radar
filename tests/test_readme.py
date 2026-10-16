@@ -1168,3 +1168,14 @@ def test_a_pipe_goes_on_over_blank_lines_and_a_compound_command_goes_on_to_the_c
     assert scanned("```bash\nif true; then\n  echo a\nfi | # note\n\nsed 's/a/b/'\nls\n```\n") == [("if true; then", None), ("  echo a", 0), ("fi | # note", 0), ("", 0), ("sed 's/a/b/'", 0), ("ls", None)]
     assert readme.heredoc_data(["if true; then", "echo a", "fi |", "sed s/a/b/", "ls"]) == [False, True, True, True, False]
     assert readme.command_count(["if true; then", "echo a", "fi |", "sed s/a/b/", "ls"]) == 2
+
+
+def test_a_block_comment_marker_inside_a_powershell_string_that_goes_on_over_lines_is_text():
+    strip = readme._strip_ps_block_comments
+    assert strip(["Write-Output 'first", "<# literal #>", "last'", "Get-Date"]) == ["Write-Output 'first", "<# literal #>", "last'", "Get-Date"]
+    assert strip(['Write-Output "first', "<# literal #>", 'last"', "Get-Date"]) == ['Write-Output "first', "<# literal #>", 'last"', "Get-Date"]
+    assert strip(["Write-Host 'it''s", "<# literal #>", "ok'", "<# real #>", "Get-Date"]) == ["Write-Host 'it''s", "<# literal #>", "ok'", "Get-Date"]          # a doubled quote
+    assert strip(["Write-Host Don't", "<# real", "comment #>", "Get-Date"]) == ["Write-Host Don't", "Get-Date"]          # an apostrophe that never pairs is not a string
+    assert strip(['$x = @"', "abc <# kept #>", '"@', "<# gone #>", "Get-Date"]) == ['$x = @"', "abc <# kept #>", '"@', "Get-Date"]          # a here-string is not a quote left open
+    lines = [line for _, block in readme.code_blocks("```powershell\nWrite-Output 'first\n<# literal #>\nlast'\nGet-Date\n```\n") for line in block]
+    assert lines == ["Write-Output 'first", "<# literal #>", "last'", "Get-Date"]
