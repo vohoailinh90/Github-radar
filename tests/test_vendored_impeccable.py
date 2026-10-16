@@ -2,6 +2,7 @@ import importlib.util
 import json
 import re
 import shutil
+import subprocess
 
 import pytest
 
@@ -69,3 +70,63 @@ def test_the_agents_cannot_collide_with_the_routing_roster():
     vendored = {p.rsplit("/", 1)[1] for p in LOCK["files"] if p.startswith(".claude/agents/")}
     assert vendored and not (vendored & routing)
     assert all(name.startswith("impeccable-") for name in vendored)
+
+
+def _git(path, *args):
+    return subprocess.run(["git", "-C", str(path), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                          check=True, capture_output=True, text=True).stdout.strip()
+
+
+@pytest.fixture
+def upstream(tmp_path):
+    """A tiny committed stand-in for the impeccable checkout."""
+    up = tmp_path / "up"
+    skill = up / ".claude" / "skills" / "impeccable"
+    (skill / "scripts").mkdir(parents=True)
+    (up / ".claude" / "agents").mkdir(parents=True)
+    (skill / "SKILL.md").write_text("---\nname: impeccable\nversion: 9.9.9\n---\nbody\n", encoding="utf-8")
+    (skill / "scripts" / "VERSION").write_text("1.2.3\n", encoding="utf-8")
+    (skill / "scripts" / "impeccable").write_text("#!/bin/sh\n", encoding="utf-8")
+    (skill / "scripts" / "impeccable").chmod(0o755)
+    (up / ".claude" / "agents" / "impeccable-a.md").write_text("a", encoding="utf-8")
+    (up / "LICENSE").write_text("Apache License", encoding="utf-8")
+    (up / "NOTICE.md").write_text("notice", encoding="utf-8")
+    _git(up, "init", "-q")
+    _git(up, "add", "-A")
+    _git(up, "commit", "-q", "-m", "x")
+    return up
+
+
+def test_snapshot_vendors_a_checkout_and_drops_what_upstream_removed(tmp_path, upstream):
+    root = tmp_path / "root"
+    (root / ".claude" / "agents").mkdir(parents=True)
+    (root / ".claude" / "agents" / "impeccable-gone.md").write_text("stale", encoding="utf-8")
+    (root / ".claude" / "agents" / "architect.md").write_text("routing roster", encoding="utf-8")
+    vendor.snapshot(upstream, root)
+    lock = json.loads((root / vendor.LOCK).read_text(encoding="utf-8"))
+    assert vendor.problems(root) == []
+    assert lock["commit"] == _git(upstream, "rev-parse", "HEAD")
+    assert (lock["skill_version"], lock["engine_version"]) == ("9.9.9", "1.2.3")
+    assert lock["executable"] == [".claude/skills/impeccable/scripts/impeccable"]
+    assert ".claude/agents/impeccable-gone.md" not in lock["files"]
+    assert not (root / ".claude" / "agents" / "impeccable-gone.md").exists()
+    assert (root / ".claude" / "agents" / "architect.md").read_text(encoding="utf-8") == "routing roster"
+
+
+def test_snapshot_changes_nothing_when_upstream_is_not_what_it_expects(tmp_path, upstream):
+    root = tmp_path / "root"
+    vendor.snapshot(upstream, root)
+    before = {p: (root / p).read_bytes() for p in vendor.vendored_files(root)}
+    _git(upstream, "rm", "-q", "NOTICE.md")
+    _git(upstream, "commit", "-q", "-m", "drop notice")
+    with pytest.raises(SystemExit, match="NOTICE.md"):
+        vendor.snapshot(upstream, root)
+    assert {p: (root / p).read_bytes() for p in vendor.vendored_files(root)} == before
+    assert vendor.problems(root) == []
+
+
+def test_snapshot_refuses_a_dirty_checkout(tmp_path, upstream):
+    (upstream / "LICENSE").write_text("edited", encoding="utf-8")
+    with pytest.raises(SystemExit, match="uncommitted"):
+        vendor.snapshot(upstream, tmp_path / "root")
+    assert not (tmp_path / "root").exists()

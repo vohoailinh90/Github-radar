@@ -32,7 +32,7 @@ Sau đó mở repo đích và chạy `/impeccable init` một lần (ghi `PRODUC
 
 ## Điều cần biết trước khi dùng
 
-- **Engine được tải ở lần chạy đầu.** `scripts/impeccable` (launcher) chạy một binary dựng sẵn. Nếu máy chưa có, nó tải `impeccable-<os>-<arch>` từ `github.com/pbakaus/impeccable/releases` (bản `engine-v0.1.15`) vào `~/.impeccable/bin/`, chỉ chạy sau khi khớp tệp `.sha256` cùng bản phát hành. Binary này **không nằm trong repo** và chưa được kiểm toán ở đây. Môi trường sandbox không có mạng: cài sẵn rồi đặt `IMPECCABLE_BIN`.
+- **Engine được tải ở lần chạy đầu.** `scripts/impeccable` (launcher) chạy một binary dựng sẵn. Thứ tự tìm: `$IMPECCABLE_BIN` (chạy thẳng, không thăm dò), binary cạnh launcher, `~/.impeccable/bin/impeccable` và lệnh `impeccable` trên `PATH` (hai nơi này chỉ được thăm dò bằng một lời chào, không xác thực). Không có thì nó tải `impeccable-<os>-<arch>` từ `github.com/pbakaus/impeccable/releases` (bản `engine-v0.1.15`) vào `~/.impeccable/bin/` và chỉ chạy khi khớp tệp `.sha256` đi kèm. Tệp `.sha256` nằm cùng bản phát hành nên chỉ chống tải hỏng, **không** chống một bản phát hành bị xâm phạm. Binary này **không nằm trong repo** và chưa được kiểm toán ở đây. Môi trường sandbox không có mạng: cài sẵn rồi đặt `IMPECCABLE_BIN`.
 - **Hook không được nối ở repo này.** Upstream có hook chạy `impeccable hook` sau mỗi lần Edit/Write và khi Stop; ở đây không có `.claude/settings.json` nào gọi chúng. Muốn dùng hook ở repo đích, để `npx impeccable install` cài, rồi duyệt hook theo hướng dẫn của upstream.
 - **Không sửa tay bản sao.** `python3 scripts/vendor_impeccable.py check` (cũng chạy trong `pytest`) báo tệp bị sửa, thiếu, thừa hoặc mất quyền thực thi của launcher.
 
