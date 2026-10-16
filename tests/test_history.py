@@ -74,6 +74,9 @@ def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_
     path.write_text('{"o/ok": {"2026-10-01": 5}, "o/big": {"2026-10-01": 1e100000, "2026-10-02": NaN}}')   # json.loads turns these into inf and nan
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/huge": {"2026-10-01": 1' + "0" * 400 + ', "2026-10-02": -3}}')   # an int() that succeeds but overflows later
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
     path.write_text('{"o/ok": {"2026-10-01": 5}}')
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []
@@ -84,5 +87,7 @@ def test_velocity_and_prune_survive_hand_edited_shapes():
     assert history.velocity(h, "o/a", 1100, D) is None and history.velocity(h, "o/c", 1100, D) is None
     assert history.velocity(h, "o/b", 1100, D)["gap_days"] == 6                   # the readable point wins, the others are skipped
     assert history.velocity({"o/i": {day(5): float("inf")}}, "o/i", 1100, D) is None       # int(inf) overflows
+    assert history.velocity({"o/h": {day(5): 10**400}, "o/n": {day(5): -1}}, "o/h", 1100, D) is None     # (10**400 - n) / gap overflows a float
+    assert history.velocity({"o/n": {day(5): -1}}, "o/n", 1100, D) is None
     history.prune(h, D, 60)
     assert "o/a" not in h and "o/c" not in h and h["o/b"][day(6)] == 1000     # prune filters by date; load is what drops bad values

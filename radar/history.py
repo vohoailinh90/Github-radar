@@ -14,6 +14,15 @@ from pathlib import Path
 WINDOW_DAYS = 7           # the gap a measurement aims for
 MIN_GAP_DAYS = 3          # scans run Wed + Sat: 3 and 4 days apart, so the second scan already measures
 MAX_GAP_DAYS = 21         # older than this the number no longer says what is climbing *now*
+MAX_STARS = 10**9         # far above any real repository; a stored count outside 0..this is damage, and its arithmetic must not overflow
+
+
+def _count(value) -> int:
+    """A stored star count, or ValueError/TypeError/OverflowError when it is not a plausible one."""
+    stars = int(value)
+    if not 0 <= stars <= MAX_STARS:
+        raise ValueError(f"star count out of range: {str(stars)[:20]}")
+    return stars
 
 
 def load(path: Path, problems: list[str] | None = None) -> dict:
@@ -38,7 +47,7 @@ def load(path: Path, problems: list[str] | None = None) -> dict:
         for day, stars in points.items():
             try:
                 dt.date.fromisoformat(day)
-                clean.setdefault(str(name), {})[day] = int(stars)
+                clean.setdefault(str(name), {})[day] = _count(stars)
             except (TypeError, ValueError, OverflowError):
                 dropped = True
     if dropped and problems is not None:
@@ -76,7 +85,7 @@ def velocity(hist: dict, name: str, stars: int, today: dt.date) -> dict | None:
     points = hist.get(name)
     for day, old in (points.items() if isinstance(points, dict) else ()):
         try:
-            gap, old = (today - dt.date.fromisoformat(day)).days, int(old)
+            gap, old = (today - dt.date.fromisoformat(day)).days, _count(old)
         except (TypeError, ValueError, OverflowError):
             continue
         if MIN_GAP_DAYS <= gap <= MAX_GAP_DAYS and (best is None or abs(gap - WINDOW_DAYS) < abs(best[0] - WINDOW_DAYS)):
