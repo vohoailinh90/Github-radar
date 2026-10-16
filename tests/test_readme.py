@@ -1095,3 +1095,18 @@ def test_a_comment_after_a_trailing_pipe_does_not_end_the_pipeline_and_a_powersh
     assert lines("```powershell\nWrite-Output Foo<#Bar#>\nWrite-Output x <# c #> y\n```\n") == ["Write-Output Foo<#Bar#>", "Write-Output x  y"]
     assert lines("```powershell\nWrite-Output Foo<#Bar\nGet-Date\n```\n") == ["Write-Output Foo<#Bar", "Get-Date"]          # no comment opens
     assert lines("```powershell\ngci;<# c\n d #>\nGet-Date\n```\n") == ["gci;", "Get-Date"]          # after `;` a token begins: a comment
+
+
+def test_a_powershell_header_and_the_brace_of_its_block_on_the_next_line_are_one_command():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\nfunction Get-X\n{\n  Remove-Item x\n  Write-Host ok\n}\nGet-X\n```\n") == ["function Get-X { Remove-Item x; Write-Host ok }", "Get-X"]
+    text = "```powershell\ntry\n{\n  x\n}\ncatch [System.Exception]\n{\n  y\n}\nfinally\n{\n  z\n}\nls\n```\n"
+    assert lines(text) == ["try { x } catch [System.Exception] { y } finally { z }", "ls"]
+    assert lines("```powershell\nif ($a)\n{\n  x\n}\nelseif ($b)\n{\n  y\n}\nelse\n{\n  w\n}\n```\n") == ["if ($a) { x } elseif ($b) { y } else { w }"]
+    assert lines("```powershell\nforeach ($i in 1..3)\n{\n  Write-Host $i\n}\nWrite-Host done\n```\n") == ["foreach ($i in 1..3) { Write-Host $i }", "Write-Host done"]
+    assert lines("```console\nPS C:\\> function Get-X\n>> {\n>>   ls\n>> }\nPS C:\\> Get-X\n```\n") == ["PS C:\\> function Get-X { ls }", "PS C:\\> Get-X"]
+    assert lines("```powershell\nfunction Get-X\n```\n") == []                              # a header whose block never comes is not a command
+    assert lines("```powershell\nGet-Process | foreach\nWrite-Host hi\nGet-Help function\n```\n") == ["Get-Process | foreach", "Write-Host hi", "Get-Help function"]
+    assert lines("```powershell\ndo\n{\n  z\n}\nwhile ($i -lt 3)\nls\n```\n") == ["do { z } while ($i -lt 3)", "ls"]
+    assert lines("```powershell\nWrite-Output \"Done; if needed, rerun\"\nWrite-Host 'a; else'\n```\n") == ['Write-Output "Done; if needed, rerun"', "Write-Host 'a; else'"]          # a string is no header

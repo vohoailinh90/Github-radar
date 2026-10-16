@@ -942,12 +942,39 @@ def _open_group(lang: str, command: str, following: list[str]) -> int:
     return 0
 
 
-def _ps_clause_follows(text: str, line: str) -> bool:
-    """Whether the line after a complete PowerShell command goes on with it: `catch`, `finally`, `else` or `elseif` after the `}` that closes
-    a `try` or an `if`, `while` or `until` after the `}` of a `do`. Alone, the first part is not a command, and the clause is not either."""
+PS_BLOCK_HEADER = re.compile(
+    r"(?i)(?:^|[;{}]\s*)(?:(?:else|try|finally|do|begin|process|end|dynamicparam)"
+    r"|(?:if|elseif|while|until|switch|foreach|for|catch|trap)\b[^{}]*"
+    r"|(?:function|filter|workflow|configuration|class|enum)\s+[^\s{}][^{}]*)$")        # a statement that begins with one of these and has no block yet
+
+
+PS_STRING = re.compile(r"'(?:[^']|'')*'|\"(?:`.|\"\"|[^\"`])*\"")
+
+
+def _ps_code(text: str) -> str:
+    """The code of a PowerShell command without its prompt and a comment at the end of the line, or "" when that cannot be told."""
     state = _ps_state(text)
-    code = text[:state[2]].rstrip() if state else ""
-    nxt = line.strip()
+    return POWERSHELL_PROMPT.sub("", text[:state[2]], count=1).strip() if state else ""
+
+
+def _ps_awaits_block(text: str) -> bool:
+    """Whether a PowerShell command ends in a declaration or a control header whose block has not begun (`function Get-X`, `if ($ok)`,
+    `foreach ($i in 1..3)`, `try`, `} else`): PowerShell waits for the `{ ... }`, which may stand on the next line."""
+    code = PS_STRING.sub('""', _ps_code(text))               # what a string says is no header: `Write-Output "Done; if needed, rerun"`
+    found = PS_BLOCK_HEADER.search(code)
+    if found and found.group().startswith("}") and re.match(r"(?i)(?:while|until)\b", found.group()[1:].lstrip()) and re.match(r"(?i)do\b", code):
+        return False                                       # `do { ... } while ($i -lt 3)`: the condition of a `do`, not a loop of its own
+    return bool(found)
+
+
+def _ps_clause_follows(lang: str, text: str, line: str) -> bool:
+    """Whether the line after a complete PowerShell command goes on with it: a `{` on the next line (Allman style) after a header that waits for
+    its block (`function Get-X`, `if ($ok)`, `try`); `catch`, `finally`, `else` or `elseif` after the `}` that closes a `try` or an `if`;
+    `while` or `until` after the `}` of a `do`. Alone, the first part is not a command, and the clause is not either."""
+    code = _ps_code(text)
+    nxt = _piece(lang, line, text)
+    if nxt.startswith("{"):
+        return _ps_awaits_block(text)
     if not code.endswith("}"):
         return False
     return bool(re.match(r"(?i)(?:catch|finally|elseif|else)\b", nxt) or (re.match(r"(?i)(?:while|until)\b", nxt) and re.match(r"(?i)\s*do\b", code)))
@@ -955,7 +982,7 @@ def _ps_clause_follows(text: str, line: str) -> bool:
 
 def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
     """True when the shell's grammar leaves the command unfinished (`printf foo |`; in PowerShell a pipe, a comma, an open bracket or an
-    operator at the end of a line, or a `}` that a `catch`, `finally` or `else` on the next line goes on from) and the next lines finish it
+    operator at the end of a line, a header and the `{` of its block on the next line, or a `}` that a `catch`, `finally` or `else` goes on from) and the next lines finish it
     before a blank line or the end of the block, so that the lines are one command. A string or a compound command left open is not joined
     (see `_open_group`): the line break is part of it."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, command) or _construct_open(lang, command):
@@ -963,7 +990,7 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
     powershell = _is_powershell(lang, command)
     unfinished = _ps_open if powershell else _incomplete
     text = command
-    if unfinished(text) is not True and not (powershell and following and _ps_clause_follows(text, following[0])):
+    if unfinished(text) is not True and not (powershell and following and _ps_clause_follows(lang, text, following[0])):
         return False
     for n, line in enumerate(following, 1):
         if not line.strip():
@@ -974,7 +1001,7 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
         state = unfinished(text)
         if state is None:
             return False
-        if not state and not (powershell and n < len(following) and _ps_clause_follows(text, following[n])):
+        if not state and not (powershell and n < len(following) and _ps_clause_follows(lang, text, following[n])):
             return True
     return False
 
@@ -1069,7 +1096,7 @@ def _dangling(lang: str, command: str) -> bool:
     if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
         return typed and _cmd_depth(command) > 0
     if _is_powershell(lang, command):
-        return typed and _ps_open(command) is True
+        return typed and (_ps_open(command) is True or _ps_awaits_block(command))          # `function Get-X` with no block: PowerShell waits for it
     return typed and (_incomplete(command) or _ends_in_redirection(command) or _compound_depth(command, lang == "fish") > 0)
 
 
