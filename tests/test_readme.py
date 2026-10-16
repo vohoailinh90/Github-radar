@@ -454,6 +454,40 @@ def test_a_cmd_prompt_may_hold_a_path_with_spaces_and_a_redirection_is_still_not
         assert readme.SHELL_PROMPT.sub("", not_a_prompt) == not_a_prompt, not_a_prompt
 
 
+def test_a_command_that_the_shell_grammar_leaves_unfinished_is_joined_in_any_posix_block():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nprintf foo |\nsed s/foo/bar/\necho \"hello\nworld\"\n```\n") == ["printf foo | sed s/foo/bar/", 'echo "hello world"']
+    assert lines("```bash\ncurl -X POST http://x -d '{\n  \"a\": 1\n}'\npip install y\n```\n") == ["curl -X POST http://x -d '{ \"a\": 1 }'", "pip install y"]
+    assert lines("```sh\n(cd x &&\n ls)\nmake &&\nmake test\n```\n") == ["(cd x && ls)", "make && make test"]
+    # the same for a transcript, where the secondary prompt is dropped
+    assert lines("```console\n$ printf foo |\n> sed s/foo/bar/\n```\n") == ["$ printf foo | sed s/foo/bar/"]
+
+
+def test_an_apostrophe_in_sample_output_a_comment_or_a_blank_line_joins_nothing():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\n./run\nIt's working\npip install x\n```\n") == ["./run", "It's working", "pip install x"]          # the quote never closes
+    assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "echo a |", "", "ls"]
+    assert lines("```bash\necho \"a\n" + "line\n" * 25 + "z\"\npip install x\n```\n")[-1] == "pip install x"      # too far away to be the rest of it
+    assert lines("```powershell\nGet-Item 'it's\nGet-Item x |\nSelect y\n```\n") == ["Get-Item 'it's", "Get-Item x |", "Select y"]        # PowerShell has its own grammar
+
+
+def test_a_backslash_inside_single_quotes_is_literal_and_inside_double_quotes_it_continues():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\necho 'abc\\\ndef'\n```\n") == ["echo 'abc\\ def'"]
+    assert lines("```bash\necho \"abc\\\ndef\"\n```\n") == ['echo "abc def"']
+    assert lines("```bash\necho it\\\n  works\n```\n") == ["echo it works"]
+
+
+def test_a_pwsh_fence_is_powershell():
+    text = "```pwsh\nInstall-Module -Name Pester `\n  -Force\nGet-Item x\n```\n"
+    assert readme.code_blocks(text) == [("pwsh", ["Install-Module -Name Pester -Force", "Get-Item x"])]
+    assert readme.setup_commands(text) == ["Install-Module -Name Pester -Force", "Get-Item x"]
+    assert readme.shells(text) == {"Install-Module -Name Pester -Force": "powershell", "Get-Item x": "powershell"}
+
+
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
     text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
             "C:\\tools\\run.exe > out.txt\noutput line\n```\n")

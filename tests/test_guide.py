@@ -658,6 +658,18 @@ def test_a_line_of_a_configuration_or_code_sample_is_not_a_command_but_a_heredoc
         assert (not any("steps[0].commands" in e for e in errs(d, SAMPLE_FACTS))) is ok, commands
 
 
+PIPE_README = README + "\n```bash\nprintf foo |\nsed s/foo/bar/\necho \"hello\nworld\"\n```\n"
+PIPE_FACTS = {**FACTS, "readme": PIPE_README, "links": readme.links(PIPE_README), "blocks": readme.blocks(PIPE_README)}
+
+
+def test_a_piece_of_a_command_the_shell_grammar_splits_over_lines_is_not_a_command():
+    for command, ok in (("printf foo | sed s/foo/bar/", True), ("sed s/foo/bar/", False), ("printf foo |", False),
+                        ('echo "hello world"', True), ('world"', False), ('echo "hello', False)):
+        d = make_draft(PIPE_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, PIPE_FACTS))) is ok, command
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

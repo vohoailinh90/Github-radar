@@ -372,7 +372,7 @@ def is_local(url: str) -> bool:
     return parts is not None and (parts.hostname or "").lower() in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
 
-SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "ps1", "cmd", "bat", "batch"}      # every line is something to type
+SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "pwsh", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
 POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)[ \t]?[$#]\s+"      # `user@host:~$ `, `[me@box ~]$ `, `root@host:/# `
 CMD_PROMPT = r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)>(?:\s+|$)"                                      # `C:\Users\me> `, `C:\Program Files\repo> `: a path, then `>` with no space before it (`run.exe > out` is a redirection)
@@ -420,9 +420,7 @@ def dedent(lines: list[str]) -> list[str]:
     return [_drop_columns(line, margin) if line.strip() else "" for line in lines]
 
 
-SECONDARY_PROMPT = re.compile(r"^>\s+")                                        # what a shell shows when a command goes on over several lines
-PRIMARY_PROMPT = re.compile(r"^(?:\$\s+|" + POSIX_PROMPT + ")")                # a prompt after which `> ` is that secondary prompt and not a new command
-POWERSHELL_LANGS = {"powershell", "ps1"}                                   # a backtick at the end of a line continues it
+POWERSHELL_LANGS = {"powershell", "pwsh", "ps1"}                                   # a backtick at the end of a line continues it
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
@@ -440,7 +438,8 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
         return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return re.search(r"(?<!\^)\^$", physical) is not None
-    if _has_comment(physical):                    # `echo a # note \`: the backslash belongs to the comment
+    quote, _, commented = _shell_state(line)
+    if commented or quote == "'":                 # `echo a # note \`: the backslash belongs to the comment; in 'single quotes' it is literal
         return False
     return (len(physical) - len(physical.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(physical)       # `\\` at the end is an escaped backslash
 
@@ -484,27 +483,63 @@ def strip_trailing_comment(line: str) -> str:
     return line
 
 
-def _incomplete(command: str) -> bool:
-    """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `&&` or `||`, or a quote
-    or a parenthesis is still open. A command that is complete is followed by output, and `> ` there (npm prints `> pkg@1.0.0 start`) is not a prompt."""
+def _shell_state(text: str) -> tuple[str, int, bool]:
+    """(the quote still open at the end, the parentheses still open, whether a `# comment` starts) for a POSIX shell command line."""
     quote, depth, i = "", 0, 0
-    while i < len(command):
-        ch = command[i]
+    while i < len(text):
+        ch = text[i]
         if quote:
             i += 2 if ch == "\\" and quote == '"' else 1
-            quote = "" if i <= len(command) and ch == quote else quote
+            quote = "" if i <= len(text) and ch == quote else quote
             continue
         if ch == "\\":
             i += 2
             continue
         if ch in "'\"":
             quote = ch
+        elif ch == "#" and (i == 0 or text[i - 1].isspace()):
+            return "", 0, True                    # the rest of the line is the comment's: it opens and closes nothing
         elif ch == "(":
             depth += 1
         elif ch == ")":
             depth = max(0, depth - 1)
         i += 1
-    return bool(quote) or depth > 0 or command.rstrip().endswith(("|", "&&", "||"))
+    return quote, depth, False
+
+
+def _incomplete(command: str) -> bool:
+    """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `&&` or `||`, or a quote
+    or a parenthesis is still open; a comment opens and closes nothing. A command that is complete is followed by output, and `> ` there
+    (npm prints `> pkg@1.0.0 start`) is not a prompt."""
+    quote, depth, commented = _shell_state(command)
+    return not commented and (bool(quote) or depth > 0 or command.rstrip().endswith(("|", "&&", "||")))
+
+
+GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
+
+
+def _piece(lang: str, line: str) -> str:
+    """A physical line as it joins the command before it: without its margin and, in a transcript, without the secondary prompt
+    (`> `, PowerShell's `>> `, cmd's `More? `)."""
+    piece = line.strip()
+    return PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece)) if lang in CONSOLE_LANGS else piece
+
+
+def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
+    """True when the shell's grammar leaves the command unfinished (`printf foo |`, a quote split over lines) and the next lines finish
+    it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. A quote that never closes (an apostrophe in a sample output line) joins nothing."""
+    if lang in POWERSHELL_LANGS or lang in CMD_LANGS or POWERSHELL_PROMPT.match(command) or re.match(CMD_PROMPT, command):
+        return False
+    text = command
+    if not _incomplete(text):
+        return False
+    for line in following[:GRAMMAR_LOOKAHEAD]:
+        if not line.strip():
+            return False
+        text = f"{text} {_piece(lang, line)}"
+        if not _incomplete(text):
+            return True
+    return False
 
 
 def _heredoc_ends(line: str) -> list[str]:
@@ -574,7 +609,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
         while body and not body[-1].strip():
             body.pop()
         logical, owners, pending, ends, opener = [], [], "", [], None
-        for line in body:
+        for index, line in enumerate(body):
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
                 owners.append(opener)
@@ -590,21 +625,14 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 logical.append("")
                 owners.append(None)
                 continue
-            if (lang in CONSOLE_LANGS and not pending and logical and owners[-1] is None and SECONDARY_PROMPT.match(line.strip())
-                    and PRIMARY_PROMPT.match(logical[-1]) and _incomplete(logical[-1])):      # `$ printf foo |` then `> sed ...`: the shell asked for more
-                logical[-1] = f"{logical[-1]} {SECONDARY_PROMPT.sub('', line.strip()).rstrip()}"
-                if _continues(lang, logical[-1], line):
-                    logical[-1] = logical[-1][:-1].rstrip()
-                continue
             if pending:
-                piece = line.strip()
-                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag` (`>> -Flag` in PowerShell, `More? ` in cmd): the shell's secondary prompt
-                    piece = PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece))
-                pending = f"{pending} {piece}"
+                pending = f"{pending} {_piece(lang, line)}"           # `$ tool \` then `> --flag`: the shell's secondary prompt is not the command's
             else:
                 pending = line.rstrip()
             if _continues(lang, pending, line):
                 pending = pending[:-1].rstrip()
+                continue
+            if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`, a quote split over lines
                 continue
             logical.append(pending)
             owners.append(None)

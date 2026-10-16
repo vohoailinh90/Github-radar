@@ -65,7 +65,7 @@
       "independent_checker": false,
       "fixed": false,
       "coverage": {
-        "readme_commands": 19,
+        "readme_commands": 16,
         "used": 8
       }
     },
