@@ -272,3 +272,29 @@ def test_an_unreadable_history_file_is_reported_and_rebuilt_not_fatal(tmp_path, 
     assert len(json.loads((tmp_path / "state" / "stars.json").read_text())) == 5              # rebuilt from today's totals
     again = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
     assert "problems" not in again["history"] and again["history"]["tracked"] == 5
+
+
+def test_a_cleaned_and_pruned_history_is_saved_even_when_no_repository_qualifies(tmp_path, monkeypatch):
+    srv = fake_github([])                                                         # every search answers with nothing
+    monkeypatch.setenv("GITHUB_API_URL", srv.url)
+    stars = tmp_path / "state" / "stars.json"
+    stars.parent.mkdir()
+    stars.write_text(json.dumps({"o/old": {"2026-05-01": 5}, "o/bad": 7}))      # 166 days old (retention is 60), and a damaged entry
+    try:
+        report = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY)
+        assert report["candidates"] == 0 and "dropped entries" in report["history"]["problems"][0]
+        assert json.loads(stars.read_text()) == {}                                # cleaned and pruned on disk, not only in memory
+        again = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY, dry_run=True)
+    finally:
+        srv.close()
+    assert "problems" not in again["history"]                                    # the warning does not repeat on the next scan
+
+
+def test_an_empty_scan_with_no_history_does_not_create_one(tmp_path, monkeypatch):
+    srv = fake_github([])
+    monkeypatch.setenv("GITHUB_API_URL", srv.url)
+    try:
+        report = pipeline.run(cfg(), GitHub(), Gateway(), tmp_path, TODAY)
+    finally:
+        srv.close()
+    assert report["candidates"] == 0 and not (tmp_path / "state" / "stars.json").exists()

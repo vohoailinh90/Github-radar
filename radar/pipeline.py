@@ -51,12 +51,15 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
         ranked, dropped = discover.candidates(gh, cfg, seen, today, hist)
         picks = discover.pick(ranked, cfg, today)
     measured = sum(c["velocity"]["source"] == "measured" for c in ranked)
-    if ranked and not dry_run:
+    if not dry_run:
         # Saved before any model work: a snapshot is worth keeping even when the run later times out or holds every draft.
+        # Also saved when nothing qualified: a cleaned or pruned cache must reach the disk, or the same warning repeats forever.
+        before = json.dumps(hist, sort_keys=True)
         for c in ranked:
             history.record(hist, c["full_name"], today, c["repo"]["stargazers_count"])
         history.prune(hist, today, int(cfg["history_days"]))
-        history.save(stars_path, hist)
+        if history_problems or json.dumps(hist, sort_keys=True) != before:
+            history.save(stars_path, hist)
     picked = {c["full_name"] for c in picks}
     report = {"date": date, "dry_run": dry_run, "langs": cfg["langs"], "candidates": len(ranked), "dropped": dropped,
               "picks": [{"repo": c["full_name"], "bucket": c["bucket"], "score": c["score"], "stars": c["repo"]["stargazers_count"],
