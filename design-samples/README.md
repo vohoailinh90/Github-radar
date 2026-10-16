@@ -10,13 +10,12 @@ Thư mục này là **mẫu để xem trước và so sánh**, không phải k�
 
 Cách áp markup lên Moda: `docs/design-files.md`.
 
-## Thử draw.io (chỉ `agent-reach`)
+## Bản draw.io có icon (cả ba bài)
 
-`2026-10-12/agent-reach/drawio-vi.drawio` là một thử nghiệm riêng, **chưa thuộc pipeline**: mở bằng [app.diagrams.net](https://app.diagrams.net) (*File → Open from → Device*). So với bản Excalidraw/Moda:
-- Mũi tên là connector thật, gắn vào thẻ: kéo thẻ thì mũi tên đi theo; hai mũi tên đi ngược nhau ở hai làn riêng, chỗ giao nhau có nét nhảy.
-- Mỗi thành phần có một icon từ thư viện stencil của draw.io. **Icon do người chọn tay cho mẫu này**; trong pipeline cần một danh sách đóng để draft chọn và có gate kiểm (xem `CLAUDE.md`: không bịa icon). Tên stencil mới kiểm trên draw.io 14.6.12; bản mới có thể khác, khi đó icon hiện thành ô vuông xanh đen.
-- Chữ vẫn chỉ là trường của draft, nhãn của `labels.py` hoặc dữ kiện (đã kiểm máy), nhưng dùng font Helvetica/Arial của draw.io chứ không phải Be Vietnam Pro như Moda.
-- File do một script tạm vẽ từ `draft-vi.json`, không nằm trong `radar/`; nếu bạn chọn hướng này mới đưa vào `boards.py` kèm test.
+`<ngày>/<repo>/drawio-vi.drawio` mở bằng [app.diagrams.net](https://app.diagrams.net) (*File → Open from → Device*). Chúng do bộ vẽ thật `radar/drawio.py` (nhánh `claude/drawio-icons`) vẽ từ `draft-vi.json`. So với bản Excalidraw/Moda:
+- Mỗi thẻ là một khối giữ chữ của nó; kéo thẻ thì chữ, số bước, dấu tích và icon đi theo. Mũi tên giữa các thành phần là connector gắn vào thẻ, mỗi mũi tên một làn riêng, chỗ giao nhau có nét nhảy.
+- Mỗi thành phần có một icon từ danh sách đóng 53 tên (Lucide, ISC) nằm ngay trong tệp. **Ba draft cũ chưa có trường `icon`** (bài mới sẽ do model chọn và gate kiểm); icon trong ba tệp này do người chọn tay: agent-reach: terminal, route, settings, stethoscope; voicestudio: monitor, server, cpu; flowkit: server, puzzle, globe. Các draft trong `digests/` không bị sửa.
+- Chữ chỉ là trường của draft, nhãn của `labels.py` hoặc dữ kiện (có test), dùng font Helvetica của draw.io chứ không phải Be Vietnam Pro như Moda.
 
 Cách tạo: đọc `digests/<ngày>/<repo>/draft-vi.json`, vẽ bằng đúng hàm `digest.render_repo` mà `rerender` dùng, vào một thư mục tạm, rồi chép **chỉ hai tệp mới** vào đây. Mọi tệp khác của bài (`vi.md`, `card/flow/steps-vi.svg`, `draft-vi.json`) được vẽ lại giống hệt từng byte với tệp có sẵn (đã so từng tệp cho cả ba bài), nên không có gì trong `digests/` bị đổi.
 
