@@ -17,3 +17,10 @@ break promises 1 to 3 and 4. Defects were minor; each was reproduced before it w
 
 Not covered by anyone: real CORS from `file://`, the real dispatch answer (204), real fine-grained permission names, the real concurrency cancellation text
 (`docs/ui.md` has the 5-minute checklist; Codex review is the second reader).
+
+## Codex review of head f05dbea (2 findings, both P2, both confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | "Kiểm tra token" said the token is usable although only read access was proved (two GETs); a read-only Actions token then gets 403 on the first send | true: both GETs succeed with Actions read | the message now says what was checked and that write access shows only on the first send; `docs/ui.md` says the same; `test_the_token_check_says_only_what_it_checked` fails on the old page |
+| 2 | After an accepted dispatch the run list may not show the run yet; the button re-enabled and a second send could replace the waiting run | true: the flag only covered a run already listed | the page stays locked from an accepted dispatch until a listed run is "mine" or 2 minutes pass; `go()` enforces it (a forced click is refused); a refused dispatch starts no wait; four tests, each mutation killed |

@@ -22,7 +22,7 @@ GitHub → Settings → Developer settings → *Personal access tokens* → **Fi
 
 **Đừng** dùng chung token này với `RADAR_PR_TOKEN` (cái có quyền ghi code và PR, nằm trong Environment secrets của môi trường `radar`, xem [`branch-protection.md`](branch-protection.md)). Token của trang chỉ có quyền chạy workflow: không đọc được code, không ghi được code, không đọc được Secrets. Có token này mà không có quyền ghi code thì cũng không thể đẩy một nhánh có `radar.yml` đã sửa để đọc Secrets.
 
-Dán token vào ô *Token* rồi bấm **Kiểm tra token**: trang gọi GitHub đọc repo và đọc workflow `radar.yml`, và báo rõ nếu token sai, thiếu quyền hay không đúng repo.
+Dán token vào ô *Token* rồi bấm **Kiểm tra token**: trang gọi GitHub đọc repo và đọc workflow `radar.yml`, và báo rõ nếu token sai hay không đúng repo. Việc này chỉ chứng minh token **đọc** được; quyền *ghi* Actions chỉ lộ ra ở lượt gửi đầu tiên (nếu thiếu, GitHub trả 403 và trang báo cần Actions: Read and write). Trang nói thẳng điều đó thay vì báo "dùng được".
 
 ## Dùng
 
@@ -33,7 +33,7 @@ Dán token vào ô *Token* rồi bấm **Kiểm tra token**: trang gọi GitHub 
 
 Trang chỉ gửi những gì khác với bộ đã chọn (hoặc `radar.yaml` nếu không chọn bộ nào), nên điều kiện nhập thêm vẫn nằm trong khoảng workflow chấp nhận. **Người quyết định cuối cùng vẫn là workflow**: nó kiểm lại mọi thứ trước khi gọi GitHub hay model (`radar/conditions.py`), nên trang không thể gửi điều kiện mà `radar.yaml` và `CLAUDE.md` cấm.
 
-Các lần quét không chạy chồng (`concurrency: radar`): gửi thêm khi đang có một lượt chờ thì GitHub **thay** lượt chờ cũ, lượt cũ hiện là "Đã hủy (có thể bị thay bằng một yêu cầu mới hơn)". Trang không cho gửi tiếp khi lượt bạn vừa gửi còn đang chạy hay chờ.
+Các lần quét không chạy chồng (`concurrency: radar`): gửi thêm khi đang có một lượt chờ thì GitHub **thay** lượt chờ cũ, lượt cũ hiện là "Đã hủy (có thể bị thay bằng một yêu cầu mới hơn)". Trang không cho gửi tiếp khi lượt bạn vừa gửi còn đang chạy hay chờ, và cả trong lúc GitHub chưa liệt kê lượt đó (thường vài giây, tối đa chờ 2 phút).
 
 Trang nhận ra "lượt bạn vừa gửi" bằng giờ tạo của lượt chạy so với đồng hồ máy bạn. Nếu đồng hồ máy chậm hơn GitHub hơn 5 giây, trang có thể coi một lượt cũ đang chạy là của bạn và khóa nút cho tới khi lượt đó xong (hoặc bạn bấm *Quên token*). Chưa gặp trường hợp này; đồng hồ đồng bộ thì không xảy ra.
 
@@ -66,7 +66,7 @@ Sửa script trong trang mà quên chạy lệnh trên thì CSP chặn chính sc
 
 Môi trường dựng trang không nối được GitHub thật, nên **chưa kiểm trên GitHub thật**. Bạn thử một lần (5 phút):
 
-1. Mở trang, dán token, *Kiểm tra token*: phải hiện "Token dùng được". Nếu báo "Không kết nối được api.github.com" khi mở từ file, thử mở qua GitHub Pages (CORS từ `file://` chưa được thử).
+1. Mở trang, dán token, *Kiểm tra token*: phải hiện "Token đọc được repo và workflow radar.yml…". Nếu báo "Không kết nối được api.github.com" khi mở từ file, thử mở qua GitHub Pages (CORS từ `file://` chưa được thử).
 2. Chọn `quet-nhanh`, giữ *Quét thử*, bấm *Quét thử*: phải hiện một dòng mới trong bảng ("lượt bạn vừa gửi"), rồi "Xong". Mở link, vào *Summary* xem `conditions.label` là `quet-nhanh`.
 3. Gửi hai lượt liền nhau: lượt đầu có thể hiện "Đã hủy (có thể bị thay…)" (cách GitHub xử lý nhóm đồng thời, chưa thử ở repo này).
 4. Chỉ khi hai bước trên ổn: quét thật với `quet-nhanh` (1 bài).

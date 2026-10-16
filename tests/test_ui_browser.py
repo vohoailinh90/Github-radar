@@ -424,6 +424,55 @@ def test_a_bucket_is_not_sent_without_a_single_repository(ui):
     assert ui.gh.posts()[0]["body"]["inputs"]["bucket"] == "" and ui.gh.posts()[0]["body"]["inputs"]["repo"] == ""
 
 
+def test_the_token_check_says_only_what_it_checked(ui):
+    connect(ui)
+    message = text(ui, "#connect-msg")
+    assert "đọc được" in message and "Quyền ghi Actions chưa kiểm được" in message and "dùng được" not in message
+
+
+def test_the_button_stays_off_until_the_run_just_sent_is_listed(ui):
+    connect(ui)
+    ui.click("#go")                                                                # accepted (204), but the run list is still empty
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.is_disabled("#go")
+    ui.evaluate("document.getElementById('go').disabled = false; document.getElementById('go').click()")      # a forced second send
+    ui.wait_for_timeout(400)
+    assert len(ui.gh.posts()) == 1
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 7, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.click("#refresh")                                                           # listed, and already finished
+    wait(ui, "document.getElementById('go').disabled === false")
+
+
+def test_the_wait_for_a_run_that_never_shows_up_ends_after_two_minutes(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    page = context.new_page()
+    page.clock.install(time=dt.datetime.now(dt.timezone.utc))
+    page.goto(PAGE_URL)
+    connect(page)
+    page.click("#go")
+    wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert page.is_disabled("#go")
+    page.clock.fast_forward(60_000)
+    page.click("#refresh")
+    assert page.is_disabled("#go")                                                 # a minute in: still waiting
+    page.clock.fast_forward(70_000)
+    page.click("#refresh")
+    wait(page, "document.getElementById('go').disabled === false")
+    context.close()
+
+
+def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
+    connect(ui)
+    ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (422, {"message": "nope"})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('bad')")
+    assert ui.is_enabled("#go")
+
+
 def test_a_dispatch_the_server_does_not_acknowledge_is_not_reported_as_sent(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (200, {})
