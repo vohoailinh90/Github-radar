@@ -686,9 +686,18 @@ def _ps_state(text: str):
         if text.startswith("<#", i) and _ps_token_start(text, i):
             return None
         if ch == "#" and _ps_token_start(text, i):          # a `#` that begins a token: `Write-Host hi;# note`
+            if "\n" in text[i:]:
+                i = text.index("\n", i)                      # lines of a block: the comment ends with its line
+                continue
             return stack, _ps_continues(text[:i], last), i, ""
-        if ch == "@" and text[i + 1:i + 2] in ("'", '"') and not text[i + 2:].strip():
-            return None
+        if ch == "@" and text[i + 1:i + 2] in ("'", '"') and not text[i + 2:].partition("\n")[0].strip():
+            if not text[i + 2:].strip():
+                return None
+            close = text.find("\n" + text[i + 1] + "@", i)       # a here-string inside lines of a block: its data runs to the line that begins with the closing mark
+            if close < 0:
+                return stack, False, len(text), text[i + 1]
+            i, last = close + 3, text[i + 1]
+            continue
         if ch in "'\"":
             end = i + 1
             while end < len(text):
@@ -940,14 +949,51 @@ def _open_group(lang: str, command: str, following: list[str]) -> int:
     """How many of the next lines finish a construct that is open at the end of the command (`python -c "` over the script and `"`, `if ...;
     then` over its body and `fi`), 0 when it is not open or does not close before the block ends. The line breaks, blank lines
     included, are part of it (a string's content, a script's statements), so the lines are kept apart as the data of the command, like the
-    body of a heredoc, and not joined."""
-    if not _typed(lang, command) or not _construct_open(lang, command):
+    body of a heredoc, and not joined. The body of a heredoc inside the construct is data: whatever it says (`fi`, `}`, an apostrophe) opens
+    and closes nothing."""
+    if not _typed(lang, command):
         return 0
+    if not _construct_open(lang, command):
+        return _ps_block_group(lang, command, following) if _is_powershell(lang, command) and _ps_open(command) is True else 0
+    heredocs = lang in HEREDOC_LANGS and not _is_powershell(lang, command) and not re.match(CMD_PROMPT, command)
+    prompted = lang in CONSOLE_LANGS or bool(SHELL_PROMPT.match(command))
+    text, ends, done = command, (_heredoc_openers(command) if heredocs else []), False
+    for n, line in enumerate(following, 1):
+        if ends:                                                      # a line of a heredoc inside the construct: data
+            if _closes(_unprompt(line) if prompted else line, ends[0]):
+                ends.pop(0)
+                if done and not ends:
+                    return n
+            continue
+        piece = _piece(lang, line, command)
+        inside = bool(_shell_state(text)[0])                          # a `<<` in a string that goes on is text
+        text += "\n" + piece
+        ends = _heredoc_openers(piece) if heredocs and not inside else []
+        if not _construct_open(lang, text):
+            if not ends:
+                return n
+            done = True                                               # `done <<EOF`: the body of the heredoc follows the closing word
+    return 0
+
+
+def _ps_block_group(lang: str, command: str, following: list[str]) -> int:
+    """How many of the next lines close the brackets that a PowerShell command leaves open (`if (...) {`, `function Get-X {`), when a here-string
+    stands inside them: its lines are data, and the line breaks of the block are significant, so they are kept as they are, like a group. 0
+    when no here-string is inside, which the grammar joins into one line, or when the block does not close before the end."""
+    prompted = lang in CONSOLE_LANGS or bool(POWERSHELL_PROMPT.match(command))
     text = command
     for n, line in enumerate(following, 1):
-        text += "\n" + _piece(lang, line, command)
-        if not _construct_open(lang, text):
-            return n
+        text += "\n" + (_piece(lang, line, command) if prompted else line.rstrip())
+        state = _ps_state(text)
+        if state is None:
+            if re.search(r"@[\"']\s*$", text):
+                continue                                              # the line that was just added opens a here-string: its data comes next
+            return 0
+        if state[3] or state[0] or state[1]:
+            continue
+        if n < len(following) and _ps_clause_follows(lang, text, following[n]):
+            continue                                                  # `} else {` goes on
+        return n if re.search(r"@[\"']\s*\n", text) else 0
     return 0
 
 
@@ -1269,7 +1315,7 @@ def heredoc_data(commands, shells=None) -> list[bool]:
     several lines or a compound command (`if ...; then` over its body and `fi`), that is its body, its closing word, the lines that finish
     it, so that it is printed as it is. `shells` says which shell the commands are for, to read a string with that shell's rules: a name
     ("powershell") for all of them, or {comparable form of a command: shell} as `shells()` gives it."""
-    flags, ends, text_so_far, shell = [], [], None, ""
+    flags, ends, text_so_far, shell, inner, done = [], [], None, "", [], False
     for command in commands if isinstance(commands, (list, tuple)) else []:
         text = command if isinstance(command, str) else ""
         if ends:
@@ -1278,16 +1324,28 @@ def heredoc_data(commands, shells=None) -> list[bool]:
                 ends.pop(0)
         elif text_so_far is not None:
             flags.append(True)
+            if inner:                                             # a line of a heredoc inside the construct
+                if _closes(text, inner[0]):
+                    inner.pop(0)
+                    if done and not inner:
+                        text_so_far, done = None, False
+                continue
+            posix = not shell
+            inside = posix and bool(_shell_state(text_so_far)[0])
             text_so_far += "\n" + text
+            inner = _heredoc_openers(text) if posix and not inside else []
             if not _list_construct_open(text_so_far, shell):
-                text_so_far = None
+                if inner:
+                    done = True
+                else:
+                    text_so_far = None
         else:
             flags.append(False)
             if text.strip():
                 ends = _heredoc_openers(text)
                 shell = shells if isinstance(shells, str) else (shells or {}).get(norm_command(text), "")
                 if not ends and _list_construct_open(text, shell):
-                    text_so_far = text
+                    text_so_far, inner, done = text, [], False
     return flags
 
 
@@ -1298,7 +1356,9 @@ def _list_construct_open(text: str, shell: str) -> bool:
         return _cmd_depth(text) > 0
     if shell == "powershell":
         state = _ps_state(text)
-        return bool(state and state[3])
+        if state is None:
+            return bool(re.search(r"@[\"']\s*$", text))              # a here-string opens at the end: its data comes next
+        return bool(state[3] or state[0])                          # a command in a list is one line unless its block holds a here-string
     quote, parens, _, _ = _shell_state(text)
     return bool(quote) or parens > 0 or _compound_depth(text, shell == "fish") > 0
 

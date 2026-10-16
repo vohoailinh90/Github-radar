@@ -1132,3 +1132,24 @@ def test_a_backtick_at_the_end_of_a_line_inside_a_powershell_string_is_part_of_t
     assert scanned("```powershell\nWrite-Host \"a`\nb\"\nGet-Date\n```\n") == [('Write-Host "a`', None), ('b"', 0), ("Get-Date", None)]          # the string keeps its own line break
     assert scanned("```console\nPS C:\\> Write-Host 'hello`\n>> world'\nPS C:\\> Get-Date\n```\n") == [("PS C:\\> Write-Host 'hello`", None), (">> world'", 0), ("PS C:\\> Get-Date", None)]
     assert scanned("```powershell\nWrite-Host 'a' `\n  -ForegroundColor Red\nGet-Date\n```\n") == [("Write-Host 'a' -ForegroundColor Red", None), ("Get-Date", None)]          # outside a string it still continues
+
+
+def test_a_heredoc_inside_a_compound_command_and_a_here_string_inside_a_powershell_block_do_not_end_or_split_it():
+    def scanned(text):
+        return [(line, owner) for _, block, owners in readme._scan(text) for line, owner in zip(block, owners)]
+    text = "```bash\nif [ ! -f .env ]; then\n  cat > .env <<EOF\nmessage: Don't commit this\nfi\n}\nEOF\n  rm -rf build\nfi\nls\n```\n"
+    assert scanned(text) == [("if [ ! -f .env ]; then", None)] + [(line, 0) for line in ["  cat > .env <<EOF", "message: Don't commit this", "fi", "}", "EOF", "  rm -rf build", "fi"]] + [("ls", None)]
+    text = "```bash\nfor f in a b; do\n  cat <<'EOF'\nline\nEOF\ndone <<X\nbody\nX\nls\n```\n"
+    assert scanned(text) == [("for f in a b; do", None)] + [(line, 0) for line in ["  cat <<'EOF'", "line", "EOF", "done <<X", "body", "X"]] + [("ls", None)]          # `done <<X`: its body belongs to the loop
+    assert scanned("```bash\npython -c \"\nx = 1 <<EOF\n\"\nls\n```\n") == [('python -c "', None), ("x = 1 <<EOF", 0), ('"', 0), ("ls", None)]          # a `<<` inside a string is text
+    assert scanned("```bash\nif true; then\n  cat <<EOF\nnever closes\nfi\n```\n") == []                               # the heredoc swallows `fi`: the construct never closes
+    text = "```powershell\nif (-not (Test-Path .env)) {\n@\"\nKEY='value\n\"@ | Set-Content .env\n  Remove-Item build\n}\nGet-Date\n```\n"
+    assert scanned(text) == [("if (-not (Test-Path .env)) {", None)] + [(line, 0) for line in ['@"', "KEY='value", '"@ | Set-Content .env', "  Remove-Item build", "}"]] + [("Get-Date", None)]
+    text = "```powershell\nif ($a) {\n@'\nx\n'@ | Set-Content f\n}\nelse {\n  y\n}\nls\n```\n"
+    assert scanned(text) == [("if ($a) {", None)] + [(line, 0) for line in ["@'", "x", "'@ | Set-Content f", "}", "else {", "  y", "}"]] + [("ls", None)]          # `else` goes on
+    assert scanned("```powershell\nif ($a) {\n@\"\nnever closes\n```\n") == []
+    assert scanned("```powershell\nfunction Get-X {\n  # note\n  Remove-Item x\n}\nls\n```\n") == [("function Get-X { Remove-Item x }", None), ("ls", None)]          # no here-string: joined as before
+    assert readme.heredoc_data(["if x; then", "  cat <<EOF", "Don't", "fi", "EOF", "  rm -rf build", "fi", "ls"]) == [False, True, True, True, True, True, True, False]
+    assert readme.heredoc_data(["for f in a; do", "cat <<'E'", "x", "E", "done <<X", "body", "X", "ls"]) == [False, True, True, True, True, True, True, False]
+    commands = ["if (-not (Test-Path .env)) {", '@"', "KEY='v", '"@ | Set-Content .env', "}", "Get-Date"]
+    assert readme.heredoc_data(commands, "powershell") == [False, True, True, True, True, False] and readme.command_count(commands, "powershell") == 2
