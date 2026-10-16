@@ -881,3 +881,13 @@ def test_a_wrong_number_in_one_item_does_not_hide_a_wrong_reference_in_another()
     assert not any("link_ref" in m for m in errs(mutate(lambda d: d["guide"]["requirements"][0].update(detail="Cần 64 GB bộ nhớ."))))
     wrong_shape = mutate(lambda d: d["guide"].update(steps="not a list"))
     assert errs(wrong_shape)                                                                                   # a guide of the wrong shape is still refused, and does not crash
+
+
+def test_a_schema_error_in_one_item_does_not_hide_a_wrong_reference_in_a_valid_item():
+    both = mutate(lambda d: (d["guide"]["steps"][0].update(link_ref=99), d["guide"]["requirements"][0].update(item="")))
+    messages = errs(both)
+    assert any("guide.requirements[0]" in m for m in messages) and any("link_ref" in m and "99" in m for m in messages)          # both in the one round of feedback
+    bad_step = mutate(lambda d: (d["guide"]["steps"][1].update(do="not a list"), d["guide"]["steps"][0].update(evidence="docs/nope.md")))
+    assert any("guide.steps[1]" in m for m in errs(bad_step)) and any("docs/nope.md" in m for m in errs(bad_step))
+    not_dicts = mutate(lambda d: d["guide"].update(requirements=["x", 3, None], troubleshooting="nope"))
+    assert errs(not_dicts)                                                                                       # shapes the checks cannot read are refused, never a crash

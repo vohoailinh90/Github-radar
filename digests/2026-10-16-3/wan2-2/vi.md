@@ -78,11 +78,12 @@ pip install -r requirements.txt
 
 <sub>Căn cứ: `requirements.txt`</sub>
 
-### Bước 3 · Cài công cụ tải mô hình của Hugging Face
+### Bước 3 · Tùy chọn: cài công cụ tải mô hình của Hugging Face
 
-**Mục đích:** Có lệnh huggingface-cli để tải tệp mô hình.
+**Mục đích:** Chỉ cần nếu bạn muốn tải mô hình bằng dòng lệnh thay vì tải tay ở bước sau; README dùng công cụ này cho ví dụ tải mô hình T2V-A14B.
 
-1. Chạy lệnh cài công cụ.
+1. Bỏ qua bước này nếu bạn tải tay ở bước sau.
+2. Chạy lệnh cài công cụ.
 
 ```bash
 pip install "huggingface_hub[cli]"
@@ -94,11 +95,13 @@ pip install "huggingface_hub[cli]"
 
 **Mục đích:** generate.py cần có tệp mô hình trên máy mới sinh được video.
 
-1. README chỉ ghi ví dụ tải mô hình T2V-A14B: `huggingface-cli download Wan-AI/Wan2.2-T2V-A14B --local-dir ./Wan2.2-T2V-A14B`.
-2. Đừng chạy nguyên dòng đó, vì nó tải mô hình lớn hơn. Hãy dùng đúng cấu trúc lệnh ấy nhưng đổi cả hai chỗ `Wan2.2-T2V-A14B` thành `Wan2.2-TI2V-5B`.
-3. Mã mô hình TI2V-5B nằm trong bảng mô hình của README (xem liên kết dưới đây). Có thể tải bằng modelscope-cli nếu Hugging Face khó truy cập.
+1. README chỉ có lệnh tải cho mô hình T2V-A14B (mô hình lớn hơn nhiều, đừng tải nhầm) và không có lệnh cho TI2V-5B, nên bước này không có khối lệnh.
+2. Mở trang mô hình TI2V-5B ở liên kết dưới đây, lấy từ bảng mô hình của README, và tải các tệp của trang về một thư mục tên Wan2.2-TI2V-5B nằm trong thư mục Wan2.2.
+3. Tên thư mục phải đúng như vậy, vì lệnh ở bước sau trỏ tới ./Wan2.2-TI2V-5B. Nếu Hugging Face khó truy cập, bảng mô hình của README còn có trang ModelScope.
 
 🔗 Liên kết trong README: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B)
+
+✅ **Bạn sẽ thấy:** Thư mục Wan2.2-TI2V-5B trong thư mục Wan2.2 chứa các tệp mô hình đã tải từ trang mô hình.
 
 <sub>Căn cứ: `README`</sub>
 

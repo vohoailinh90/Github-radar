@@ -511,7 +511,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
     problems = schema(draft, require_guide)
     if any(p.field in ("how_it_works", "how_it_works.steps") for p in problems):
         return problems
-    guide_shaped = not any(p.level == "error" and p.field.startswith("guide") for p in problems)          # the items are what the checks below read
+    schema_errors = [p.field for p in problems if p.level == "error"]                                # the checks below read the items the schema accepted
     files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
     paths = {t.rstrip("/").lstrip("./").lower() for t in facts["tree"]} | files
     blob = _norm_cmd(facts["readme"])
@@ -541,10 +541,13 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
     problems += _command_list_problems(draft, facts["readme"])
     guide = draft.get("guide")
-    if isinstance(guide, dict) and guide_shaped:                 # a wrong number or command in one item does not hide a wrong reference in another
+    if isinstance(guide, dict):                  # a wrong number or command in one item, or a missing field in another, does not hide a wrong reference here
         links, blocks = len(facts.get("links") or []), len(facts.get("blocks") or [])
         for key in ("requirements", "steps", "troubleshooting"):
-            for i, item in enumerate(guide.get(key) or []):
+            items = guide.get(key)
+            for i, item in enumerate(items if isinstance(items, list) else []):
+                if not isinstance(item, dict):
+                    continue
                 field = f"guide.{key}[{i}]"
                 if item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                     problems.append(Problem("error", field, f"evidence {item['evidence']!r} is not README or a path in the repository"))
@@ -552,16 +555,17 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                     ref = item.get(name)
                     if isinstance(ref, int) and not isinstance(ref, bool) and ref >= size:
                         problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
-        used, wanted = command_coverage(draft, facts)
         steps = guide.get("steps")
-        if wanted >= 2 and isinstance(steps, list) and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
-            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "
-                                    "(1-2 only when the README has fewer than 2 command lines to follow)"))
-        if wanted >= 1 and used == 0:            # a command line outside a code block or a code span passes the command gate; only a command of a code block counts here
-            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command line{'s' if wanted != 1 else ''} but the guide uses "
-                                    f"{'none of them' if wanted != 1 else 'it'}; copy the ones a reader types, in order"))
-        elif wanted >= 4 and used < 2:
-            problems.append(Problem("warn", "guide.steps", f"the guide uses {used} of the README's {wanted} command lines"))
+        if isinstance(steps, list) and not any(f.startswith("guide.steps") for f in schema_errors):          # coverage reads the commands of every step
+            used, wanted = command_coverage(draft, facts)
+            if wanted >= 2 and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
+                problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "
+                                        "(1-2 only when the README has fewer than 2 command lines to follow)"))
+            if wanted >= 1 and used == 0:            # a command line outside a code block or a code span passes the command gate; only a command of a code block counts here
+                problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command line{'s' if wanted != 1 else ''} but the guide uses "
+                                        f"{'none of them' if wanted != 1 else 'it'}; copy the ones a reader types, in order"))
+            elif wanted >= 4 and used < 2:
+                problems.append(Problem("warn", "guide.steps", f"the guide uses {used} of the README's {wanted} command lines"))
     if not language_ok(draft, lang):
         problems.append(Problem("error", "language", f"text does not look like '{lang}'"))
     return problems

@@ -98,24 +98,25 @@
             "pip install \"huggingface_hub[cli]\""
           ],
           "do": [
+            "Bỏ qua bước này nếu bạn tải tay ở bước sau.",
             "Chạy lệnh cài công cụ."
           ],
           "evidence": "README",
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Cài công cụ tải mô hình của Hugging Face",
-          "why": "Có lệnh huggingface-cli để tải tệp mô hình."
+          "title": "Tùy chọn: cài công cụ tải mô hình của Hugging Face",
+          "why": "Chỉ cần nếu bạn muốn tải mô hình bằng dòng lệnh thay vì tải tay ở bước sau; README dùng công cụ này cho ví dụ tải mô hình T2V-A14B."
         },
         {
           "commands": [],
           "do": [
-            "README chỉ ghi ví dụ tải mô hình T2V-A14B: `huggingface-cli download Wan-AI/Wan2.2-T2V-A14B --local-dir ./Wan2.2-T2V-A14B`.",
-            "Đừng chạy nguyên dòng đó, vì nó tải mô hình lớn hơn. Hãy dùng đúng cấu trúc lệnh ấy nhưng đổi cả hai chỗ `Wan2.2-T2V-A14B` thành `Wan2.2-TI2V-5B`.",
-            "Mã mô hình TI2V-5B nằm trong bảng mô hình của README (xem liên kết dưới đây). Có thể tải bằng modelscope-cli nếu Hugging Face khó truy cập."
+            "README chỉ có lệnh tải cho mô hình T2V-A14B (mô hình lớn hơn nhiều, đừng tải nhầm) và không có lệnh cho TI2V-5B, nên bước này không có khối lệnh.",
+            "Mở trang mô hình TI2V-5B ở liên kết dưới đây, lấy từ bảng mô hình của README, và tải các tệp của trang về một thư mục tên Wan2.2-TI2V-5B nằm trong thư mục Wan2.2.",
+            "Tên thư mục phải đúng như vậy, vì lệnh ở bước sau trỏ tới ./Wan2.2-TI2V-5B. Nếu Hugging Face khó truy cập, bảng mô hình của README còn có trang ModelScope."
           ],
           "evidence": "README",
-          "expect": "",
+          "expect": "Thư mục Wan2.2-TI2V-5B trong thư mục Wan2.2 chứa các tệp mô hình đã tải từ trang mô hình.",
           "if_fails": "",
           "link_ref": 5,
           "title": "Tải mô hình Wan2.2-TI2V-5B về thư mục Wan2.2-TI2V-5B",
