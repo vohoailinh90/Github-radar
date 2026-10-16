@@ -297,9 +297,7 @@ def _flat(text: str) -> str:
     return re.sub(r"\s*%", "%", re.sub(r"[\s\-_]+", " ", text.lower()))
 
 
-def _norm_cmd(text: str) -> str:
-    """A command or README line in one comparable form: whitespace collapsed, a shell prompt (`$ `, `> `, `PS C:\\>`) dropped."""
-    return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip())
+_norm_cmd = readmelib.norm_command
 
 
 def _block_variants(readme: str):
@@ -479,9 +477,9 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         if wanted >= 2 and isinstance(steps, list) and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
             problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "
                                     "(1-2 only when the README has fewer than 2 command lines to follow)"))
-        if wanted >= 2 and used == 0:            # any README line passes the command gate; only a command of a code block counts here
-            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines but the guide uses none of them; "
-                                    "copy the ones a reader types, in order"))
+        if wanted >= 1 and used == 0:            # any README line passes the command gate; only a command of a code block counts here
+            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command line{'s' if wanted != 1 else ''} but the guide uses "
+                                    f"{'none of them' if wanted != 1 else 'it'}; copy the ones a reader types, in order"))
         elif wanted >= 4 and used < 2:
             problems.append(Problem("warn", "guide.steps", f"the guide uses {used} of the README's {wanted} command lines"))
     if not language_ok(draft, lang):

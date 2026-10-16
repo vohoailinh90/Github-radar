@@ -23,7 +23,7 @@ def _cell(text) -> str:
 
 # The few facts every renderer reads; the README and the file tree are not needed to draw a digest again.
 META_KEYS = ("full_name", "url", "stars", "forks", "license", "language", "bucket", "scanned")
-OPTIONAL_META = ("links", "blocks")   # kept when a run found them: a guide points at them by number (older drafts have none)
+OPTIONAL_META = ("links", "blocks", "shells")   # kept when a run found them: a guide points at them by number (older drafts have none)
 
 
 def _g(text) -> str:
@@ -63,13 +63,32 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
     return ["", f"_{t['snippet']}_", "", fence + lang] + body.splitlines() + [fence]
 
 
-def _bash_block(commands) -> list[str]:
-    """The lines of a fenced `bash` block holding `commands`, the fence longer than any run of backticks in them."""
+def _bash_block(commands, shell: str = "bash") -> list[str]:
+    """The lines of a fenced block of `shell` (bash, powershell, bat) holding `commands`, the fence longer than any run of backticks in them."""
     lines = [_command(c) for c in commands]
     fence = "```"
     while any(fence in line for line in lines):
         fence += "`"
-    return [fence + "bash"] + lines + [fence]
+    return [fence + shell] + lines + [fence]
+
+
+def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
+    """The commands of a step as fenced blocks, one per run of lines for the same shell as the README writes them (FACTS.shells): a
+    PowerShell line is not fenced as bash. When a step has a shell other than bash, each block says which shell it is for."""
+    table = facts.get("shells") if isinstance(facts.get("shells"), dict) else {}
+    groups: list[tuple[str, list]] = []
+    for command in commands:
+        shell = table.get(readmelib.norm_command(command))
+        shell = shell if shell in ("powershell", "bat") else "bash"
+        if groups and (groups[-1][0] == shell or not str(command).strip()):        # a blank line stays in the block it is in
+            groups[-1][1].append(command)
+        else:
+            groups.append((shell, [command]))
+    named = any(shell != "bash" for shell, _ in groups)
+    out: list[str] = []
+    for i, (shell, group) in enumerate(groups):
+        out += ([""] if i else []) + ([f"_{t['shell_' + shell]}_", ""] if named else []) + _bash_block(group, shell)
+    return out
 
 
 def _command(text) -> str:
@@ -116,7 +135,7 @@ def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
         md += [f"### {t['step']} {i} · {_g(step['title'])}", "", f"**{t['why']}:** {_g(step['why'])}", ""]
         md += [f"{n}. {_g(d)}" for n, d in enumerate(step["do"], 1)]
         if step.get("commands"):
-            md += [""] + ([f"_{t['type_here']}_", ""] if not hinted else []) + _bash_block(step["commands"])
+            md += [""] + ([f"_{t['type_here']}_", ""] if not hinted else []) + _command_blocks(facts, step["commands"], t)
             hinted = True
         md += _snippet(facts, step.get("snippet_ref"), t)
         link = _link(facts, step.get("link_ref"), t)

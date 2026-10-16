@@ -324,6 +324,13 @@ def test_a_powershell_backtick_and_a_cmd_caret_continue_a_line_and_a_doubled_mar
                                         ("console", ["PS C:\\> Get-Item -Path x", "$ tool --flag"])]
 
 
+def test_the_shell_a_readme_writes_a_command_line_for_is_known_when_it_is_not_a_unix_shell():
+    text = ("```powershell\n.\\webui.bat\n# a comment\nWrite-Host   hi\n```\n\n```bat\nwebui.bat\nREM remark\n```\n\n```bash\nls -la\n.\\webui.bat\n```\n\n"
+            "```console\nPS C:\\> Get-Item x\n$ ls\n```\n")
+    assert readme.shells(text) == {".\\webui.bat": "powershell", "Write-Host hi": "powershell", "webui.bat": "bat", "Get-Item x": "powershell"}
+    assert readme.shells("```bash\nls\n```\n") == {} and readme.shells("no code") == {}
+
+
 def test_adjacent_addresses_with_nothing_between_them_are_separate_links():
     text = ("Set `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://frontend.example.com;http://[::1]:8080,https://b.example.org/x` first.\n"
             "Also [both](http://a.example.com,https://b.example.com) and https://c.example.com/list?ids=1,2 here.\n")

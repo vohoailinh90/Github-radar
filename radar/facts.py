@@ -51,6 +51,7 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
         "readme": text,
         "links": readmelib.links(text),               # [[label, url], ...]: the only addresses a guide may point to, by number
         "blocks": readmelib.blocks(text),             # [[language, text], ...]: README samples (config files...) a guide may show, by number
+        "shells": readmelib.shells(text),             # {command: "powershell" | "bat"}: the shell the README writes a command line for
         "bucket": cand["bucket"],
         "topic": cand["topic"],
         "score": cand["score"],

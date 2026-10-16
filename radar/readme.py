@@ -517,6 +517,31 @@ def prose_lines(text: str) -> list[str]:
     return out
 
 
+def norm_command(text) -> str:
+    """A command or README line in one comparable form: whitespace collapsed, a shell prompt (`$ `, `> `, `PS C:\\>`) dropped."""
+    return PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip())
+
+
+def shells(text: str) -> dict[str, str]:
+    """{comparable form of a command: "powershell" or "bat"} for the lines the README writes in a PowerShell or cmd block (or after a
+    `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. A line a Unix shell block also holds, or one
+    the README shows first in a Unix shell block, is not listed: the guide's default is a Unix shell."""
+    found: dict[str, str] = {}
+    for lang, lines in code_blocks(text):
+        for line in lines:
+            key = norm_command(line)
+            if not key or key.startswith(("#", "//", "REM ", "::")):
+                continue
+            if lang in POWERSHELL_LANGS or (lang in CONSOLE_LANGS and POWERSHELL_PROMPT.match(line)):
+                shell = "powershell"
+            elif lang in CMD_LANGS:
+                shell = "bat"
+            else:
+                shell = "bash"
+            found.setdefault(key, shell)
+    return {key: shell for key, shell in found.items() if shell != "bash"}
+
+
 def setup_commands(text: str) -> list[str]:
     """What a person types, from the README's code blocks: every line of a block tagged as a shell; in a `console` transcript only
     the lines after a prompt (`$ `, `> `, `PS C:\\>`), because the rest is output; in any other block the lines that start with a

@@ -485,6 +485,9 @@
       ]
     ],
     "scanned": "2026-10-16",
+    "shells": {
+      ".\\webui.bat": "powershell"
+    },
     "stars": 131800,
     "url": "https://github.com/harry0703/MoneyPrinterTurbo"
   },

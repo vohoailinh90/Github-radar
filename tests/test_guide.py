@@ -531,6 +531,40 @@ def test_a_readme_with_nothing_to_run_may_have_a_guide_of_one_or_two_steps_and_o
     assert any("guide.steps" in e and "needs 3-10 steps" in e for e in errs(d))               # the README of the fixture shows many commands
 
 
+def test_a_command_is_fenced_in_the_shell_the_readme_writes_it_for_and_a_step_with_two_shells_names_each(tmp_path):
+    facts = {**FACTS, "shells": {".\\webui.bat": "powershell", "webui.bat": "bat"}}
+    only = make_draft(facts, "vi")
+    only["guide"]["steps"][0].update(commands=[".\\webui.bat"])
+    folder, md = render(tmp_path / "one", only, facts=facts)
+    assert f"_{L['vi']['shell_powershell']}_\n\n```powershell\n.\\webui.bat\n```" in md
+    assert json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))["facts"]["shells"] == facts["shells"]      # rerender sees the same shells
+    mixed = make_draft(facts, "vi")
+    mixed["guide"]["steps"][0].update(commands=["pip install x", "pip install y", ".\\webui.bat", "webui.bat", "git status"])
+    md = render(tmp_path / "two", mixed, facts=facts)[1]
+    t = L["vi"]
+    assert (f"_{t['shell_bash']}_\n\n```bash\npip install x\npip install y\n```\n\n_{t['shell_powershell']}_\n\n```powershell\n.\\webui.bat\n```\n\n"
+            f"_{t['shell_bat']}_\n\n```bat\nwebui.bat\n```\n\n_{t['shell_bash']}_\n\n```bash\ngit status\n```") in md
+    plain = make_draft(FACTS, "vi")
+    plain["guide"]["steps"][0].update(commands=["pip install x", "pip install y"])
+    assert "```bash\npip install x\npip install y\n```" in render(tmp_path / "three", plain)[1] and t["shell_bash"] not in render(tmp_path / "four", plain)[1]
+    for hostile in ([], "x", {"pip install x": "rm -rf /"}, {"pip install x": ["powershell"]}):             # a stored table that is not what facts.build writes
+        d = make_draft({**FACTS, "shells": hostile}, "vi")
+        d["guide"]["steps"][0].update(commands=["pip install x"])
+        assert "```bash\npip install x\n```" in render(tmp_path / f"h{abs(hash(str(hostile)))}", d, facts={**FACTS, "shells": hostile})[1]
+
+
+ONE_CMD_README = PAPER_README + "\n```bash\npip install one-tool\n```\n"
+ONE_CMD_FACTS = {**FACTS, "readme": ONE_CMD_README, "links": readme.links(ONE_CMD_README), "blocks": readme.blocks(ONE_CMD_README)}
+
+
+def test_the_only_command_line_of_a_readme_has_to_be_in_the_guide():
+    d = short_guide(ONE_CMD_FACTS, 1)
+    assert any("guide.steps" in e and "uses it" in e for e in errs(d, ONE_CMD_FACTS))
+    d["guide"]["steps"][0].update(commands=["pip install one-tool"], evidence="README")
+    assert not any("guide.steps" in e for e in errs(d, ONE_CMD_FACTS))
+    assert not any("guide.steps" in e for e in errs(short_guide(PAPER_FACTS, 1), PAPER_FACTS))                   # a README with no command line asks for none
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

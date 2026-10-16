@@ -115,7 +115,9 @@ sh webui.sh
 1. Chạy lệnh dưới đây trong thư mục gốc của dự án (PowerShell). Trong CMD bạn có thể chạy `webui.bat`.
 2. Chờ trình duyệt tự mở.
 
-```bash
+_PowerShell_
+
+```powershell
 .\webui.bat
 ```
 
