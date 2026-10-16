@@ -686,9 +686,11 @@ def test_runs_of_another_repository_are_never_taken_for_mine(ui):
     assert ui.is_disabled("#go")                                                   # and it did not mark my run as finished either
 
 
-HOLD = """(() => { const real = window.fetch; window.__held = []; window.__hold = false;
-  window.fetch = async (...args) => { const res = await real(...args);
-    if (window.__hold && String(args[0]).includes('/runs?')) { window.__hold = false; await new Promise((r) => window.__held.push(r)); }
+HOLD = """(() => { const real = window.fetch; window.__held = []; window.__hold = false; window.__holdPost = false;
+  window.fetch = async (...args) => { const res = await real(...args); const url = String(args[0]);
+    if ((window.__hold && url.includes('/runs?')) || (window.__holdPost && url.includes('/dispatches'))) {
+      window.__hold = false; window.__holdPost = false; await new Promise((r) => window.__held.push(r));
+      if (window.__rejectHeld) { window.__rejectHeld = false; throw new TypeError('Failed to fetch'); } }      // the held answer is lost instead of delivered
     return res; };
   window.__release = () => { window.__held.splice(0).forEach((r) => r()); }; })();"""
 
@@ -737,6 +739,91 @@ def test_a_run_list_still_loading_for_the_old_repository_does_not_land_in_the_ne
     page.wait_for_timeout(500)
     assert page.eval_on_selector_all("#runs-body tr", "trs => trs.length") == 0    # the late answer for the old repository was dropped
     context.close()
+
+
+def test_forgetting_the_token_while_a_send_is_under_way_leaves_no_lock_behind(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    connect(page)
+    page.evaluate("window.__holdPost = true")
+    page.click("#go")                                                              # the send reaches GitHub, its answer is held back
+    wait(page, "window.__held.length === 1")
+    page.click("#forget")                                                          # the person ends the session meanwhile
+    page.fill("#token", TOKEN)
+    page.evaluate("window.__release()")                                            # now the answer arrives
+    wait(page, "document.getElementById('msg').className.includes('warn')")
+    assert "xóa token lúc đang gửi" in text(page, "#msg") and page.is_enabled("#go")      # told, and nothing is left locked
+    assert text(page, "#busy-note") == ""
+    context.close()
+
+
+def test_forgetting_the_token_while_the_answer_to_a_send_is_lost_leaves_no_lock_behind(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    connect(page)
+    page.evaluate("window.__holdPost = true; window.__rejectHeld = true")
+    page.click("#go")
+    wait(page, "window.__held.length === 1")
+    page.click("#forget")
+    page.fill("#token", TOKEN)
+    page.evaluate("window.__release()")                                            # the answer is lost, after the token was forgotten
+    wait(page, "document.getElementById('msg').className.includes('warn')")
+    assert "xóa token lúc đang gửi" in text(page, "#msg") and page.is_enabled("#go") and text(page, "#busy-note") == ""
+    context.close()
+
+
+def test_forgetting_the_token_before_the_send_goes_out_sends_nothing(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    page.fill("#token", TOKEN)                                                     # no check first: the branch is looked up inside go()
+    page.evaluate("window.__hold = true")                                          # holds the list read before the send
+    page.click("#go")
+    wait(page, "window.__held.length === 1")
+    page.click("#forget")
+    page.evaluate("window.__release()")
+    wait(page, "document.getElementById('msg').className.includes('warn')")
+    assert gh.posts() == [] and "chưa gửi gì" in text(page, "#msg")
+    context.close()
+
+
+def test_a_token_put_back_while_a_send_is_followed_makes_the_page_look_again(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    assert "Đang theo dõi" in text(ui, "#busy-note")
+    ui.fill("#token", "")                                                          # cleared by hand, the followed send stays
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.fill("#token", TOKEN)
+    ui.press("#token", "Tab")                                                      # committed: the page looks again, without any other click
+    wait(ui, "document.getElementById('go').disabled === false")
+    assert text(ui, "#busy-note") == ""
+
+
+def test_checking_the_token_while_a_send_is_followed_makes_the_page_look_again(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.click("#check")
+    wait(ui, "document.getElementById('go').disabled === false")
 
 
 def test_the_table_of_runs_is_emptied_when_another_repository_is_typed(ui):

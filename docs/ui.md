@@ -39,6 +39,8 @@ Trang nhận ra "lượt bạn vừa gửi" không bằng đồng hồ mà bằn
 
 Trang nhớ lượt đã gửi **theo từng repo** (tên repo không phân biệt hoa thường, như GitHub; kể cả khi bạn gửi sang repo khác rồi quay lại): gõ sang repo khác thì nút mở cho repo đó, gõ lại repo cũ thì khóa trở lại (và trang tự hỏi lại xem lượt ấy đang ở đâu). Nếu hai lần đọc danh sách chồng nhau, chỉ câu trả lời của lần đọc mới nhất được dùng; câu trả lời cũ về muộn bị bỏ.
 
+Bấm *Quên token* lúc lệnh đang gửi là kết thúc phiên: trang không tạo ra khóa nào sau đó (nó báo lệnh có thể đã tới GitHub, hãy xem tab Actions). Khi nút đang khóa vì một lượt đã gửi, trang ghi lý do ngay dưới nút; dán token lại rồi rời ô (hoặc bấm *Kiểm tra token* hay *Làm mới*) thì trang đọc lại danh sách để biết lượt đó đang ở đâu.
+
 Giới hạn còn lại: nếu một người hay công cụ khác gửi một lượt đúng trong khoảng một giây giữa lúc trang đọc danh sách và lúc trang gửi, và lượt đó bị hủy ngay (nhóm đồng thời thay nó bằng lượt của bạn), trang có thể coi lượt bị hủy là lượt của mình và mở nút sớm vài giây, nên một lần bấm thật nhanh nữa có thể thay lượt của bạn đang chờ. Repo một chủ thì gần như không xảy ra; phân biệt được cần thêm một mã riêng vào đầu vào của workflow, chưa đáng.
 
 ## Giữ trang đúng với mã

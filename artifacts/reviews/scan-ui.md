@@ -91,3 +91,9 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 |---|---|---|---|
 | 1 | Leaving a repository stopped the looking for its send; coming back after the two-minute wait the page treated the wait as over (nothing had been seen) and enabled the button before the reload could find the still-active run | true | the wait is over only when a look that SUCCEEDED after the deadline found nothing (`checked`); not looking or a failed look is not evidence; a held-reload test with a fake clock fails on the old page; mutations killed |
 | 2 | Watches were keyed by the exact text, but GitHub reads owner and repository names without regard to case, so `Owner/Repo` and `owner/repo` were two repositories | true | keys (and the branch cache) are lower-cased (the pattern is ASCII only); a test sends to one spelling and checks two others |
+
+## Codex review of head 35c6a28 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | "Quên token" pressed while the dispatch was in flight: the late answer recreated the watch, the token was empty so no look could follow, and putting the token back only refreshed the button, leaving it locked with nothing to resolve it | true | "Quên token" now ends the session: a send under way when it is pressed leaves no watch behind (guards after the branch lookup, the list read, the POST, and in the failure path) and says the command may have reached GitHub; a token put back while a send is followed makes the page look again (on leaving the field, which fires where `change` does not, and on "Kiểm tra token"); and the page says why the button is off. Tests for each, with a held and a lost answer; mutations killed. |

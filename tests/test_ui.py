@@ -114,8 +114,8 @@ def test_the_token_has_one_home_and_is_cleared_when_the_page_is_left():
     assert len(re.findall(r"\btoken\(\)", HTML)) >= 5
     assert 'addEventListener("pagehide", () => { $("token").value = ""; })' in HTML
     assert "credentials: \"omit\"" in HTML and "referrerPolicy: \"no-referrer\"" in HTML
-    # the field is touched in three places only: read by token(), emptied by "Quên token" and emptied on pagehide; no storage, no URL
-    assert HTML.count('$("token")') == 3 and "?access_token" not in HTML and "token=" not in HTML.replace("Token=", "")
+    # the field's value is touched in three places only (the one other use is a blur listener): read by token(), emptied by "Quên token" and emptied on pagehide; no storage, no URL
+    assert HTML.count('$("token").value') == 3 and HTML.count('$("token")') == 4 and "?access_token" not in HTML and "token=" not in HTML.replace("Token=", "")
 
 
 def test_the_page_stays_small_enough_to_read():

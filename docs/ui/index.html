@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+KB6uldDPZN3FPUngDI1PcsgahuMWqHD1w19qcUKxq0='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-B0cW91rj0fCcM3MmyQ1zD74rn22z+s8sMC7LKUY/zaM='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -100,6 +100,7 @@ a { color: var(--accent); }
       <input id="confirm" type="text" autocomplete="off" spellcheck="false" aria-label="Gõ QUET để xác nhận">
     </div>
     <div class="actions"><button id="go" type="button" class="primary" disabled>Quét ngay</button></div>
+    <p id="busy-note" class="muted small" role="status"></p>
     <p id="msg" class="msg" role="status" aria-live="polite"></p>
   </section>
 
@@ -400,6 +401,7 @@ const token = () => $("token").value.trim();
 let branch = { repo: "", name: "" };
 let pollTimer = null;
 let sending = false;
+let session = 0;                                     // counts "Quên token": a send that was under way when it happened must not leave anything behind
 let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
 // The send I am following in each repository I sent to (so typing another name, even sending there, and coming back keeps the lock):
 // repo -> { sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
@@ -467,6 +469,7 @@ async function checkToken() {
     say("connect-msg", "Không kết nối được api.github.com.", "bad");
   }
   refresh();
+  if (watching()) loadRuns();                                         // a token that works again: find out where the run I sent stands
 }
 
 // ---- form -----------------------------------------------------------------------------------------------------------
@@ -533,6 +536,7 @@ function refresh() {
   $("confirm-box").hidden = dry;
   const confirmed = dry || $("confirm").value === "QUET";
   const ready = isRepo(repoName()) && token() !== "" && !issues.length && !(singleText && !isRepo(singleText)) && confirmed && !busy();
+  $("busy-note").textContent = holds(watchOf(repoName())) ? "Đang theo dõi lượt vừa gửi: nút mở lại khi lượt đó xong. Bấm Làm mới để kiểm tra ngay." : "";
   $("go").disabled = !ready;
   $("go").textContent = dry ? "Quét thử" : "Quét thật";
 }
@@ -544,6 +548,8 @@ async function go() {
   if (busy() || problems(v).length || !isRepo(repo) || !token() || (singleRepo && !isRepo(singleRepo))) return;
   if (!dry && $("confirm").value !== "QUET") return;
   const bucket = bucketFor(v, singleRepo, $("single-bucket").value);
+  const epoch = session;
+  const forgotten = () => epoch !== session;                            // "Quên token" was pressed while this send was under way
   sending = true;
   refresh();
   say("msg", "Đang gửi lệnh…");
@@ -553,25 +559,29 @@ async function go() {
     if (!ref) {
       const info = await call("GET", "/repos/" + repo);
       const name = info.status === 200 && info.data && info.data.default_branch;
+      if (forgotten()) { say("msg", "Đã xóa token: chưa gửi gì.", "warn"); return; }
       if (!isBranch(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
       ref = name;
       branch = { repo: repoKey(repo), name };
     }
     const inputs = dispatchInputs(v, presetName, dry, singleRepo, bucket);
     const listed = await call("GET", runsPath(repo));                       // what exists before the send, to recognise the run the send starts
+    if (forgotten()) { say("msg", "Đã xóa token: chưa gửi gì.", "warn"); return; }
     if (listed.status !== 200 || !listed.data || !Array.isArray(listed.data.workflow_runs)) {
       say("msg", "Chưa gửi: không đọc được danh sách lượt chạy để theo dõi lượt vừa gửi. " + explain(listed.status, listed.data), "bad");
       return;
     }
     attempt = { before: newestId(listed.data.workflow_runs), sentAt: Date.now() };
     const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
+    if (forgotten()) { say("msg", "Bạn đã xóa token lúc đang gửi: lệnh có thể đã tới GitHub, hãy xem tab Actions của repo. Trang không theo dõi nữa.", "warn"); return; }
     if (res.status >= 500) throw new Error("no clear answer");           // a gateway error can follow an accepted send: treat it like a lost answer
     if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // GitHub refused: nothing was sent, nothing to wait for
     watchSent(attempt, repo);
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
     await loadRuns();
   } catch (e) {
-    if (attempt === null) say("msg", "Không kết nối được api.github.com.", "bad");
+    if (forgotten()) say("msg", "Bạn đã xóa token lúc đang gửi: lệnh có thể đã tới GitHub, hãy xem tab Actions của repo. Trang không theo dõi nữa.", "warn");
+    else if (attempt === null) say("msg", "Không kết nối được api.github.com.", "bad");
     else {                                                                // the answer to the send was lost: it may have been accepted, so do not allow a second one yet
       watchSent(attempt, repo);
       say("msg", "Mất kết nối lúc gửi: chưa biết lệnh đã tới GitHub chưa. Trang đợi tối đa 2 phút xem có lượt mới hiện ra; đừng gửi lại ngay.", "warn");
@@ -671,8 +681,11 @@ for (const node of document.querySelectorAll("input, select")) {
   node.addEventListener("input", changed);
   node.addEventListener("change", changed);
 }
+// Leaving the token field with a token in it while a send is being followed (cleared and pasted back, or pasted after "Quên token"): look again.
+// Not `change`: pasting the same value again in one visit to the field fires none.
+$("token").addEventListener("blur", () => { if (watching() && token() !== "") loadRuns(); });
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; session++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);
