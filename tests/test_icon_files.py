@@ -75,6 +75,7 @@ def test_the_overlay_returns_a_copy_with_the_icons_and_leaves_the_stored_draft_a
 
 def test_a_draft_that_names_icons_itself_wins_over_the_file():
     d = make_draft({}, "en")
+    assert icons.has_icons(d) and not icons.has_icons(old_draft())
     assert icons.overlay(d, file_for(d, ["bug", "zap", "mail"])) is d
 
 
@@ -184,6 +185,18 @@ def test_a_draft_that_names_its_own_icons_keeps_them_whatever_the_file_says(tmp_
     assert pipeline.rerender(cfg(langs=["vi"]), tmp_path)["skipped"] == {}
     after = snapshot(tmp_path)
     assert {k: v for k, v in after.items() if not k.startswith("digests/") or "icons-" not in k} == drawn
+
+
+@pytest.mark.parametrize("content", ["{ stale", "null", json.dumps({"components": [{"name": "A component the draft never had", "icon": "box"}]}),
+                                     json.dumps({"components": [{"name": "x", "icon": "rocket-ship"}]})])
+def test_a_stale_or_broken_icon_file_beside_a_draft_that_names_its_own_icons_stops_nothing(tmp_path, servers, content):
+    first_run(tmp_path, langs=["vi"])
+    drawn = snapshot(tmp_path)
+    for path in write_files(tmp_path):
+        path.write_text(content, encoding="utf-8")
+    assert pipeline.rerender(cfg(langs=["vi"]), tmp_path) == {"rerendered": ["2026-10-14"], "skipped": {}}
+    assert {k: v for k, v in snapshot(tmp_path).items() if "icons-" not in k} == {k: v for k, v in drawn.items() if "icons-" not in k}
+    assert all(p.read_text(encoding="utf-8") == content for p in (tmp_path / "digests").rglob("icons-*.json"))     # left as they were
 
 
 def test_the_run_that_writes_new_drafts_never_writes_an_icon_file(tmp_path, servers):

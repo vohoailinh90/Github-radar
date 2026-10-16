@@ -191,6 +191,7 @@ def rerender(cfg: dict, root: Path, slug: str | None = None) -> dict:
             report["skipped"][name] = "a stored draft no longer fits the schema: " + "; ".join(bad[:2])
             continue
         stale = [f"{e['facts']['full_name']} [{lang}]: {p}" for e in entries for lang, data in e["icon_files"].items()
+                 if not icons.has_icons(e["drafts"][lang])           # a draft that names its icons wins: a file beside it is never read
                  for p in gates.icon_file(e["drafts"][lang], data)]
         if stale:
             report["skipped"][name] = "an icon file does not fit its draft: " + "; ".join(stale[:2])

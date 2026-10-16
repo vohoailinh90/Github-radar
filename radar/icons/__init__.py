@@ -90,6 +90,12 @@ def data_uri(name: str, **kw) -> str:
 FILE = "icons-{lang}.json"            # beside draft-<lang>.json: {"components": [{"name": ..., "icon": ...}, ...]}
 
 
+def has_icons(draft: dict) -> bool:
+    """True when the draft names an icon itself (any component): such a draft never needs an icon file, and a file beside it is ignored."""
+    comps = (draft.get("how_it_works") or {}).get("components") or []
+    return any(isinstance(c, dict) and c.get("icon") not in (None, "") for c in comps)
+
+
 def overlay(draft: dict, data) -> dict:
     """The draft as it is drawn when a draft stored before icons existed has an icon file beside it: a copy with each component's
     `icon` filled in. A draft that already names icons wins, and a row whose name is not the component's or whose icon is not in
@@ -97,7 +103,7 @@ def overlay(draft: dict, data) -> dict:
     is the model's answer and is never changed: only the copy that is handed to the renderer carries the icons."""
     comps = (draft.get("how_it_works") or {}).get("components") or []
     rows = data.get("components") if isinstance(data, dict) else None
-    if not isinstance(rows, list) or len(rows) != len(comps) or any(isinstance(c, dict) and c.get("icon") not in (None, "") for c in comps):
+    if has_icons(draft) or not isinstance(rows, list) or len(rows) != len(comps):
         return draft
     shown = copy.deepcopy(draft)
     for comp, row in zip(shown["how_it_works"]["components"], rows):
