@@ -936,3 +936,29 @@ def test_a_readme_that_gives_routes_in_both_code_blocks_and_prose_counts_both():
     assert gates.command_coverage(block_only, facts) == (1, 2)                               # the route in the prose is not hidden by the block
     assert gates.command_coverage(prose_only, facts) == (1, 2)                               # and the route in the block is not hidden by the prose
     assert gates.command_coverage(mutate(lambda d: d["guide"]["steps"][0].update(commands=["npm install -g sample-agent-kit", "pip install sample-agent-kit"]), facts=facts), facts) == (2, 2)
+
+
+def test_a_wrong_mechanism_part_does_not_hide_the_defects_of_the_guide():
+    def bad(d):
+        d["how_it_works"]["steps"] = d["how_it_works"]["steps"][:1]                                       # a wrong count: the schema's business
+        d["guide"]["steps"][0].update(commands=["rm -rf /not-in-the-readme"], link_ref=99)
+    messages = errs(mutate(bad))
+    assert any("how_it_works.steps" in m for m in messages)
+    assert any("not a line or code span of the README" in m for m in messages) and any("link_ref" in m and "99" in m for m in messages)          # all in the one round of feedback
+    for shape in ("not an object", None, ["list"]):
+        gone = mutate(lambda d: (d.update(how_it_works=shape), d["guide"]["steps"][0].update(commands=["rm -rf /not-in-the-readme"], title="")))
+        messages = errs(gone)
+        assert any("how_it_works" in m for m in messages)
+        assert any("not a line or code span of the README" in m for m in messages) and any("guide.steps[0].title" in m for m in messages)
+
+
+def test_a_prompted_command_in_a_list_item_or_a_quote_is_a_command_of_the_readme():
+    prose = "# Sample\n\nSteps:\n\n- $ custom-tool init\n1. PS C:\\> Get-Date\n  - $ nested-tool go\n> $ quoted-tool run\n- npm install a sentence about packages\n"
+    assert gates.prose_commands(prose) == ["custom-tool init", "Get-Date", "nested-tool go", "quoted-tool run"]          # a bullet that only starts with a program stays a sentence
+    assert gates.readme_commands(prose) >= {"custom-tool init", "Get-Date", "nested-tool go", "quoted-tool run"}
+    facts = {**FACTS, "readme": prose, "links": [], "blocks": []}
+    used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["custom-tool init", "Get-Date"]), facts=facts)
+    assert not any("guide.steps[0].commands" in m for m in errs(used, facts=facts))                  # the other steps still carry the fixture's commands
+    assert gates.command_coverage(used, facts) == (2, 4)
+    bare = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]], facts=facts)
+    assert any("the README shows 4 command lines but the guide uses none of them" in m for m in errs(bare, facts=facts))

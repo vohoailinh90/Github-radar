@@ -224,19 +224,9 @@ def guide_schema(guide) -> list[Problem]:
     return p
 
 
-def schema(draft: dict, require_guide: bool = False) -> list[Problem]:
-    """`require_guide` is for a draft being written now; a stored draft from before the guide existed still has to render."""
+def _how_it_works_schema(hiw: dict) -> list[Problem]:
+    """The shape of the mechanism part (steps, components, flow); a defect here is reported with the rest, not instead of it."""
     p: list[Problem] = []
-    for key, limit in (("title", "title"), ("hook", "hook"), ("one_liner", "one_liner"),
-                       ("problem", "problem"), ("analogy", "analogy")):
-        v = draft.get(key)
-        if not isinstance(v, str) or not v.strip():
-            p.append(Problem("error", key, "missing or empty"))
-        elif len(v) > LIMITS[limit]:
-            p.append(Problem("error", key, f"{len(v)} chars; limit {LIMITS[limit]}"))
-    hiw = draft.get("how_it_works")
-    if not isinstance(hiw, dict):
-        return p + [Problem("error", "how_it_works", "missing")]
     for i, s in enumerate(_list(hiw, "steps", 3, 6, p, "how_it_works.steps")):
         if not isinstance(s, dict) or not s.get("text") or not s.get("evidence"):
             p.append(Problem("error", f"steps[{i}]", "needs text and evidence"))
@@ -257,6 +247,24 @@ def schema(draft: dict, require_guide: bool = False) -> list[Problem]:
                   and all(0 <= x < len(comps) for x in edge) and edge[0] != edge[1])
             if not ok:
                 p.append(Problem("error", "flow", f"edge {edge!r} must be two different component indexes"))
+    return p
+
+
+def schema(draft: dict, require_guide: bool = False) -> list[Problem]:
+    """`require_guide` is for a draft being written now; a stored draft from before the guide existed still has to render."""
+    p: list[Problem] = []
+    for key, limit in (("title", "title"), ("hook", "hook"), ("one_liner", "one_liner"),
+                       ("problem", "problem"), ("analogy", "analogy")):
+        v = draft.get(key)
+        if not isinstance(v, str) or not v.strip():
+            p.append(Problem("error", key, "missing or empty"))
+        elif len(v) > LIMITS[limit]:
+            p.append(Problem("error", key, f"{len(v)} chars; limit {LIMITS[limit]}"))
+    hiw = draft.get("how_it_works")
+    if isinstance(hiw, dict):
+        p += _how_it_works_schema(hiw)
+    else:
+        p.append(Problem("error", "how_it_works", "missing"))          # the rest is still checked: one round of feedback names every defect
     for key, lo, hi, limit in (("who_for", 2, 4, "who_for"), ("learn", 3, 5, "learn"), ("caveats", 1, 4, "caveat")):
         for i, t in enumerate(_list(draft, key, lo, hi, p)):
             if not isinstance(t, str) or not t.strip() or len(t) > LIMITS[limit]:
@@ -318,6 +326,16 @@ def _block_variants(readme: str):
         yield readmelib.strip_trailing_comment(line), prompt
 
 
+LIST_PREFIX = re.compile(r"(?:>\s*|(?:[-*+]|\d{1,9}[.)])\s+)+")          # the Markdown container of a line: quote marks and list markers
+
+
+def _unlisted(line: str) -> str:
+    """`line` without the list marker or quote mark in front of a prompted command (`- $ tool init`, `1. PS C:\\> Get-Date`, `> $ tool`); any other
+    line is returned as it is, so a bullet that merely starts with a program name stays a sentence."""
+    found = LIST_PREFIX.match(line)
+    return line[found.end():] if found and readmelib.SHELL_PROMPT.match(line[found.end():]) else line
+
+
 def _command_like(line: str) -> bool:
     """Whether a whole README line outside the code blocks may be a command a reader types: it starts with a prompt, or its first word is
     a known program written in lowercase (`First install the package.` and `Make sure it is on.` are sentences)."""
@@ -332,7 +350,7 @@ def _prose_variants(readme: str):
     lines = [l.strip() for l in readmelib.prose_lines(readme)]
     i = 0
     while i < len(lines):
-        line, parts = lines[i], [lines[i]]
+        line, parts = _unlisted(lines[i]), [lines[i]]
         i += 1
         if _command_like(line):
             while readmelib._continues("", line, line) and i < len(lines) and lines[i]:
@@ -526,8 +544,6 @@ def language_ok(draft: dict, lang: str) -> bool:
 
 def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> list[Problem]:
     problems = schema(draft, require_guide)
-    if any(p.field in ("how_it_works", "how_it_works.steps") for p in problems):
-        return problems
     schema_errors = [p.field for p in problems if p.level == "error"]                                # the checks below read the items the schema accepted
     files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
     paths = {t.rstrip("/").lstrip("./").lower() for t in facts["tree"]} | files
