@@ -433,22 +433,24 @@ def shown_commands(draft: dict) -> list[tuple[str, object]]:
 
 
 def prose_commands(readme: str) -> list[str]:
-    """The commands a README gives outside its code blocks, for a README that has none inside them (`Run `pip install tool`.`): a code span or a
-    line of prose that starts with a known program and has an argument. A single word (`git`, `npm`) is a name in a sentence, not a command."""
+    """The commands a README gives outside its code blocks (`Run `pip install tool`.`, `PS C:\\> Get-Date`): a line or code span with a prompt, whatever
+    the program, or one that starts with a known program and has an argument. A single word without a prompt (`git`, `npm`) is a name in a
+    sentence, not a command."""
     out: list[str] = []
     for text, prompt in _prose_variants(readme):
         shown = _shown(text, prompt)
-        if len(shown.split()) >= 2 and readmelib.is_command_line(shown) and shown not in out:
+        prompted = bool(readmelib.SHELL_PROMPT.match(text.strip()))
+        if shown and shown not in out and (prompted or (len(shown.split()) >= 2 and readmelib.is_command_line(shown))):
             out.append(shown)
     return out
 
 
 def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
-    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. A README with no
-    command in a code block is counted by the commands in its prose (see `prose_commands`). Only the commands the reader sees count, so a
-    `try_it` next to a guide adds nothing."""
+    """(README command lines the draft uses, command lines the README gives in its code blocks and in its prose, see `prose_commands`): how
+    much of the way in it shows. A README may offer routes in both forms, so a guide that follows either is covered. Only the commands the
+    reader sees count, so a `try_it` next to a guide adds nothing."""
     shells = facts.get("shells") if isinstance(facts.get("shells"), dict) else None
-    wanted = _command_keys(readmelib.setup_commands(facts["readme"]) or prose_commands(facts["readme"]), shells)
+    wanted = _command_keys(readmelib.setup_commands(facts["readme"]), shells) | _command_keys(prose_commands(facts["readme"]), shells)
     by_field: dict[str, list] = {}
     for field, command in shown_commands(draft):
         by_field.setdefault(field, []).append(command)

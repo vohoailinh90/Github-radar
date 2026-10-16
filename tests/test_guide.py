@@ -915,3 +915,24 @@ def test_a_readme_with_its_commands_only_in_prose_still_asks_the_guide_for_them(
     assert gates.command_coverage(used, facts) == (1, 1)
     assert not any("command line" in m and "guide uses" in m for m in errs(used, facts=facts))
     assert gates.command_coverage(bare, FACTS)[1] >= 2                                   # a README with code blocks counts those, as before
+
+
+def test_a_prompted_custom_command_in_prose_is_a_command_whatever_its_program():
+    prose = "# Sample\n\nStart it with `$ custom-tool start`, or on Windows `PS C:\\> Get-Date`. The name `custom-tool` alone is a word in a sentence.\n"
+    assert gates.prose_commands(prose) == ["custom-tool start", "Get-Date"]                  # a prompt says it is typed, so the program need not be a known one
+    facts = {**FACTS, "readme": prose, "links": [], "blocks": []}
+    bare = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]], facts=facts)
+    assert gates.command_coverage(bare, facts) == (0, 2)
+    used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["custom-tool start"]), facts=facts)
+    assert gates.command_coverage(used, facts) == (1, 2)
+
+
+def test_a_readme_that_gives_routes_in_both_code_blocks_and_prose_counts_both():
+    both = "# Sample\n\nOr with pip: `pip install sample-agent-kit`.\n\n```bash\nnpm install -g sample-agent-kit\n```\n"
+    assert readme.setup_commands(both) == ["npm install -g sample-agent-kit"] and gates.prose_commands(both) == ["pip install sample-agent-kit"]
+    facts = {**FACTS, "readme": both, "links": [], "blocks": []}
+    block_only = mutate(lambda d: d["guide"]["steps"][0].update(commands=["npm install -g sample-agent-kit"]), facts=facts)
+    prose_only = mutate(lambda d: d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"]), facts=facts)
+    assert gates.command_coverage(block_only, facts) == (1, 2)                               # the route in the prose is not hidden by the block
+    assert gates.command_coverage(prose_only, facts) == (1, 2)                               # and the route in the block is not hidden by the prose
+    assert gates.command_coverage(mutate(lambda d: d["guide"]["steps"][0].update(commands=["npm install -g sample-agent-kit", "pip install sample-agent-kit"]), facts=facts), facts) == (2, 2)
