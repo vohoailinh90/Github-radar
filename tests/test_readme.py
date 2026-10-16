@@ -764,10 +764,12 @@ def test_a_powershell_command_that_cannot_be_told_is_left_as_it_is_and_one_that_
     assert lines("```powershell\nforeach ($f in $x) {\n\nRemove-Item $f\n```\n") == ["", "Remove-Item $f"]       # a blank line ends it
     assert lines("```powershell\nfoo { # note\n bar\n}\n```\n") == ["foo { bar }"]                                  # a comment inside is left out of the join
     assert lines("```powershell\nfoo <# a #> {\n bar\n}\n```\n") == ["foo <# a #> {", " bar", "}"]                  # a block comment: not told, left as it is
-    assert lines("```powershell\nGet-Item 'it's\nGet-Item x\n```\n") == ["Get-Item 'it's", "Get-Item x"]       # a string that does not close
+    assert lines("```powershell\nGet-Item 'it's\nGet-Item x\n```\n") == ["Get-Item 'it's", "Get-Item x"]       # `'it'` closes, then `s`: complete
+    assert lines("```powershell\nGet-Item 'it\nGet-Item x\n```\n") == ["Get-Item x"]                            # a quote that never closes: PowerShell waits
     assert lines("```powershell\nWrite-Host \"a | b\" # |\nWrite-Host 'x,'\n```\n") == ["Write-Host \"a | b\" # |", "Write-Host 'x,'"]
     assert readme._ps_open("Get-ChildItem |") and readme._ps_open("foo (") and readme._ps_open("1,2,")
-    assert readme._ps_open("Write-Host 'a |'") is False and readme._ps_open("foo { bar }") is False and readme._ps_open("foo 'x") is None
+    assert readme._ps_open("Write-Host 'a |'") is False and readme._ps_open("foo { bar }") is False and readme._ps_open("foo 'x") is True
+    assert readme._ps_open("$x = @\"") is None and readme._ps_open("foo <# c") is None                             # a here-string, a block comment: not told
 
 
 def test_only_a_typed_command_chooses_the_shell_of_a_line_not_a_sample_an_output_line_or_heredoc_data():
@@ -822,3 +824,24 @@ def test_a_heredoc_typed_at_a_prompt_in_a_shell_fence_closes_and_loses_the_promp
     assert readme.setup_commands(prompted) == ["cat <<EOF", "body one", "EOF", "ls"]
     plain = "```bash\ncat <<EOF\n> not a prompt\n$ nor this\nEOF\n```\n"
     assert readme.setup_commands(plain) == ["cat <<EOF", "> not a prompt", "$ nor this", "EOF"]          # the data of a plain heredoc is data
+
+
+def test_a_powershell_string_over_several_lines_is_one_command_and_one_that_never_closes_is_dropped():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines('```powershell\nWrite-Host "hello\nworld"\nGet-Item x\n```\n') == ['Write-Host "hello world"', "Get-Item x"]
+    assert lines("```pwsh\nWrite-Host 'a\n  b' | Out-Null\n```\n") == ["Write-Host 'a b' | Out-Null"]
+    assert lines('```powershell\nWrite-Host "it\'s"\nWrite-Host \'say "hi\'\n```\n') == ['Write-Host "it\'s"', 'Write-Host \'say "hi\'']      # a quote inside the other kind
+    assert lines('```powershell\nWrite-Host "hello\n```\n') == []
+    assert lines("```powershell\nWrite-Host # it's\nGet-Item x\n```\n") == ["Write-Host # it's", "Get-Item x"]           # an apostrophe in a comment
+    assert lines('```powershell\n$x = @"\ntext\n"@\n```\n')[0] == '$x = @"'                                       # a here-string is not joined into one line
+
+
+def test_the_compound_redirection_operators_need_a_word_after_them_too():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    dangling = ("echo hi >&", "cat <&", "exec 3<>", "cmd &>", "cmd &>>", "echo hi >|", "cmd 2>&", "cat <<", "cat <<-", "cat <<<", "cmd 2>>", "cmd >>")
+    assert lines("```bash\nls\n" + "\n".join(dangling) + "\nnpm i\n```\n") == ["ls", "npm i"]
+    complete = ("sleep 1 &", "echo ok 2>&1", "echo hi >&2", "cmd &> out.log", "echo hi >| out", "cat <<<hello", "cat <&3", "cmd >&-", "git clone <url>")
+    assert lines("```bash\n" + "\n".join(complete) + "\n```\n") == list(complete)
+    assert lines("```bash\necho hi >|\nsleep 1 &\n```\n") == ["sleep 1 &"]                # `>|` is a redirection, not a pipe that joins the next line

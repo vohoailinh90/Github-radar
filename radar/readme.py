@@ -593,19 +593,20 @@ def _incomplete(command: str) -> bool:
     or a parenthesis is still open; a comment opens and closes nothing. A command that is complete is followed by output, and `> ` there
     (npm prints `> pkg@1.0.0 start`) is not a prompt."""
     quote, depth, commented, _ = _shell_state(command)
-    return not commented and (bool(quote) or depth > 0 or command.rstrip().endswith(("|", "&&", "||")))
+    code = command.rstrip()
+    return not commented and (bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||")) and not code.endswith(">|")))       # `>|` is a redirection
 
 
 def _ends_in_redirection(command: str) -> bool:
-    """True when the code of a POSIX command line (a trailing comment cut off) ends in a redirection operator with no file after it
-    (`echo hi >`, `cat <`, `cmd >>`): the shell reports a syntax error and does not go on in the next line. A placeholder in angle
+    """True when the code of a POSIX command line (a trailing comment cut off) ends in a redirection operator with no word after it
+    (`echo hi >`, `cat <`, `cmd >>`, `echo hi >&`, `exec 3<>`, `cmd &>`): the shell reports a syntax error and does not go on in the next line. A placeholder in angle
     brackets (`git clone <repo-url>`, `cd <your folder>`) is not one: its `>` closes a `<`."""
     quote, _, _, end = _shell_state(command)
     code = command[:end].rstrip()
-    found = re.search(r"(\\*)([<>])$", code)
+    found = re.search(r"(\\*)((?:\d+|&)?(?:>>|>&|>\||<>|<&|<<<|<<-|<<|>|<))$", code)
     if quote or not found or len(found.group(1)) % 2:
         return False
-    return found.group(2) == "<" or code.count(">") > code.count("<")
+    return found.group(2) != ">" or code.count(">") > code.count("<")           # a lone `>` may close a `<url>` placeholder
 
 
 GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
@@ -625,15 +626,18 @@ def _is_powershell(lang: str, command: str) -> bool:
 
 
 def _ps_state(text: str):
-    """(brackets still open, whether the code ends in `|` or `,`, where the code ends: at a `# comment` or at the end of the line) for a
-    PowerShell command line, or None when it cannot be told: a string that does not close on the line, or a `<# block comment #>`."""
+    """(brackets still open, whether the code ends in `|` or `,`, where the code ends: at a `# comment` or at the end of the line, the quote
+    of a string that does not close on the line or "") for a PowerShell command line, or None when it cannot be told: a `<# block comment #>`
+    or a here-string (`@"` at the end of a line), whose line breaks are part of the data."""
     stack, last, i = [], "", 0
     while i < len(text):
         ch = text[i]
         if text.startswith("<#", i):
             return None
         if ch == "#" and (i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"):          # a `#` that begins a token: `Write-Host hi;# note`
-            return stack, last in ("|", ","), i
+            return stack, last in ("|", ","), i, ""
+        if ch == "@" and text[i + 1:i + 2] in ("'", '"') and not text[i + 2:].strip():
+            return None
         if ch in "'\"":
             end = i + 1
             while end < len(text):
@@ -646,7 +650,7 @@ def _ps_state(text: str):
                 else:
                     end += 1
             else:
-                return None
+                return stack, False, len(text), ch      # the string goes on in the next line
             i, last = end + 1, ch
             continue
         if ch == "`":
@@ -659,14 +663,14 @@ def _ps_state(text: str):
         if not ch.isspace():
             last = ch
         i += 1
-    return stack, last in ("|", ","), len(text)
+    return stack, last in ("|", ","), len(text), ""
 
 
 def _ps_open(text: str):
-    """True when PowerShell would ask for more of the command (the code ends in `|` or `,`, or a bracket is open), False when it is
-    complete, None when that cannot be told (see `_ps_state`). A comment is not code."""
+    """True when PowerShell would ask for more of the command (the code ends in `|` or `,`, a bracket is open, or a string is), False when
+    it is complete, None when that cannot be told (see `_ps_state`). A comment is not code."""
     state = _ps_state(text)
-    return None if state is None else bool(state[0]) or state[1]
+    return None if state is None else bool(state[0]) or state[1] or bool(state[3])
 
 
 def _ps_joiner(code: str, piece: str) -> str:
@@ -674,8 +678,8 @@ def _ps_joiner(code: str, piece: str) -> str:
     bracket, before a closing bracket and inside `[ ]`; `; ` between two statements inside `{ }` or `( )`, where a line break ends one."""
     state = _ps_state(code)
     stack = state[0] if state else []
-    if (state and state[1]) or code.endswith(("(", "[", "{")) or piece[:1] in (")", "]", "}", "|") or not stack or stack[-1] == "[":
-        return " "
+    if (state and (state[1] or state[3])) or code.endswith(("(", "[", "{")) or piece[:1] in (")", "]", "}", "|") or not stack or stack[-1] == "[":
+        return " "                                    # inside a string the line break is part of the string: a space stands for it
     return "; "
 
 
