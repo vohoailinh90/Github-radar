@@ -57,8 +57,14 @@ class Github:
                               "body": json.loads(request.post_data) if request.post_data else None})
         for (method, prefix), (status, body) in sorted(self.routes.items(), key=lambda kv: -len(kv[0][1])):
             if method == request.method and clean == prefix:
+                if callable(body):                                           # an answer that depends on what happened so far
+                    status, body = body()
                 return route.fulfill(status=status, headers=CORS, content_type="application/json", body=json.dumps(body) if body is not None else "")
         return route.fulfill(status=404, headers=CORS, content_type="application/json", body='{"message":"Not Found"}')
+
+    def runs_after_dispatch(self, runs: list):
+        """The run list as GitHub gives it: the new run appears only once a dispatch was accepted (its id is larger than any listed before)."""
+        return lambda: (200, {"workflow_runs": runs if self.posts() else []})
 
     def posts(self) -> list:
         return [r for r in self.requests if r["method"] == "POST"]
@@ -247,7 +253,8 @@ def test_sending_without_checking_first_looks_up_the_branch_and_refuses_a_hostil
     ui.fill("#token", TOKEN)
     ui.click("#go")
     wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
-    assert [r["path"] for r in ui.gh.requests][:2] == [f"/repos/{REPO}", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches"]
+    assert [r["path"].split("?")[0] for r in ui.gh.requests][:3] == [f"/repos/{REPO}", f"/repos/{REPO}/actions/workflows/radar.yml/runs",
+                                                                       f"/repos/{REPO}/actions/workflows/radar.yml/dispatches"]      # branch, runs before, send
     assert ui.gh.posts()[0]["body"]["ref"] == "main"
     ui.reload()
     ui.gh.requests.clear()
@@ -297,8 +304,8 @@ def test_text_from_github_stays_text(ui):
 def test_a_run_just_sent_blocks_a_second_send_until_it_finishes(ui):
     connect(ui)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
-    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
-        {"id": 9, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (
+        200, ui.gh.runs_after_dispatch([{"id": 9, "status": "in_progress", "conclusion": None, "created_at": now}]))
     ui.click("#go")
     wait(ui, "document.getElementById('runs-body').children.length === 1")
     assert "lượt bạn vừa gửi" in text(ui, "#runs-body") and "Đang chạy" in text(ui, "#runs-body")
@@ -314,7 +321,7 @@ def test_forgetting_the_token_frees_the_button_a_run_of_mine_was_holding(ui):
     connect(ui)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
-    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 9, "status": "in_progress", "conclusion": None, "created_at": now}]))
     ui.click("#go")
     wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
     ui.gh.routes[runs] = (200, {"workflow_runs": []})
@@ -327,7 +334,7 @@ def test_a_failed_run_list_does_not_leave_the_button_off(ui):
     connect(ui)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
-    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]})
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
     ui.click("#go")
     wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
     ui.gh.routes[runs] = (500, {"message": "x"})
@@ -471,6 +478,99 @@ def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
     ui.click("#go")
     wait(ui, "document.getElementById('msg').className.includes('bad')")
     assert ui.is_enabled("#go")
+
+
+@pytest.mark.parametrize("created_at", [(-3600,), (3600,), (-5,), (5,)])
+def test_the_run_just_sent_is_recognised_whatever_the_clocks_say(ui, created_at):
+    connect(ui)
+    stamp = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=created_at[0])).isoformat()      # a clock hours ahead or behind GitHub's
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 50, "status": "completed", "conclusion": "success", "created_at": stamp}]))
+    ui.click("#go")
+    wait(ui, "document.getElementById('runs-body').children.length === 1")
+    assert "lượt bạn vừa gửi" in text(ui, "#runs-body")
+    assert ui.is_enabled("#go")                                                    # found, finished: no two-minute lock
+
+
+def test_a_run_that_was_already_listed_is_not_taken_for_the_one_just_sent(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 3, "status": "in_progress", "conclusion": None, "created_at": now}]})                  # someone else's run, there before and after
+    ui.click("#go")
+    wait(ui, "document.getElementById('runs-body').children.length === 1")
+    assert "lượt bạn vừa gửi" not in text(ui, "#runs-body")
+    assert ui.is_disabled("#go")                                                   # the sent run is not listed yet: still waiting
+
+
+def test_nothing_is_sent_when_the_runs_cannot_be_listed_first(ui):
+    connect(ui)
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (500, {"message": "x"})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('bad')")
+    assert "Chưa gửi" in text(ui, "#msg") and ui.gh.posts() == [] and ui.is_enabled("#go")
+
+
+@pytest.mark.parametrize("branch", ["release@next", "feature+plus", "v1.0/hot_fix", "a" * 150])
+def test_any_branch_name_git_allows_can_be_dispatched(ui, branch):
+    ui.gh.routes[("GET", f"/repos/{REPO}")] = (200, {"default_branch": branch})
+    connect(ui)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[0]["body"]["ref"] == branch
+
+
+def test_a_branch_name_git_allows_is_also_accepted_when_sending_without_a_check_first(ui):
+    ui.gh.routes[("GET", f"/repos/{REPO}")] = (200, {"default_branch": "release@next"})
+    ui.fill("#token", TOKEN)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[0]["body"]["ref"] == "release@next"
+
+
+def test_the_bucket_choices_follow_the_buckets_the_scan_keeps(ui):
+    options = lambda: ui.eval_on_selector_all("#single-bucket option", "os => os.map(o => o.value)")        # noqa: E731
+    assert options() == ["", "ai", "software", "solutions", "startup"]
+    ui.select_option("#single-bucket", "startup")
+    ui.select_option("#preset", "ai-sau")                                          # a preset that keeps only the AI bucket
+    assert options() == ["", "ai"] and ui.input_value("#single-bucket") == ""      # the choice that no longer exists is dropped, visibly
+    ui.select_option("#preset", "none")
+    assert options() == ["", "ai", "software", "solutions", "startup"]
+    ui.select_option("#single-bucket", "software")
+    ui.uncheck("#bucket-solutions")
+    assert options() == ["", "ai", "software", "startup"] and ui.input_value("#single-bucket") == "software"      # a kept choice stays
+
+
+def test_a_single_repository_is_sent_with_a_bucket_the_preset_kept_and_never_one_it_dropped(ui):
+    connect(ui)
+    ui.select_option("#preset", "ai-sau")
+    ui.fill("#single", "owner/name")
+    ui.select_option("#single-bucket", "ai")
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[0]["body"]["inputs"]["bucket"] == "ai"
+    # a choice smuggled into the select (not one of the options the page offers) is not sent either
+    ui.evaluate("""() => { const o = document.createElement('option'); o.value = 'startup'; document.getElementById('single-bucket').append(o);
+                           document.getElementById('single-bucket').value = 'startup'; }""")
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 99, "status": "completed", "conclusion": "success", "created_at": dt.datetime.now(dt.timezone.utc).isoformat()}]})
+    ui.click("#refresh")
+    wait(ui, "document.getElementById('go').disabled === false")
+    ui.evaluate("document.getElementById('single-bucket').value = 'startup'")
+    ui.click("#go")
+    wait(ui, "document.querySelector('#msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[-1]["body"]["inputs"]["bucket"] == ""
+
+
+def test_the_estimate_for_one_repository_has_no_search_and_one_posts_worth_of_calls(ui):
+    assert "lượt tìm" in text(ui, "#estimate") and "quét đúng một repo" not in text(ui, "#estimate")
+    ui.fill("#single", "owner/name")
+    estimate = text(ui, "#estimate")
+    assert "quét đúng một repo" in estimate and "lượt tìm" not in estimate and " 2 lượt gọi model" in estimate and " 0 giây nghỉ" in estimate
+    ui.check("#lang-en")
+    assert " 4 lượt gọi model" in text(ui, "#estimate") and " 45 giây nghỉ" in text(ui, "#estimate")
+    ui.fill("#single", "")
+    assert "lượt tìm" in text(ui, "#estimate")
 
 
 def test_a_dispatch_the_server_does_not_acknowledge_is_not_reported_as_sent(ui):

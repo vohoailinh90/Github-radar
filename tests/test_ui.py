@@ -137,7 +137,7 @@ def _node(cases: list, schema: dict | None = None) -> list:
     data = json.dumps(data)
     program = f"""const DATA = {data};
 {_logic()}
-const fns = {{ isRepo, merge, resolve, estimate, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon }};
+const fns = {{ isRepo, isBranch, merge, resolve, estimate, estimateFor, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
 process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
 """
@@ -291,3 +291,45 @@ def test_run_states_are_text_and_unknown_values_are_shortened():
                     ["runState", [{"status": "completed", "conclusion": "<b>" + "x" * 100}]]])
     assert [s["active"] for s in states] == [True, True, False, False, False]
     assert "thay" in states[2]["text"] and len(states[4]["text"]) < 40
+
+
+def test_a_single_repository_is_estimated_as_one_repository_without_a_search():
+    cfg = _cfg()
+    cases, expected = [], []
+    for picks, langs, widths in itertools.product((1, 3, 10), (["vi"], ["vi", "en"], ["vi", "en", "ja"]), ((4, 4, 4, 4), (1, 0, 0, 0))):
+        ids = [b["id"] for b in cfg["buckets"]]
+        buckets = {i: [f"t{n}" for n in range(w)] for i, w in zip(ids, widths) if w}
+        v = {"picks_per_run": picks, "min_stars": 1, "max_days_since_push": 1, "langs": langs, "buckets": buckets,
+             "rising": {"enabled": True, "slots": 2, "created_within_days": 1, "min_stars": 1}}
+        one = copy.deepcopy(cfg)
+        one.update(picks_per_run=1, langs=langs, buckets=[], rising=v["rising"])
+        cases.append(["estimateFor", [v, True]])
+        expected.append(conditions.estimate(one))
+        cases.append(["estimateFor", [v, False]])
+        many = copy.deepcopy(cfg)
+        many.update(picks_per_run=picks, langs=langs, buckets=[{"id": i, "topics": t} for i, t in buckets.items()], rising=v["rising"])
+        expected.append(conditions.estimate(many))
+    got = _node(cases)
+    assert got == expected
+    assert got[0]["searches"] == 0 and got[0]["model_calls"] == 2                 # one repository, one language: a writer call and a checker call
+
+
+@pytest.mark.parametrize("name,ok", [("main", True), ("master", True), ("release@next", True), ("feature+plus", True), ("v1.0/hotfix_2", True),
+                                     ("a" * 255, True), ("üñí", True), ("a" * 256, False), ("", False), ("main; echo pwned", False), ("a b", False),
+                                     ("x..y", False), ("../../x", False), ("a@{b", False), ("@", False), ("-x", False), ("/a", False), ("a/", False),
+                                     ("a//b", False), ("a/.b", False), (".a", False), ("a.", False), ("a.lock", False), ("a.lock/b", False),
+                                     ("a:b", False), ("a?b", False), ("a*b", False), ("a[b", False), ("a\\b", False), ("a\x01b", False), ("a~b", False),
+                                     ("a^b", False), (None, False), (5, False)])
+def test_a_branch_name_follows_the_git_ref_rules_not_a_narrow_allowlist(name, ok):
+    assert _node([["isBranch", [name]]]) == [ok]
+
+
+def test_the_bucket_of_a_single_repository_must_be_one_the_scan_keeps():
+    v = {"buckets": {"ai": ["llm"], "startup": ["saas"]}}
+    got = _node([["bucketFor", [v, "owner/name", "ai"]], ["bucketFor", [v, "owner/name", "software"]], ["bucketFor", [v, "", "ai"]],
+                 ["bucketFor", [v, "owner/name", ""]], ["bucketFor", [v, "owner/name", "constructor"]], ["bucketFor", [v, "owner/name", "__proto__"]]])
+    assert got == ["ai", "", "", "", "", ""]
+
+
+def test_the_newest_run_id_ignores_everything_that_is_not_a_run():
+    assert _node([["newestId", [[]]], ["newestId", [[{"id": 3}, {"id": 9}, {"id": 5}]]], ["newestId", [[None, "x", {"id": "99"}, {"id": 1.5}, {"id": 4}, {}]]]]) == [0, 9, 4]

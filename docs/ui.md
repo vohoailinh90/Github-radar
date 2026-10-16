@@ -27,7 +27,7 @@ Dán token vào ô *Token* rồi bấm **Kiểm tra token**: trang gọi GitHub 
 ## Dùng
 
 1. **Kết nối:** tên repo (`chủ/tên`) và token.
-2. **Điều kiện:** chọn một bộ đã lưu (điền sẵn mọi ô), rồi sửa từng ô nếu muốn: số bài, sàn sao, ngày commit, ngôn ngữ, lượt tìm repo trẻ, nhóm và topic. Hoặc điền một repo bạn chọn (`chủ/tên`) để quét đúng repo đó. Lỗi hiện ngay (ví dụ topic `llm stars:>0` bị từ chối, vì topic được ghép vào câu truy vấn tìm kiếm). Dòng *Ước tính* in cùng con số với `python3 radar.py presets`. Khung JSON bên dưới là điều kiện đã chọn; dán vào `radar/presets.json` nếu muốn lưu thành bộ mới.
+2. **Điều kiện:** chọn một bộ đã lưu (điền sẵn mọi ô), rồi sửa từng ô nếu muốn: số bài, sàn sao, ngày commit, ngôn ngữ, lượt tìm repo trẻ, nhóm và topic. Hoặc điền một repo bạn chọn (`chủ/tên`) để quét đúng repo đó: lúc này ước tính tính cho đúng một repo (không tìm kiếm, bỏ qua số bài), và danh sách nhóm chỉ còn những nhóm đang được giữ (workflow từ chối một nhóm đã bị điều kiện loại). Lỗi hiện ngay (ví dụ topic `llm stars:>0` bị từ chối, vì topic được ghép vào câu truy vấn tìm kiếm). Dòng *Ước tính* in cùng con số với `python3 radar.py presets`. Khung JSON bên dưới là điều kiện đã chọn; dán vào `radar/presets.json` nếu muốn lưu thành bộ mới.
 3. **Quét:** mặc định là **quét thử** (chỉ xếp hạng, không gọi model, không ghi gì). Bỏ chọn để **quét thật**: trang đòi bạn gõ `QUET` rồi mới mở nút, vì quét thật dùng hạn mức model và ghi vào `main`.
 4. **Các lượt chạy gần đây:** bảng tự làm mới mỗi 10 giây khi có lượt đang chạy; mỗi dòng có link mở lượt chạy trên GitHub. Kết quả quét thử nằm trong *Summary* của lượt chạy.
 
@@ -35,7 +35,7 @@ Trang chỉ gửi những gì khác với bộ đã chọn (hoặc `radar.yaml` 
 
 Các lần quét không chạy chồng (`concurrency: radar`): gửi thêm khi đang có một lượt chờ thì GitHub **thay** lượt chờ cũ, lượt cũ hiện là "Đã hủy (có thể bị thay bằng một yêu cầu mới hơn)". Trang không cho gửi tiếp khi lượt bạn vừa gửi còn đang chạy hay chờ, và cả trong lúc GitHub chưa liệt kê lượt đó (thường vài giây, tối đa chờ 2 phút).
 
-Trang nhận ra "lượt bạn vừa gửi" bằng giờ tạo của lượt chạy so với đồng hồ máy bạn. Nếu đồng hồ máy chậm hơn GitHub hơn 5 giây, trang có thể coi một lượt cũ đang chạy là của bạn và khóa nút cho tới khi lượt đó xong (hoặc bạn bấm *Quên token*). Chưa gặp trường hợp này; đồng hồ đồng bộ thì không xảy ra.
+Trang nhận ra "lượt bạn vừa gửi" không bằng đồng hồ mà bằng số thứ tự: ngay trước khi gửi nó đọc danh sách lượt chạy, rồi coi lượt có số lớn hơn mọi lượt đã thấy là lượt của mình (số của GitHub chỉ tăng). Vì vậy đồng hồ máy lệch bao nhiêu cũng không ảnh hưởng. Hệ quả: không đọc được danh sách đó thì trang **không gửi** (báo "Chưa gửi") thay vì gửi mà không theo dõi được. Nếu cùng lúc có người khác gửi một lượt, trang có thể nhận nhầm lượt đó là của bạn, chỉ khiến nút khóa thêm ít phút.
 
 ## Giữ trang đúng với mã
 

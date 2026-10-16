@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vk4tTr084MNq6efELq0iD2lMqJIrUNOdZu5i0Iep5RA='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dTs3evcPo5IS1l3CA1AjNss+k0CaYSbPHRsw/ZC4Rn4='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -286,7 +286,6 @@ const API = "https://api.github.com";
 
 /* LOGIC:BEGIN (pure: no DOM, no network; tests/test_ui.py runs it under Node against radar/conditions.py) */
 const SEGMENT = /^[A-Za-z0-9._-]{1,100}$/;
-const BRANCH = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/;
 const TOPIC = new RegExp("^" + DATA.schema.topic_pattern + "$");
 const INTS = DATA.schema.ints;
 const RISING = DATA.schema.rising_ints;
@@ -294,6 +293,12 @@ const RISING = DATA.schema.rising_ints;
 function isRepo(text) {
   const parts = String(text).split("/");
   return parts.length === 2 && parts.every((p) => SEGMENT.test(p) && p !== "." && p !== "..");
+}
+// A branch name as `git check-ref-format` reads it. It only ever travels inside JSON (never a shell or a URL), so this guards against a wrong
+// answer, not against injection: it must not refuse names GitHub allows, such as release@next.
+function isBranch(name) {
+  return typeof name === "string" && name.length > 0 && name.length <= 255 && !/[\x00-\x20\x7f~^:?*[\\]/.test(name) && !name.includes("..") &&
+    !name.includes("@{") && name !== "@" && !/^[-/.]|[/.]$|\/\/|\/\.|\.lock(\/|$)/.test(name);
 }
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
 function canon(x) {
@@ -357,6 +362,12 @@ function dispatchInputs(v, presetName, dry, single, bucket) {
   return { dry_run: dry ? "true" : "false", preset: presetName || "none", conditions: same ? "" : JSON.stringify(canon(v)),
            repo: single || "", bucket: bucket || "" };
 }
+// A single repository skips the search and writes one repository in every language (radar/discover.py requested), whatever the number of posts says.
+function estimateFor(v, singleRepo) { return singleRepo ? estimate(Object.assign({}, v, { picks_per_run: 1, buckets: {} })) : estimate(v); }
+// The bucket of a single repository must be one the scan keeps: the runner refuses a bucket the conditions have left out.
+function bucketFor(v, singleRepo, chosen) { return singleRepo && Object.prototype.hasOwnProperty.call(v.buckets, chosen) ? chosen : ""; }
+// GitHub run ids only grow: a run with a larger id than any listed before the send is the one the send started, whatever the clocks say.
+function newestId(runs) { return runs.reduce((m, r) => (r && Number.isInteger(r.id) && r.id > m ? r.id : m), 0); }
 function runState(run) {
   const active = ["queued", "pending", "waiting", "requested", "in_progress"].includes(run.status);
   if (active) return { active: true, text: run.status === "in_progress" ? "Đang chạy" : "Đang chờ" };
@@ -374,6 +385,7 @@ let clickedAt = 0;
 let pollTimer = null;
 let sending = false;
 let mineActive = false;
+let baseline = null;                                 // the newest run id listed before my send; null = I have sent nothing
 let seenMine = false;                                // has the run list shown the run I just sent? GitHub lists a new run a few seconds late
 const DISCOVERY_MS = 120000;
 
@@ -407,6 +419,7 @@ function explain(status, data) {
   return "GitHub trả mã " + status + ".";
 }
 function repoName() { return $("repo").value.trim(); }
+function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10"; }
 // Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
 // could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
 function busy() { return sending || mineActive || (clickedAt > 0 && !seenMine && Date.now() - clickedAt < DISCOVERY_MS); }
@@ -420,7 +433,7 @@ async function checkToken() {
     const info = await call("GET", "/repos/" + repo);
     if (info.status !== 200) return say("connect-msg", explain(info.status, info.data), "bad");
     const name = info.data && info.data.default_branch;
-    if (typeof name !== "string" || !BRANCH.test(name)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
+    if (!isBranch(name)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
     const flow = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml");
     if (flow.status !== 200) return say("connect-msg", explain(flow.status, flow.data), "bad");
     branch = { repo, name };
@@ -461,6 +474,15 @@ function readValues() {
            rising: { enabled: $("rising-enabled").checked, slots: whole("rising-slots"), created_within_days: whole("rising-days"), min_stars: whole("rising-stars") },
            buckets };
 }
+// The single-repository bucket list follows the buckets the scan keeps: a preset or an unticked bucket must not leave a choice the runner would refuse.
+function syncBucketChoices(v) {
+  const ids = BUCKET_IDS.filter((id) => Object.prototype.hasOwnProperty.call(v.buckets, id));
+  const select = $("single-bucket");
+  if ([...select.options].slice(1).map((o) => o.value).join() === ids.join()) return;
+  const chosen = select.value;
+  select.replaceChildren(el("option", "Nhóm: tự đoán từ topic", { value: "" }), ...ids.map((id) => el("option", (DATA.emoji[id] || "") + " " + id, { value: id })));
+  select.value = ids.includes(chosen) ? chosen : "";
+}
 function selectedPreset() { const name = $("preset").value; return name === "none" ? "" : name; }
 function single() { return $("single").value.trim(); }
 
@@ -471,10 +493,12 @@ function refresh() {
   list.replaceChildren(...issues.map((t) => el("li", t)));
   const singleText = single();
   if (singleText && !isRepo(singleText)) list.append(el("li", "Repo cần quét phải dạng chủ/tên."));
+  syncBucketChoices(v);
   if (!issues.length) {
-    const e = estimate(v);
-    $("estimate").textContent = "Ước tính: ít nhất " + e.searches + " lượt tìm (khoảng " + e.search_seconds + " giây), " + e.model_calls +
-      " lượt gọi model và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất. Quét một repo thì bỏ qua phần tìm.";
+    const one = singleText !== "" && isRepo(singleText);
+    const e = estimateFor(v, one);
+    $("estimate").textContent = "Ước tính: " + (one ? "quét đúng một repo (không tìm kiếm, bỏ qua số bài), " : "ít nhất " + e.searches + " lượt tìm (khoảng " + e.search_seconds + " giây), ") +
+      e.model_calls + " lượt gọi model và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.";
     $("json").value = JSON.stringify(canon(v), null, 2);
   } else {
     $("estimate").textContent = "";
@@ -494,7 +518,7 @@ async function go() {
   const repo = repoName(), singleRepo = single(), dry = $("dry").checked, presetName = selectedPreset();      // read once: the fields may change while we wait
   if (busy() || problems(v).length || !isRepo(repo) || !token() || (singleRepo && !isRepo(singleRepo))) return;
   if (!dry && $("confirm").value !== "QUET") return;
-  const bucket = singleRepo ? $("single-bucket").value : "";
+  const bucket = bucketFor(v, singleRepo, $("single-bucket").value);
   sending = true;
   refresh();
   say("msg", "Đang gửi lệnh…");
@@ -503,15 +527,22 @@ async function go() {
     if (!ref) {
       const info = await call("GET", "/repos/" + repo);
       const name = info.status === 200 && info.data && info.data.default_branch;
-      if (typeof name !== "string" || !BRANCH.test(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
+      if (!isBranch(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
       ref = name;
       branch = { repo, name };
     }
     const inputs = dispatchInputs(v, presetName, dry, singleRepo, bucket);
+    const listed = await call("GET", runsPath(repo));                       // what exists before the send, to recognise the run the send starts
+    if (listed.status !== 200 || !listed.data || !Array.isArray(listed.data.workflow_runs)) {
+      say("msg", "Chưa gửi: không đọc được danh sách lượt chạy để theo dõi lượt vừa gửi. " + explain(listed.status, listed.data), "bad");
+      return;
+    }
+    const before = newestId(listed.data.workflow_runs);
     const sentAt = Date.now();
     const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
     if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // nothing was sent: nothing to wait for
     clickedAt = sentAt;
+    baseline = before;
     seenMine = false;
     $("confirm").value = "";
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
@@ -529,7 +560,7 @@ async function loadRuns() {
   const repo = repoName();                                   // one repository for the request and for every link below
   if (!isRepo(repo) || !token()) { mineActive = false; return; }
   try {
-    const res = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10");
+    const res = await call("GET", runsPath(repo));
     if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { mineActive = false; say("msg", explain(res.status, res.data), "bad"); refresh(); return; }
     const rows = [];
     let anyActive = false;
@@ -537,7 +568,7 @@ async function loadRuns() {
     for (const run of res.data.workflow_runs.slice(0, 10)) {
       if (!run || !Number.isInteger(run.id) || typeof run.status !== "string" || typeof run.created_at !== "string") continue;
       const state = runState(run);
-      const mine = Date.parse(run.created_at) >= clickedAt - 5000 && clickedAt > 0;
+      const mine = baseline !== null && run.id > baseline;
       anyActive = anyActive || state.active;
       mineActive = mineActive || (mine && state.active);
       seenMine = seenMine || mine;
@@ -587,12 +618,12 @@ $("preset").addEventListener("change", () => {
   refresh();
 });
 for (const node of document.querySelectorAll("input, select")) {
-  const changed = () => { if (node.id === "repo") { mineActive = false; clickedAt = 0; seenMine = false; } refresh(); };      // runs of another repository are not "mine"
+  const changed = () => { if (node.id === "repo") { mineActive = false; clickedAt = 0; baseline = null; seenMine = false; } refresh(); };      // runs of another repository are not "mine"
   node.addEventListener("input", changed);
   node.addEventListener("change", changed);
 }
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; mineActive = false; clickedAt = 0; seenMine = false; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; mineActive = false; clickedAt = 0; baseline = null; seenMine = false; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);
