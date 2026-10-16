@@ -39,7 +39,7 @@ def load(path: Path, problems: list[str] | None = None) -> dict:
             try:
                 dt.date.fromisoformat(day)
                 clean.setdefault(str(name), {})[day] = int(stars)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, OverflowError):
                 dropped = True
     if dropped and problems is not None:
         problems.append(f"{path.name}: dropped entries that are not a date and a star count")
@@ -77,7 +77,7 @@ def velocity(hist: dict, name: str, stars: int, today: dt.date) -> dict | None:
     for day, old in (points.items() if isinstance(points, dict) else ()):
         try:
             gap, old = (today - dt.date.fromisoformat(day)).days, int(old)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             continue
         if MIN_GAP_DAYS <= gap <= MAX_GAP_DAYS and (best is None or abs(gap - WINDOW_DAYS) < abs(best[0] - WINDOW_DAYS)):
             best = (gap, old)

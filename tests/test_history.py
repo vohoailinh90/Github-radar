@@ -71,6 +71,9 @@ def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_
         path.write_text(only_repo_level)                    # the only damage is a repository whose value is not an object: still reported
         problems = []
         assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1, only_repo_level
+    path.write_text('{"o/ok": {"2026-10-01": 5}, "o/big": {"2026-10-01": 1e100000, "2026-10-02": NaN}}')   # json.loads turns these into inf and nan
+    problems = []
+    assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
     path.write_text('{"o/ok": {"2026-10-01": 5}}')
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []
@@ -80,5 +83,6 @@ def test_velocity_and_prune_survive_hand_edited_shapes():
     h = {"o/a": 5, "o/b": {day(5): "n/a", day(4): None, day(6): 1000}, "o/c": [1]}
     assert history.velocity(h, "o/a", 1100, D) is None and history.velocity(h, "o/c", 1100, D) is None
     assert history.velocity(h, "o/b", 1100, D)["gap_days"] == 6                   # the readable point wins, the others are skipped
+    assert history.velocity({"o/i": {day(5): float("inf")}}, "o/i", 1100, D) is None       # int(inf) overflows
     history.prune(h, D, 60)
     assert "o/a" not in h and "o/c" not in h and h["o/b"][day(6)] == 1000     # prune filters by date; load is what drops bad values
