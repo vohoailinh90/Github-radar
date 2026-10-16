@@ -763,7 +763,7 @@ def test_a_powershell_command_that_cannot_be_told_is_left_as_it_is_and_one_that_
     assert lines("```powershell\nGet-ChildItem |\n```\n") == []                                # a trailing pipe with nothing after it
     assert lines("```powershell\nforeach ($f in $x) {\n\nRemove-Item $f\n```\n") == ["", "Remove-Item $f"]       # a blank line ends it
     assert lines("```powershell\nfoo { # note\n bar\n}\n```\n") == ["foo { bar }"]                                  # a comment inside is left out of the join
-    assert lines("```powershell\nfoo <# a #> {\n bar\n}\n```\n") == ["foo <# a #> {", " bar", "}"]                  # a block comment: not told, left as it is
+    assert lines("```powershell\nfoo <# a #> {\n bar\n}\n```\n") == ["foo  { bar }"]                                # a block comment is cut out, then the rest is grouped
     assert lines("```powershell\nGet-Item 'it's\nGet-Item x\n```\n") == ["Get-Item 'it's", "Get-Item x"]       # `'it'` closes, then `s`: complete
     assert lines("```powershell\nGet-Item 'it\nGet-Item x\n```\n") == ["Get-Item x"]                            # a quote that never closes: PowerShell waits
     assert lines("```powershell\nWrite-Host \"a | b\" # |\nWrite-Host 'x,'\n```\n") == ["Write-Host \"a | b\" # |", "Write-Host 'x,'"]
@@ -860,8 +860,9 @@ def test_a_powershell_here_string_is_a_group_of_data_lines_up_to_the_mark_that_b
 
 
 def test_a_string_over_several_lines_is_a_group_whose_line_breaks_are_kept_in_a_shell_fence():
-    script = '```bash\npython -c "\nimport torch\n\nprint(torch.cuda.is_available())\n"\nls\n```\n'
-    assert readme.heredocs(script)[0] == []                                                   # a blank line inside: the string is not found, so it is dropped
+    blank = '```bash\npython -c "\nimport torch\n\nprint(torch.cuda.is_available())\n"\nls\n```\n'
+    assert readme.heredocs(blank)[0] == [['python -c "', "import torch", "", "print(torch.cuda.is_available())", '"']]    # a blank line is part of the string
+    assert readme.heredocs('```bash\necho "it\n' + "line\n" * 25 + 'x"\nls\n```\n')[0] == []                      # too far away to be its end
     script = '```bash\npython -c "\nimport torch\nprint(torch.cuda.is_available())\n"\nls\n```\n'
     assert readme.heredocs(script) == ([['python -c "', "import torch", "print(torch.cuda.is_available())", '"']], ['python -c "', "ls"])
     assert readme.setup_commands(script) == ['python -c "', "import torch", "print(torch.cuda.is_available())", '"', "ls"]
@@ -881,3 +882,16 @@ def test_the_lines_of_a_string_or_a_here_string_are_printed_as_they_are_in_one_b
     lines = digest._command_blocks({"shells": {"Get-Item x": "powershell"}}, ['$x = @"', "  text", '"@ | Set-Content f', "Get-Item x"],
                                    {"shell_bash": "bash", "shell_powershell": "PowerShell"})
     assert '  text' in lines and lines.count("```bash") == 1
+
+
+def test_a_powershell_block_comment_is_not_code_through_its_terminator_and_rem_is_a_comment_in_any_case():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = ("```powershell\n<# Remove-Item -Recurse output #>\nGet-Item x <# note #> | Select y\n<#\n.SYNOPSIS\nRemove-Item -Recurse output\n#>\n"
+            "Write-Host \"a <# b\"\n# <# not a block\nGet-Item z\n```\n")
+    assert lines(text) == ["Get-Item x  | Select y", 'Write-Host "a <# b"', "# <# not a block", "Get-Item z"]
+    assert lines("```pwsh\nGet-Item x\n<# never closed\nRemove-Item all\n```\n") == ["Get-Item x"]             # it runs to the end of the block
+    assert lines("```bash\necho '<# not powershell'\nls\n```\n") == ["echo '<# not powershell'", "ls"]
+    assert readme.setup_commands(text)[:1] == ["Get-Item x  | Select y"] and "Remove-Item -Recurse output" not in readme.setup_commands(text)
+    assert readme.setup_commands("```cmd\nrem note\nREM Note\nRem\nsetup.bat\n```\n") == ["setup.bat"]
+    assert readme.shells("```cmd\nrem note\nsetup.bat\n```\n") == {"setup.bat": "bat"}

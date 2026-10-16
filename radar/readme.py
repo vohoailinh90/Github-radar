@@ -130,6 +130,12 @@ class Section:
         return sum(len(x) for x in self.lines)
 
 
+def _is_comment(line: str) -> bool:
+    """Whether a line of a code block is only a comment: `#`, `//`, `::` (cmd) or `REM` in any case (`rem note`; cmd's names are not case-sensitive)."""
+    text = line.strip()
+    return text.startswith(("#", "//", "::")) or text.lower() == "rem" or text[:4].lower() == "rem "
+
+
 def is_command_line(line: str) -> bool:
     """A line of a code block that a person types: a known program first (after an optional `$ `), not a comment."""
     text = re.sub(r"^\s*(?:[$>]\s+|PS [^>]*>\s*)", "", SHELL_PROMPT.sub("", line.strip())).strip()
@@ -696,6 +702,41 @@ def _join(lang: str, text: str, line: str, glue) -> str:
     return text + (glue if not line[:1].isspace() else " ") + piece
 
 
+def _strip_ps_block_comments(lines: list[str]) -> list[str]:
+    """The lines of a PowerShell block without its `<# ... #>` comments (one or several lines, outside strings and `#` comments): everything
+    from `<#` through `#>` is comment text, even a line that looks like a command. A line that is only comment is dropped; a comment that
+    never closes runs to the end of the block."""
+    out, inside = [], False
+    for line in lines:
+        kept, i, quote = "", 0, ""
+        while i < len(line):
+            if inside:
+                end = line.find("#>", i)
+                if end < 0:
+                    i = len(line)
+                else:
+                    inside, i = False, end + 2
+                continue
+            ch = line[i]
+            if quote:
+                if ch == "`" and quote == '"':
+                    kept, i = kept + line[i:i + 2], i + 2
+                    continue
+                quote = "" if ch == quote else quote
+            elif ch in "'\"":
+                quote = ch
+            elif line.startswith("<#", i):
+                inside, i = True, i + 2
+                continue
+            elif ch == "#" and (i == 0 or line[i - 1].isspace() or line[i - 1] in ";|(){}[]&,"):
+                kept, i = kept + line[i:], len(line)                           # a `#` comment: `<#` after it is part of it
+                continue
+            kept, i = kept + ch, i + 1
+        if kept.strip() or not line.strip():
+            out.append(kept.rstrip() if kept.strip() else kept)
+    return out
+
+
 def _typed(lang: str, command: str) -> bool:
     """Whether a logical line of a code block is something a reader types, for the grammar of a shell to apply to it: a line of a block tagged
     as a shell, the lines after a prompt in a transcript, an untagged line that starts with a known program. The output of a transcript and
@@ -719,15 +760,13 @@ def _string_open(lang: str, text: str) -> bool:
 
 def _quote_group(lang: str, command: str, following: list[str]) -> int:
     """How many of the next lines finish a string that is open at the end of the command (`python -c "` over the script and `"`), 0 when
-    it is not one or when the string does not close within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. The line breaks are part of
+    it is not one or when the string does not close within GRAMMAR_LOOKAHEAD lines. The line breaks, blank lines included, are part of
     the string, so the lines are kept apart as the data of the command, like the body of a heredoc, and not joined."""
     if not _typed(lang, command) or not _string_open(lang, command):
         return 0
     text = command
     for n, line in enumerate(following[:GRAMMAR_LOOKAHEAD], 1):
-        if not line.strip():
-            return 0
-        text += "\n" + _piece(lang, line, command)
+        text += "\n" + _piece(lang, line, command)           # a blank line is part of the string: a script has them
         if not _string_open(lang, text):
             return n
     return 0
@@ -873,6 +912,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
     blocks: list[tuple[str, list[str], list]] = []
     for lang, lines in raw:
         body = dedent(lines)
+        if lang in POWERSHELL_LANGS:
+            body = _strip_ps_block_comments(body)
         while body and not body[0].strip():       # blank lines at the start and end of a block are dropped
             body.pop(0)
         while body and not body[-1].strip():
@@ -1072,7 +1113,7 @@ def shells(text: str) -> dict[str, str]:
         if prompt is None or role == "body":                  # transcript output and the data of a heredoc are not commands of any shell
             continue
         key = norm_command(line)
-        if not key or key.startswith(("#", "//", "REM ", "::")):
+        if not key or _is_comment(key):
             continue
         if not (role or lang in SHELL_LANGS or lang in CONSOLE_LANGS or is_command_line(line)):
             continue                                          # a sample or an output line of a block that is not a shell's
@@ -1100,7 +1141,7 @@ def setup_commands(text: str) -> list[str]:
         line = line.strip()
         found = prompt.match(line)
         bare = line[found.end():] if found else line
-        if not bare or bare.startswith(("#", "//", "REM ", "::")):
+        if not bare or _is_comment(bare):
             continue
         if lang in CONSOLE_LANGS or lang in SHELL_LANGS or is_command_line(line):
             out.append(bare)
