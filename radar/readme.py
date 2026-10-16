@@ -428,7 +428,11 @@ def setup_commands(text: str) -> list[str]:
     return out
 
 
-def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 1800) -> list[list[str]]:
+SNIPPET_LINES = 40                    # the most physical lines (blank ones included) of a sample the guide prints
+SNIPPET_CHARS = 1800
+
+
+def blocks(text: str, limit: int = 12, max_lines: int = SNIPPET_LINES, max_chars: int = SNIPPET_CHARS) -> list[list[str]]:
     """[[language, text], ...] for the README's code blocks that are not shell commands: a configuration file, a YAML/TOML/JSON
     sample, an example prompt. A guide points at one by number and the renderer prints it as the README has it, indentation
     included, so a model never retypes a setting. Blocks of the sections about installing and configuring come first."""
@@ -450,7 +454,7 @@ def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 180
     ranked = []
     for start, lang, body in found:
         rows = [r for r in body.splitlines() if r.strip()]
-        if not rows or len(rows) > max_lines or len(body) > max_chars or lang in SHELL_LANGS:
+        if not rows or len(body.splitlines()) > max_lines or len(body) > max_chars or lang in SHELL_LANGS:
             continue
         if lang in CONSOLE_LANGS and any(PROMPT.match(r) for r in rows):      # a transcript with typed lines is a shell block, not a sample
             continue

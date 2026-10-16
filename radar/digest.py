@@ -55,7 +55,7 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
     lang, body = blocks[ref]
     lang = lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", str(lang)) else ""
     body = str(body)
-    if len(body.splitlines()) > 40 or len(body) > 1800:
+    if len(body.splitlines()) > readmelib.SNIPPET_LINES or len(body) > readmelib.SNIPPET_CHARS:
         return []
     fence = "```"
     while fence in body:

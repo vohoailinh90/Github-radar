@@ -304,12 +304,15 @@ def _norm_cmd(text: str) -> str:
 
 def _command_variants(readme: str):
     """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the logical lines
-    of its code blocks (a command written over several lines is ONE line; its pieces are not commands), and outside the blocks whole
-    lines and inline code spans. Each text also comes without a trailing `# comment`."""
+    of its code blocks (a command written over several lines is ONE line; its pieces are not commands; in a `console` transcript only the
+    lines after a prompt, the rest is output), and outside the blocks whole lines and inline code spans. Each text also comes without a trailing `# comment`."""
     for lang, lines in readmelib.code_blocks(readme):
+        prompt = readmelib.prompt_for(lang)
         for line in lines:
-            yield line, readmelib.prompt_for(lang)
-            yield re.split(r"\s+#\s", line)[0], readmelib.prompt_for(lang)
+            if lang in readmelib.CONSOLE_LANGS and not prompt.match(line):       # a transcript: the lines without a prompt are output
+                continue
+            yield line, prompt
+            yield re.split(r"\s+#\s", line)[0], prompt
     for line in (l.strip() for l in readmelib.prose_lines(readme)):
         yield line, readmelib.SHELL_PROMPT
         yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT

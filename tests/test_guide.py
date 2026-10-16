@@ -456,6 +456,30 @@ def test_a_piece_of_a_command_the_readme_splits_over_lines_is_not_a_command():
         assert (not any("steps[0].commands" in e for e in errs(d, facts))) is ok, command
 
 
+def test_the_output_lines_of_a_console_transcript_are_not_commands():
+    text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
+    facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}
+    commands = gates.readme_commands(text)
+    assert "my-tool serve" in commands and "Server started" not in commands and "Listening on port 8000" not in commands
+    for command, ok in (("my-tool serve", True), ("$ my-tool serve", True), ("Server started", False), ("Listening on port 8000", False)):
+        d = make_draft(facts, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, facts))) is ok, command
+    assert "Server started" in gates.readme_commands(README + "\n```bash\nServer started\n```\n")       # in a shell block every line is typed
+
+
+def test_every_sample_the_readme_module_offers_is_one_the_renderer_prints():
+    """The count of lines is the physical one, blank lines included, in both places: a sample of 25 settings apart by blank lines is 49 lines."""
+    spaced = "\n\n".join(f"key{i} = {i}" for i in range(25))
+    fits = "\n".join(f"key{i} = {i}" for i in range(readme.SNIPPET_LINES))
+    text = f"## Configuration\n\n```toml\n{spaced}\n```\n\n```toml\n{fits}\n```\n"
+    offered = readme.blocks(text)
+    assert [body for _, body in offered] == [fits]
+    for ref in range(len(offered)):
+        assert digest._snippet({"blocks": offered}, ref, {"snippet": "Sample"})
+    assert digest._snippet({"blocks": [["toml", spaced]]}, 0, {"snippet": "Sample"}) == []      # what blocks() no longer offers is not printed either
+
+
 TWO_SEDS = README + "\n```bash\nsed 's/a  b/x/' f\nsed 's/a b/x/' f\n```\n"
 TWO_SEDS_FACTS = {**FACTS, "readme": TWO_SEDS, "links": readme.links(TWO_SEDS), "blocks": readme.blocks(TWO_SEDS)}
 
