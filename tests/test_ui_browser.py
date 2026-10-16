@@ -562,7 +562,18 @@ def test_a_single_repository_is_sent_with_a_bucket_the_preset_kept_and_never_one
     assert ui.gh.posts()[-1]["body"]["inputs"]["bucket"] == ""
 
 
+def test_a_dry_run_estimate_promises_no_model_calls_and_no_pauses(ui):
+    dry = text(ui, "#estimate")
+    assert "lượt tìm" in dry and "quét thử nên không gọi model và không nghỉ" in dry and "lượt gọi model và" not in dry
+    ui.uncheck("#dry")
+    real = text(ui, "#estimate")
+    assert "6 lượt gọi model" in real and "90 giây nghỉ" in real and "không gọi model" not in real
+    ui.check("#dry")
+    assert text(ui, "#estimate") == dry
+
+
 def test_the_estimate_for_one_repository_has_no_search_and_one_posts_worth_of_calls(ui):
+    ui.uncheck("#dry")
     assert "lượt tìm" in text(ui, "#estimate") and "quét đúng một repo" not in text(ui, "#estimate")
     ui.fill("#single", "owner/name")
     estimate = text(ui, "#estimate")

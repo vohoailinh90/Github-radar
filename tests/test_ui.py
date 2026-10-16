@@ -137,7 +137,7 @@ def _node(cases: list, schema: dict | None = None) -> list:
     data = json.dumps(data)
     program = f"""const DATA = {data};
 {_logic()}
-const fns = {{ isRepo, isBranch, merge, resolve, estimate, estimateFor, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
+const fns = {{ isRepo, isBranch, merge, resolve, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
 process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
 """
@@ -333,3 +333,14 @@ def test_the_bucket_of_a_single_repository_must_be_one_the_scan_keeps():
 
 def test_the_newest_run_id_ignores_everything_that_is_not_a_run():
     assert _node([["newestId", [[]]], ["newestId", [[{"id": 3}, {"id": 9}, {"id": 5}]]], ["newestId", [[None, "x", {"id": "99"}, {"id": 1.5}, {"id": 4}, {}]]]]) == [0, 9, 4]
+
+
+def test_a_dry_run_keeps_the_search_and_drops_the_model_calls_and_pauses():
+    cfg = _cfg()
+    v = conditions.resolved(cfg)
+    full, dry, one_dry, one_real = _node([["estimateRun", [v, False, False]], ["estimateRun", [v, False, True]],
+                                          ["estimateRun", [v, True, True]], ["estimateRun", [v, True, False]]])
+    assert full == conditions.estimate(cfg) and full["model_calls"] > 0 and full["pace_seconds"] > 0
+    assert dry == {**full, "model_calls": 0, "pace_seconds": 0} and dry["searches"] == full["searches"] > 0
+    assert one_dry["searches"] == 0 and one_dry["model_calls"] == 0 and one_dry["pace_seconds"] == 0
+    assert one_real["searches"] == 0 and one_real["model_calls"] == 2

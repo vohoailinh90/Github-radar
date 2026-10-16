@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dTs3evcPo5IS1l3CA1AjNss+k0CaYSbPHRsw/ZC4Rn4='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-hlQnA0cdji3u7+Ml6UE9QRG7o815z8iy6Bb0oK6K2WU='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -364,6 +364,8 @@ function dispatchInputs(v, presetName, dry, single, bucket) {
 }
 // A single repository skips the search and writes one repository in every language (radar/discover.py requested), whatever the number of posts says.
 function estimateFor(v, singleRepo) { return singleRepo ? estimate(Object.assign({}, v, { picks_per_run: 1, buckets: {} })) : estimate(v); }
+// A dry run stops after the ranking (radar/pipeline.py: `if dry_run`): it searches, but calls no model and pauses between no posts.
+function estimateRun(v, singleRepo, dry) { return Object.assign({}, estimateFor(v, singleRepo), dry ? { model_calls: 0, pace_seconds: 0 } : {}); }
 // The bucket of a single repository must be one the scan keeps: the runner refuses a bucket the conditions have left out.
 function bucketFor(v, singleRepo, chosen) { return singleRepo && Object.prototype.hasOwnProperty.call(v.buckets, chosen) ? chosen : ""; }
 // GitHub run ids only grow: a run with a larger id than any listed before the send is the one the send started, whatever the clocks say.
@@ -496,9 +498,10 @@ function refresh() {
   syncBucketChoices(v);
   if (!issues.length) {
     const one = singleText !== "" && isRepo(singleText);
-    const e = estimateFor(v, one);
+    const dryRun = $("dry").checked;
+    const e = estimateRun(v, one, dryRun);
     $("estimate").textContent = "Ước tính: " + (one ? "quét đúng một repo (không tìm kiếm, bỏ qua số bài), " : "ít nhất " + e.searches + " lượt tìm (khoảng " + e.search_seconds + " giây), ") +
-      e.model_calls + " lượt gọi model và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.";
+      (dryRun ? "quét thử nên không gọi model và không nghỉ giữa các bài." : e.model_calls + " lượt gọi model và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.");
     $("json").value = JSON.stringify(canon(v), null, 2);
   } else {
     $("estimate").textContent = "";
