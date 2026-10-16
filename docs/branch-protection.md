@@ -33,11 +33,17 @@ Settings → Branches → Add branch ruleset / rule cho `main`:
 ## Sau khi bật: điều cần biết
 
 - Mỗi lượt quét thành một PR. `state/seen.json` và `state/stars.json` cho lượt sau được đọc từ `main`, nên **PR của lượt trước phải được merge trước lượt kế**, nếu không bài bị viết lại và ảnh chụp số sao bị thiếu (có `RADAR_AUTOMERGE` thì việc này tự xảy ra).
-- GitHub báo "branch is out of date" thì bấm **Update branch**; ở chế độ bắt buộc cập nhật, auto-merge sẽ đợi.
+- GitHub báo "branch is out of date" thì bấm **Update branch**; ở chế độ bắt buộc cập nhật, auto-merge sẽ **đứng chờ im lặng** cho tới lúc đó (không có gì tự cập nhật nhánh).
+- Hai PR quét chưa merge sẽ **xung đột** ở `state/*.json` (mỗi lượt đều sửa `seen.json` và `stars.json`) và *Update branch* không gỡ được xung đột nội dung. PR mới tự ghi tên các PR quét cũ còn mở. Cách xử lý: merge PR cũ nhất trước; nếu PR mới vẫn xung đột thì đóng nó và chạy lại lượt quét (các repo của lượt bị đóng sẽ được xét lại).
 - Nếu bước commit báo `pull request not opened` hoặc `branch-pushed`, kết quả vẫn nằm trên nhánh `radar/scan-...`: mở PR từ nhánh đó bằng tay.
 
 ## Rủi ro và những gì chưa kiểm được
 
 - Token có quyền ghi nội dung của repo mạnh hơn token mặc định. Giữ nó ở dạng secret của repo, giới hạn một repo, hạn ngắn. Muốn chặt hơn: đặt nó thành secret của một *Environment* chỉ cho nhánh `main` và thêm `environment:` vào job (chưa làm vì cần bạn tạo lại secret ở đó).
 - Đã kiểm bằng máy với git thật và GitHub giả: nhánh mới được đẩy, `main` không bị chạm, token không nằm trong argv hay URL, chạy lại không mở PR thứ hai, lỗi mở PR không làm mất kết quả, đường không-token giữ nguyên.
-- **Chưa kiểm với GitHub thật**: quyền của token, việc PR do token mở có kích hoạt CI, auto-merge. Bước 2 ở trên chính là phép thử đó.
+- **Chưa kiểm với GitHub thật**, nên đừng coi là chắc chắn:
+  - tên và đủ của các quyền (**Contents**, **Pull requests**) theo giao diện GitHub lúc viết: hãy đối chiếu khi tạo token;
+  - việc PR do token này mở có **kích hoạt CI** hay không (bước 2 ở trên chính là phép thử);
+  - việc token fine-grained có gọi được thao tác GraphQL bật auto-merge hay không, và cài đặt *Allow auto-merge* của repo;
+  - hành vi bên trong bản checkout thật của Actions (đã kiểm riêng rằng token được thêm vào chỉ gửi **một** tiêu đề xác thực, bằng một máy chủ cục bộ, nhưng chưa thử với `actions/checkout` thật).
+- Lỗi của git có thể lặp lại một đoạn trả lời của máy chủ; token và dạng base64 của nó bị thay bằng `***` trước khi in.

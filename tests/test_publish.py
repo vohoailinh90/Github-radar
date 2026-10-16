@@ -80,7 +80,9 @@ def test_the_token_is_only_in_the_environment_of_git_and_the_workflow_token_is_c
         go(work, api)
     finally:
         api.close()
-    assert seen and all("tok" not in part for args, _ in seen for part in args)                        # never in argv, a URL or a file
+    import base64
+    packed = base64.b64encode(b"x-access-token:tok").decode()
+    assert seen and all("tok" not in part and packed not in part for args, _ in seen for part in args)  # not plain, not base64, in argv
     pushes = [env for args, env in seen if "push" in args]
     assert len(pushes) == 1
     env = pushes[0]
@@ -160,7 +162,7 @@ def test_a_push_that_fails_raises_so_the_step_goes_red(checkout, tmp_path):
     git("remote", "set-url", "origin", str(tmp_path / "missing.git"), cwd=work)
     api = fake_github()
     try:
-        with pytest.raises(RuntimeError, match="git push failed"):
+        with pytest.raises(RuntimeError, match="git ls-remote failed"):                                  # the first call says what is wrong
             go(work, api)
     finally:
         api.close()
@@ -183,3 +185,52 @@ def test_the_command_publishes_from_the_checkout_it_runs_in(checkout, monkeypatc
         assert cli.main(["publish"]) == 2 and "RADAR_PR_TOKEN is not set" in capsys.readouterr().err
     finally:
         api.close()
+
+
+def test_an_error_from_git_never_repeats_the_token_or_its_base64_form():
+    import base64
+    packed = base64.b64encode(b"x-access-token:secret-tok-123").decode()
+    for echoed in ("secret-tok-123", packed):
+        with pytest.raises(RuntimeError) as err:
+            handoff._git(["checkout", echoed], ".", token="secret-tok-123")                         # git echoes the unknown name back
+        assert "secret-tok-123" not in str(err.value) and packed not in str(err.value) and "***" in str(err.value)
+
+
+def test_an_answer_that_is_not_a_pull_request_is_reported_not_a_traceback(checkout):
+    bare, work = checkout
+    api = _Server(lambda call: (200, ["not", "an", "object"]) if call["method"] == "POST" else (200, []))
+    try:
+        out = go(work, api)
+    finally:
+        api.close()
+    assert out["status"] == "branch-pushed" and "not an object" in out["error"]
+
+
+def test_earlier_scan_pull_requests_that_are_still_open_are_named_in_the_new_one(checkout):
+    bare, work = checkout
+    listing = [{"number": 41, "head": {"ref": "radar/scan-2026-10-14-1-1"}}, {"number": 12, "head": {"ref": "claude/something"}},
+               {"number": 40, "head": {"ref": "radar/scan-2026-10-11-9-1"}}, "junk", {"number": 3}]
+
+    def handle(call):
+        if call["method"] == "GET":
+            return 200, listing
+        return 201, {"html_url": "u", "number": 42, "node_id": "n"}
+    api = _Server(handle)
+    try:
+        out = go(work, api)
+    finally:
+        api.close()
+    assert out["earlier_scan_prs"] == [40, 41]                                       # only radar/scan-* heads, oldest number first
+    body = [c for c in api.calls if c["method"] == "POST"][0]["body"]["body"]
+    assert "#40, #41" in body and "oldest first" in body and "run the scan again" in body
+
+
+def test_a_failed_listing_of_open_pull_requests_changes_nothing(checkout):
+    bare, work = checkout
+    api = _Server(lambda call: (403, {"message": "no"}) if call["method"] == "GET" else (201, {"html_url": "u", "number": 7, "node_id": "n"}))
+    try:
+        out = go(work, api)
+    finally:
+        api.close()
+    assert out["status"] == "opened" and "earlier_scan_prs" not in out
+    assert "Earlier scan pull requests" not in [c for c in api.calls if c["method"] == "POST"][0]["body"]["body"]

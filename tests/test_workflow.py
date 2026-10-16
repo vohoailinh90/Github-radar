@@ -39,6 +39,11 @@ def test_secrets_are_only_passed_as_environment_to_the_steps_that_need_them():
                         "Commit digests, export and state", "Hand off to tool-marketing-studio (draft pull request)"]
     commit = next(s for s in steps if s.get("name") == "Commit digests, export and state")
     assert [v for v in commit["env"].values() if "secrets." in str(v)] == ["${{ secrets.RADAR_PR_TOKEN }}"]   # the one new secret, here only
+    # and nowhere else: not in a job-level or workflow-level env (every step, including the one that reads untrusted READMEs, would get it)
+    assert TEXT.count("secrets.RADAR_PR_TOKEN") == 1 and TEXT.count("vars.RADAR_AUTOMERGE") == 1
+    assert not any("secrets." in str(v) for v in (W["jobs"]["radar"].get("env") or {}).values())
+    assert not any("secrets." in str(v) for v in (W.get("env") or {}).values())
+    assert commit["env"]["RADAR_AUTOMERGE"] == "${{ vars.RADAR_AUTOMERGE }}"
     ping = next(s for s in steps if s.get("name", "").startswith("Doctor (is each"))
     assert ping["continue-on-error"] is True and "--ping" in ping["run"]
     assert "--ping" not in next(s for s in steps if s.get("name") == "Doctor (keys)")["run"]

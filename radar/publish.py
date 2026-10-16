@@ -32,6 +32,17 @@ def branch_name(date: str, run_id: str, attempt: str, now: dt.datetime) -> str:
     return f"radar/scan-{date}-{tail}"
 
 
+def open_scan_prs(api: str, repo: str, token: str) -> list[int]:
+    """Numbers of open pull requests that earlier scans opened (head radar/scan-...). Best effort: an error means "none known"."""
+    try:
+        items = request_json(f"{api}/repos/{repo}/pulls?state=open&per_page=100", headers=_headers(token))
+    except HttpError:
+        return []
+    found = [i.get("number") for i in items if isinstance(i, dict) and str((i.get("head") or {}).get("ref", "")).startswith("radar/scan-")] \
+        if isinstance(items, list) else []
+    return sorted(n for n in found if isinstance(n, int))
+
+
 def publish(*, repo: str, token: str, cwd: Path, base: str = "main", remote: str = "origin", automerge: bool = False,
             run_url: str = "", run_id: str = "", attempt: str = "1", api: str | None = None, now: dt.datetime | None = None) -> dict:
     """Push HEAD (the results commit) to a new branch and open a pull request into `base`. Returns what happened.
@@ -50,23 +61,29 @@ def publish(*, repo: str, token: str, cwd: Path, base: str = "main", remote: str
     date = now.strftime("%Y-%m-%d")
     branch = branch_name(date, run_id, attempt, now)
 
-    try:
-        _git(["ls-remote", "--exit-code", "--heads", remote, branch], cwd, token, reset_header=True)
+    # No --exit-code: "no such branch" is an empty answer, so a failure (auth, network) is an error with its own message.
+    if _git(["ls-remote", "--heads", remote, branch], cwd, token, reset_header=True).strip():
         return {"status": "branch-exists", "branch": branch}                 # this run already published once
-    except RuntimeError:
-        pass
     _git(["push", "-q", remote, f"HEAD:refs/heads/{branch}"], cwd, token, reset_header=True)
+    earlier = open_scan_prs(api, repo, token)
 
     body = ("Results of a Radar scan: new digests, the studio export and the state files (`seen.json`, `stars.json`, the run report).\n\n"
             + (f"Run: {run_url}\n\n" if run_url else "")
             + "Merge it to keep them: the next scan reads `state/` from `main`, so an unmerged scan is covered again and its star "
-              "snapshot is missing. If GitHub says the branch is out of date, use *Update branch*.")
+              "snapshot is missing. If GitHub says the branch is out of date, use *Update branch*."
+            + (f"\n\n**Earlier scan pull requests are still open: {', '.join('#' + str(n) for n in earlier)}.** Every scan changes "
+               "`state/`, so this one will conflict once an earlier one is merged. Merge them oldest first; if a conflict remains, "
+               "close this one and run the scan again." if earlier else ""))
     try:
         pr = request_json(f"{api}/repos/{repo}/pulls", headers=_headers(token),
                           payload={"title": f"radar: scan {date}", "head": branch, "base": base, "body": body})
     except HttpError as exc:
         return {"status": "branch-pushed", "branch": branch, "error": f"pull request not opened (HTTP {exc.status})"}
+    if not isinstance(pr, dict):
+        return {"status": "branch-pushed", "branch": branch, "error": "pull request answer was not an object"}
     result = {"status": "opened", "branch": branch, "url": pr.get("html_url", ""), "number": pr.get("number")}
+    if earlier:
+        result["earlier_scan_prs"] = earlier
     if automerge:
         try:
             out = request_json(f"{api}/graphql", headers=_headers(token), payload={

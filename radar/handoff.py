@@ -34,7 +34,10 @@ def _git(args: list[str], cwd: Path, token: str = "", host: str = "github.com", 
             env[f"GIT_CONFIG_KEY_{i}"], env[f"GIT_CONFIG_VALUE_{i}"] = k, v
     proc = subprocess.run(["git", *GIT_SAFE, *args], cwd=cwd, env=env, text=True, capture_output=True)
     if proc.returncode:
-        raise RuntimeError(f"git {args[0]} failed: {proc.stderr.strip()[:300]}")
+        message = proc.stderr.strip()[:300]
+        for secret in ([token, basic] if token else []):       # git echoes an argument or a remote's answer: never the credential
+            message = message.replace(secret, "***")
+        raise RuntimeError(f"git {args[0]} failed: {message}")
     return proc.stdout
 
 
