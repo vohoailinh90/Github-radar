@@ -185,9 +185,9 @@ def test_links_never_raise_on_address_like_noise():
 
 
 def test_a_console_transcript_counts_only_the_lines_after_a_prompt_as_typed():
-    text = ("```console\n$ my-tool run\nStarting server on port 8000\nSet up complete\n> second-tool go\nPS C:\\> third-tool\n```\n\n"
+    text = ("```console\n$ my-tool run\nStarting server on port 8000\nSet up complete\nPS C:\\> third-tool\n```\n\n"
             "```bash\nmy-tool --flag\n```\n\n```terminal\nOutput only\n```\n")
-    assert readme.setup_commands(text) == ["my-tool run", "second-tool go", "third-tool", "my-tool --flag"]
+    assert readme.setup_commands(text) == ["my-tool run", "third-tool", "my-tool --flag"]
 
 
 def test_a_sample_that_runs_to_the_end_of_the_readme_is_kept_like_the_block_the_command_reader_sees():
@@ -645,3 +645,26 @@ def test_the_padding_of_a_continuation_line_is_dropped_but_the_indentation_of_a_
     text = "```bash\ntool a \\\n      --b \\\n      --c\n  indented\n```\n"
     assert readme.code_blocks(text) == [("bash", ["tool a --b --c", "  indented"])]
     assert readme.code_lines(text) == readme.code_blocks(text)[0][1]
+
+
+def test_the_lines_npm_prints_after_a_typed_command_are_output_not_commands():
+    text = "```console\n$ npm start\n> myapp@1.0.0 start\n> node index.js\nServer started\n$ npm test\n```\n"
+    assert readme.setup_commands(text) == ["npm start", "npm test"]
+    assert [command for command in readme.setup_commands(text) if "node" in command or "myapp" in command] == []
+    assert readme.command_count(readme.setup_commands(text)) == 2
+
+
+def test_a_transcript_with_no_other_prompt_types_its_lines_after_the_greater_than_sign_and_a_heredoc_body_after_a_dollar_prompt_too():
+    only = "```console\n> npm install x\n> npm run build\nBuilt in 3s\n```\n"
+    assert readme.setup_commands(only) == ["npm install x", "npm run build"]
+    heredoc = "```console\n$ cat <<EOF\n> body one\n> EOF\n$ ls\n```\n"
+    assert readme.heredocs(heredoc) == ([["$ cat <<EOF", "> body one", "> EOF"]], ["$ cat <<EOF", "$ ls"])
+    assert readme.setup_commands(heredoc) == ["cat <<EOF", "body one", "EOF", "ls"]
+
+
+def test_the_prompt_of_root_is_a_prompt_when_a_command_follows_it_and_no_other_prompt_came_before():
+    text = "```console\n# apt-get update\n# apt-get install ffmpeg\nReading package lists...\n```\n"
+    assert readme.setup_commands(text) == ["apt-get update", "apt-get install ffmpeg"]
+    comment = "```console\n$ ls\n# this is a comment\n# apt-get install x\n```\n"
+    assert readme.setup_commands(comment) == ["ls"]                    # after a `$` prompt a `#` line is a comment, never root's prompt
+    assert readme.setup_commands("```console\n# this is a comment\nOutput\n```\n") == []

@@ -381,6 +381,18 @@ def test_the_commands_of_a_readme_with_a_prompt_count_as_coverage():
     assert gates.command_coverage(d, CONSOLE_FACTS)[1] == 7               # the four of the fixture plus the three prompted lines
 
 
+def test_what_npm_prints_after_a_typed_command_is_not_in_the_allowlist_and_the_prompt_of_root_is_dropped():
+    transcript = "```console\n$ npm start\n> myapp@1.0.0 start\n> node index.js\nServer started\n```\n"
+    commands = gates.readme_commands(transcript)
+    assert "npm start" in commands and not {"node index.js", "myapp@1.0.0 start", "Server started"} & commands
+    assert gates.block_commands(transcript) == {"npm start"}
+    root = "```console\n# apt-get update\n# apt-get install ffmpeg\nReading package lists...\n```\n"
+    assert gates.block_commands(root) == {"apt-get update", "apt-get install ffmpeg"}
+    assert gates.command_texts(root)["apt-get update"] == ["apt-get update"]
+    typed = "```console\n> npm install x\n> npm run build\n```\n"
+    assert gates.block_commands(typed) == {"npm install x", "npm run build"}
+
+
 def test_model_prose_in_the_tables_of_the_guide_is_shown_literally(tmp_path):
     d = mutate(lambda d: (d["guide"]["troubleshooting"][0].update(problem="Thiếu <MODEL> và *đậm* | cột", fix="Mở <details> và xem *chữ*"),
                           d["how_it_works"]["components"][0].update(name="Tên *x*", role="Vai <b>trò</b>")))

@@ -695,13 +695,39 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     return [(lang, logical) for lang, logical, _ in _scan(text)]
 
 
-def block_lines(text: str) -> list[tuple[str, str, str]]:
-    """(language tag, logical line, role) for every logical line of the README's code blocks. The role is "opener" for a line that opens
-    a heredoc, "body" for a line of its body or its closing word, and "" for any other."""
+ROOT_PROMPT = re.compile(r"^#\s+")              # the prompt of root in a transcript: `# apt-get update`
+SECONDARY_PROMPT = re.compile(r"^>\s+")         # what a shell shows when a command goes on over several lines
+
+
+def transcript_prompts(lines: list[str], roles: list[str]) -> list:
+    """For each logical line of a `console` transcript: the prompt pattern that precedes what was typed, or None when the line is output.
+    `> ` is the prompt of a line typed in a transcript that has no other prompt; after a `$`-style prompt it is the shell's secondary
+    prompt or output (npm prints `> pkg@1.0.0 start` after `$ npm start`), typed only inside a heredoc. A bare `# ` is root's prompt
+    when no other prompt came before and what follows is a command, otherwise a comment."""
+    seen, out = False, []
+    for line, role in zip(lines, roles):
+        if SHELL_PROMPT.match(line):
+            seen = True
+            out.append(PROMPT)
+        elif SECONDARY_PROMPT.match(line):
+            out.append(None if seen and role != "body" else PROMPT)
+        elif not seen and ROOT_PROMPT.match(line) and is_command_line(ROOT_PROMPT.sub("", line, count=1)):
+            out.append(ROOT_PROMPT)
+        else:
+            out.append(None)
+    return out
+
+
+def block_lines(text: str) -> list[tuple[str, str, str, object]]:
+    """(language tag, logical line, role, prompt) for every logical line of the README's code blocks. The role is "opener" for a line that
+    opens a heredoc, "body" for a line of its body or its closing word, and "" for any other. The prompt is the pattern to drop from the
+    line; in a transcript it is None for a line that was not typed."""
     out = []
     for lang, logical, owners in _scan(text):
         openers = {owner for owner in owners if owner is not None}
-        out += [(lang, line, "body" if owner is not None else "opener" if i in openers else "") for i, (line, owner) in enumerate(zip(logical, owners))]
+        roles = ["body" if owner is not None else "opener" if i in openers else "" for i, owner in enumerate(owners)]
+        prompts = transcript_prompts(logical, roles) if lang in CONSOLE_LANGS else [prompt_for(lang)] * len(logical)
+        out += [(lang, line, role, prompt) for line, role, prompt in zip(logical, roles, prompts)]
     return out
 
 
@@ -789,19 +815,19 @@ def shells(text: str) -> dict[str, str]:
 
 def setup_commands(text: str) -> list[str]:
     """What a person types, from the README's code blocks: every line of a block tagged as a shell; in a `console` transcript only
-    the lines after a prompt (`$ `, `> `, `PS C:\\>`), because the rest is output; in any other block the lines that start with a
+    the lines after a prompt (see `transcript_prompts`), because the rest is output; in any other block the lines that start with a
     known program. A prompt is dropped where it is one: a leading `> ` in a `bash` block is a redirection and stays."""
     out = []
-    for lang, lines in code_blocks(text):
-        rx = prompt_for(lang)
-        for line in (l.strip() for l in lines):
-            prompt = rx.match(line)
-            bare = line[prompt.end():] if prompt else line
-            if not bare or bare.startswith(("#", "//", "REM ", "::")):
-                continue
-            typed = bool(prompt) if lang in CONSOLE_LANGS else (lang in SHELL_LANGS or is_command_line(line))
-            if typed:
-                out.append(bare)
+    for lang, line, _, prompt in block_lines(text):
+        if prompt is None:
+            continue
+        line = line.strip()
+        found = prompt.match(line)
+        bare = line[found.end():] if found else line
+        if not bare or bare.startswith(("#", "//", "REM ", "::")):
+            continue
+        if lang in CONSOLE_LANGS or lang in SHELL_LANGS or is_command_line(line):
+            out.append(bare)
     return out
 
 

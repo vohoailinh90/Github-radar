@@ -309,9 +309,8 @@ def _block_variants(readme: str):
     lines is ONE line; its pieces are not commands; in a `console` transcript only the lines after a prompt, the rest is output; in a
     block of another language only a line that starts with a known program, a YAML or Python sample is not a command; the lines of a
     heredoc are always part of it). Each comes without a trailing `# comment` too."""
-    for lang, line, role in readmelib.block_lines(readme):
-        prompt = readmelib.prompt_for(lang)
-        if lang in readmelib.CONSOLE_LANGS and not prompt.match(line):       # a transcript: the lines without a prompt are output
+    for lang, line, role, prompt in readmelib.block_lines(readme):
+        if prompt is None:                                                    # a transcript: the lines that were not typed are output
             continue
         if not (role or lang in readmelib.SHELL_LANGS or lang in readmelib.CONSOLE_LANGS or readmelib.is_command_line(line)):
             continue
@@ -351,18 +350,17 @@ def command_texts(readme: str) -> dict[str, list[str]]:
     form and both are kept: the code blocks come first, and the comparable form is only a fallback."""
     out: dict[str, list[str]] = {}
     for text, prompt in _command_variants(readme):
-        key = _norm_cmd(text)
-        if key:
-            shown = _shown(text, prompt)
-            if shown not in out.setdefault(key, []):
-                out[key].append(shown)
+        shown = _shown(text, prompt)
+        key = _norm_cmd(shown)
+        if key and shown not in out.setdefault(key, []):
+            out[key].append(shown)
     return out
 
 
 def block_commands(readme: str) -> set[str]:
     """The comparable form of every line of the README's code blocks: what a reader types, as opposed to a line of prose or a code
     span, where a pair of backticks is Markdown and not part of a command."""
-    return {key for text, _ in _block_variants(readme) if (key := _norm_cmd(text))}
+    return {key for text, prompt in _block_variants(readme) if (key := _norm_cmd(_shown(text, prompt)))}
 
 
 def readme_commands(readme: str) -> set[str]:
