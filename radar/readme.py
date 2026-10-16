@@ -375,7 +375,7 @@ def is_local(url: str) -> bool:
 SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
 POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)[ \t]?[$#]\s+"      # `user@host:~$ `, `[me@box ~]$ `, `root@host:/# `
-CMD_PROMPT = r"[A-Za-z]:\\[^\s>]*>\s*"                                                             # `C:\Users\me> `: a path, then `>` (a path with a space is not told)
+CMD_PROMPT = r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)>(?:\s+|$)"                                      # `C:\Users\me> `, `C:\Program Files\repo> `: a path, then `>` with no space before it (`run.exe > out` is a redirection)
 PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")             # a prompt in a transcript (`console`): `$ `, `> `, `PS C:\\>`, the two above
 SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")        # a prompt in any other block: `> file` there is a redirection, a command
 
@@ -437,10 +437,31 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
     space after it escapes the space and the line ends there."""
     physical = line if physical is None else physical
     if lang in POWERSHELL_LANGS or POWERSHELL_PROMPT.match(line):
-        return re.search(r"(?<!`)`$", physical) is not None
+        return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return re.search(r"(?<!\^)\^$", physical) is not None
+    if _has_comment(physical):                    # `echo a # note \`: the backslash belongs to the comment
+        return False
     return (len(physical) - len(physical.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(physical)       # `\\` at the end is an escaped backslash
+
+
+def _has_comment(line: str) -> bool:
+    """True when the line has a `#` that starts a shell comment: at the start of a word, outside quotes and not escaped."""
+    quote, i = "", 0
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            i += 2 if ch == "\\" and quote == '"' else 1
+            quote = "" if i <= len(line) and ch == quote else quote
+        elif ch == "\\":
+            i += 2
+        elif ch in "'\"":
+            quote, i = ch, i + 1
+        elif ch == "#" and (i == 0 or line[i - 1].isspace()):
+            return True
+        else:
+            i += 1
+    return False
 
 
 def strip_trailing_comment(line: str) -> str:
@@ -591,9 +612,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 ends = _heredoc_openers(pending)
                 opener = len(logical) - 1
             pending = ""
-        if pending:
-            logical.append(pending)
-            owners.append(None)
+        # a block that ends on a continuation mark (`docker run \`) never gives the rest of the command: `pending` is dropped
         if ends:                                  # the block ends before the closing word: a command that waits for ever is not one the README gives
             del logical[opener:]
             del owners[opener:]

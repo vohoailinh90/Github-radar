@@ -436,6 +436,24 @@ def test_a_heredoc_that_never_reaches_its_closing_word_is_not_a_command():
     assert readme.heredocs(text) == ([["cat <<EOF", "body", "EOF"]], ["ls", "cat <<EOF"])           # the first block's opener and body are gone
 
 
+def test_a_continuation_mark_inside_a_comment_or_at_the_end_of_a_block_continues_nothing():
+    text = "```bash\necho first # note \\\necho second\n# whole line comment \\\necho third\necho 'a # b' \\\n  c\necho x#y \\\n  z\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["echo first # note \\", "echo second", "# whole line comment \\", "echo third", "echo 'a # b' c", "echo x#y z"])]
+    assert readme.code_blocks("```powershell\nGet-Item x # note `\nGet-Item y `\n  -Force\n```\n") == [("powershell", ["Get-Item x # note `", "Get-Item y -Force"])]
+    for text in ("```bash\nls\ndocker run \\\n```\n", "```bash\nls\ndocker run \\\n\n```\n", "```powershell\nls\nGet-Item `\n```\n", "```bat\nls\necho a ^\n```\n"):
+        assert [line for _, lines in readme.code_blocks(text) for line in lines] == ["ls"], text
+    assert readme._has_comment("a # b") and readme._has_comment("# b") and not readme._has_comment("a#b") and not readme._has_comment("'a # b'")
+
+
+def test_a_cmd_prompt_may_hold_a_path_with_spaces_and_a_redirection_is_still_not_a_prompt():
+    text = ("```console\nC:\\Program Files\\repo> winget install pkg\nC:\\tools\\run.exe > out.txt\nC:\\> dir\nC:\\x\\run.exe>out.txt\n```\n")
+    assert readme.setup_commands(text) == ["winget install pkg", "dir"]
+    assert readme.shells(text) == {"winget install pkg": "bat", "dir": "bat"}
+    assert readme.SHELL_PROMPT.sub("", "C:\\Program Files\\My Repo> ls") == "ls"
+    for not_a_prompt in ("C:\\tools\\run.exe > out.txt", "C:\\x\\run.exe>out.txt", "C:\\run.exe 2> err.txt"):
+        assert readme.SHELL_PROMPT.sub("", not_a_prompt) == not_a_prompt, not_a_prompt
+
+
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
     text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
             "C:\\tools\\run.exe > out.txt\noutput line\n```\n")
