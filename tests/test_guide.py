@@ -872,3 +872,12 @@ def test_a_command_in_a_multi_backtick_code_span_is_one_command_for_the_gate():
     shown = [t for t, _ in gates._prose_variants("Run ``echo `date` `` now and `ls -l` too.\n")]
     assert shown == ["echo `date`", "ls -l"]
     assert "echo" not in gates.command_texts("Run ``echo `date` `` now.\n") and "echo `date`" in gates.command_texts("Run ``echo `date` `` now.\n")
+
+
+def test_a_wrong_number_in_one_item_does_not_hide_a_wrong_reference_in_another():
+    both = mutate(lambda d: (d["guide"]["steps"][0].update(link_ref=99), d["guide"]["requirements"][0].update(detail="Cần 64 GB bộ nhớ.")))
+    messages = errs(both)
+    assert any("numbers not in the facts" in m for m in messages) and any("link_ref" in m and "99" in m for m in messages)          # both in the one round of feedback
+    assert not any("link_ref" in m for m in errs(mutate(lambda d: d["guide"]["requirements"][0].update(detail="Cần 64 GB bộ nhớ."))))
+    wrong_shape = mutate(lambda d: d["guide"].update(steps="not a list"))
+    assert errs(wrong_shape)                                                                                   # a guide of the wrong shape is still refused, and does not crash

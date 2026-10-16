@@ -511,6 +511,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
     problems = schema(draft, require_guide)
     if any(p.field in ("how_it_works", "how_it_works.steps") for p in problems):
         return problems
+    guide_shaped = not any(p.level == "error" and p.field.startswith("guide") for p in problems)          # the items are what the checks below read
     files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
     paths = {t.rstrip("/").lstrip("./").lower() for t in facts["tree"]} | files
     blob = _norm_cmd(facts["readme"])
@@ -540,7 +541,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
     problems += _command_list_problems(draft, facts["readme"])
     guide = draft.get("guide")
-    if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):
+    if isinstance(guide, dict) and guide_shaped:                 # a wrong number or command in one item does not hide a wrong reference in another
         links, blocks = len(facts.get("links") or []), len(facts.get("blocks") or [])
         for key in ("requirements", "steps", "troubleshooting"):
             for i, item in enumerate(guide.get(key) or []):

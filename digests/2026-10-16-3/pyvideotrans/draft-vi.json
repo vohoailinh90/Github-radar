@@ -79,8 +79,8 @@
           "expect": "",
           "if_fails": "Muốn dùng tăng tốc GPU thì README yêu cầu GPU NVIDIA đã cài CUDA 12.8 và cuDNN 9.11.",
           "link_ref": 0,
-          "title": "Windows: tải bản đóng gói và chạy sp.exe",
-          "why": "Dùng ngay không cần cài Python. Bỏ qua bước này nếu bạn cài từ mã nguồn."
+          "title": "Cách A, Windows: tải bản đóng gói và chạy sp.exe",
+          "why": "Dùng ngay không cần cài Python. Chọn cách này thì làm xong bước này rồi xuống phần kiểm tra kết quả: các bước sau là cách B."
         },
         {
           "commands": [
@@ -96,8 +96,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "macOS: cài công cụ nền và FFmpeg",
-          "why": "Cài các thành phần mà bản mã nguồn cần. Bỏ qua bước này nếu bạn không dùng macOS."
+          "title": "Cách B, macOS: cài công cụ nền và FFmpeg",
+          "why": "Cài các thành phần mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên macOS; bỏ qua nếu dùng bản đóng gói hoặc hệ khác."
         },
         {
           "commands": [
@@ -110,8 +110,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Linux (Ubuntu/Debian): cài FFmpeg",
-          "why": "Cài FFmpeg và thư viện âm thanh mà bản mã nguồn cần. Bỏ qua bước này nếu bạn không dùng Linux."
+          "title": "Cách B, Linux (Ubuntu/Debian): cài FFmpeg",
+          "why": "Cài FFmpeg và thư viện âm thanh mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên Linux; bỏ qua nếu dùng bản đóng gói hoặc hệ khác."
         },
         {
           "commands": [
@@ -127,8 +127,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": 1,
-          "title": "Cài uv",
-          "why": "Có công cụ quản lý thư viện để cài pyVideoTrans."
+          "title": "Cách B: cài uv",
+          "why": "Có công cụ quản lý thư viện để cài pyVideoTrans từ mã nguồn. Người dùng bản đóng gói bỏ qua bước này."
         },
         {
           "commands": [
@@ -144,8 +144,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Tải mã nguồn và cài thư viện",
-          "why": "Có pyVideoTrans cùng thư viện của nó trong một môi trường riêng."
+          "title": "Cách B: tải mã nguồn và cài thư viện",
+          "why": "Có pyVideoTrans cùng thư viện của nó trong một môi trường riêng. Người dùng bản đóng gói bỏ qua bước này."
         },
         {
           "commands": [
@@ -159,8 +159,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Mở giao diện đồ họa",
-          "why": "Dịch video bằng cửa sổ phần mềm, có thể tạm dừng để sửa tay ở từng chặng."
+          "title": "Cách B: mở giao diện đồ họa",
+          "why": "Dịch video bằng cửa sổ phần mềm, có thể tạm dừng để sửa tay ở từng chặng. Bản đóng gói đã mở giao diện ở bước đầu, nên bỏ qua bước này."
         },
         {
           "commands": [
@@ -175,8 +175,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Dịch cả video bằng một lệnh",
-          "why": "Chạy trọn quy trình nhận dạng, dịch, lồng tiếng và ghép video không cần giao diện."
+          "title": "Cách B: dịch cả video bằng một lệnh",
+          "why": "Chạy trọn quy trình nhận dạng, dịch, lồng tiếng và ghép video không cần giao diện. Cần bản cài từ mã nguồn."
         },
         {
           "commands": [
@@ -193,8 +193,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Các tác vụ lẻ: chỉ lấy phụ đề, chỉ dịch phụ đề, chỉ đọc",
-          "why": "Làm riêng từng chặng khi bạn không cần cả quy trình."
+          "title": "Cách B: các tác vụ lẻ: chỉ lấy phụ đề, chỉ dịch, chỉ đọc",
+          "why": "Làm riêng từng chặng khi bạn không cần cả quy trình. Cần bản cài từ mã nguồn."
         },
         {
           "commands": [
@@ -208,8 +208,8 @@
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "title": "Cách khác: chạy giao diện web",
-          "why": "Dùng từ xa hoặc trong mạng nội bộ qua trình duyệt."
+          "title": "Cách B: chạy giao diện web (tùy chọn)",
+          "why": "Dùng từ xa hoặc trong mạng nội bộ qua trình duyệt. Cần bản cài từ mã nguồn."
         }
       ],
       "troubleshooting": [

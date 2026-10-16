@@ -52,9 +52,9 @@ _Đánh dấu từng mục khi đã có đủ._
 
 ## 🪜 Làm theo từng bước
 
-### Bước 1 · Windows: tải bản đóng gói và chạy sp.exe
+### Bước 1 · Cách A, Windows: tải bản đóng gói và chạy sp.exe
 
-**Mục đích:** Dùng ngay không cần cài Python. Bỏ qua bước này nếu bạn cài từ mã nguồn.
+**Mục đích:** Dùng ngay không cần cài Python. Chọn cách này thì làm xong bước này rồi xuống phần kiểm tra kết quả: các bước sau là cách B.
 
 1. Tải bản đóng gói mới nhất ở trang phát hành.
 2. Giải nén vào đường dẫn không có chữ Hán hay dấu cách, ví dụ `D:\pyVideoTrans`. Đừng chạy trực tiếp trong file nén.
@@ -66,9 +66,9 @@ _Đánh dấu từng mục khi đã có đủ._
 
 <sub>Căn cứ: `README`</sub>
 
-### Bước 2 · macOS: cài công cụ nền và FFmpeg
+### Bước 2 · Cách B, macOS: cài công cụ nền và FFmpeg
 
-**Mục đích:** Cài các thành phần mà bản mã nguồn cần. Bỏ qua bước này nếu bạn không dùng macOS.
+**Mục đích:** Cài các thành phần mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên macOS; bỏ qua nếu dùng bản đóng gói hoặc hệ khác.
 
 1. Chạy lần lượt bốn lệnh dưới đây trong terminal.
 
@@ -83,9 +83,9 @@ brew install homebrew-ffmpeg/ffmpeg/ffmpeg
 
 <sub>Căn cứ: `README`</sub>
 
-### Bước 3 · Linux (Ubuntu/Debian): cài FFmpeg
+### Bước 3 · Cách B, Linux (Ubuntu/Debian): cài FFmpeg
 
-**Mục đích:** Cài FFmpeg và thư viện âm thanh mà bản mã nguồn cần. Bỏ qua bước này nếu bạn không dùng Linux.
+**Mục đích:** Cài FFmpeg và thư viện âm thanh mà bản mã nguồn cần. Chỉ làm khi cài từ mã nguồn trên Linux; bỏ qua nếu dùng bản đóng gói hoặc hệ khác.
 
 1. Chạy lệnh dưới đây trong terminal.
 
@@ -95,9 +95,9 @@ sudo apt-get install ffmpeg libsndfile1-dev
 
 <sub>Căn cứ: `README`</sub>
 
-### Bước 4 · Cài uv
+### Bước 4 · Cách B: cài uv
 
-**Mục đích:** Có công cụ quản lý thư viện để cài pyVideoTrans.
+**Mục đích:** Có công cụ quản lý thư viện để cài pyVideoTrans từ mã nguồn. Người dùng bản đóng gói bỏ qua bước này.
 
 1. Chạy dòng đầu trên macOS hoặc Linux.
 2. Chạy dòng thứ hai trong PowerShell trên Windows.
@@ -112,9 +112,9 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 <sub>Căn cứ: `README`</sub>
 
-### Bước 5 · Tải mã nguồn và cài thư viện
+### Bước 5 · Cách B: tải mã nguồn và cài thư viện
 
-**Mục đích:** Có pyVideoTrans cùng thư viện của nó trong một môi trường riêng.
+**Mục đích:** Có pyVideoTrans cùng thư viện của nó trong một môi trường riêng. Người dùng bản đóng gói bỏ qua bước này.
 
 1. Chạy ba lệnh dưới đây lần lượt: tải mã nguồn, vào thư mục dự án, cài thư viện.
 2. Mặc định phần Whisper cho .NET và WebUI chưa được cài; README có các lệnh `uv sync --all-extras` và `uv sync --extra webui` nếu bạn cần.
@@ -127,9 +127,9 @@ uv sync
 
 <sub>Căn cứ: `pyproject.toml`</sub>
 
-### Bước 6 · Mở giao diện đồ họa
+### Bước 6 · Cách B: mở giao diện đồ họa
 
-**Mục đích:** Dịch video bằng cửa sổ phần mềm, có thể tạm dừng để sửa tay ở từng chặng.
+**Mục đích:** Dịch video bằng cửa sổ phần mềm, có thể tạm dừng để sửa tay ở từng chặng. Bản đóng gói đã mở giao diện ở bước đầu, nên bỏ qua bước này.
 
 1. Chạy lệnh dưới đây trong thư mục dự án.
 2. README cho biết phần mềm cho phép tạm dừng và hiệu đính thủ công ở các chặng nhận dạng, dịch và lồng tiếng.
@@ -140,9 +140,9 @@ uv run sp.py
 
 <sub>Căn cứ: `sp.py`</sub>
 
-### Bước 7 · Dịch cả video bằng một lệnh
+### Bước 7 · Cách B: dịch cả video bằng một lệnh
 
-**Mục đích:** Chạy trọn quy trình nhận dạng, dịch, lồng tiếng và ghép video không cần giao diện.
+**Mục đích:** Chạy trọn quy trình nhận dạng, dịch, lồng tiếng và ghép video không cần giao diện. Cần bản cài từ mã nguồn.
 
 1. Đặt file video vào thư mục dự án rồi sửa lệnh dưới đây cho khớp với video của bạn.
 2. `--name` là đường dẫn video, `--source_language_code` là ngôn ngữ gốc, `--target_language_code` là ngôn ngữ đích, `--voice_role` là giọng đọc.
@@ -154,9 +154,9 @@ uv run cli.py --task vtv --name "./video.mp4" --source_language_code zh-cn --tar
 
 <sub>Căn cứ: `docs/cli.md`</sub>
 
-### Bước 8 · Các tác vụ lẻ: chỉ lấy phụ đề, chỉ dịch phụ đề, chỉ đọc
+### Bước 8 · Cách B: các tác vụ lẻ: chỉ lấy phụ đề, chỉ dịch, chỉ đọc
 
-**Mục đích:** Làm riêng từng chặng khi bạn không cần cả quy trình.
+**Mục đích:** Làm riêng từng chặng khi bạn không cần cả quy trình. Cần bản cài từ mã nguồn.
 
 1. Lệnh đầu chuyển âm thanh thành phụ đề (`stt`).
 2. Lệnh thứ hai dịch một file phụ đề (`sts`).
@@ -170,9 +170,9 @@ uv run cli.py --task tts --name "./subs.srt" --voice_role "zh-CN-YunyangNeural"
 
 <sub>Căn cứ: `cli.py`</sub>
 
-### Bước 9 · Cách khác: chạy giao diện web
+### Bước 9 · Cách B: chạy giao diện web (tùy chọn)
 
-**Mục đích:** Dùng từ xa hoặc trong mạng nội bộ qua trình duyệt.
+**Mục đích:** Dùng từ xa hoặc trong mạng nội bộ qua trình duyệt. Cần bản cài từ mã nguồn.
 
 1. Chạy lần lượt hai lệnh dưới đây trong thư mục dự án.
 
