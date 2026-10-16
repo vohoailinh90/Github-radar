@@ -82,6 +82,10 @@ Trên GitHub: Actions → *Radar scan* → *Run workflow*, điền ô `repo` (ô
 - Nhóm (`ai`, `software`, `solutions`, `startup`) được đoán từ topic của repo; không khớp thì xếp vào `software`. Đổi bằng `--bucket` (hoặc ô `bucket`).
 - Sau khi viết, `handoff` vẫn mở **pull request nháp** vào studio như các lần quét theo lịch.
 
+## Kỹ năng thiết kế UI cho các repo khác
+
+Repo này còn giữ skill [impeccable](https://github.com/pbakaus/impeccable) (`.claude/skills/impeccable/`) để chép sang repo khác khi cần thiết kế giao diện; nó không tham gia việc quét hay viết bài. Cách chép, cách cập nhật và những điều cần biết (engine tải ở lần chạy đầu, hook chưa nối): [`docs/impeccable.md`](docs/impeccable.md).
+
 ## Radar chọn repo thế nào
 
 Điểm = `ln(sao) + 0,5·ln(1 + sao tăng trong 30 ngày) + 1 nếu có commit trong 30 ngày`. "Sao tăng" được **đo thật**: mỗi lần quét lưu số sao của mọi ứng viên

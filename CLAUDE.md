@@ -37,6 +37,19 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   or argv. `radar/handoff.py` passes the token through git's `GIT_CONFIG_*` environment only.
 - Writer and checker models must be different families (`radar.yaml`, `python3 radar.py doctor`).
 
+## Vendored skill: impeccable
+
+`.claude/skills/impeccable/`, `.claude/agents/impeccable-*.md` and `docs/third-party/impeccable/` are an unmodified copy of
+`pbakaus/impeccable` (Apache-2.0), kept here to be installed into other repositories for UI design (`docs/impeccable.md`).
+
+- Never hand-edit them. Re-sync with `python3 scripts/vendor_impeccable.py snapshot <checkout>`; the lock
+  `.claude/skills/impeccable.lock.json` and `tests/test_vendored_impeccable.py` fail on any drift.
+- It is not part of the radar pipeline: do not invoke it for work here. The Content rules still hold: pictures are drawn by scripts,
+  never designed by a model.
+- Its hooks are **not wired** (no `.claude/settings.json` calls them), and its launcher downloads the engine binary on first run
+  (`docs/impeccable.md`). Do not wire either here without the owner asking.
+- The four `impeccable-*` agents belong to the skill, not to the routing roster in `agent-routing/policy.yaml`.
+
 ## Languages
 
 - Content languages are configured (`langs` in `radar.yaml`): `vi` (default, the owner reads Vietnamese), `en`, `ja`. Each is written
@@ -53,6 +66,7 @@ python3 radar.py rerender                              # redraw digests, diagram
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
+python3 scripts/vendor_impeccable.py check             # the vendored impeccable skill still matches its lock (also run by pytest)
 ```
 
 ## Repository layout
