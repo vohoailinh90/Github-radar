@@ -670,6 +670,23 @@ def test_a_piece_of_a_command_the_shell_grammar_splits_over_lines_is_not_a_comma
         assert (not any("steps[0].commands" in e for e in errs(d, PIPE_FACTS))) is ok, command
 
 
+PRICE_README = README + "\n```bash\ncat > t.txt <<EOF\n$ literal price\nEOF\n$ make\n```\n"
+PRICE_FACTS = {**FACTS, "readme": PRICE_README, "links": readme.links(PRICE_README), "blocks": readme.blocks(PRICE_README)}
+
+
+def test_a_line_that_looks_like_a_prompt_inside_a_heredoc_is_data_and_stays_in_the_guide(tmp_path):
+    whole = ["cat > t.txt <<EOF", "$ literal price", "EOF"]
+    assert gates.command_texts(PRICE_README)["literal price"] == ["$ literal price"] and gates.command_texts(PRICE_README)["make"] == ["make"]
+    for commands in (whole, ["cat > t.txt <<EOF", "literal price", "EOF"]):                     # copied as is, or without the "$ " a model may drop
+        d = make_draft(PRICE_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=commands + ["$ make"], evidence="README")
+        assert not any("steps[0].commands" in e for e in errs(d, PRICE_FACTS))
+        fixed = gates.canonicalize(d, PRICE_FACTS)
+        assert fixed["guide"]["steps"][0]["commands"] == whole + ["make"]                    # the data keeps its "$ ", the command loses its prompt
+    md = render(tmp_path, fixed, facts=PRICE_FACTS)[1]
+    assert "```bash\ncat > t.txt <<EOF\n$ literal price\nEOF\nmake\n```" in md
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

@@ -65,7 +65,7 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 def _bash_block(commands, shell: str = "bash") -> list[str]:
     """The lines of a fenced block of `shell` (bash, powershell, bat) holding `commands`, the fence longer than any run of backticks in them."""
-    lines = [_command(c) for c in commands]
+    lines = [str(c).rstrip() if data else _command(c) for c, data in zip(commands, readmelib.heredoc_data(commands))]       # heredoc data as it is
     fence = "```"
     while any(fence in line for line in lines):
         fence += "`"

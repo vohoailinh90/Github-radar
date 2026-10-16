@@ -301,17 +301,22 @@ def _flat(text: str) -> str:
 _norm_cmd = readmelib.norm_command
 
 
+NO_PROMPT = re.compile(r"(?!)")           # matches nothing: a line with no prompt to drop
+
+
 def _block_variants(readme: str):
     """(text, prompt pattern) for the logical lines of the README's code blocks that a reader types (a command written over several
     lines is ONE line; its pieces are not commands; in a `console` transcript only the lines after a prompt, the rest is output; in a
     block of another language only a line that starts with a known program, a YAML or Python sample is not a command; the lines of a
     heredoc are always part of it). Each comes without a trailing `# comment` too."""
-    for lang, line, in_heredoc in readmelib.block_lines(readme):
+    for lang, line, role in readmelib.block_lines(readme):
         prompt = readmelib.prompt_for(lang)
         if lang in readmelib.CONSOLE_LANGS and not prompt.match(line):       # a transcript: the lines without a prompt are output
             continue
-        if not (in_heredoc or lang in readmelib.SHELL_LANGS or lang in readmelib.CONSOLE_LANGS or readmelib.is_command_line(line)):
+        if not (role or lang in readmelib.SHELL_LANGS or lang in readmelib.CONSOLE_LANGS or readmelib.is_command_line(line)):
             continue
+        if role == "body" and lang not in readmelib.CONSOLE_LANGS:
+            prompt = NO_PROMPT                                              # `$ literal price` in a heredoc is data, not a prompt
         yield line, prompt
         yield readmelib.strip_trailing_comment(line), prompt
 

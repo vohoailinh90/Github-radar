@@ -481,6 +481,20 @@ def test_a_backslash_inside_single_quotes_is_literal_and_inside_double_quotes_it
     assert lines("```bash\necho it\\\n  works\n```\n") == ["echo it works"]
 
 
+def test_a_fish_fence_and_the_other_common_shells_are_shells_and_only_fish_has_no_heredoc():
+    assert readme.setup_commands("```fish\nfisher install jorgebucaran/nvm.fish\n```\n") == ["fisher install jorgebucaran/nvm.fish"]
+    for tag in ("fish", "ksh", "dash", "ash"):
+        assert readme.setup_commands(f"```{tag}\nmy-tool --flag\n```\n") == ["my-tool --flag"], tag
+    assert readme.heredocs("```fish\ncat <<EOF\nx\nEOF\n```\n") == ([], ["cat <<EOF", "x", "EOF"])
+    assert readme.heredocs("```dash\ncat <<EOF\nx\nEOF\n```\n")[0] == [["cat <<EOF", "x", "EOF"]]
+
+
+def test_the_data_of_a_heredoc_in_a_list_of_commands_is_told_from_the_commands():
+    commands = ["cat <<EOF", "$ literal price", "EOF", "$ ls", "cat <<-'A'", "\tone", "\tA"]
+    assert readme.heredoc_data(commands) == [False, True, True, False, False, True, True]
+    assert readme.command_count(commands) == 3 and readme.heredoc_data(None) == [] and readme.heredoc_data([1, "ls"]) == [False, False]
+
+
 def test_a_pwsh_fence_is_powershell():
     text = "```pwsh\nInstall-Module -Name Pester `\n  -Force\nGet-Item x\n```\n"
     assert readme.code_blocks(text) == [("pwsh", ["Install-Module -Name Pester -Force", "Get-Item x"])]

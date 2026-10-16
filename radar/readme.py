@@ -372,7 +372,7 @@ def is_local(url: str) -> bool:
     return parts is not None and (parts.hostname or "").lower() in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
 
-SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "pwsh", "ps1", "cmd", "bat", "batch"}      # every line is something to type
+SHELL_LANGS = {"bash", "sh", "shell", "zsh", "fish", "ksh", "dash", "ash", "powershell", "pwsh", "ps1", "cmd", "bat", "batch"}      # every line is something to type
 CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
 POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)[ \t]?[$#]\s+"      # `user@host:~$ `, `[me@box ~]$ `, `root@host:/# `
 CMD_PROMPT = r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)>(?:\s+|$)"                                      # `C:\Users\me> `, `C:\Program Files\repo> `: a path, then `>` with no space before it (`run.exe > out` is a redirection)
@@ -425,7 +425,7 @@ CMD_LANGS = {"cmd", "bat", "batch"}                                        # a c
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
 HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^']+)'|\"([^\"]+)\"|\\?([^\s;&|<>()'\"\\]+))")      # what follows `<<`: `EOF`, `-'END MARK'`, ` "EOF"`, `END-MARK`
-HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh"} | CONSOLE_LANGS
+HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh", "ksh", "dash", "ash"} | CONSOLE_LANGS          # fish has no heredoc
 
 
 def _continues(lang: str, line: str, physical: str | None = None) -> bool:
@@ -657,13 +657,13 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     return [(lang, logical) for lang, logical, _ in _scan(text)]
 
 
-def block_lines(text: str) -> list[tuple[str, str, bool]]:
-    """(language tag, logical line, whether it is part of a heredoc: its opening line, its body or its closing word) for every logical
-    line of the README's code blocks."""
+def block_lines(text: str) -> list[tuple[str, str, str]]:
+    """(language tag, logical line, role) for every logical line of the README's code blocks. The role is "opener" for a line that opens
+    a heredoc, "body" for a line of its body or its closing word, and "" for any other."""
     out = []
     for lang, logical, owners in _scan(text):
         openers = {owner for owner in owners if owner is not None}
-        out += [(lang, line, owner is not None or i in openers) for i, (line, owner) in enumerate(zip(logical, owners))]
+        out += [(lang, line, "body" if owner is not None else "opener" if i in openers else "") for i, (line, owner) in enumerate(zip(logical, owners))]
     return out
 
 
@@ -683,18 +683,25 @@ def heredocs(text: str) -> tuple[list[list[str]], list[str]]:
     return groups, loose
 
 
-def command_count(commands) -> int:
-    """How many commands a list of command lines holds: a heredoc (its opening line, body and closing word, one entry each) is one."""
-    count, ends = 0, []
-    for command in commands if isinstance(commands, list) else []:
+def heredoc_data(commands) -> list[bool]:
+    """For each entry of a list of command lines: whether it is data of a heredoc (its body or its closing word) and so is printed as it is."""
+    flags, ends = [], []
+    for command in commands if isinstance(commands, (list, tuple)) else []:
         text = command if isinstance(command, str) else ""
         if ends:
+            flags.append(True)
             if (text.lstrip("\t") if ends[0][1] else text) == ends[0][0]:
                 ends.pop(0)
-        elif text.strip():
-            count += 1
-            ends = _heredoc_openers(text)
-    return count
+        else:
+            flags.append(False)
+            ends = _heredoc_openers(text) if text.strip() else []
+    return flags
+
+
+def command_count(commands) -> int:
+    """How many commands a list of command lines holds: a heredoc (its opening line, body and closing word, one entry each) is one."""
+    return sum(1 for command, data in zip(commands if isinstance(commands, (list, tuple)) else [], heredoc_data(commands))
+               if not data and isinstance(command, str) and command.strip())
 
 
 def code_lines(text: str) -> list[str]:
