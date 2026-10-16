@@ -1,0 +1,370 @@
+{
+  "draft": {
+    "analogy": "Giống tự rang cà phê tại nhà thay vì mua ly ở quán: cần máy xịn (card đồ họa lớn) nhưng bạn tự chọn hạt, tự chỉnh công thức.",
+    "caveats": [
+      "Cần card đồ họa lớn: lệnh T2V-A14B một GPU cần ít nhất 80GB VRAM, lệnh TI2V-5B cần ít nhất 24GB",
+      "README chỉ ví dụ tải mô hình T2V-A14B; các mô hình khác tải theo cùng cách, đổi tên theo bảng mô hình",
+      "README không nêu dung lượng tệp mô hình hay thời gian chạy; hãy chuẩn bị dư chỗ và thời gian"
+    ],
+    "facebook": {
+      "caption": "Một câu mô tả, một dòng lệnh, một video 720P chạy ngay trên máy của bạn\n\nWan2.2 là bộ mô hình video mã nguồn mở. Bài hướng dẫn từng bước trong repo chỉ cách cài, tải mô hình và chạy lần đầu.\nLưu ý: cần card đồ họa lớn.",
+      "hashtags": [
+        "AI",
+        "OpenSource",
+        "VideoAI"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Bộ nhớ của card đồ họa; mô hình lớn cần nhiều VRAM.",
+        "term": "VRAM"
+      },
+      {
+        "meaning": "Hết bộ nhớ (Out-of-Memory) khi chạy mô hình.",
+        "term": "OOM"
+      },
+      {
+        "meaning": "Tệp mô hình đã huấn luyện, tải về trước khi chạy.",
+        "term": "Checkpoint"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Muốn chất lượng chi tiết hơn, README khuyên bật mở rộng câu mô tả bằng Dashscope API hoặc một mô hình Qwen chạy cục bộ (tùy chọn --use_prompt_extend).",
+        "Có nhiều GPU thì README có lệnh torchrun dùng FSDP và DeepSpeed Ulysses để chạy nhanh hơn.",
+        "Thử các mô hình khác trong bảng: I2V-A14B, S2V-14B (từ giọng nói) và Animate-14B."
+      ],
+      "outcome": "Một file video 720P do mô hình Wan2.2-TI2V-5B sinh ra từ câu mô tả của bạn (hoặc từ một ảnh kèm câu mô tả), chạy trên card đồ họa có ít nhất 24GB VRAM.",
+      "requirements": [
+        {
+          "detail": "README ghi lệnh mô hình TI2V-5B chạy được trên GPU 24GB, ví dụ RTX 4090. Lệnh mô hình T2V-A14B trên một GPU cần ít nhất 80GB.",
+          "evidence": "README",
+          "item": "Card đồ họa (GPU) có ít nhất 24GB VRAM",
+          "link_ref": null
+        },
+        {
+          "detail": "README dặn đảm bảo torch >= 2.4.0 trước khi cài thư viện.",
+          "evidence": "requirements.txt",
+          "item": "Python, pip và PyTorch từ bản 2.4.0 trở lên",
+          "link_ref": null
+        },
+        {
+          "detail": "Để chạy lệnh git clone tải mã nguồn.",
+          "evidence": "README",
+          "item": "Git",
+          "link_ref": null
+        },
+        {
+          "detail": "README không nêu dung lượng cụ thể; mô hình tải về thư mục riêng, hãy chuẩn bị dư chỗ.",
+          "evidence": "README",
+          "item": "Chỗ trống ổ đĩa cho tệp mô hình",
+          "link_ref": 5
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "git clone https://github.com/Wan-Video/Wan2.2.git",
+            "cd Wan2.2"
+          ],
+          "do": [
+            "Mở terminal.",
+            "Chạy hai lệnh dưới đây: tải mã nguồn, rồi vào thư mục dự án."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Tải mã nguồn Wan2.2",
+          "why": "Có mã chạy mô hình trên máy của bạn."
+        },
+        {
+          "commands": [
+            "pip install -r requirements.txt"
+          ],
+          "do": [
+            "Chắc chắn torch đã từ bản 2.4.0 trở lên.",
+            "Chạy lệnh cài thư viện."
+          ],
+          "evidence": "requirements.txt",
+          "expect": "",
+          "if_fails": "Nếu cài flash_attn bị lỗi, cài các gói khác trước và cài flash_attn sau cùng.",
+          "link_ref": null,
+          "title": "Cài các thư viện cần thiết",
+          "why": "Cài mọi thư viện Python mà generate.py dùng."
+        },
+        {
+          "commands": [
+            "pip install \"huggingface_hub[cli]\""
+          ],
+          "do": [
+            "Chạy lệnh cài công cụ."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Cài công cụ tải mô hình của Hugging Face",
+          "why": "Có lệnh huggingface-cli để tải tệp mô hình."
+        },
+        {
+          "commands": [],
+          "do": [
+            "README chỉ ghi ví dụ tải mô hình T2V-A14B: `huggingface-cli download Wan-AI/Wan2.2-T2V-A14B --local-dir ./Wan2.2-T2V-A14B`.",
+            "Đừng chạy nguyên dòng đó, vì nó tải mô hình lớn hơn. Hãy dùng đúng cấu trúc lệnh ấy nhưng đổi cả hai chỗ `Wan2.2-T2V-A14B` thành `Wan2.2-TI2V-5B`.",
+            "Mã mô hình TI2V-5B nằm trong bảng mô hình của README (xem liên kết dưới đây). Có thể tải bằng modelscope-cli nếu Hugging Face khó truy cập."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 5,
+          "title": "Tải mô hình Wan2.2-TI2V-5B về thư mục Wan2.2-TI2V-5B",
+          "why": "generate.py cần có tệp mô hình trên máy mới sinh được video."
+        },
+        {
+          "commands": [
+            "python generate.py --task ti2v-5B --size 1280*704 --ckpt_dir ./Wan2.2-TI2V-5B --offload_model True --convert_model_dtype --t5_cpu --prompt \"Two anthropomorphic cats in comfy boxing gear and bright gloves fight intensely on a spotlighted stage\""
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong thư mục Wan2.2. Câu trong dấu ngoặc kép sau --prompt là mô tả cảnh bằng tiếng Anh; bạn thay bằng mô tả của mình.",
+            "README ghi 720P của tác vụ này là 1280*704 hoặc 704*1280, và lệnh chạy được trên GPU có ít nhất 24GB VRAM."
+          ],
+          "evidence": "generate.py",
+          "expect": "",
+          "if_fails": "Nếu hết bộ nhớ (OOM), các tùy chọn --offload_model True, --convert_model_dtype và --t5_cpu đã có sẵn trong lệnh để giảm VRAM; trên GPU từ 80GB bạn có thể bỏ chúng để chạy nhanh hơn.",
+          "link_ref": null,
+          "title": "Sinh video đầu tiên từ một câu mô tả",
+          "why": "Chạy mô hình để biến câu mô tả thành video."
+        },
+        {
+          "commands": [
+            "python generate.py --task ti2v-5B --size 1280*704 --ckpt_dir ./Wan2.2-TI2V-5B --offload_model True --convert_model_dtype --t5_cpu --image examples/i2v_input.JPG --prompt \"Summer beach vacation style, a white cat wearing sunglasses sits on a surfboard. The fluffy-furred feline gazes directly at the camera with a relaxed expression. Blurred beach scenery forms the background featuring crystal-clear waters, distant green hills, and a blue sky dotted with white clouds. The cat assumes a naturally relaxed posture, as if savoring the sea breeze and warm sunlight. A close-up shot highlights the feline's intricate details and the refreshing atmosphere of the seaside.\""
+          ],
+          "do": [
+            "Chạy lệnh dưới đây. Tùy chọn --image trỏ tới ảnh mẫu của dự án; bạn có thể thay bằng ảnh của mình.",
+            "README giải thích: có --image thì là tạo video từ ảnh, không có thì mặc định tạo video từ chữ."
+          ],
+          "evidence": "examples",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "title": "Thử sinh video từ một ảnh",
+          "why": "Cho mô hình một ảnh làm điểm xuất phát thay vì chỉ có chữ."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Dùng các tùy chọn `--offload_model True`, `--convert_model_dtype` và `--t5_cpu` như trong lệnh mẫu.",
+          "problem": "Hết bộ nhớ GPU (OOM)"
+        },
+        {
+          "evidence": "README",
+          "fix": "Cài các gói còn lại trước, cài flash_attn sau cùng.",
+          "problem": "Cài flash_attn bị lỗi"
+        }
+      ],
+      "verify": "Lệnh chạy xong mà không báo lỗi và bạn mở được một video 720P tương ứng với câu mô tả đã đưa. README không nêu tên hay vị trí tệp đầu ra, nên hãy xem thông báo cuối của lệnh hoặc thư mục hiện tại."
+    },
+    "hook": "Một dòng lệnh biến câu mô tả thành video 720P, chạy ngay trên card đồ họa của bạn",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "name": "Câu mô tả và ảnh",
+          "role": "Đầu vào do bạn đưa: một câu mô tả, có thể kèm ảnh."
+        },
+        {
+          "evidence": "README",
+          "name": "Mở rộng mô tả",
+          "role": "Tùy chọn: viết lại câu mô tả chi tiết hơn bằng Dashscope hoặc Qwen cục bộ."
+        },
+        {
+          "evidence": "generate.py",
+          "name": "generate.py",
+          "role": "Điểm vào duy nhất: nhận tác vụ, kích thước, thư mục mô hình và câu mô tả."
+        },
+        {
+          "evidence": "README",
+          "name": "Mô hình Wan2.2",
+          "role": "Các mô hình T2V-A14B, I2V-A14B, TI2V-5B, S2V-14B và Animate-14B."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "generate.py",
+          "text": "Tùy chọn --task chọn loại việc: chữ thành video, ảnh thành video hoặc cả hai (ti2v-5B).",
+          "title": "Chọn tác vụ"
+        },
+        {
+          "evidence": "README",
+          "text": "--ckpt_dir trỏ tới thư mục mô hình bạn đã tải về trước.",
+          "title": "Nạp mô hình"
+        },
+        {
+          "evidence": "README",
+          "text": "Câu mô tả ngắn có thể được một mô hình ngôn ngữ viết dài và giàu chi tiết hơn trước khi sinh video.",
+          "title": "Mở rộng mô tả (tùy chọn)"
+        },
+        {
+          "evidence": "README",
+          "text": "Mô hình khử nhiễu từng bước để dựng khung hình; bản MoE giao các bước thời gian khác nhau cho các chuyên gia khác nhau.",
+          "title": "Sinh video"
+        }
+      ]
+    },
+    "learn": [
+      "Một điểm vào duy nhất (generate.py) phục vụ nhiều tác vụ qua tùy chọn --task",
+      "Chia mô hình theo kích thước và nhu cầu: bản nhỏ cho GPU 24GB, bản lớn cho GPU 80GB",
+      "Tách bước mở rộng mô tả khỏi bước sinh video để cải thiện chi tiết mà không đổi mô hình"
+    ],
+    "one_liner": "Bộ mô hình video mã nguồn mở của Wan: viết câu mô tả (hoặc đưa một ảnh) rồi chạy generate.py để sinh video ở 480P hoặc 720P.",
+    "problem": "Các dịch vụ tạo video AI thường là dịch vụ trả phí chạy trên máy chủ của hãng. Wan2.2 cho bạn tải mô hình về và tự chạy bằng một lệnh, nên bạn kiểm soát cả mô tả lẫn dữ liệu đầu vào.",
+    "title": "Tạo video từ chữ hoặc ảnh với Wan2.2 trên máy của bạn",
+    "who_for": [
+      "Người có card đồ họa lớn muốn tự chạy mô hình tạo video trên máy",
+      "Lập trình viên muốn thử các mô hình video mở để tích hợp hoặc nghiên cứu"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 2300,
+    "full_name": "Wan-Video/Wan2.2",
+    "language": "Python",
+    "license": "Apache-2.0",
+    "links": [
+      [
+        "github.com",
+        "https://github.com/Wan-Video/Wan2.2.git"
+      ],
+      [
+        "Huggingface",
+        "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B"
+      ],
+      [
+        "ModelScope",
+        "https://modelscope.cn/models/Wan-AI/Wan2.2-T2V-A14B"
+      ],
+      [
+        "Huggingface",
+        "https://huggingface.co/Wan-AI/Wan2.2-I2V-A14B"
+      ],
+      [
+        "ModelScope",
+        "https://modelscope.cn/models/Wan-AI/Wan2.2-I2V-A14B"
+      ],
+      [
+        "Huggingface",
+        "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B"
+      ],
+      [
+        "ModelScope",
+        "https://modelscope.cn/models/Wan-AI/Wan2.2-TI2V-5B"
+      ],
+      [
+        "Huggingface",
+        "https://huggingface.co/Wan-AI/Wan2.2-S2V-14B"
+      ],
+      [
+        "ModelScope",
+        "https://modelscope.cn/models/Wan-AI/Wan2.2-S2V-14B"
+      ],
+      [
+        "Huggingface",
+        "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B"
+      ],
+      [
+        "ModelScope",
+        "https://www.modelscope.cn/models/Wan-AI/Wan2.2-Animate-14B"
+      ],
+      [
+        "PyTorch FSDP",
+        "https://docs.pytorch.org/docs/stable/fsdp.html"
+      ],
+      [
+        "DeepSpeed Ulysses",
+        "https://arxiv.org/abs/2309.14509"
+      ],
+      [
+        "EN",
+        "https://www.alibabacloud.com/help/en/model-studio/getting-started/first-api-call-to-qwen"
+      ],
+      [
+        "CN",
+        "https://help.aliyun.com/zh/model-studio/getting-started/first-api-call-to-qwen"
+      ],
+      [
+        "dashscope-intl.aliyuncs.com",
+        "https://dashscope-intl.aliyuncs.com/api/v1"
+      ],
+      [
+        "dashscope document",
+        "https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api?spm=a2c63.p38356.0.i1"
+      ],
+      [
+        "Wan",
+        "https://wan.video"
+      ],
+      [
+        "GitHub",
+        "https://github.com/Wan-Video/Wan2.2"
+      ],
+      [
+        "Hugging Face",
+        "https://huggingface.co/Wan-AI/"
+      ],
+      [
+        "ModelScope",
+        "https://modelscope.cn/organization/Wan-AI"
+      ],
+      [
+        "Paper",
+        "https://arxiv.org/abs/2503.20314"
+      ],
+      [
+        "Blog",
+        "https://wan.video/welcome?spm=a2ty_o02.30011076.0.0.6c9ee41eCcluqg"
+      ],
+      [
+        "Discord",
+        "https://discord.gg/AKNgpMK4Yj"
+      ],
+      [
+        "使用指南中文",
+        "https://alidocs.dingtalk.com/i/nodes/jb9Y4gmKWrx9eo4dCql9LlbYJGXn6lpz"
+      ],
+      [
+        "User GuideEnglish",
+        "https://alidocs.dingtalk.com/i/nodes/EpGBa2Lm8aZxe5myC99MelA2WgN7R35y"
+      ],
+      [
+        "WeChat微信",
+        "https://gw.alicdn.com/imgextra/i2/O1CN01tqjWFi1ByuyehkTSB_!!6000000000015-0-tps-611-1279.jpg"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "stars": 18000,
+    "url": "https://github.com/Wan-Video/Wan2.2"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 1ea34ff of a shallow checkout, cut to 12012 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "position": 2
+}

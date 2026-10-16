@@ -244,6 +244,44 @@ def steps(items: list[dict], title: str) -> str:
     return _svg(w, y + 16, body, title, "; ".join(s["text"] for s in items))
 
 
+def roadmap(steps: list[dict], title: str, outcome: str, labels: dict) -> str:
+    """The route of a guide at a glance: one row per step, a chip with its number of commands, the result at the end."""
+    w, pad, tx, cx = 1000, 32, 108, 68
+    chip_w = 150
+    body = [_text(pad, 46, wrap(title, 28, w - 2 * pad, 1), 28, INK, 700)]
+    rows, y, centres = [], 80, []
+    for i, step in enumerate(steps, 1):
+        cmds = len(step.get("commands") or [])
+        head = wrap(step["title"], 23, w - tx - pad - (chip_w if cmds else 0) - 10, 2)
+        why = wrap(step.get("why", ""), 17, w - tx - pad, 2)
+        h = 18 + int(23 * 1.25 * len(head)) + (6 + int(17 * 1.35 * len(why)) if why else 0) + 18
+        fill, stroke = LAYERS[(i - 1) % len(LAYERS)]
+        centres.append(y + h // 2)
+        rows.append(f'<rect x="{pad}" y="{y}" width="{w - 2 * pad}" height="{h}" rx="12" ry="12" fill="{fill}" fill-opacity="0.55" stroke="{stroke}" stroke-width="1.5"/>')
+        rows.append(f'<circle cx="{cx}" cy="{y + h // 2}" r="22" fill="{stroke}"/>')
+        rows.append(_text(cx, y + h // 2 + 8, [str(i)], 23, "#ffffff", 800, "middle"))
+        ty = y + 18 + 20
+        rows.append(_text(tx, ty, head, 23, INK, 700, lh=1.25))
+        ty += int(23 * 1.25 * (len(head) - 1)) + 24
+        if why:
+            rows.append(_text(tx, ty, why, 17, MUTED, 400, lh=1.35))
+        if cmds:
+            label = f"{cmds} {labels['commands']}"
+            rows.append(f'<rect x="{w - pad - chip_w + 10}" y="{y + 14}" width="{chip_w - 24}" height="32" rx="16" ry="16" fill="#ffffff" stroke="{stroke}" stroke-width="1.5"/>')
+            rows.append(_text(w - pad - chip_w + 10 + (chip_w - 24) // 2, y + 36, [label], 16, INK, 600, "middle"))
+        y += h + 14
+    line = f'<line x1="{cx}" y1="{centres[0]}" x2="{cx}" y2="{y + 30}" stroke="{LINE}" stroke-width="4"/>' if centres else ""
+    goal = wrap(outcome, 19, w - tx - pad, 3)
+    gh = 18 + 30 + int(19 * 1.35 * len(goal)) + 18
+    goal_svg = (f'<rect x="{pad}" y="{y}" width="{w - 2 * pad}" height="{gh}" rx="12" ry="12" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>'
+                f'<circle cx="{cx}" cy="{y + gh // 2}" r="22" fill="#15803d"/>'
+                f'<path d="M{cx - 10} {y + gh // 2} L{cx - 3} {y + gh // 2 + 8} L{cx + 11} {y + gh // 2 - 8}" fill="none" stroke="#ffffff" '
+                f'stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
+                + _text(tx, y + 18 + 22, [labels["goal"]], 23, INK, 700) + _text(tx, y + 18 + 22 + 28, goal, 19, INK, 400, lh=1.35))
+    body = body + [line] + rows + [goal_svg]
+    return _svg(w, y + gh + 20, "".join(body), title, "; ".join(f"{i}. {s['title']}" for i, s in enumerate(steps, 1)) + f"; {outcome}")
+
+
 def bars(rows: list[tuple[str, int]], title: str, sep: str = ",") -> str:
     """Horizontal bars for one measure; the value sits at each bar's end so there is no legend to decode."""
     w, pad, lab = 1000, 32, 320

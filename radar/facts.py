@@ -6,18 +6,18 @@ import datetime as dt
 import re
 from pathlib import Path
 
+from . import readme as readmelib
+
 PEEK_DIRS = ("src", "packages", "apps", "lib", "core", "cmd", "internal", "docs", "examples")
 
 
 def clean_readme(text: str, limit: int) -> str:
+    """The README without comments and images, cut to `limit` characters by whole sections (see readme.select)."""
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)           # images and badges
     text = re.sub(r"<img\b[^>]*>", "", text, flags=re.I)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
-    if len(text) <= limit:
-        return text
-    cut = text[:limit]
-    return cut[:cut.rfind("\n")] if "\n" in cut else cut
+    return readmelib.select(text, limit)
 
 
 def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
@@ -34,6 +34,7 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
             continue
     created = repo.get("created_at", "")[:10]
     languages = list(gh.languages(name))[:5]
+    text = clean_readme(gh.readme(name), int(cfg["readme_max_chars"]))
     return {
         "full_name": name,
         "url": repo.get("html_url") or f"https://github.com/{name}",
@@ -50,7 +51,8 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
         "age_years": max(0, (today - dt.date.fromisoformat(created)).days // 365) if created else 0,
         "branch": branch,
         "tree": tree[:budget],
-        "readme": clean_readme(gh.readme(name), int(cfg["readme_max_chars"])),
+        "readme": text,
+        "links": readmelib.links(text),               # [[label, url], ...]: the only addresses a guide may point to, by number
         "bucket": cand["bucket"],
         "topic": cand["topic"],
         "score": cand["score"],

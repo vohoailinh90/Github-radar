@@ -1,0 +1,87 @@
+id: 02-wan2-2
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-16-3
+link: 02-wan2-2
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: Tạo video từ chữ hoặc ảnh với Wan2.2 trên máy của bạn
+  subtitle: 'Bộ mô hình video mã nguồn mở của Wan: viết câu mô tả (hoặc đưa một ảnh) rồi chạy generate
+    để sinh video ở 480P hoặc 720P.'
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '18.000'
+  label: sao trên GitHub
+  caption: Apache-2.0 · Python
+- layout: quote
+  text: Các dịch vụ tạo video AI thường là dịch vụ trả phí chạy trên máy chủ của hãng. Wan2.2 cho bạn
+    tải mô hình về và tự chạy bằng một lệnh, nên bạn kiểm soát cả mô tả lẫn dữ liệu đầu vào.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Chọn tác vụ: Tùy chọn --task chọn loại việc: chữ thành video, ảnh thành video hoặc cả hai (ti2v-5B).'
+  - text: 'Nạp mô hình: --ckpt_dir trỏ tới thư mục mô hình bạn đã tải về trước.'
+  - text: 'Mở rộng mô tả (tùy chọn): Câu mô tả ngắn có thể được một mô hình ngôn ngữ viết dài và giàu
+      chi tiết hơn trước khi sinh video.'
+  - text: 'Sinh video: Mô hình khử nhiễu từng bước để dựng khung hình; bản MoE giao các bước thời gian
+      khác nhau cho các chuyên gia khác nhau.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Câu mô tả và ảnh
+    text: 'Đầu vào do bạn đưa: một câu mô tả, có thể kèm ảnh.'
+  - emoji: ⚙️
+    title: Mở rộng mô tả
+    text: 'Tùy chọn: viết lại câu mô tả chi tiết hơn bằng Dashscope hoặc Qwen cục bộ.'
+  - emoji: 🔌
+    title: generate
+    text: 'Điểm vào duy nhất: nhận tác vụ, kích thước, thư mục mô hình và câu mô tả.'
+  - emoji: 📦
+    title: Mô hình Wan2.2
+    text: Các mô hình T2V-A14B, I2V-A14B, TI2V-5B, S2V-14B và Animate-14B.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Một điểm vào duy nhất (generate) phục vụ nhiều tác vụ qua tùy chọn --task
+  - 'Chia mô hình theo kích thước và nhu cầu: bản nhỏ cho GPU 24GB, bản lớn cho GPU 80GB'
+  - Tách bước mở rộng mô tả khỏi bước sinh video để cải thiện chi tiết mà không đổi mô hình
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: 'Cần card đồ họa lớn: lệnh T2V-A14B một GPU cần ít nhất 80GB VRAM, lệnh TI2V-5B cần ít nhất
+      24GB'
+  - emoji: ⚠️
+    text: README chỉ ví dụ tải mô hình T2V-A14B; các mô hình khác tải theo cùng cách, đổi tên theo bảng
+      mô hình
+  - emoji: ⚠️
+    text: README không nêu dung lượng tệp mô hình hay thời gian chạy; hãy chuẩn bị dư chỗ và thời gian
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Một câu mô tả, một dòng lệnh, một video 720P chạy ngay trên máy của bạn
+
+
+      Wan2.2 là bộ mô hình video mã nguồn mở. Bài hướng dẫn từng bước trong repo chỉ cách cài, tải mô
+      hình và chạy lần đầu.
+
+      Lưu ý: cần card đồ họa lớn.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AI
+    - OpenSource
+    - VideoAI

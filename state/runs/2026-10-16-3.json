@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-16",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "source": "interactive session: five AI-video repositories chosen by hand",
+  "picks": [
+    {
+      "repo": "harry0703/MoneyPrinterTurbo",
+      "bucket": "ai",
+      "stars": 131800
+    },
+    {
+      "repo": "Wan-Video/Wan2.2",
+      "bucket": "ai",
+      "stars": 18000
+    },
+    {
+      "repo": "HKUDS/ViMax",
+      "bucket": "ai",
+      "stars": 12700
+    },
+    {
+      "repo": "Huanshere/VideoLingo",
+      "bucket": "ai",
+      "stars": 18800
+    },
+    {
+      "repo": "jianchang512/pyvideotrans",
+      "bucket": "ai",
+      "stars": 19400
+    }
+  ],
+  "written": [
+    {
+      "repo": "harry0703/MoneyPrinterTurbo",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 18,
+        "used": 8
+      }
+    },
+    {
+      "repo": "Wan-Video/Wan2.2",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 17,
+        "used": 6
+      }
+    },
+    {
+      "repo": "HKUDS/ViMax",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 19,
+        "used": 10
+      }
+    },
+    {
+      "repo": "Huanshere/VideoLingo",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 5,
+        "used": 5
+      }
+    },
+    {
+      "repo": "jianchang512/pyvideotrans",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 22,
+        "used": 16
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "campaign": "radar-2026-10-16-3",
+  "ok": true,
+  "warnings": [
+    "no checker model: these drafts were written and gated in one interactive session"
+  ]
+}

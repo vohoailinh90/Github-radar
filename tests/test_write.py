@@ -144,3 +144,27 @@ def test_a_cut_off_checker_answer_is_retried_with_more_room_not_the_same_limit(s
 def test_the_checker_is_told_to_keep_its_verdict_short():
     from radar.write import CHECK_SYSTEM
     assert "at most 6 issues" in CHECK_SYSTEM and "under 25 words" in CHECK_SYSTEM
+
+
+def test_a_draft_without_the_guide_is_fixed_once_and_then_held(served):
+    old_shape = make_draft(FACTS, "vi", legacy=True)
+    srv = served(lambda kind, facts, lang, n: old_shape if kind == "writer" else None)
+    res = write_one(gw(), CFG, FACTS, "vi")
+    assert res["status"] == "held" and res["fixed"] and srv.counts["writer"] == 2
+    assert any(p.field == "guide" for p in res["problems"])
+    assert "guide: missing" in srv.calls[-1]["body"]["messages"][1]["content"]       # the fix round is told what is missing
+
+
+def test_the_prompt_teaches_the_guide_and_lists_the_readme_addresses_by_number(served):
+    srv = served()
+    write_one(gw(), CFG, {**FACTS, "links": [["the key page", "https://keys.example.org/new"], ["console", "http://localhost:8080"]]}, "vi")
+    system = srv.calls[0]["body"]["messages"][0]["content"]
+    user = srv.calls[0]["body"]["messages"][1]["content"]
+    assert "VERBATIM" in system and "link_ref" in system and "ONLY if the README says it" in system
+    assert '"links": [[0, "the key page", "https://keys.example.org/new"], [1, "console", "http://localhost:8080"]]' in user
+
+
+def test_a_good_draft_reports_how_much_of_the_readme_commands_it_used(served):
+    served()
+    res = write_one(gw(), CFG, FACTS, "vi")
+    assert res["coverage"] == {"readme_commands": 4, "used": 4}

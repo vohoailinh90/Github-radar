@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass
 from decimal import Decimal
 
-from . import urls
+from . import readme as readmelib, urls
 
 HYPE = {
     "en": ["best ever", "#1", "number one", "revolutionary", "game changer", "guaranteed", "100%", "world's best"],
@@ -25,6 +25,10 @@ NUM = re.compile(r"(?<![\w.])(\d+(?:[.,]\d+)*)(?:\s(nghìn|ngàn|thousand|triệ
 VI_MARKS = set("àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ")
 LIMITS = {"title": 70, "hook": 110, "one_liner": 200, "problem": 500, "analogy": 300, "step": 220,
           "component": 160, "learn": 200, "who_for": 140, "caveat": 220, "caption": 1200}
+# The how-to guide: what a person does, in order, from nothing to the project's result.
+GUIDE = {"outcome": 220, "item": 80, "detail": 180, "title": 70, "why": 200, "do": 200, "command": 800, "expect": 220,
+         "if_fails": 220, "verify": 220, "problem": 120, "fix": 200, "next": 160}
+GUIDE_COUNTS = {"requirements": (0, 8), "steps": (3, 10), "do": (1, 4), "commands": (0, 5), "troubleshooting": (0, 5), "next": (0, 3)}
 
 
 @dataclass(frozen=True)
@@ -95,10 +99,31 @@ def texts(draft: dict) -> list[tuple[str, str]]:
         out += [(f"{key}[{i}]", str(t)) for i, t in enumerate(draft.get(key) or [])]
     for i, g in enumerate(draft.get("glossary") or []):
         out += [(f"glossary[{i}]", f"{g.get('term', '')} {g.get('meaning', '')}")]
+    out += guide_texts(draft.get("guide"))
     fb = draft.get("facebook") or {}
     out.append(("facebook.caption", str(fb.get("caption", ""))))
     out.append(("facebook.hashtags", " ".join(str(t) for t in fb.get("hashtags") or [])))
     out += [("try_it.note", str((draft.get("try_it") or {}).get("note", "")))]
+    return out
+
+
+def guide_texts(guide) -> list[tuple[str, str]]:
+    """(field, text) for every sentence of the guide a reader will see. The commands are not here: they have their own gate."""
+    if not isinstance(guide, dict):
+        return []
+    out = [("guide.outcome", str(guide.get("outcome", ""))), ("guide.verify", str(guide.get("verify", "")))]
+    for i, r in enumerate(guide.get("requirements") or []):
+        if isinstance(r, dict):
+            out.append((f"guide.requirements[{i}]", f"{r.get('item', '')} {r.get('detail', '')}"))
+    for i, s in enumerate(guide.get("steps") or []):
+        if not isinstance(s, dict):
+            continue
+        out.append((f"guide.steps[{i}]", " ".join(str(s.get(k, "")) for k in ("title", "why", "expect", "if_fails"))))
+        out += [(f"guide.steps[{i}].do[{j}]", str(d)) for j, d in enumerate(s.get("do") or [])]
+    for i, t in enumerate(guide.get("troubleshooting") or []):
+        if isinstance(t, dict):
+            out.append((f"guide.troubleshooting[{i}]", f"{t.get('problem', '')} {t.get('fix', '')}"))
+    out += [(f"guide.next[{i}]", str(t)) for i, t in enumerate(guide.get("next") or [])]
     return out
 
 
@@ -110,7 +135,75 @@ def _list(draft, key, lo, hi, problems, field=None):
     return value
 
 
-def schema(draft: dict) -> list[Problem]:
+def _guide_text(value, limit, field, problems, *, required=True) -> None:
+    if value is None or value == "":
+        if required:
+            problems.append(Problem("error", field, "missing or empty"))
+    elif not isinstance(value, str) or not value.strip():
+        problems.append(Problem("error", field, "must be text"))
+    elif len(value) > limit:
+        problems.append(Problem("error", field, f"{len(value)} chars; limit {limit}"))
+
+
+def _guide_list(value, key, field, problems) -> list:
+    lo, hi = GUIDE_COUNTS[key]
+    if not isinstance(value, list) or not lo <= len(value) <= hi:
+        problems.append(Problem("error", field, f"needs {lo}-{hi} items"))
+        return []
+    return value
+
+
+def _link_ref_ok(value) -> bool:
+    return value is None or (isinstance(value, int) and not isinstance(value, bool) and value >= 0)
+
+
+def guide_schema(guide) -> list[Problem]:
+    """Shape and size of the how-to guide. Whether its commands, evidence and links are real is `check`'s job."""
+    if not isinstance(guide, dict):
+        return [Problem("error", "guide", "must be an object")]
+    p: list[Problem] = []
+    _guide_text(guide.get("outcome"), GUIDE["outcome"], "guide.outcome", p)
+    _guide_text(guide.get("verify"), GUIDE["verify"], "guide.verify", p)
+    for i, r in enumerate(_guide_list(guide.get("requirements"), "requirements", "guide.requirements", p)):
+        field = f"guide.requirements[{i}]"
+        if not isinstance(r, dict) or not r.get("evidence"):
+            p.append(Problem("error", field, "needs item and evidence"))
+            continue
+        _guide_text(r.get("item"), GUIDE["item"], field + ".item", p)
+        _guide_text(r.get("detail"), GUIDE["detail"], field + ".detail", p, required=False)
+        if not _link_ref_ok(r.get("link_ref")):
+            p.append(Problem("error", field + ".link_ref", "must be a number from FACTS.links, or null"))
+    for i, s in enumerate(_guide_list(guide.get("steps"), "steps", "guide.steps", p)):
+        field = f"guide.steps[{i}]"
+        if not isinstance(s, dict) or not s.get("evidence"):
+            p.append(Problem("error", field, "needs title, do and evidence"))
+            continue
+        _guide_text(s.get("title"), GUIDE["title"], field + ".title", p)
+        _guide_text(s.get("why"), GUIDE["why"], field + ".why", p)
+        _guide_text(s.get("expect"), GUIDE["expect"], field + ".expect", p, required=False)
+        _guide_text(s.get("if_fails"), GUIDE["if_fails"], field + ".if_fails", p, required=False)
+        for j, d in enumerate(_guide_list(s.get("do"), "do", field + ".do", p)):
+            _guide_text(d, GUIDE["do"], f"{field}.do[{j}]", p)
+        cmds = s.get("commands", [])
+        for c in _guide_list(cmds, "commands", field + ".commands", p):
+            if not isinstance(c, str) or len(c) > GUIDE["command"]:
+                p.append(Problem("error", field + ".commands", f"each command is text up to {GUIDE['command']} chars"))
+        if not _link_ref_ok(s.get("link_ref")):
+            p.append(Problem("error", field + ".link_ref", "must be a number from FACTS.links, or null"))
+    for i, t in enumerate(_guide_list(guide.get("troubleshooting", []), "troubleshooting", "guide.troubleshooting", p)):
+        field = f"guide.troubleshooting[{i}]"
+        if not isinstance(t, dict) or not t.get("evidence"):
+            p.append(Problem("error", field, "needs problem, fix and evidence"))
+            continue
+        _guide_text(t.get("problem"), GUIDE["problem"], field + ".problem", p)
+        _guide_text(t.get("fix"), GUIDE["fix"], field + ".fix", p)
+    for i, t in enumerate(_guide_list(guide.get("next", []), "next", "guide.next", p)):
+        _guide_text(t, GUIDE["next"], f"guide.next[{i}]", p)
+    return p
+
+
+def schema(draft: dict, require_guide: bool = False) -> list[Problem]:
+    """`require_guide` is for a draft being written now; a stored draft from before the guide existed still has to render."""
     p: list[Problem] = []
     for key, limit in (("title", "title"), ("hook", "hook"), ("one_liner", "one_liner"),
                        ("problem", "problem"), ("analogy", "analogy")):
@@ -149,9 +242,15 @@ def schema(draft: dict) -> list[Problem]:
     gl = draft.get("glossary")
     if not isinstance(gl, list) or len(gl) > 4 or any(not isinstance(g, dict) or not g.get("term") or not g.get("meaning") for g in gl):
         p.append(Problem("error", "glossary", "at most 4 entries with term and meaning"))
+    guide = draft.get("guide")
+    if guide is None and require_guide:
+        p.append(Problem("error", "guide", "missing: every new draft carries the step-by-step guide"))
+    elif guide is not None:
+        p += guide_schema(guide)
     try_it = draft.get("try_it")
-    if not isinstance(try_it, dict) or not isinstance(try_it.get("commands"), list):
-        p.append(Problem("error", "try_it", "needs commands (a list, maybe empty)"))
+    if guide is None or try_it is not None:          # the guide replaces try_it; an older draft still has only try_it
+        if not isinstance(try_it, dict) or not isinstance(try_it.get("commands"), list):
+            p.append(Problem("error", "try_it", "needs commands (a list, maybe empty)"))
     fb = draft.get("facebook")
     if not isinstance(fb, dict) or not str(fb.get("caption", "")).strip():
         p.append(Problem("error", "facebook.caption", "missing"))
@@ -190,7 +289,39 @@ def readme_commands(readme: str) -> set[str]:
     for line in readme.splitlines():
         found |= {_norm_cmd(line), _norm_cmd(re.split(r"\s+#\s", line)[0])}
         found |= {_norm_cmd(m.group(1)) for m in re.finditer(r"`([^`\n]+)`", line)}
+    found |= {_norm_cmd(c) for c in readmelib.code_lines(readme)}      # one command written over several lines with a trailing \
     return {c for c in found if c}
+
+
+def guide_commands(draft: dict) -> list[tuple[str, object]]:
+    """(field, command) for every line a reader is told to type: the guide's steps, or an older draft's try_it."""
+    out = []
+    guide = draft.get("guide")
+    for i, step in enumerate(guide.get("steps") or [] if isinstance(guide, dict) else []):
+        out += [(f"guide.steps[{i}].commands", c) for c in (step.get("commands") or [] if isinstance(step, dict) else [])]
+    out += [("try_it.commands", c) for c in (draft.get("try_it") or {}).get("commands") or []]
+    return out
+
+
+def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
+    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows."""
+    wanted = {_norm_cmd(c) for c in readmelib.setup_commands(facts["readme"])}
+    used = {_norm_cmd(c) for _, c in guide_commands(draft) if isinstance(c, str)}
+    return len(used & wanted), len(wanted)
+
+
+def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
+    """Messages for text a model writes between backticks that does not come from the README or the repository. That text is shown
+    to the reader as code to copy; a command invented inside a sentence would get past the command gate otherwise."""
+    if text.count("`") % 2:
+        return ["unbalanced backtick"]
+    out = []
+    for span in re.findall(r"`([^`\n]*)`", text):
+        shown = _norm_cmd(span)
+        ref = shown.strip("`").lstrip("./").rstrip("/").lower()
+        if shown and shown not in blob and ref not in paths:
+            out.append(f"`{span}` is shown as code but is not in the README or the repository")
+    return out
 
 
 def language_ok(draft: dict, lang: str) -> bool:
@@ -205,12 +336,15 @@ def language_ok(draft: dict, lang: str) -> bool:
     return sum(c.isascii() for c in letters) / len(letters) >= 0.9
 
 
-def check(draft: dict, facts: dict, lang: str) -> list[Problem]:
-    problems = schema(draft)
+def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> list[Problem]:
+    problems = schema(draft, require_guide)
     if any(p.field in ("how_it_works", "how_it_works.steps") for p in problems):
         return problems
     files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
+    paths = {t.rstrip("/").lstrip("./").lower() for t in facts["tree"]} | files
+    blob = _norm_cmd(facts["readme"])
     for field, text in texts(draft):
+        problems += [Problem("error", field, message) for message in _backtick_problems(text, blob, paths)]
         for hit in urls.find(text, files):
             problems.append(Problem("error", field, f"contains a link or domain ({hit!r}); links are added by the renderer"))
         bad = bad_numbers(text, facts)
@@ -226,10 +360,28 @@ def check(draft: dict, facts: dict, lang: str) -> list[Problem]:
             if isinstance(item, dict) and item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                 problems.append(Problem("error", f"{key}[{i}]", f"evidence {item['evidence']!r} is not README or a path in the repository"))
     known = readme_commands(facts["readme"])
-    for cmd in (draft.get("try_it") or {}).get("commands") or []:
+    for field, cmd in guide_commands(draft):
         shown = _norm_cmd(cmd)
         if not isinstance(cmd, str) or "`" in cmd or "\n" in cmd or len(shown) < 3 or shown not in known:
-            problems.append(Problem("error", "try_it.commands", f"command is not a line or code span of the README: {cmd!r}"))
+            problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
+    guide = draft.get("guide")
+    if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):
+        links = len(facts.get("links") or [])
+        for key in ("requirements", "steps", "troubleshooting"):
+            for i, item in enumerate(guide.get(key) or []):
+                field = f"guide.{key}[{i}]"
+                if item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
+                    problems.append(Problem("error", field, f"evidence {item['evidence']!r} is not README or a path in the repository"))
+                ref = item.get("link_ref")
+                if ref is not None and ref >= links:
+                    problems.append(Problem("error", field + ".link_ref", f"{ref} is not an entry of FACTS.links (it has {links})"))
+        used, wanted = command_coverage(draft, facts)
+        typed = [c for _, c in guide_commands(draft)]
+        if wanted >= 2 and not typed:
+            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines but the guide gives none; "
+                                    "copy the ones a reader types, in order"))
+        elif wanted >= 4 and used < 2:
+            problems.append(Problem("warn", "guide.steps", f"the guide uses {used} of the README's {wanted} command lines"))
     if not language_ok(draft, lang):
         problems.append(Problem("error", "language", f"text does not look like '{lang}'"))
     return problems

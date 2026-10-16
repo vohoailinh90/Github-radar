@@ -4,6 +4,16 @@
     "covered": "2026-10-13",
     "stars": 87320
   },
+  "HKUDS/ViMax": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 12700
+  },
+  "Huanshere/VideoLingo": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 18800
+  },
   "JCodesMore/ai-website-cloner-template": {
     "bucket": "solutions",
     "covered": "2026-10-13",
@@ -13,6 +23,11 @@
     "bucket": "software",
     "covered": "2026-10-12",
     "stars": 96575
+  },
+  "Wan-Video/Wan2.2": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 18000
   },
   "Yeachan-Heo/oh-my-claudecode": {
     "bucket": "solutions",
@@ -38,6 +53,16 @@
     "bucket": "ai",
     "covered": "2026-10-14",
     "stars": 249184
+  },
+  "harry0703/MoneyPrinterTurbo": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 131800
+  },
+  "jianchang512/pyvideotrans": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 19400
   },
   "microsoft/playwright": {
     "bucket": "solutions",

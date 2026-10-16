@@ -83,7 +83,7 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
                 drafts[lang] = res["draft"]
                 report["written"].append({"repo": facts["full_name"], "lang": lang, "writer": res["writer"],
                                           "checker": res["checker"], "independent_checker": res["independent"],
-                                          "fixed": res["fixed"]})
+                                          "fixed": res["fixed"], "coverage": res.get("coverage")})
             else:
                 report["held"].append({"repo": facts["full_name"], "lang": lang, "problems": [str(p) for p in res["problems"]
                                        if p.level == "error"][:8], "blockers": res["issues"][:4]})
