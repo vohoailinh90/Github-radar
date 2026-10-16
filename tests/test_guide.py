@@ -691,10 +691,13 @@ PIPE_FACTS = {**FACTS, "readme": PIPE_README, "links": readme.links(PIPE_README)
 
 def test_a_piece_of_a_command_the_shell_grammar_splits_over_lines_is_not_a_command():
     for command, ok in (("printf foo | sed s/foo/bar/", True), ("sed s/foo/bar/", False), ("printf foo |", False),
-                        ('echo "hello world"', True), ('world"', False), ('echo "hello', False)):
+                        ('echo "hello world"', False), ('world"', False), ('echo "hello', False)):
         d = make_draft(PIPE_FACTS, "vi")
         d["guide"]["steps"][0].update(commands=[command], evidence="README")
         assert (not any("steps[0].commands" in e for e in errs(d, PIPE_FACTS))) is ok, command
+    d = make_draft(PIPE_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=['echo "hello', 'world"'], evidence="README")        # a string over two lines goes in whole, line by line
+    assert not any("steps[0].commands" in e for e in errs(d, PIPE_FACTS))
 
 
 PRICE_README = README + "\n```bash\ncat > t.txt <<EOF\n$ literal price\nEOF\n$ make\n```\n"

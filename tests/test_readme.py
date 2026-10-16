@@ -420,9 +420,9 @@ def test_a_heredoc_counts_as_one_command_in_a_list_of_commands():
 def test_a_secondary_prompt_continues_the_command_before_it_only_when_that_command_is_incomplete():
     text = ("```console\n$ printf foo |\n> sed s/foo/bar/\n$ echo \"multi\n> line\"\n$ (cd x &&\n> ls)\n"
             "$ npm start\n> myapp@1.0.0 start\n> node index.js\nServer started\n```\n")
-    assert readme.code_blocks(text) == [("console", ["$ printf foo | sed s/foo/bar/", '$ echo "multi line"', "$ (cd x && ls)", "$ npm start",
-                                                    "> myapp@1.0.0 start", "> node index.js", "Server started"])]
-    assert readme.setup_commands(text)[:4] == ["printf foo | sed s/foo/bar/", 'echo "multi line"', "(cd x && ls)", "npm start"]
+    assert readme.code_blocks(text) == [("console", ["$ printf foo | sed s/foo/bar/", '$ echo "multi', '> line"', "$ (cd x && ls)", "$ npm start",
+                                                    "> myapp@1.0.0 start", "> node index.js", "Server started"])]     # an open quote is a group, not a join
+    assert readme.setup_commands(text)[:5] == ["printf foo | sed s/foo/bar/", 'echo "multi', 'line"', "(cd x && ls)", "npm start"]
     assert readme.code_blocks("```console\n> npm install x\n> npm run build\n```\n") == [("console", ["> npm install x", "> npm run build"])]
     for done in ("pip install x", "echo 'a | b'", "echo \"a\" && ls", "echo a \\| b", "(ls)"):
         assert not readme._incomplete(done), done
@@ -464,8 +464,8 @@ def test_a_cmd_prompt_may_hold_a_path_with_spaces_and_a_redirection_is_still_not
 def test_a_command_that_the_shell_grammar_leaves_unfinished_is_joined_in_any_posix_block():
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
-    assert lines("```bash\nprintf foo |\nsed s/foo/bar/\necho \"hello\nworld\"\n```\n") == ["printf foo | sed s/foo/bar/", 'echo "hello world"']
-    assert lines("```bash\ncurl -X POST http://x -d '{\n  \"a\": 1\n}'\npip install y\n```\n") == ["curl -X POST http://x -d '{ \"a\": 1 }'", "pip install y"]
+    assert lines("```bash\nprintf foo |\nsed s/foo/bar/\necho \"hello\nworld\"\n```\n") == ["printf foo | sed s/foo/bar/", 'echo "hello', 'world"']
+    assert lines("```bash\ncurl -X POST http://x -d '{\n  \"a\": 1\n}'\npip install y\n```\n") == ["curl -X POST http://x -d '{", '  "a": 1', "}'", "pip install y"]
     assert lines("```sh\n(cd x &&\n ls)\nmake &&\nmake test\n```\n") == ["(cd x && ls)", "make && make test"]
     # the same for a transcript, where the secondary prompt is dropped
     assert lines("```console\n$ printf foo |\n> sed s/foo/bar/\n```\n") == ["$ printf foo | sed s/foo/bar/"]
@@ -483,7 +483,7 @@ def test_an_apostrophe_in_sample_output_a_comment_or_a_blank_line_joins_nothing(
 def test_a_backslash_inside_single_quotes_is_literal_and_inside_double_quotes_it_continues():
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
-    assert lines("```bash\necho 'abc\\\ndef'\n```\n") == ["echo 'abc\\ def'"]
+    assert lines("```bash\necho 'abc\\\ndef'\n```\n") == ["echo 'abc\\", "def'"]            # in 'single quotes' the backslash is literal: a string over two lines
     assert lines("```bash\necho \"abc\\\ndef\"\n```\n") == ['echo "abcdef"']          # the shell removes the backslash and the newline, and nothing else
     assert lines("```bash\necho it\\\n  works\n```\n") == ["echo it works"]
 
@@ -826,11 +826,11 @@ def test_a_heredoc_typed_at_a_prompt_in_a_shell_fence_closes_and_loses_the_promp
     assert readme.setup_commands(plain) == ["cat <<EOF", "> not a prompt", "$ nor this", "EOF"]          # the data of a plain heredoc is data
 
 
-def test_a_powershell_string_over_several_lines_is_one_command_and_one_that_never_closes_is_dropped():
+def test_a_powershell_string_over_several_lines_is_a_group_and_one_that_never_closes_is_dropped():
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
-    assert lines('```powershell\nWrite-Host "hello\nworld"\nGet-Item x\n```\n') == ['Write-Host "hello world"', "Get-Item x"]
-    assert lines("```pwsh\nWrite-Host 'a\n  b' | Out-Null\n```\n") == ["Write-Host 'a b' | Out-Null"]
+    assert lines('```powershell\nWrite-Host "hello\nworld"\nGet-Item x\n```\n') == ['Write-Host "hello', 'world"', "Get-Item x"]
+    assert lines("```pwsh\nWrite-Host 'a\n  b' | Out-Null\n```\n") == ["Write-Host 'a", "  b' | Out-Null"]
     assert lines('```powershell\nWrite-Host "it\'s"\nWrite-Host \'say "hi\'\n```\n') == ['Write-Host "it\'s"', 'Write-Host \'say "hi\'']      # a quote inside the other kind
     assert lines('```powershell\nWrite-Host "hello\n```\n') == []
     assert lines("```powershell\nWrite-Host # it's\nGet-Item x\n```\n") == ["Write-Host # it's", "Get-Item x"]           # an apostrophe in a comment
@@ -845,3 +845,39 @@ def test_the_compound_redirection_operators_need_a_word_after_them_too():
     complete = ("sleep 1 &", "echo ok 2>&1", "echo hi >&2", "cmd &> out.log", "echo hi >| out", "cat <<<hello", "cat <&3", "cmd >&-", "git clone <url>")
     assert lines("```bash\n" + "\n".join(complete) + "\n```\n") == list(complete)
     assert lines("```bash\necho hi >|\nsleep 1 &\n```\n") == ["sleep 1 &"]                # `>|` is a redirection, not a pipe that joins the next line
+
+
+def test_a_powershell_here_string_is_a_group_of_data_lines_up_to_the_mark_that_begins_a_line():
+    text = '```powershell\n$x = @"\nline one\n\n  line two\n"@ | Set-Content f.txt\nGet-Item x\n```\n'
+    assert readme.heredocs(text) == ([['$x = @"', "line one", "", "  line two", '"@ | Set-Content f.txt']], ['$x = @"', "Get-Item x"])
+    assert readme.setup_commands(text) == ['$x = @"', "line one", "line two", '"@ | Set-Content f.txt', "Get-Item x"]
+    single = "```pwsh\n$y = @'\nraw $text\n'@\nls\n```\n"
+    assert readme.heredocs(single) == ([["$y = @'", "raw $text", "'@"]], ["$y = @'", "ls"])
+    assert readme.heredocs('```powershell\n$x = @"\nnever closed\nGet-Item x\n```\n') == ([], [])         # a here-string that never closes is not a command
+    assert readme.heredocs("```powershell\nWrite-Host 'a@\"'\nGet-Item x\n```\n") == ([], ["Write-Host 'a@\"'", "Get-Item x"])       # `@\"` inside a string opens nothing
+    transcript = '```console\nPS C:\\> $x = @"\n>> text\n>> "@\nPS C:\\> ls\n```\n'
+    assert readme.heredocs(transcript) == ([['PS C:\\> $x = @"', ">> text", '>> "@']], ['PS C:\\> $x = @"', "PS C:\\> ls"])
+
+
+def test_a_string_over_several_lines_is_a_group_whose_line_breaks_are_kept_in_a_shell_fence():
+    script = '```bash\npython -c "\nimport torch\n\nprint(torch.cuda.is_available())\n"\nls\n```\n'
+    assert readme.heredocs(script)[0] == []                                                   # a blank line inside: the string is not found, so it is dropped
+    script = '```bash\npython -c "\nimport torch\nprint(torch.cuda.is_available())\n"\nls\n```\n'
+    assert readme.heredocs(script) == ([['python -c "', "import torch", "print(torch.cuda.is_available())", '"']], ['python -c "', "ls"])
+    assert readme.setup_commands(script) == ['python -c "', "import torch", "print(torch.cuda.is_available())", '"', "ls"]
+    assert readme.command_count(readme.setup_commands(script)) == 2
+    triple = '```bash\nidea = """\nIf a cat\n"""\nnpm i\n```\n'
+    assert readme.heredocs(triple)[0] == [['idea = """', "If a cat", '"""']]
+    yaml = "```yaml\ntitle: Don't panic\nother: \"it's\"\n```\n\n```python\nname = \"don't\"\ntext = '''a\nb'''\n```\n"
+    assert [owners for _, _, owners in readme._scan(yaml)] == [[None, None], [None, None, None]]          # samples in other languages are not shell
+    flags = readme.heredoc_data(['python -c "', "import torch", '"', "ls", 'echo "a', 'b" | cat', "pwd"])
+    assert flags == [False, True, True, False, False, True, False]
+
+
+def test_the_lines_of_a_string_or_a_here_string_are_printed_as_they_are_in_one_block():
+    from radar import digest
+    lines = digest._command_blocks({}, ['python -c "', "  import torch", '"', "ls"], {"shell_bash": "bash"})
+    assert lines == ["```bash", 'python -c "', "  import torch", '"', "ls", "```"]
+    lines = digest._command_blocks({"shells": {"Get-Item x": "powershell"}}, ['$x = @"', "  text", '"@ | Set-Content f', "Get-Item x"],
+                                   {"shell_bash": "bash", "shell_powershell": "PowerShell"})
+    assert '  text' in lines and lines.count("```bash") == 1

@@ -696,11 +696,48 @@ def _join(lang: str, text: str, line: str, glue) -> str:
     return text + (glue if not line[:1].isspace() else " ") + piece
 
 
+def _typed(lang: str, command: str) -> bool:
+    """Whether a logical line of a code block is something a reader types, for the grammar of a shell to apply to it: a line of a block tagged
+    as a shell, the lines after a prompt in a transcript, an untagged line that starts with a known program. The output of a transcript and
+    the lines of a block in another language (a YAML or Python sample) are not."""
+    if lang in CONSOLE_LANGS:
+        return bool(PROMPT.match(command))
+    if lang in SHELL_LANGS:
+        return True
+    return not lang and is_command_line(command)
+
+
+def _string_open(lang: str, text: str) -> bool:
+    """True when a string (a quote of a POSIX shell, a PowerShell string) is still open at the end of the text."""
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, text):
+        return False
+    if _is_powershell(lang, text):
+        state = _ps_state(text)
+        return bool(state and state[3])
+    return bool(_shell_state(text)[0])
+
+
+def _quote_group(lang: str, command: str, following: list[str]) -> int:
+    """How many of the next lines finish a string that is open at the end of the command (`python -c "` over the script and `"`), 0 when
+    it is not one or when the string does not close within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. The line breaks are part of
+    the string, so the lines are kept apart as the data of the command, like the body of a heredoc, and not joined."""
+    if not _typed(lang, command) or not _string_open(lang, command):
+        return 0
+    text = command
+    for n, line in enumerate(following[:GRAMMAR_LOOKAHEAD], 1):
+        if not line.strip():
+            return 0
+        text += "\n" + _piece(lang, line, command)
+        if not _string_open(lang, text):
+            return n
+    return 0
+
+
 def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
-    """True when the shell's grammar leaves the command unfinished (`printf foo |`, a quote split over lines; in PowerShell a pipe, a comma
-    or an open bracket at the end of a line) and the next lines finish it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. A quote
-    that never closes (an apostrophe in a sample output line) joins nothing."""
-    if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
+    """True when the shell's grammar leaves the command unfinished (`printf foo |`; in PowerShell a pipe, a comma or an open bracket at the
+    end of a line) and the next lines finish it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed, so that the lines are one command.
+    A string left open is not joined (see `_quote_group`): the line break is part of it."""
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, command) or _string_open(lang, command):
         return False
     powershell = _is_powershell(lang, command)
     unfinished = _ps_open if powershell else _incomplete
@@ -711,6 +748,8 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
         if not line.strip():
             return False
         text = _join(lang, text, line, None)
+        if _string_open(lang, text):
+            return False
         state = unfinished(text)
         if state is None:
             return False
@@ -719,13 +758,40 @@ def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
     return False
 
 
+HERE_STRING_ENDS = ('"@', "'@")
+
+
+def _here_string_openers(line: str) -> list[tuple[str, bool]]:
+    """[(closing mark, False)] when a PowerShell line ends in the start of a here-string (`$x = @"`, `@'`) that is not inside a string or a
+    comment: every line up to the one that begins with the mark (`"@`, which may be followed by more code) is data."""
+    found = re.search(r"@(['\"])\s*$", line)
+    if not found:
+        return []
+    state = _ps_state(line[:found.start()])
+    return [(found.group(1) + "@", False)] if state and not state[3] and state[2] == found.start() else []
+
+
+def _closes(line: str, end: tuple[str, bool]) -> bool:
+    """Whether a line ends the heredoc or here-string that `end` (as `_heredoc_openers` gives it) belongs to."""
+    word, dash = end
+    if word in HERE_STRING_ENDS:
+        return line.startswith(word)
+    return (line.lstrip("\t") if dash else line) == word
+
+
+def _unprompt(line: str) -> str:
+    """A line of a transcript without its prompt: `$ `, `> `, PowerShell's `>> `, cmd's `More? `."""
+    return PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", line))
+
+
 def _heredoc_ends(line: str) -> list[str]:
     """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each."""
     return [word for word, _ in _heredoc_openers(line)]
 
 
 def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
-    """(word that ends the heredoc, whether `<<-` lets leading tabs be dropped before it) for each heredoc a command line opens.
+    """(word that ends the heredoc, whether `<<-` lets leading tabs be dropped before it) for each heredoc a command line opens, and the
+    closing mark of a PowerShell here-string it ends in (see `_here_string_openers`).
     A `<<` inside quotes, after a backslash, in a `# comment`, in `$(( ))` or `(( ))` arithmetic, or as `<<<` (a here-string) opens nothing."""
     ends, i, quote, arithmetic = [], 0, "", 0
     while i < len(line):
@@ -761,7 +827,7 @@ def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
             i = max(i, start)
         else:
             i += 1
-    return ends
+    return ends + _here_string_openers(line)
 
 
 def _glue(lang: str, command: str) -> str:
@@ -780,12 +846,7 @@ def _dangling(lang: str, command: str) -> bool:
     lines of a block in another language (a sample with an apostrophe in it) are kept as they are."""
     if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
         return False
-    if lang in CONSOLE_LANGS:
-        typed = bool(PROMPT.match(command))
-    elif lang in SHELL_LANGS:
-        typed = True
-    else:
-        typed = not lang and is_command_line(command)
+    typed = _typed(lang, command)
     if _is_powershell(lang, command):
         return typed and _ps_open(command) is True
     return typed and (_incomplete(command) or _ends_in_redirection(command))
@@ -816,14 +877,17 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             body.pop(0)
         while body and not body[-1].strip():
             body.pop()
-        logical, owners, pending, ends, opener, glue = [], [], "", [], None, " "
+        logical, owners, pending, ends, opener, glue, skip = [], [], "", [], None, " ", 0
         for index, line in enumerate(body):
+            if skip:                              # a line of the string that the line before opened: it is in the logical lines already
+                skip -= 1
+                continue
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
                 owners.append(opener)
                 prompted = lang in CONSOLE_LANGS or bool(SHELL_PROMPT.match(logical[opener]))
-                bare = PROMPT.sub("", line) if prompted else line                      # a transcript shows `> ` before each line of the body
-                if (bare.lstrip("\t") if ends[0][1] else bare) == ends[0][0]:           # the closing word alone on its line (`<<-`: after tabs)
+                bare = _unprompt(line) if prompted else line                           # a transcript shows `> ` before each line of the body
+                if _closes(bare, ends[0]):        # the closing word alone on its line (`<<-`: after tabs); a here-string's mark begins its line
                     ends.pop(0)
                 continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
@@ -842,8 +906,18 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 glue = _glue(lang, pending)
                 pending = pending[:-1].rstrip()
                 continue
-            if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`, a quote split over lines
+            if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`
                 glue = None
+                continue
+            lines_in_string = _quote_group(lang, pending, body[index + 1:])
+            if lines_in_string:                   # `python -c "` over its script and `"`: the line breaks are data, like those of a heredoc
+                logical.append(pending)
+                owners.append(None)
+                opener = len(logical) - 1
+                for extra in body[index + 1:index + 1 + lines_in_string]:
+                    logical.append(extra.rstrip())
+                    owners.append(opener)
+                skip, pending = lines_in_string, ""
                 continue
             if _dangling(lang, pending):                              # the shell would wait for more input: not a command the README gives
                 pending = ""
@@ -852,6 +926,9 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             owners.append(None)
             if lang in HEREDOC_LANGS:
                 ends = _heredoc_openers(pending)
+                opener = len(logical) - 1
+            elif _is_powershell(lang, pending):
+                ends = _here_string_openers(pending)
                 opener = len(logical) - 1
             pending = ""
         # a block that ends on a continuation mark (`docker run \`) never gives the rest of the command: `pending` is dropped
@@ -929,17 +1006,26 @@ def heredocs(text: str) -> tuple[list[list[str]], list[str]]:
 
 
 def heredoc_data(commands) -> list[bool]:
-    """For each entry of a list of command lines: whether it is data of a heredoc (its body or its closing word) and so is printed as it is."""
-    flags, ends = [], []
+    """For each entry of a list of command lines: whether it is data of a heredoc, a PowerShell here-string or a string that goes on over
+    several lines (its body, its closing word, the lines that finish the string) and so is printed as it is."""
+    flags, ends, text_so_far = [], [], None
     for command in commands if isinstance(commands, (list, tuple)) else []:
         text = command if isinstance(command, str) else ""
         if ends:
             flags.append(True)
-            if (text.lstrip("\t") if ends[0][1] else text) == ends[0][0]:
+            if _closes(text, ends[0]):
                 ends.pop(0)
+        elif text_so_far is not None:
+            flags.append(True)
+            text_so_far += "\n" + text
+            if not _shell_state(text_so_far)[0]:
+                text_so_far = None
         else:
             flags.append(False)
-            ends = _heredoc_openers(text) if text.strip() else []
+            if text.strip():
+                ends = _heredoc_openers(text)
+                if not ends and _shell_state(text)[0]:
+                    text_so_far = text
     return flags
 
 

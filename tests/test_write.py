@@ -185,3 +185,9 @@ def test_the_writer_prompt_formats_and_tells_how_a_split_command_is_joined():
     from radar.write import SYSTEM
     text = SYSTEM.format(audience="x", language="y")
     assert "`foo\\` over `bar` is `foobar`" in text and "inside `{ }` or `( )` the join is `; `" in text
+
+
+def test_the_writer_prompt_says_a_string_over_several_lines_is_copied_whole():
+    from radar.write import SYSTEM
+    text = SYSTEM.format(audience="x", language="y")
+    assert "a PowerShell here-string" in text and "a string that goes on over several lines" in text
