@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-yonEwXU5piF6cssCHsY1J3F4Bl7LW4cPSKJZkrbUi8M='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-nEqD/VihLp51OFfXoIROcq7GINskCmLUnuopqE1DBvk='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -368,7 +368,8 @@ function runState(run) {
 const $ = (id) => document.getElementById(id);
 // The token is only ever the text of its own password field: nothing else stores it, and it is cleared when the page is left.
 const token = () => $("token").value.trim();
-let defaultBranch = "";
+// The default branch is only good for the repository it was read from; a request that finishes after the field changed must not set it for another one.
+let branch = { repo: "", name: "" };
 let clickedAt = 0;
 let pollTimer = null;
 let sending = false;
@@ -413,12 +414,13 @@ async function checkToken() {
   try {
     const info = await call("GET", "/repos/" + repo);
     if (info.status !== 200) return say("connect-msg", explain(info.status, info.data), "bad");
-    const branch = info.data && info.data.default_branch;
-    if (typeof branch !== "string" || !BRANCH.test(branch)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
+    const name = info.data && info.data.default_branch;
+    if (typeof name !== "string" || !BRANCH.test(name)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
     const flow = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml");
     if (flow.status !== 200) return say("connect-msg", explain(flow.status, flow.data), "bad");
-    defaultBranch = branch;
-    say("connect-msg", "Token dùng được. Workflow radar.yml có thật; sẽ chạy trên nhánh " + branch + ".", "ok");
+    branch = { repo, name };
+    if (repoName() !== repo) return say("connect-msg", "Tên repo đã đổi trong lúc kiểm tra: bấm kiểm tra lại.", "warn");
+    say("connect-msg", "Token dùng được. Workflow radar.yml có thật; sẽ chạy trên nhánh " + name + ".", "ok");
   } catch (e) {
     say("connect-msg", "Không kết nối được api.github.com.", "bad");
   }
@@ -484,23 +486,25 @@ function refresh() {
 // ---- running --------------------------------------------------------------------------------------------------------
 async function go() {
   const v = readValues();
-  if (problems(v).length || !isRepo(repoName()) || !token()) return;
-  const dry = $("dry").checked;
+  const repo = repoName(), singleRepo = single(), dry = $("dry").checked, presetName = selectedPreset();      // read once: the fields may change while we wait
+  if (problems(v).length || !isRepo(repo) || !token() || (singleRepo && !isRepo(singleRepo))) return;
   if (!dry && $("confirm").value !== "QUET") return;
+  const bucket = singleRepo ? $("single-bucket").value : "";
   sending = true;
   refresh();
   say("msg", "Đang gửi lệnh…");
   try {
-    if (!defaultBranch) {
-      const info = await call("GET", "/repos/" + repoName());
-      const branch = info.status === 200 && info.data && info.data.default_branch;
-      if (typeof branch !== "string" || !BRANCH.test(branch)) { say("msg", explain(info.status, info.data), "bad"); return; }
-      defaultBranch = branch;
+    let ref = branch.repo === repo ? branch.name : "";
+    if (!ref) {
+      const info = await call("GET", "/repos/" + repo);
+      const name = info.status === 200 && info.data && info.data.default_branch;
+      if (typeof name !== "string" || !BRANCH.test(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
+      ref = name;
+      branch = { repo, name };
     }
-    const bucket = $("single-bucket").value;
-    const inputs = dispatchInputs(v, selectedPreset(), dry, single(), single() ? bucket : "");
+    const inputs = dispatchInputs(v, presetName, dry, singleRepo, bucket);
     clickedAt = Date.now();
-    const res = await call("POST", "/repos/" + repoName() + "/actions/workflows/radar.yml/dispatches", { ref: defaultBranch, inputs });
+    const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
     if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }
     $("confirm").value = "";
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
@@ -515,10 +519,11 @@ async function go() {
 
 async function loadRuns() {
   clearTimeout(pollTimer);
-  if (!isRepo(repoName()) || !token()) return;
+  const repo = repoName();                                   // one repository for the request and for every link below
+  if (!isRepo(repo) || !token()) { mineActive = false; return; }
   try {
-    const res = await call("GET", "/repos/" + repoName() + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10");
-    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { say("msg", explain(res.status, res.data), "bad"); refresh(); return; }
+    const res = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10");
+    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { mineActive = false; say("msg", explain(res.status, res.data), "bad"); refresh(); return; }
     const rows = [];
     let anyActive = false;
     mineActive = false;
@@ -529,7 +534,7 @@ async function loadRuns() {
       anyActive = anyActive || state.active;
       mineActive = mineActive || (mine && state.active);
       const when = new Date(run.created_at);
-      const link = el("a", "Mở trên GitHub", { href: "https://github.com/" + repoName() + "/actions/runs/" + run.id, target: "_blank", rel: "noopener noreferrer" });
+      const link = el("a", "Mở trên GitHub", { href: "https://github.com/" + repo + "/actions/runs/" + run.id, target: "_blank", rel: "noopener noreferrer" });
       const tr = el("tr");
       rows.push(tr);
       tr.append(el("td", Number.isNaN(when.getTime()) ? "?" : when.toLocaleString("vi-VN")),
@@ -539,6 +544,7 @@ async function loadRuns() {
     $("runs-body").replaceChildren(...rows);
     if (anyActive || Date.now() - clickedAt < 120000) pollTimer = setTimeout(loadRuns, 10000);
   } catch (e) {
+    mineActive = false;
     say("msg", "Không tải được danh sách lượt chạy.", "bad");
   }
   refresh();
@@ -573,11 +579,12 @@ $("preset").addEventListener("change", () => {
   refresh();
 });
 for (const node of document.querySelectorAll("input, select")) {
-  node.addEventListener("input", () => { if (node.id === "repo") defaultBranch = ""; refresh(); });
-  node.addEventListener("change", () => { if (node.id === "repo") defaultBranch = ""; refresh(); });
+  const changed = () => { if (node.id === "repo") { mineActive = false; clickedAt = 0; } refresh(); };      // runs of another repository are not "mine"
+  node.addEventListener("input", changed);
+  node.addEventListener("change", changed);
 }
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { defaultBranch = ""; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; mineActive = false; clickedAt = 0; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);

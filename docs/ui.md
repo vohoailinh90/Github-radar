@@ -35,6 +35,8 @@ Trang chỉ gửi những gì khác với bộ đã chọn (hoặc `radar.yaml` 
 
 Các lần quét không chạy chồng (`concurrency: radar`): gửi thêm khi đang có một lượt chờ thì GitHub **thay** lượt chờ cũ, lượt cũ hiện là "Đã hủy (có thể bị thay bằng một yêu cầu mới hơn)". Trang không cho gửi tiếp khi lượt bạn vừa gửi còn đang chạy hay chờ.
 
+Trang nhận ra "lượt bạn vừa gửi" bằng giờ tạo của lượt chạy so với đồng hồ máy bạn. Nếu đồng hồ máy chậm hơn GitHub hơn 5 giây, trang có thể coi một lượt cũ đang chạy là của bạn và khóa nút cho tới khi lượt đó xong (hoặc bạn bấm *Quên token*). Chưa gặp trường hợp này; đồng hồ đồng bộ thì không xảy ra.
+
 ## Giữ trang đúng với mã
 
 Trang không import được Python, nên giữ một bản chép của vài giá trị (bộ đã lưu, giới hạn, cấu hình gốc, chi phí) và hai mã băm CSP. Sau khi sửa `radar/presets.json`, `radar.yaml`, `radar/conditions.py` hay chính trang, chạy:

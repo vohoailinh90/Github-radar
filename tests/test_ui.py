@@ -87,7 +87,7 @@ def test_the_only_addresses_are_the_api_and_links_to_github():
     assert urls and all(u.startswith(allowed) for u in urls), urls
     assert "http://" not in HTML.replace("https://", "")
     assert HTML.count("fetch(") == 1 and HTML.count("Bearer") == 1                  # one gateway, the one place the token is used
-    assert "https://github.com/\" + repoName() + \"/actions/runs/\" + run.id" in HTML
+    assert 'https://github.com/" + repo + "/actions/runs/" + run.id' in HTML and "if (!isRepo(repo) || !token())" in HTML     # a checked name, an integer id
     assert csp.count("https://") == 1
 
 

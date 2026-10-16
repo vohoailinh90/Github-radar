@@ -310,6 +310,120 @@ def test_a_run_just_sent_blocks_a_second_send_until_it_finishes(ui):
     assert "Xong" in text(ui, "#runs-body")
 
 
+def test_forgetting_the_token_frees_the_button_a_run_of_mine_was_holding(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.gh.routes[runs] = (200, {"workflow_runs": []})
+    ui.click("#forget")
+    ui.fill("#token", TOKEN)
+    assert ui.is_enabled("#go")                                                    # nothing of the old session is still waiting
+
+
+def test_a_failed_run_list_does_not_leave_the_button_off(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.gh.routes[runs] = (500, {"message": "x"})
+    ui.click("#refresh")
+    wait(ui, "document.getElementById('msg').className.includes('bad')")
+    assert ui.is_enabled("#go")
+
+
+def test_run_links_point_at_the_repository_the_list_was_asked_for(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 5, "status": "completed", "conclusion": "success", "created_at": now}]})
+    original = ui.gh.handle
+
+    def edit_the_field_meanwhile(route, request):
+        if request.url.endswith("/runs?event=workflow_dispatch&per_page=10"):
+            ui.evaluate("document.getElementById('repo').value = 'attacker/other'")          # typed while the request is in flight
+        return original(route, request)
+    ui.context.unroute("https://api.github.com/**")
+    ui.context.route("https://api.github.com/**", edit_the_field_meanwhile)
+    ui.click("#refresh")
+    ui.wait_for_selector("#runs-body a")
+    assert ui.eval_on_selector("#runs-body a", "a => a.href") == f"https://github.com/{REPO}/actions/runs/5"
+
+
+def test_a_send_uses_the_fields_as_they_were_when_it_was_asked_for(ui):
+    ui.fill("#token", TOKEN)
+    ui.fill("#single", "owner/name")
+    ui.select_option("#single-bucket", "ai")
+    original = ui.gh.handle
+
+    def edit_the_fields_meanwhile(route, request):
+        if request.method == "GET" and request.url.endswith(f"/repos/{REPO}"):
+            ui.evaluate("""() => { document.getElementById('repo').value = 'attacker/other'; document.getElementById('single').value = 'not a repo';
+                                   document.getElementById('single-bucket').value = 'startup'; }""")
+        return original(route, request)
+    ui.context.unroute("https://api.github.com/**")
+    ui.context.route("https://api.github.com/**", edit_the_fields_meanwhile)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    post, = ui.gh.posts()
+    assert post["path"] == f"/repos/{REPO}/actions/workflows/radar.yml/dispatches" and post["body"]["ref"] == "main"
+    assert post["body"]["inputs"]["repo"] == "owner/name" and post["body"]["inputs"]["bucket"] == "ai"
+
+
+def test_a_branch_read_for_one_repository_is_not_used_for_another_that_was_typed_meanwhile(ui):
+    ui.fill("#token", TOKEN)
+    other = "someone/else-radar"
+    ui.gh.routes[("GET", f"/repos/{other}")] = (200, {"default_branch": "trunk"})
+    ui.gh.routes[("POST", f"/repos/{other}/actions/workflows/radar.yml/dispatches")] = (204, None)
+    ui.gh.routes[("GET", f"/repos/{other}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": []})
+    original = ui.gh.handle
+
+    def edit_the_field_meanwhile(route, request):
+        if request.url.endswith("/actions/workflows/radar.yml"):
+            ui.evaluate(f"document.getElementById('repo').value = '{other}'")
+        return original(route, request)
+    ui.context.unroute("https://api.github.com/**")
+    ui.context.route("https://api.github.com/**", edit_the_field_meanwhile)
+    ui.click("#check")
+    wait(ui, "document.getElementById('connect-msg').className.includes('warn')")
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[0]["body"]["ref"] == "trunk" and ui.gh.posts()[0]["path"].startswith(f"/repos/{other}/")
+
+
+def test_a_real_scan_without_the_word_sends_nothing_even_if_the_button_is_forced(ui):
+    connect(ui)
+    ui.uncheck("#dry")
+    ui.evaluate("document.getElementById('go').disabled = false; document.getElementById('go').click()")
+    ui.wait_for_timeout(400)
+    assert ui.gh.posts() == []
+    ui.fill("#confirm", "quet")
+    ui.evaluate("document.getElementById('go').disabled = false; document.getElementById('go').click()")
+    ui.wait_for_timeout(400)
+    assert ui.gh.posts() == []
+
+
+def test_a_bad_single_repository_sends_nothing_even_if_the_button_is_forced(ui):
+    connect(ui)
+    ui.fill("#single", "not a repo")
+    ui.gh.requests.clear()
+    ui.evaluate("document.getElementById('go').disabled = false; document.getElementById('go').click()")
+    ui.wait_for_timeout(400)
+    assert ui.gh.requests == []
+
+
+def test_a_bucket_is_not_sent_without_a_single_repository(ui):
+    connect(ui)
+    ui.select_option("#single-bucket", "startup")
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert ui.gh.posts()[0]["body"]["inputs"]["bucket"] == "" and ui.gh.posts()[0]["body"]["inputs"]["repo"] == ""
+
+
 def test_a_dispatch_the_server_does_not_acknowledge_is_not_reported_as_sent(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (200, {})
