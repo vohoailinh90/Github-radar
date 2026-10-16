@@ -160,6 +160,46 @@ def test_a_long_word_is_broken_across_lines_instead_of_overflowing_and_nothing_i
     assert "".join(boards.wrap("日本語のとても長い説明文です", 20, 100)) == "日本語のとても長い説明文です"
 
 
+MIXED = ["AIエージェント", "GitHubのAPI", "AIエージェントでGitHubのAPIを使う", "テキスト 日本語", "Python で書かれた CLI ツール",
+         "日本語 English 日本語", "v2.0対応のREST API", "ファイル(config.yaml)を読む"]
+
+
+@pytest.mark.parametrize("text", MIXED)
+def test_wrapping_gives_back_exactly_the_text_it_was_given_when_there_is_room(text):
+    assert boards.wrap(text, 18, 10 ** 6) == [text]                 # no space put inside `AIエージェント`, none dropped between words
+
+
+@pytest.mark.parametrize("text", MIXED)
+def test_wrapping_to_a_narrow_box_never_adds_a_space_inside_a_word(text):
+    for max_w in (40, 70, 110, 200):
+        lines = boards.wrap(text, 18, max_w)
+        assert sum(line.count(" ") for line in lines) <= text.count(" "), (max_w, lines)     # a space can be eaten by a break, never added
+        assert re.sub(r"\s+", "", "".join(lines)) == re.sub(r"\s+", "", text), (max_w, lines)
+
+
+def test_wrapping_random_mixed_text_keeps_every_character_and_adds_no_space():
+    rng, pool = random.Random(11), ["AI", "GitHub", "API", "エージェント", "日本語", "の", "を使う", "v2.0", "CLI", "ツール", "(x)"]
+    for _ in range(200):
+        text = "".join(rng.choice(pool) + rng.choice(["", "", " "]) for _ in range(rng.randint(1, 9))).strip()
+        assert boards.wrap(text, 18, 10 ** 6) == [text]
+        lines = boards.wrap(text, 18, rng.choice([50, 90, 160]))
+        assert sum(line.count(" ") for line in lines) <= text.count(" ") and "".join(lines).replace(" ", "") == text.replace(" ", "")
+
+
+@pytest.mark.parametrize("name", ["excalidraw", "moda"])
+def test_mixed_script_text_reaches_the_picture_exactly_as_the_draft_wrote_it(name):
+    title, hook, learn = "AIエージェントでGitHubのAPIを使う", "Python で書かれた CLI ツール", "テキスト 日本語"
+    draft = make_draft({}, "ja", title=title, hook=hook)
+    draft["learn"][0] = learn
+    draft["how_it_works"]["components"][0]["name"] = "AIエージェント"
+    if name == "excalidraw":
+        doc = json.loads(excalidraw.board(FACTS, draft, L["ja"]))
+        shown = [e["text"] for e in doc["elements"] if e["type"] == "text"]
+    else:
+        shown = [e.text for e in ET.fromstring(moda.markup(FACTS, draft, L["ja"], "ja")).iter("text")]
+    assert {title, hook, learn, "AIエージェント"} <= set(shown)        # exact, not whitespace-insensitive like the provenance tests
+
+
 # --- safety: a README sentence cannot become markup ---------------------------------------------------------------------
 HOSTILE = ['<script>alert(1)</script>', '"><image src="https://evil.example/x.png"/>', "a & b < c > d ]]> <!-- x -->", "tab\x00nul\x0bvt\x1fesc",
            "</content><content><image src='https://evil.example/y.png'/>", "'; DROP TABLE x; --", "emoji 🧩 and مرحبا"]

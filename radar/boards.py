@@ -41,14 +41,34 @@ def one_line(text) -> str:
     return re.sub(r"\s+", " ", str(text)).strip()
 
 
-def wrap(text: str, px: float, max_w: float, scale: float = 1.0) -> list[str]:
-    """Lines no wider than `max_w` (svg.py's width estimate times `scale`), never cutting text: svg.wrap caps its lines with an ellipsis
-    and lets a word wider than the box overflow; here the word is broken where the line ends instead."""
-    lines, cur, tokens = [], "", []
+def _pieces(text: str) -> list[tuple[str, bool]]:
+    """(piece, glued) for each place a line may end. A line can end at a space, and inside a word only next to a wide (CJK)
+    character, since Japanese has no spaces to break at. A run of narrow characters inside such a word (`AI`, `GitHub`) stays
+    whole, and `glued` means the piece continues the word before it: nothing is ever put between the pieces of one word."""
+    out = []
     for word in str(text).split():
-        tokens += list(word) if any(_wide(c) for c in word) else [word]      # CJK has no spaces: break between characters
-    for tok in tokens:
-        sep = "" if (not cur or (_wide(tok[0]) and _wide(cur[-1]))) else " "
+        runs, run = [], ""
+        for ch in word:
+            if _wide(ch):
+                if run:
+                    runs.append(run)
+                run = ""
+                runs.append(ch)
+            else:
+                run += ch
+        if run:
+            runs.append(run)
+        out += [(r, i > 0) for i, r in enumerate(runs)]
+    return out
+
+
+def wrap(text: str, px: float, max_w: float, scale: float = 1.0) -> list[str]:
+    """Lines no wider than `max_w` (svg.py's width estimate times `scale`), never changing text: svg.wrap caps its lines with an
+    ellipsis, lets a word wider than the box overflow, and puts spaces inside `AIエージェント` and drops the one between two
+    Japanese words. Here a word wider than the box is broken where the line ends, and the spaces are exactly the text's own."""
+    lines, cur = [], ""
+    for tok, glued in _pieces(text):
+        sep = "" if (not cur or glued) else " "
         if width(cur + sep + tok, px * scale) <= max_w:
             cur += sep + tok
             continue
