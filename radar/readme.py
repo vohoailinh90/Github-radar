@@ -570,12 +570,14 @@ def strip_trailing_comment(line: str) -> str:
 
 
 def _shell_state(text: str) -> tuple[str, int, bool, int]:
-    """(the quote still open at the end, the parentheses still open, whether a `# comment` starts, where the code ends: at the comment
-    or at the end of the line) for a POSIX shell command line."""
-    quote, depth, i = "", 0, 0
+    """(the quote or backquote still open at the end, the parentheses still open, whether a `# comment` starts, where the code ends: at the
+    comment or at the end of the line) for a POSIX shell command line."""
+    quote, depth, backquote, i = "", 0, False, 0
     while i < len(text):
         ch = text[i]
         if quote:
+            if ch == "`" and quote == '"':
+                backquote = not backquote         # a backquoted substitution inside double quotes
             i += 2 if ch == "\\" and quote == '"' else 1
             quote = "" if i <= len(text) and ch == quote else quote
             continue
@@ -584,6 +586,12 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
             continue
         if ch in "'\"":
             quote = ch
+        elif ch == "`":
+            run = len(text[i:]) - len(text[i:].lstrip("`"))
+            if run >= 3:
+                i += run                          # three or more: the residue of a Markdown fence, never a substitution
+                continue
+            backquote = not backquote             # `` `cmd` ``: a command substitution that may go on over several lines
         elif _comment_at(text, i):
             return "", 0, True, i                 # the rest of the line is the comment's: it opens and closes nothing
         elif ch == "(":
@@ -591,7 +599,7 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
         elif ch == ")":
             depth = max(0, depth - 1)
         i += 1
-    return quote, depth, False, len(text)
+    return quote or ("`" if backquote else ""), depth, False, len(text)
 
 
 def _incomplete(command: str) -> bool:
@@ -641,8 +649,19 @@ def _is_powershell(lang: str, command: str) -> bool:
     return lang in POWERSHELL_LANGS or bool(POWERSHELL_PROMPT.match(command))
 
 
+PS_WORD_OPERATORS = ("and", "or", "xor", "eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match", "notmatch", "contains", "notcontains",
+                     "join", "split", "replace", "band", "bor", "bxor", "shl", "shr")      # `-f` is also the abbreviation of `-Force`: not here
+
+
+def _ps_continues(code: str, last: str) -> bool:
+    """Whether the code of a PowerShell line, which ends in the character `last`, ends in something that wants the next line: a pipe or a
+    comma, an operator (`+`, `=`, a pipeline chain's `&&` and `||`, `-and`, `-eq`, `-join` ...). A path or a wildcard may end in `*` or `/`."""
+    code = code.rstrip()
+    return last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(re.search(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + r")$", code, re.I))
+
+
 def _ps_state(text: str):
-    """(brackets still open, whether the code ends in `|` or `,`, where the code ends: at a `# comment` or at the end of the line, the quote
+    """(brackets still open, whether the code ends in something that wants the next line (see `_ps_continues`), where the code ends: at a `# comment` or at the end of the line, the quote
     of a string that does not close on the line or "") for a PowerShell command line, or None when it cannot be told: a `<# block comment #>`
     or a here-string (`@"` at the end of a line), whose line breaks are part of the data."""
     stack, last, i = [], "", 0
@@ -651,7 +670,7 @@ def _ps_state(text: str):
         if text.startswith("<#", i):
             return None
         if ch == "#" and (i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"):          # a `#` that begins a token: `Write-Host hi;# note`
-            return stack, last in ("|", ","), i, ""
+            return stack, _ps_continues(text[:i], last), i, ""
         if ch == "@" and text[i + 1:i + 2] in ("'", '"') and not text[i + 2:].strip():
             return None
         if ch in "'\"":
@@ -679,7 +698,7 @@ def _ps_state(text: str):
         if not ch.isspace():
             last = ch
         i += 1
-    return stack, last in ("|", ","), len(text), ""
+    return stack, _ps_continues(text, last), len(text), ""
 
 
 def _ps_open(text: str):

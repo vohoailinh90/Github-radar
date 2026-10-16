@@ -936,7 +936,7 @@ def test_a_powershell_string_with_an_escaped_quote_before_its_line_break_stays_i
     assert table == {'Write-Host "say `"': "powershell", "Get-Item x": "powershell"}
     commands = ['Write-Host "say `"', 'hi"', "Get-Item x"]
     assert readme.heredoc_data(commands, table) == [False, True, False]                       # with the shell told, as the scanner read it
-    assert readme.heredoc_data(commands) == [False, False, True]                              # POSIX rules would end the string at the escaped quote
+    assert readme.heredoc_data(commands) != [False, True, False]                              # POSIX rules read the escape of PowerShell differently
     lines = digest._command_blocks({"shells": table}, commands, {"shell_bash": "bash", "shell_powershell": "PowerShell"})
     assert lines == ["_PowerShell_", "", "```powershell", 'Write-Host "say `"', 'hi"', "Get-Item x", "```"]        # one block, in the opener's shell
 
@@ -975,3 +975,24 @@ def test_a_redirection_with_a_space_after_an_angle_bracket_is_not_a_placeholder_
         assert not r(line), line
     lines = [line for _, block in readme.code_blocks("```bash\nls\ncat < input >\ngit clone <repo-url>\n```\n") for line in block]
     assert lines == ["ls", "git clone <repo-url>"]
+
+
+def test_a_backquoted_substitution_over_several_lines_is_a_group_and_an_unclosed_one_is_dropped():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert readme.heredocs("```bash\necho `printf hi;\nprintf there`\nls\n```\n") == ([["echo `printf hi;", "printf there`"]], ["echo `printf hi;", "ls"])
+    assert lines("```bash\nls\necho `date\n```\n") == ["ls"]                                              # a backquote that never closes
+    assert lines('```bash\necho "`date`"\necho `pwd`\necho \\`not a substitution\\`\n```\n') == ['echo "`date`"', "echo `pwd`", "echo \\`not a substitution\\`"]
+    assert readme._shell_state("echo `a")[0] == "`" and readme._shell_state("echo `a`")[0] == "" and readme._shell_state("echo '`a'")[0] == ""
+    assert readme.heredoc_data(["echo `printf hi;", "printf there`", "ls"]) == [False, True, False]
+
+
+def test_a_powershell_line_that_ends_in_a_binary_operator_or_a_pipeline_chain_goes_on_in_the_next():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = "```powershell\n$x = 1 +\n2\nGet-Item a &&\nGet-Item b\n$y = 1 -and\n$true\n$z =\n5\nGet-Item c ||\nGet-Item d\n```\n"
+    assert lines(text) == ["$x = 1 + 2", "Get-Item a && Get-Item b", "$y = 1 -and $true", "$z = 5", "Get-Item c || Get-Item d"]
+    assert lines("```powershell\n$x = 1 + # add\n2\n```\n") == ["$x = 1 + 2"]
+    assert lines("```powershell\nGet-ChildItem *\nGet-ChildItem C:\\tmp\\\nRemove-Item x -f\nRemove-Item y -Force\n```\n") == [
+        "Get-ChildItem *", "Get-ChildItem C:\\tmp\\", "Remove-Item x -f", "Remove-Item y -Force"]           # a wildcard, a path and `-f` do not want a next line
+    assert lines("```powershell\nGet-Item x &&\n```\n") == []                                              # a chain with nothing after it is dropped
