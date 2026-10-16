@@ -263,3 +263,40 @@ def test_fences_of_each_kind_open_and_close_only_on_their_own():
 def test_a_fence_nested_in_a_list_item_is_found_whatever_its_indentation():
     text = "1. Install:\n\n     ```bash\n     pip install x\n     ```\n"
     assert readme.setup_commands(text) == ["pip install x"]
+
+
+def test_a_shell_block_keeps_the_indentation_and_blank_lines_of_its_lines():
+    """The body of a heredoc (or a YAML sample) is indented on purpose; only the indentation of the container is removed."""
+    text = "```bash\ncat > config.yaml <<EOF\nllm:\n  model: x\n\n  key: y\nEOF\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["cat > config.yaml <<EOF", "llm:", "  model: x", "", "  key: y", "EOF"])]
+    assert readme.setup_commands(text) == ["cat > config.yaml <<EOF", "llm:", "model: x", "key: y", "EOF"]    # what is typed: no blank, no indent
+    nested = "1. Run:\n\n   ```bash\n   cat <<EOF\n     indented\n   EOF\n   ```\n"
+    assert readme.code_blocks(nested) == [("bash", ["cat <<EOF", "  indented", "EOF"])]                    # the list item's own indent is gone
+    assert readme.code_blocks("```bash\n\n\nls\n\n\n```\n") == [("bash", ["ls"])]                         # blank edges are dropped
+
+
+def test_a_margin_drawn_with_a_tab_on_some_lines_and_spaces_on_others_is_still_one_margin():
+    # pyvideotrans: the fence sits in a list item, the first line has 4 spaces, the others a tab (both are 4 columns)
+    text = "  * macOS:\n  ```\n    brew install git\n\t\n\tbrew tap tool/ffmpeg\n\t\n\tbrew install tool/ffmpeg\n  ```\n"
+    assert readme.code_blocks(text) == [("", ["brew install git", "", "brew tap tool/ffmpeg", "", "brew install tool/ffmpeg"])]
+
+
+def test_a_tab_that_is_part_of_the_content_is_kept_when_no_margin_is_shared():
+    text = "```make\nall:\n\tcc -o app main.c\n```\n"
+    assert readme.code_blocks(text) == [("make", ["all:", "\tcc -o app main.c"])]
+
+
+def test_a_tab_cut_by_the_margin_leaves_its_remainder_as_spaces():
+    assert readme.dedent(["  a", "\tb"]) == ["a", "  b"]
+    assert readme.dedent(["", "  ", "\t\tx"]) == ["", "", "x"]
+
+
+def test_a_sample_keeps_its_own_indentation_when_the_margin_is_drawn_with_tabs():
+    text = "* step\n\t```toml\n\t[server]\n\t  port = 1\n\t```\n"
+    assert readme.blocks(text) == [["toml", "[server]\n  port = 1"]]
+
+
+def test_the_padding_of_a_continuation_line_is_dropped_but_the_indentation_of_a_first_line_stays():
+    text = "```bash\ntool a \\\n      --b \\\n      --c\n  indented\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["tool a --b --c", "  indented"])]
+    assert readme.code_lines(text) == readme.code_blocks(text)[0][1]

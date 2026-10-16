@@ -9,7 +9,6 @@ sections, ranked by how much they help someone follow the project, and puts them
 from __future__ import annotations
 
 import re
-import textwrap
 from bisect import bisect_right
 from dataclasses import dataclass
 from urllib.parse import urlsplit
@@ -298,42 +297,102 @@ PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*)")             # a prompt in a tr
 SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*)")          # a prompt in any other block: `> file` there is a redirection, a command
 
 
+TAB_STOP = 4
+
+
+def _width(line: str) -> int:
+    """The columns of leading whitespace of a line, a tab running to the next tab stop."""
+    col = 0
+    for ch in line:
+        if ch == " ":
+            col += 1
+        elif ch == "\t":
+            col += TAB_STOP - col % TAB_STOP
+        else:
+            break
+    return col
+
+
+def _drop_columns(line: str, count: int) -> str:
+    """The line without its first `count` columns of leading whitespace (a tab cut in two leaves its remainder as spaces)."""
+    col, i = 0, 0
+    while i < len(line) and col < count:
+        if line[i] == " ":
+            col += 1
+        elif line[i] == "\t":
+            wide = TAB_STOP - col % TAB_STOP
+            if col + wide > count:
+                return " " * (col + wide - count) + line[i + 1:]
+            col += wide
+        else:
+            break
+        i += 1
+    return line[i:]
+
+
+def dedent(lines: list[str]) -> list[str]:
+    """The lines without the indentation they all share (the Markdown container's), counted in columns so that a tab and
+    spaces which draw the same margin are the same margin; a blank line has no indentation to give, it becomes empty."""
+    margin = min((_width(line) for line in lines if line.strip()), default=0)
+    return [_drop_columns(line, margin) if line.strip() else "" for line in lines]
+
+
 def code_blocks(text: str) -> list[tuple[str, list[str]]]:
-    """(language tag, logical lines) of each fenced code block, in order: a line ending in a backslash is joined with the next."""
-    blocks: list[tuple[str, list[str]]] = []
-    fence, lang, lines, pending = None, "", [], ""
+    """(language tag, logical lines) of each fenced code block, in order. A line ending in a backslash is joined with the next
+    (the padding of the continuation is dropped). Everything else is kept as the README has it: the indentation of a line (a
+    heredoc body, a YAML sample) and the blank lines between lines; only the indentation common to the whole block, which belongs to
+    the Markdown container (a list item), is removed. Blank lines at the start and end of a block are dropped."""
+    raw: list[tuple[str, list[str]]] = []
+    fence, lang, lines = None, "", []
     for line in text.splitlines():
         before = fence
         fence, on_fence = fence_step(line, fence)
         if on_fence:
             if before is None:
                 info = fence_opens(line)[1]
-                lang, lines, pending = (info.split(" ")[0].lower() if info else ""), [], ""
+                lang, lines = (info.split(" ")[0].lower() if info else ""), []
             else:
-                if pending:
-                    lines.append(pending)
-                blocks.append((lang, lines))
-            continue
-        if fence is None:
-            continue
-        piece = line.strip()
-        if pending and lang in CONSOLE_LANGS:        # `$ tool \` then `> --flag`: the `> ` is the shell's secondary prompt
-            piece = PROMPT.sub("", piece)
-        pending = f"{pending} {piece}".strip() if pending else piece
-        if pending.endswith("\\"):
-            pending = pending[:-1].rstrip()
-            continue
-        if pending:
-            lines.append(pending)
-        pending = ""
+                raw.append((lang, lines))
+        elif fence is not None:
+            lines.append(line)
     if fence is not None:                         # an unclosed block runs to the end of the README
-        blocks.append((lang, lines + ([pending] if pending else [])))
+        raw.append((lang, lines))
+    blocks: list[tuple[str, list[str]]] = []
+    for lang, lines in raw:
+        body = dedent(lines)
+        logical, pending = [], ""
+        for line in body:
+            if not line.strip():                  # a blank line ends a pending continuation and is kept
+                if pending:
+                    logical.append(pending)
+                    pending = ""
+                logical.append("")
+                continue
+            if pending:
+                piece = line.strip()
+                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag`: the `> ` is the shell's secondary prompt
+                    piece = PROMPT.sub("", piece)
+                pending = f"{pending} {piece}"
+            else:
+                pending = line.rstrip()
+            if pending.endswith("\\"):
+                pending = pending[:-1].rstrip()
+                continue
+            logical.append(pending)
+            pending = ""
+        if pending:
+            logical.append(pending)
+        while logical and not logical[0]:
+            logical.pop(0)
+        while logical and not logical[-1]:
+            logical.pop()
+        blocks.append((lang, logical))
     return blocks
 
 
 def code_lines(text: str) -> list[str]:
-    """Every logical line inside the README's fenced code blocks, in order."""
-    return [line for _, lines in code_blocks(text) for line in lines]
+    """Every non-blank logical line inside the README's fenced code blocks, in order."""
+    return [line for _, lines in code_blocks(text) for line in lines if line]
 
 
 def prompt_for(lang: str):
@@ -358,7 +417,7 @@ def setup_commands(text: str) -> list[str]:
     out = []
     for lang, lines in code_blocks(text):
         rx = prompt_for(lang)
-        for line in lines:
+        for line in (l.strip() for l in lines):
             prompt = rx.match(line)
             bare = line[prompt.end():] if prompt else line
             if not bare or bare.startswith(("#", "//", "REM ", "::")):
@@ -383,10 +442,10 @@ def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 180
             info = fence_opens(line)[1]
             lang, lines, start = (info.split(" ")[0].lower() if info else ""), [], pos
         elif on_fence:
-            body = textwrap.dedent("".join(lines)).strip("\n")
+            body = "\n".join(dedent(lines)).strip("\n")
             found.append((start, lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", lang) else "", body))
         elif fence is not None:
-            lines.append(line.rstrip("\r\n") + "\n")
+            lines.append(line.rstrip("\r\n"))
         pos += len(line)
     ranked = []
     for start, lang, body in found:

@@ -29,7 +29,7 @@ LIMITS = {"title": 70, "hook": 110, "one_liner": 200, "problem": 500, "analogy":
 # The how-to guide: what a person does, in order, from nothing to the project's result.
 GUIDE = {"outcome": 220, "item": 80, "detail": 180, "title": 70, "why": 200, "do": 200, "command": 800, "expect": 220,
          "if_fails": 220, "verify": 220, "problem": 120, "fix": 200, "next": 160}
-GUIDE_COUNTS = {"requirements": (0, 8), "steps": (3, 10), "do": (1, 4), "commands": (0, 5), "troubleshooting": (0, 5), "next": (0, 3)}
+GUIDE_COUNTS = {"requirements": (0, 8), "steps": (3, 10), "do": (1, 4), "commands": (0, 12), "troubleshooting": (0, 5), "next": (0, 3)}
 
 
 @dataclass(frozen=True)
@@ -310,10 +310,18 @@ def _command_variants(readme: str):
         for line in lines:
             yield line, readmelib.prompt_for(lang)
             yield re.split(r"\s+#\s", line)[0], readmelib.prompt_for(lang)
-    for line in readmelib.prose_lines(readme):
+    for line in (l.strip() for l in readmelib.prose_lines(readme)):
         yield line, readmelib.SHELL_PROMPT
         yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
         yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
+
+
+def _shown(text: str, prompt) -> str:
+    """`text` as it is to be shown: a leading prompt dropped and the end trimmed, the indentation and the spaces inside kept (the body of a
+    heredoc or a YAML sample is indented on purpose)."""
+    body = text.rstrip()
+    stripped = body.lstrip()
+    return body[:len(body) - len(stripped)] + prompt.sub("", stripped).strip()
 
 
 def command_texts(readme: str) -> dict[str, list[str]]:
@@ -324,7 +332,7 @@ def command_texts(readme: str) -> dict[str, list[str]]:
     for text, prompt in _command_variants(readme):
         key = _norm_cmd(text)
         if key:
-            shown = prompt.sub("", text.strip()).strip()
+            shown = _shown(text, prompt)
             if shown not in out.setdefault(key, []):
                 out[key].append(shown)
     return out
@@ -348,8 +356,10 @@ def canonicalize(draft: dict, facts: dict) -> dict:
     def fix(command):
         if not isinstance(command, str):
             return command
-        stripped = readmelib.SHELL_PROMPT.sub("", command.strip()).strip()
-        return stripped if stripped in exact else (table.get(_norm_cmd(command)) or [command])[0]
+        if not command.strip():
+            return ""                                   # a blank line of a block
+        shown = _shown(command, readmelib.SHELL_PROMPT)
+        return shown if shown in exact else (table.get(_norm_cmd(command)) or [command])[0]
 
     guide = out.get("guide")
     for _, step in _dicts(guide.get("steps") if isinstance(guide, dict) else None):
@@ -430,6 +440,8 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                 problems.append(Problem("error", f"{key}[{i}]", f"evidence {item['evidence']!r} is not README or a path in the repository"))
     known = readme_commands(facts["readme"])
     for field, cmd in guide_commands(draft):
+        if cmd == "":                                  # a blank line between two lines of a block (a heredoc body)
+            continue
         shown = _norm_cmd(cmd)
         if not isinstance(cmd, str) or "`" in cmd or "\n" in cmd or len(shown) < 3 or shown not in known:
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))

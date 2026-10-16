@@ -64,10 +64,12 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
 
 
 def _command(text) -> str:
-    """One line to type, as stored. A guide's commands are the README's own text (gates.canonicalize), so only the ends are trimmed
+    """One line to type, as stored. A guide's commands are the README's own text (gates.canonicalize), so only the end is trimmed
     and a leading `$ ` or `PS C:\\>` that an older draft kept is dropped; a leading `> ` is a redirection in a shell block and stays.
-    What lies between is kept: a quoted argument such as `'s/foo  bar/baz/'` depends on its spaces."""
-    return readmelib.SHELL_PROMPT.sub("", str(text).strip()).strip()
+    The indentation and the spaces inside are kept: the body of a heredoc, or a quoted argument such as `'s/foo  bar/baz/'`, depends on them."""
+    body = str(text).rstrip()
+    stripped = body.lstrip()
+    return body[:len(body) - len(stripped)] + readmelib.SHELL_PROMPT.sub("", stripped).strip()
 
 
 def _gcell(text) -> str:

