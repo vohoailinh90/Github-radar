@@ -103,7 +103,11 @@ def fake_github(repos: list[dict] | None = None, readme: str = README, fail: tup
         if path == "/search/repositories":
             q = parse_qs(url.query)["q"][0]
             topic = re.search(r"topic:(\S+)", q).group(1)
-            return 200, {"items": [r for r in repos if topic in r["topics"]]}
+            floor = re.search(r"stars:>=(\d+)", q)
+            born = re.search(r"created:>=(\S+)", q)
+            return 200, {"items": [r for r in repos if topic in r["topics"]
+                                   and (not floor or r["stargazers_count"] >= int(floor.group(1)))
+                                   and (not born or r["created_at"][:10] >= born.group(1))]}
         m = re.match(r"^/repos/([^/]+/[^/]+)/(readme|languages|git/trees/(.+))$", path)
         if m and m.group(2) == "readme":
             return 200, {"encoding": "base64", "content": base64.b64encode(readme.encode()).decode()}

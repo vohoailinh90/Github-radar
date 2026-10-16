@@ -1,3 +1,5 @@
+import pytest
+
 from radar import config
 
 
@@ -38,3 +40,14 @@ def test_a_gemini_draft_is_checked_by_gpt_oss_first_and_a_gpt_oss_draft_by_anoth
     assert checker_pool(models["checker"], "google/gemini-flash-latest")[:2] == ["groq/openai/gpt-oss-120b", "groq/openai/gpt-oss-20b"]
     assert checker_pool(models["checker"], "groq/openai/gpt-oss-120b") == [
         "mistral/mistral-small-2603", "google/gemini-flash-lite-latest", "groq/openai/gpt-oss-120b", "groq/openai/gpt-oss-20b"]    # same family only as a last resort
+
+
+def test_rising_and_pacing_defaults_validation_and_override():
+    cfg = config.load(path=config.ROOT / "none.yaml", env={})
+    assert cfg["rising"] == {"enabled": True, "slots": 1, "created_within_days": 120, "min_stars": 300}
+    assert cfg["search_interval_seconds"] == 2.1 and cfg["history_days"] == 60
+    assert config.load(path=config.ROOT / "none.yaml", env={"RADAR_SEARCH_INTERVAL": "0"})["search_interval_seconds"] == 0.0
+    for bad in ({"rising": {"slots": 4}}, {"rising": {"created_within_days": 0}}, {"history_days": 10}, {"search_interval_seconds": -1}):
+        merged = config.deep_merge(config.DEFAULTS, bad)
+        with pytest.raises(ValueError):
+            config.validate(merged)

@@ -7,7 +7,7 @@ Bài học nằm ngay trong repo này để bạn đọc; bản nháp bài đăn
 
 ```mermaid
 flowchart LR
-    A[GitHub Search<br/>sao, giấy phép, độ mới] --> B[Lấy dữ kiện<br/>README, cấu trúc thư mục]
+    A[GitHub Search<br/>sao, tốc độ tăng, giấy phép, độ mới] --> B[Lấy dữ kiện<br/>README, cấu trúc thư mục]
     B --> C[Model miễn phí A<br/>viết bài học]
     C --> D[Model miễn phí B<br/>soát lỗi, khác họ model]
     D --> E{Cổng kiểm tra<br/>bằng script}
@@ -77,6 +77,17 @@ Trên GitHub: Actions → *Radar scan* → *Run workflow*, điền ô `repo` (ô
 - Vẫn **bị từ chối**: repo riêng tư/bị khóa, hoặc giấy phép không nằm trong danh sách miễn phí (`licenses` trong `radar.yaml`), hoặc tên không hợp lệ.
 - Nhóm (`ai`, `software`, `solutions`, `startup`) được đoán từ topic của repo; không khớp thì xếp vào `software`. Đổi bằng `--bucket` (hoặc ô `bucket`).
 - Sau khi viết, `handoff` vẫn mở **pull request nháp** vào studio như các lần quét theo lịch.
+
+## Radar chọn repo thế nào
+
+Điểm = `ln(sao) + 0,5·ln(1 + sao tăng trong 30 ngày) + 1 nếu có commit trong 30 ngày`. "Sao tăng" được **đo thật**: mỗi lần quét lưu số sao của mọi ứng viên
+vào `state/stars.json` (một điểm mỗi repo mỗi ngày), lần sau lấy hiệu số chia cho số ngày thật giữa hai lần chụp. Sau lần quét thứ hai là đã có số đo;
+trước đó dùng trung bình `sao / tuổi`. Mỗi topic được tìm hai lượt: **top** (từ `min_stars`) và **rising** (repo tạo trong `rising.created_within_days` ngày gần nhất, sàn `rising.min_stars`),
+và `rising.slots` suất trong mỗi lần quét dành cho repo đang lên mà xếp theo tổng sao thì không bao giờ tới lượt. Đặt `rising: {slots: 0}` để tắt.
+
+`python3 radar.py scan` in bảng xếp hạng: dấu `*` sau cột sao/30 ngày là số đo thật, `[rising]` là repo trong suất đang lên, `[!few-forks]` và `[!star-spike]` là **cờ để bạn xem lại**
+(sao có thể bị mua, nhưng hai dấu hiệu này không chứng minh được; chúng không đổi điểm và không loại repo). `state/runs/<ngày>.json` có thêm `shortlist` (repo đứng ngay sau các repo được chọn)
+và `history.measured`. Các công cụ quét repo khác làm gì và vì sao Radar chọn như trên: [`docs/research.md`](docs/research.md).
 
 Cấu hình trong [`radar.yaml`](radar.yaml) (số repo mỗi lần, ngôn ngữ `vi`/`en`/`ja`, chủ đề, model). Mặc định chỉ viết
 **tiếng Việt**: mỗi ngôn ngữ thêm là một lượt gọi model nữa cho mỗi repo (viết riêng, không dịch), nên hãy tính quota
