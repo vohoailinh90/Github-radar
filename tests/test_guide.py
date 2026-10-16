@@ -99,7 +99,7 @@ def test_a_command_the_readme_splits_over_lines_is_given_as_one_line():
 
 def test_a_guide_without_commands_is_refused_when_the_readme_has_them():
     bare = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]])
-    assert any("gives none" in e for e in errs(bare))
+    assert any("uses none of them" in e for e in errs(bare))
     # a README with no code blocks gives the guide nothing to copy, and that is allowed
     plain = {**FACTS, "readme": "# Tool\n\nA desktop app. Download it, put your key in config.toml, and drag a video onto the window.\n"}
     assert errs(bare, plain) == []
@@ -471,3 +471,15 @@ def test_two_readme_commands_that_differ_only_in_significant_spaces_are_both_kep
     assert not any("commands" in e for e in errs(d, TWO_SEDS_FACTS))
     assert gates.canonicalize(d, TWO_SEDS_FACTS)["guide"]["steps"][0]["commands"] == [first]
     assert gates.command_texts(TWO_SEDS)["sed 's/a b/x/' f"] == [first, second]
+
+
+def test_a_readme_prose_line_in_commands_does_not_satisfy_the_rule_that_a_guide_uses_the_readmes_commands():
+    prose = "Sample Agent Kit lets a small team run AI agents that read tickets and draft replies."
+    d = make_draft(FACTS, "vi")
+    for step in d["guide"]["steps"]:
+        step["commands"] = []
+    d["guide"]["steps"][0]["commands"] = [prose]
+    found = errs(d)
+    assert any("uses none of them" in e for e in found) and not any("steps[0].commands" in e for e in found), found
+    d["guide"]["steps"][0]["commands"] = [prose, "pip install sample-agent-kit"]
+    assert errs(d) == []

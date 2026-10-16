@@ -40,7 +40,7 @@ Model chỉ viết lời giải thích; **script** quyết định bài có đư
 | Căn cứ | Mỗi bước/mảnh ghép/yêu cầu/lỗi thường gặp phải ghi `README` hoặc một đường dẫn **có thật** trong repo |
 | Lệnh | Mỗi lệnh trong hướng dẫn phải là **một dòng** (hoặc một đoạn mã nội dòng) của README; lệnh README chia nhiều dòng bằng `\` được ghép thành một |
 | Chữ trong dấu backtick | Chữ model viết giữa dấu backtick (hiện ra như mã để chép) phải có trong README hoặc là đường dẫn có thật; không thể giấu một lệnh bịa trong câu văn |
-| Có lệnh khi README có lệnh | README có từ 2 dòng lệnh trở lên mà hướng dẫn không đưa lệnh nào: bị chặn. README có từ 4 dòng lệnh mà hướng dẫn dùng dưới 2: cảnh báo |
+| Có lệnh khi README có lệnh | README có từ 2 dòng lệnh trở lên (trong khối mã) mà hướng dẫn không dùng lệnh nào trong số đó: bị chặn (một dòng văn xuôi của README không tính). README có từ 4 dòng lệnh mà hướng dẫn dùng dưới 2: cảnh báo |
 | Liên kết | Không URL/tên miền do model viết. Link repo do script thêm; link khác (trang khóa API, địa chỉ cục bộ như `localhost:8080`) model chỉ **chọn theo số** trong danh sách liên kết README mà script trích, script in ra. Link có tham số theo dõi/affiliate hoặc có phần `user@` bị loại; `localhost` giả (`localhost.example.org`) không được coi là địa chỉ cục bộ |
 | Khối cấu hình mẫu | File cấu hình/ví dụ (YAML, TOML...) model không gõ lại: nó chọn **theo số** một khối mã của README, script in nguyên văn kèm thụt lề |
 | Văn bản lạ trong bài | Mọi `*` và `<` trong câu văn của model hiện ra như chữ thường (không thành chữ nghiêng hay HTML); bộ kiểm tra không bao giờ ném lỗi dù model trả JSON sai hình dạng, chỉ trả danh sách lỗi |

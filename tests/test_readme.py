@@ -219,3 +219,17 @@ def test_a_redirection_at_the_start_of_a_line_of_a_shell_block_is_kept_but_a_pro
     text = "```bash\n> output.log\n$ make\nPS C:\\> dir\n```\n\n```console\n> make test\n```\n"
     assert readme.setup_commands(text) == ["> output.log", "make", "dir", "make test"]
     assert readme.prose_lines("a\n```\nb\n```\nc\n") == ["a", "c"]
+
+
+def test_a_bare_address_with_a_bracketed_host_is_kept_whole():
+    text = "Open http://[::1]:8080/ui now, or http://[2001:db8::1]/x. Not http://[HOST]:8080 or http://[ab/."
+    assert readme.links(text) == [["::1:8080", "http://[::1]:8080/ui"], ["2001:db8::1", "http://[2001:db8::1]/x"]]
+    assert readme.is_local("http://[::1]:8080/ui")
+
+
+def test_the_secondary_prompt_of_a_wrapped_transcript_command_is_not_part_of_the_command():
+    transcript = "```console\n$ tool \\\n> --flag \\\n> --other\n$ next\n```\n"
+    assert readme.setup_commands(transcript) == ["tool --flag --other", "next"]
+    assert readme.code_lines(transcript) == ["$ tool --flag --other", "$ next"]
+    shell = "```bash\ntool \\\n> out.log\n```\n"                  # in a shell block `> out.log` is a redirection that continues the command
+    assert readme.setup_commands(shell) == ["tool > out.log"]

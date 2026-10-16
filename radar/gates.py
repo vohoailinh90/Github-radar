@@ -446,9 +446,8 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                     if isinstance(ref, int) and not isinstance(ref, bool) and ref >= size:
                         problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
         used, wanted = command_coverage(draft, facts)
-        typed = [c for _, c in guide_commands(draft)]
-        if wanted >= 2 and not typed:
-            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines but the guide gives none; "
+        if wanted >= 2 and used == 0:            # any README line passes the command gate; only a command of a code block counts here
+            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines but the guide uses none of them; "
                                     "copy the ones a reader types, in order"))
         elif wanted >= 4 and used < 2:
             problems.append(Problem("warn", "guide.steps", f"the guide uses {used} of the README's {wanted} command lines"))

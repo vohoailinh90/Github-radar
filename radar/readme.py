@@ -56,7 +56,7 @@ BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "h
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]]+")
 MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://[^\s)]+)(?:\s+\"[^\"]*\")?\)")
 HTML_LINK = re.compile(r"<a\b[^>]{0,300}?href=[\"'](https?://[^\"'\s>]+)[\"'][^>]{0,300}>(.{0,200}?)</a>", re.I | re.S)
-BARE_URL = re.compile(r"https?://[^\s<>\"'`)\]]+")
+BARE_URL = re.compile(r"https?://(?:\[[0-9A-Fa-f:.]+\][^\s<>\"'`)\]]*|[^\s<>\"'`)\]]+)")      # `http://[::1]:8080/x` keeps its brackets
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "[::1]")
 TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|track_id|promo|campaign|source|from)=", re.I)
 
@@ -197,12 +197,11 @@ def select(text: str, limit: int) -> str:
 
 
 def clean_label(text: str, url: str) -> str:
-    """Link text as a single plain line: no markdown, HTML or brackets that could change how it renders."""
+    """Link text as a single plain line: no markdown, HTML or brackets that could change how it renders (also when it is the host)."""
     text = re.sub(r"<[^>]*>", " ", text)
-    text = re.sub(r"[\[\]()<>`*_|\\]", "", text)
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", re.sub(r"[\[\]()<>`*_|\\]", "", text)).strip()
     if not text:
-        text = re.sub(r"^https?://", "", url).split("/")[0]
+        text = re.sub(r"[\[\]()<>`*_|\\]", "", re.sub(r"^https?://", "", url).split("/")[0])
     return text[:60]
 
 
@@ -295,6 +294,8 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
         if fence is None:
             continue
         piece = line.strip()
+        if pending and lang in CONSOLE_LANGS:        # `$ tool \` then `> --flag`: the `> ` is the shell's secondary prompt
+            piece = PROMPT.sub("", piece)
         pending = f"{pending} {piece}".strip() if pending else piece
         if pending.endswith("\\"):
             pending = pending[:-1].rstrip()
