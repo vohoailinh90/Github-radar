@@ -486,15 +486,23 @@ def _command_keys(commands: list, shells=None) -> set[str]:
 
 def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
     """Messages for text a model writes between backticks that does not come from the README or the repository. That text is shown
-    to the reader as code to copy; a command invented inside a sentence would get past the command gate otherwise."""
-    if text.count("`") % 2:
+    to the reader as code to copy; a command invented inside a sentence would get past the command gate otherwise. A span is read as
+    Markdown reads it, between two backtick runs of the same length (``` ``echo `date` `` ```), the way the README's own spans are read."""
+    spans = list(readmelib.CODE_SPAN.finditer(text))
+    outside, last = [], 0
+    for found in spans:
+        outside.append(text[last:found.start()])
+        last = found.end()
+    outside.append(text[last:])
+    if any("`" in part for part in outside):                     # a backtick run that opens no span, or closes none
         return ["unbalanced backtick"]
     out = []
-    for span in re.findall(r"`([^`\n]*)`", text):
+    for found in spans:
+        span = found.group(2)
         shown = _norm_cmd(span)
         ref = shown.strip("`").lstrip("./").rstrip("/").lower()
         if shown and shown not in blob and ref not in paths:
-            out.append(f"`{span}` is shown as code but is not in the README or the repository")
+            out.append(f"`{span.strip()}` is shown as code but is not in the README or the repository")
     return out
 
 
@@ -545,7 +553,6 @@ def language_ok(draft: dict, lang: str) -> bool:
 
 def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> list[Problem]:
     problems = schema(draft, require_guide)
-    schema_errors = [p.field for p in problems if p.level == "error"]                                # the checks below read the items the schema accepted
     files = {t.rstrip("/").rsplit("/", 1)[-1].lower() for t in facts["tree"]}
     paths = {t.rstrip("/").lstrip("./").lower() for t in facts["tree"]} | files
     blob = _norm_cmd(facts["readme"])
@@ -590,7 +597,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                     if isinstance(ref, int) and not isinstance(ref, bool) and ref >= size:
                         problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
         steps = guide.get("steps")
-        if isinstance(steps, list) and not any(f.startswith("guide.steps") for f in schema_errors):          # coverage reads the commands of every step
+        if isinstance(steps, list):                  # the commands are read from whatever shape the steps have (see `guide_commands`)
             used, wanted = command_coverage(draft, facts)
             if wanted >= 2 and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
                 problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "

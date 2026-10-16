@@ -977,3 +977,42 @@ def test_a_prose_command_with_a_trailing_comment_is_one_command_for_the_coverage
     facts = {**FACTS, "readme": fenced, "links": [], "blocks": []}
     used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"]), facts=facts)
     assert gates.command_coverage(used, facts) == (1, 1)                                      # and a code block's command, with or without its comment
+
+
+def test_coverage_is_checked_even_when_a_step_has_an_unrelated_schema_error():
+    def bad(d):
+        for step in d["guide"]["steps"]:
+            step["commands"] = []
+        d["guide"]["steps"][0]["title"] = ""
+    messages = errs(mutate(bad))
+    assert any("guide.steps[0].title" in m for m in messages)
+    assert any("the README shows" in m and "but the guide uses none of them" in m for m in messages)          # both in the one round of feedback
+    for shape in ("x", 3, None, [1, None, {"a": 1}], [["nested"]]):
+        weird = mutate(lambda d: d["guide"]["steps"][0].update(commands=shape))
+        assert any("guide.steps[0].commands" in m for m in errs(weird))                          # a malformed command container is refused, never a crash
+        assert gates.command_coverage(weird, FACTS)[1] == gates.command_coverage(make_draft(FACTS, "vi"), FACTS)[1]
+
+
+def test_a_multi_backtick_span_is_checked_as_a_whole_code_span():
+    blob = gates._norm_cmd("# Sample\n\nInstall with `pip install sample-agent-kit` or ``echo `date` ``.\n")
+    problems = gates._backtick_problems
+    assert problems("Run ``rm -rf /`` now.", blob, set()) == ["`rm -rf /` is shown as code but is not in the README or the repository"]
+    assert problems("Run ```rm -rf /``` now.", blob, set()) == ["`rm -rf /` is shown as code but is not in the README or the repository"]
+    assert problems("Run ``pip install sample-agent-kit`` now.", blob, set()) == []                     # a span the README has, in either delimiter
+    assert problems("Run ``echo `date` `` now.", blob, set()) == []
+    assert problems("Run ``rm -rf /``` now.", blob, set()) == ["unbalanced backtick"]                   # runs of different length do not pair
+    assert problems("A ` lone", blob, set()) == ["unbalanced backtick"] and problems("no code here", blob, set()) == []
+    invented = mutate(lambda d: d["guide"]["requirements"][0].update(detail="Chạy ``rm -rf /`` trước."))
+    assert any("`rm -rf /` is shown as code" in m for m in errs(invented))                              # and the whole gate refuses it
+
+
+def test_a_command_in_a_quoted_fence_reaches_the_gate_whole_not_as_a_joined_quote_line():
+    quoted = "# Sample\n\n> [!TIP]\n> ```bash\n> docker run \\\n>   --rm image\n> ```\n"
+    assert "docker run > --rm image" in gates.readme_commands(quoted)                                       # the raw text: prose behind a `>`, joined wrongly
+    cleaned = readme.clean_markup(quoted)                                                                   # what the facts carry (facts.clean_readme)
+    assert "docker run --rm image" in gates.readme_commands(cleaned) and "docker run > --rm image" not in gates.readme_commands(cleaned)
+    facts = {**FACTS, "readme": cleaned, "links": [], "blocks": []}
+    used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["docker run --rm image"]), facts=facts)
+    assert not any("guide.steps[0].commands" in m for m in errs(used, facts=facts))
+    wrong = mutate(lambda d: d["guide"]["steps"][0].update(commands=["docker run > --rm image"]), facts=facts)
+    assert any("guide.steps[0].commands" in m and "not a line or code span" in m for m in errs(wrong, facts=facts))

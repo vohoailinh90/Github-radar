@@ -1043,6 +1043,22 @@ def test_a_powershell_operator_written_against_its_left_operand_goes_on_but_a_wi
     assert readme._ps_glued_operator("$x = $a*") and not readme._ps_glued_operator("$files = Get-ChildItem $dir*")
 
 
+def test_a_fenced_block_in_a_block_quote_is_the_same_block_without_the_quote_marks():
+    quoted = "# S\n\n> [!TIP]\n> Run:\n>\n> ```bash\n> docker run \\\n>   --rm image\n> ```\n\nAfter `x`.\n"
+    cleaned = readme.clean_markup(quoted)
+    assert cleaned == "# S\n\n> [!TIP]\n> Run:\n>\n```bash\ndocker run \\\n  --rm image\n```\n\nAfter `x`."          # the text of the quote stays, the block loses its marks
+    assert readme.code_blocks(cleaned) == [("bash", ["docker run --rm image"])] and readme.setup_commands(cleaned) == ["docker run --rm image"]
+    assert readme.code_blocks(quoted) == []                                                                   # as it was, it was prose behind a `>`
+    nested = "> > ```sh\n> > npm install\n> > ```\n"
+    assert readme.unquote_fences(nested) == "```sh\nnpm install\n```\n"
+    blank = "> ```sh\n> a\n>\n> b\n> ```\n"
+    assert readme.unquote_fences(blank) == "```sh\na\n\nb\n```\n"
+    indented = ">     indented\n> ```sh\n>     keep this indent\n> ```\n"
+    assert readme.unquote_fences(indented) == ">     indented\n```sh\n    keep this indent\n```\n"
+    for same in ("> ```sh\n> never closed\n", "> ```sh\n> a\nout of the quote\n> ```\n", "```sh\nnot quoted\n```\n", "> just a quote\n> text\n", ""):
+        assert readme.unquote_fences(same) == same                                                           # a block that does not close inside its quote is left alone
+
+
 def test_fish_blocks_are_groups_up_to_their_end_and_batch_parenthesized_blocks_are_groups_up_to_their_closing_parenthesis():
     c, d = readme._compound_depth, readme._cmd_depth
     for text, depth in (("if test -d build", 1), ("if test -d build\n rm -rf build\nend", 0), ("for i in 1 2 3; echo $i; end", 0), ("function setup", 1),

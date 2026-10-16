@@ -201,10 +201,46 @@ def _uncomment(text: str) -> str:
     return "".join(out)
 
 
+QUOTE_MARKS = re.compile(r"[ ]{0,3}>[ ]?")                # one level of a block quote: up to three spaces, `>` and the one space after it
+
+
+def unquote_fences(text: str) -> str:
+    """The README with each fenced code block that sits in a block quote (`> ```bash` ... `> ```` : a GitHub alert, a note) written as the same
+    block without the quote marks, so that every scan below reads its lines as a block and not as prose behind a `>`. The block must close
+    inside the quote; one that does not is left as the README has it. The text of the quote around the block is not touched."""
+    lines = text.splitlines(keepends=True)
+    out, i = [], 0
+    while i < len(lines):
+        depth, pos = 0, 0
+        while (found := QUOTE_MARKS.match(lines[i], pos)):
+            depth, pos = depth + 1, found.end()
+        opened = fence_opens(lines[i][pos:]) if depth else None
+        end = None
+        if opened:
+            prefix = re.compile(f"(?:{QUOTE_MARKS.pattern}){{{depth}}}")
+            for j in range(i + 1, len(lines)):
+                found = prefix.match(lines[j])
+                if not found:
+                    break                                # the quote ends before the block does
+                if fence_closes(lines[j][found.end():], opened[0]):
+                    end = j
+                    break
+        if end is None:
+            out.append(lines[i])
+            i += 1
+            continue
+        out.append(lines[i][pos:])
+        out += [prefix.sub("", lines[j], count=1) for j in range(i + 1, end + 1)]
+        i = end + 1
+    return "".join(out)
+
+
 def clean_markup(text: str) -> str:
     """The README without HTML comments, images and badges, and with runs of blank lines folded, everywhere except inside a fenced
-    code block: a configuration file, a template or a command there is kept exactly as the README has it, because a guide prints it."""
+    code block: a configuration file, a template or a command there is kept exactly as the README has it, because a guide prints it. A
+    fenced block inside a block quote is written without the quote marks first (see `unquote_fences`)."""
     parts, run, fence = [], [], None
+    text = unquote_fences(text)
     def flush():
         chunk = _outside_code_spans("".join(run), lambda part: IMG_TAG.sub("", IMAGE.sub("", part)))
         parts.append(re.sub(r"\n{3,}", "\n\n", chunk))
