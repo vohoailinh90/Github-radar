@@ -309,6 +309,21 @@ def test_a_trailing_backslash_continues_a_line_only_where_the_shell_means_it():
     assert readme.setup_commands(text) == ["cd C:\\", "dir", "cd C:\\", "ls", "cd C:\\", "dir", "cd C:\\", "ls", "docker run -p 1:1 img"]
 
 
+def test_the_body_of_a_heredoc_is_data_a_backslash_at_the_end_of_its_lines_included():
+    text = ("```bash\ncat > conf.ini <<'EOF'\npath=C:\\tmp\\\n  indented = 1\n\nregex=a\\\nEOF\ndocker run \\\n  img\ncat <<-X <<'Y'\n  one \\\nX\ntwo \\\nY\n"
+            "echo done\nfoo <<< bar \\\n  baz\n```\n")
+    assert readme.code_blocks(text) == [("bash", ["cat > conf.ini <<'EOF'", "path=C:\\tmp\\", "  indented = 1", "", "regex=a\\", "EOF", "docker run img",
+                                                 "cat <<-X <<'Y'", "  one \\", "X", "two \\", "Y", "echo done", "foo <<< bar baz"])]
+    assert readme._heredoc_ends("cat <<EOF > f") == ["EOF"] and readme._heredoc_ends("x <<< word") == [] and readme._heredoc_ends("echo $((1 << 2))") == []
+
+
+def test_a_powershell_backtick_and_a_cmd_caret_continue_a_line_and_a_doubled_mark_does_not():
+    text = ("```powershell\nInvoke-WebRequest `\n  -Uri x `\n  -Method Get\nWrite-Host ``\n```\n\n```bat\necho a ^\n  b\necho ^^\n```\n\n"
+            "```console\nPS C:\\> Get-Item `\n>> -Path x\n$ tool \\\n> --flag\n```\n")
+    assert readme.code_blocks(text) == [("powershell", ["Invoke-WebRequest -Uri x -Method Get", "Write-Host ``"]), ("bat", ["echo a b", "echo ^^"]),
+                                        ("console", ["PS C:\\> Get-Item -Path x", "$ tool --flag"])]
+
+
 def test_adjacent_addresses_with_nothing_between_them_are_separate_links():
     text = ("Set `CORS_ALLOWED_ORIGINS=http://localhost:3000,https://frontend.example.com;http://[::1]:8080,https://b.example.org/x` first.\n"
             "Also [both](http://a.example.com,https://b.example.com) and https://c.example.com/list?ids=1,2 here.\n")

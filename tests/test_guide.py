@@ -2,6 +2,7 @@
 
 import copy
 import json
+import re
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -487,6 +488,47 @@ def test_the_fence_of_a_command_block_is_longer_than_any_run_of_backticks_in_it(
 def test_a_link_with_a_pair_of_parentheses_is_printed_as_a_working_markdown_link():
     facts = {**FACTS, "links": [["Foo", "https://example.org/wiki/Foo_(bar)"]]}
     assert digest._link(facts, 0, L["vi"]).endswith("[Foo](https://example.org/wiki/Foo_(bar))")
+
+
+PWSH_README = README + "\n```powershell\nInvoke-WebRequest `\n  -Uri http://localhost:9 `\n  -Method Get\n```\n"
+PWSH_FACTS = {**FACTS, "readme": PWSH_README, "links": readme.links(PWSH_README), "blocks": readme.blocks(PWSH_README)}
+
+
+def test_a_piece_of_a_powershell_command_wrapped_with_backticks_is_not_a_command():
+    whole = "Invoke-WebRequest -Uri http://localhost:9 -Method Get"
+    for command, ok in ((whole, True), ("-Uri http://localhost:9 -Method Get", False), ("-Method Get", False), ("Invoke-WebRequest", False)):
+        d = make_draft(PWSH_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, PWSH_FACTS))) is ok, command
+
+
+PAPER_README = re.sub(r"```.*?```", "", README, flags=re.S)                      # the fixture README without its code blocks: nothing to run
+PAPER_FACTS = {**FACTS, "readme": PAPER_README, "links": readme.links(PAPER_README), "blocks": readme.blocks(PAPER_README)}
+
+
+def short_guide(facts, steps):
+    d = copy.deepcopy(make_draft(facts, "vi"))
+    d["guide"]["steps"] = d["guide"]["steps"][:steps]
+    for item in d["guide"]["steps"] + d["guide"]["requirements"] + d["guide"]["troubleshooting"]:
+        item.pop("link_ref", None), item.pop("snippet_ref", None)
+    for step in d["guide"]["steps"]:
+        step["commands"] = []
+    return d
+
+
+def test_a_readme_with_nothing_to_run_may_have_a_guide_of_one_or_two_steps_and_one_with_commands_may_not(tmp_path):
+    for steps in (1, 2):
+        d = short_guide(PAPER_FACTS, steps)
+        assert not any("steps" in e for e in errs(d, PAPER_FACTS)), (steps, errs(d, PAPER_FACTS))
+        md = render(tmp_path / str(steps), d, facts=PAPER_FACTS)[1]
+        assert f"{L['vi']['step']} {steps} · " in md and (tmp_path / str(steps)).exists()
+        svg_text = next((tmp_path / str(steps)).rglob("path-vi.svg")).read_text(encoding="utf-8")
+        ET.fromstring(svg_text)                                                                 # the roadmap of so few steps is still a valid drawing
+    none = short_guide(PAPER_FACTS, 1)
+    none["guide"]["steps"] = []
+    assert any("needs 1-10 items" in e for e in errs(none, PAPER_FACTS))                      # a guide still has at least one step
+    d = short_guide(FACTS, 2)
+    assert any("guide.steps" in e and "needs 3-10 steps" in e for e in errs(d))               # the README of the fixture shows many commands
 
 
 def test_the_output_lines_of_a_console_transcript_are_not_commands():

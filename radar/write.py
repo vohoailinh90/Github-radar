@@ -57,7 +57,7 @@ Answer with ONE JSON object and nothing else, with exactly these keys:
  "caveats": ["1-4 honest limits: maturity, licence, cost, hardware, scope"],
  "glossary": [{{"term": "", "meaning": ""}}],
  "facebook": {{"caption": "first line <=125 chars, then 3-6 short lines", "hashtags": ["max5"]}}}}
-Counts: guide.requirements 0-8, guide.steps 3-10, guide.troubleshooting 0-5, guide.next 0-3, how_it_works.steps 3-6 (the idea behind it,
+Counts: guide.requirements 0-8, guide.steps 3-10 (1-2 only when the README has fewer than 2 command lines to follow), guide.troubleshooting 0-5, guide.next 0-3, how_it_works.steps 3-6 (the idea behind it,
 not the instructions), components 2-6, flow = pairs of component indexes (arrows), glossary 0-4."""
 
 WRITE_MAX_TOKENS = 8000          # the guide roughly doubles the answer: about 5-6 thousand tokens in Vietnamese

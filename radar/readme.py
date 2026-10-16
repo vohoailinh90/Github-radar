@@ -414,20 +414,32 @@ def dedent(lines: list[str]) -> list[str]:
     return [_drop_columns(line, margin) if line.strip() else "" for line in lines]
 
 
-WINDOWS_LANGS = {"cmd", "bat", "batch", "powershell", "ps1"}            # a trailing backslash is a path there, `^` (cmd) or a backtick (PowerShell) continues
+POWERSHELL_LANGS = {"powershell", "ps1"}                                   # a backtick at the end of a line continues it
+CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
+HEREDOC = re.compile(r"(?<!<)<<(?!<)-?[ \t]*(?:'([^'\s]+)'|\"([^\"\s]+)\"|\\?([A-Za-z_][A-Za-z0-9_]*))")      # `<<EOF`, `<<-'EOF'`; not `<<<`
+HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh"} | CONSOLE_LANGS
 
 
 def _continues(lang: str, line: str) -> bool:
-    """True when `line` goes on in the next one: it ends in a backslash, in a shell where that is the continuation mark and not
-    the end of a Windows path (`cd C:\\`, a command after a PowerShell prompt, a `bat`, `cmd` or `powershell` block)."""
-    return (line.endswith("\\") and lang not in WINDOWS_LANGS and not POWERSHELL_PROMPT.match(line) and not DRIVE_ROOT.search(line))
+    """True when `line` goes on in the next one, by the mark of its shell: a backslash (not the end of a Windows path such as
+    `cd C:\\`), a backtick in PowerShell or a line after a PowerShell prompt, a caret in `cmd` and `bat`."""
+    if lang in POWERSHELL_LANGS or POWERSHELL_PROMPT.match(line):
+        return re.search(r"(?<!`)`$", line) is not None
+    if lang in CMD_LANGS:
+        return re.search(r"(?<!\^)\^$", line) is not None
+    return line.endswith("\\") and not DRIVE_ROOT.search(line)
+
+
+def _heredoc_ends(line: str) -> list[str]:
+    """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each."""
+    return [next(g for g in m.groups() if g) for m in HEREDOC.finditer(line)]
 
 
 def code_blocks(text: str) -> list[tuple[str, list[str]]]:
-    """(language tag, logical lines) of each fenced code block, in order. A line ending in a backslash is joined with the next
-    (the padding of the continuation is dropped). Everything else is kept as the README has it: the indentation of a line (a
+    """(language tag, logical lines) of each fenced code block, in order. A line ending in its shell's continuation mark is joined with
+    the next (the padding of the continuation is dropped), except in the body of a heredoc, which is data. Everything else is kept as the README has it: the indentation of a line (a
     heredoc body, a YAML sample) and the blank lines between lines; only the indentation common to the whole block, which belongs to
     the Markdown container (a list item), is removed. Blank lines at the start and end of a block are dropped."""
     raw: list[tuple[str, list[str]]] = []
@@ -448,8 +460,13 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     blocks: list[tuple[str, list[str]]] = []
     for lang, lines in raw:
         body = dedent(lines)
-        logical, pending = [], ""
+        logical, pending, ends = [], "", []
         for line in body:
+            if ends:                              # inside a heredoc every line is data, a backslash at its end included
+                logical.append(line.rstrip())
+                if line.strip() == ends[0]:
+                    ends.pop(0)
+                continue
             if not line.strip():                  # a blank line ends a pending continuation and is kept
                 if pending:
                     logical.append(pending)
@@ -458,8 +475,8 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
                 continue
             if pending:
                 piece = line.strip()
-                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag`: the `> ` is the shell's secondary prompt
-                    piece = PROMPT.sub("", piece)
+                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag` (`>> -Flag` in PowerShell): the shell's secondary prompt
+                    piece = PROMPT.sub("", re.sub(r"^>>\s+", "", piece))
                 pending = f"{pending} {piece}"
             else:
                 pending = line.rstrip()
@@ -467,6 +484,8 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
                 pending = pending[:-1].rstrip()
                 continue
             logical.append(pending)
+            if lang in HEREDOC_LANGS:
+                ends = _heredoc_ends(pending)
             pending = ""
         if pending:
             logical.append(pending)

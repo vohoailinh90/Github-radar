@@ -29,7 +29,7 @@ LIMITS = {"title": 70, "hook": 110, "one_liner": 200, "problem": 500, "analogy":
 # The how-to guide: what a person does, in order, from nothing to the project's result.
 GUIDE = {"outcome": 220, "item": 80, "detail": 180, "title": 70, "why": 200, "do": 200, "command": 800, "expect": 220,
          "if_fails": 220, "verify": 220, "problem": 120, "fix": 200, "next": 160}
-GUIDE_COUNTS = {"requirements": (0, 8), "steps": (3, 10), "do": (1, 4), "commands": (0, 12), "troubleshooting": (0, 5), "next": (0, 3)}
+GUIDE_COUNTS = {"requirements": (0, 8), "steps": (1, 10), "do": (1, 4), "commands": (0, 12), "troubleshooting": (0, 5), "next": (0, 3)}
 
 
 @dataclass(frozen=True)
@@ -475,6 +475,10 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                     if isinstance(ref, int) and not isinstance(ref, bool) and ref >= size:
                         problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
         used, wanted = command_coverage(draft, facts)
+        steps = guide.get("steps")
+        if wanted >= 2 and isinstance(steps, list) and len(steps) < 3:          # one or two steps only for a README with next to nothing to run
+            problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines, so the guide needs 3-10 steps "
+                                    "(1-2 only when the README has fewer than 2 command lines to follow)"))
         if wanted >= 2 and used == 0:            # any README line passes the command gate; only a command of a code block counts here
             problems.append(Problem("error", "guide.steps", f"the README shows {wanted} command lines but the guide uses none of them; "
                                     "copy the ones a reader types, in order"))
