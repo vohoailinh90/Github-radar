@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tVZg4tB0C87F7KT+9wENDxE2vLdkQHOTj0jPjPg59sw='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-q28Ccb91550kWQ2SpwxbKnZxUVuhei6z3S/CA8FN/NU='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -386,10 +386,11 @@ let branch = { repo: "", name: "" };
 let pollTimer = null;
 let sending = false;
 let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
-// The send I am following, kept for the repository it went to (so typing another name and coming back keeps the lock):
-// { repo, sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
-//   active: was that run last seen queued or running }. null = nothing sent.
-let watch = null;
+// The send I am following in each repository I sent to (so typing another name, even sending there, and coming back keeps the lock):
+// repo -> { sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
+//   active: was that run last seen queued or running }.
+const watches = new Map();
+const watchOf = (repo) => watches.get(repo) || null;
 const DISCOVERY_MS = 120000;
 
 function say(id, text, kind) {
@@ -425,8 +426,9 @@ function repoName() { return $("repo").value.trim(); }
 function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10"; }
 // Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
 // could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
-function watching() { return watch !== null && watch.repo === repoName(); }
-function busy() { return sending || (watching() && (watch.active || (!watch.seen && Date.now() - watch.sentAt < DISCOVERY_MS))); }
+function watching() { return watchOf(repoName()) !== null; }
+function holds(w) { return w !== null && (w.active || (!w.seen && Date.now() - w.sentAt < DISCOVERY_MS)); }      // does this send still forbid another one
+function busy() { return sending || holds(watchOf(repoName())); }
 
 async function checkToken() {
   const repo = repoName();
@@ -565,7 +567,7 @@ async function go() {
 
 // From a send that may have started a run: recognise that run by its id and keep the button off until it is listed (or the wait ends).
 function watchSent(attempt, repo) {
-  watch = { repo, sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false };
+  watches.set(repo, { sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false });
   $("confirm").value = "";
 }
 
@@ -579,7 +581,7 @@ async function loadRuns() {
     const res = await call("GET", runsPath(repo));
     if (look !== looks) return;                              // a newer look was started meanwhile; this answer may be older than what that one saw
     if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { say("msg", explain(res.status, res.data), "bad"); return; }      // not knowing is not "finished": the lock stays as it was
-    const mineOf = watch !== null && watch.repo === repo ? watch : null;
+    const mineOf = watchOf(repo);
     const rows = [];
     let mineActive = false, seenMine = false;
     for (const run of res.data.workflow_runs.slice(0, 10)) {
@@ -604,8 +606,7 @@ async function loadRuns() {
   } finally {
     if (look === looks) {
       // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
-      const followed = watch !== null && watch.repo === repo && (watch.active || Date.now() - watch.sentAt < DISCOVERY_MS);
-      if (anyActive || followed) pollTimer = setTimeout(loadRuns, 10000);
+      if (anyActive || holds(watchOf(repo))) pollTimer = setTimeout(loadRuns, 10000);
       refresh();
     }
   }
@@ -645,7 +646,7 @@ for (const node of document.querySelectorAll("input, select")) {
   node.addEventListener("change", changed);
 }
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watch = null; looks++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);

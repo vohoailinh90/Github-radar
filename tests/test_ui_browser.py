@@ -106,6 +106,21 @@ def wait(page, expression, seconds=8):
     raise AssertionError(f"still false after {seconds}s: {expression}")
 
 
+def runs_requests(gh) -> int:
+    return len([r for r in gh.requests if r["method"] == "GET" and "/radar.yml/runs" in r["path"]])
+
+
+def settle(page, looks, seconds=8):
+    """Under a fake clock: wait until `looks` run-list requests were made, then give the page a moment to take the last answer and set its next
+    timer (it does both in one task). A clock jump before that would find no timer to fire. (wait_for_timeout, not time.sleep: only a call into
+    Playwright lets the route handlers run.)"""
+    deadline = time.monotonic() + seconds
+    while runs_requests(page.gh) < looks and time.monotonic() < deadline:
+        page.wait_for_timeout(50)
+    assert runs_requests(page.gh) >= looks
+    page.wait_for_timeout(300)
+
+
 def text(page, selector):
     return page.inner_text(selector)
 
@@ -341,11 +356,14 @@ def test_a_failed_run_list_keeps_the_lock_of_a_run_last_seen_active_until_a_good
     page.gh.routes[runs] = (200, page.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
     page.click("#go")
     wait(page, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    seen = runs_requests(page.gh)
     page.gh.routes[runs] = (500, {"message": "x"})
     page.clock.fast_forward(10_000)
     wait(page, "document.getElementById('msg').className.includes('bad')")
+    settle(page, seen + 1)
     assert page.is_disabled("#go")                                                 # not knowing is not "finished"
     page.clock.fast_forward(200_000)                                               # even far beyond the discovery wait: the run was seen active
+    settle(page, seen + 2)
     assert page.is_disabled("#go")
     page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "completed", "conclusion": "success", "created_at": now}]})
     page.clock.fast_forward(10_000)                                                # it kept looking, and now a good answer says it ended
@@ -405,6 +423,7 @@ def test_a_lost_answer_that_never_produces_a_run_ends_after_the_wait(browser):
     page.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = ("abort", None)
     page.click("#go")
     wait(page, "document.getElementById('msg').className.includes('warn')")
+    settle(page, 2)
     assert page.is_disabled("#go")
     page.clock.fast_forward(125_000)
     wait(page, "document.getElementById('go').disabled === false")
@@ -521,18 +540,15 @@ def test_the_button_stays_off_until_the_run_just_sent_is_listed(ui):
 
 
 def test_the_wait_for_a_run_that_never_shows_up_ends_after_two_minutes(browser):
-    context = browser.new_context()
-    gh = Github()
-    context.route("https://api.github.com/**", gh.handle)
-    page = context.new_page()
-    page.clock.install(time=dt.datetime.now(dt.timezone.utc))
-    page.goto(PAGE_URL)
+    context, page = _with_a_fake_clock(browser)
     connect(page)
     page.click("#go")
     wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    settle(page, 2)
     assert page.is_disabled("#go")
     page.clock.fast_forward(60_000)
     page.click("#refresh")
+    settle(page, 3)
     assert page.is_disabled("#go")                                                 # a minute in: still waiting
     page.clock.fast_forward(70_000)
     page.click("#refresh")
@@ -557,10 +573,12 @@ def test_a_failed_answer_while_waiting_for_the_run_does_not_stop_the_looking(bro
     connect(page)
     page.click("#go")
     wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    settle(page, 2)                                                             # the list read before the send, and the first look after it
     assert page.is_disabled("#go")
     page.gh.routes[runs] = (500, {"message": "busy"})
     page.clock.fast_forward(10_000)                                                # the next look fails ...
     wait(page, "document.getElementById('msg').className.includes('bad')")
+    settle(page, 3)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 77, "status": "completed", "conclusion": "success", "created_at": now}]})
     page.clock.fast_forward(10_000)                                                # ... and the one after it still happens
@@ -586,6 +604,26 @@ def test_the_lock_of_a_run_survives_looking_at_another_repository_and_coming_bac
     ui.fill("#repo", REPO)                                                         # back again after it finished: found out without a click
     wait(ui, "document.getElementById('go').disabled === false")
     assert "Xong" in text(ui, "#runs-body")
+
+
+def test_a_send_to_a_second_repository_does_not_forget_the_first_ones_run(ui):
+    connect(ui)
+    other = "someone/else"
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (
+        200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    posts_here = len(ui.gh.posts())
+    ui.gh.routes[("GET", f"/repos/{other}")] = (200, {"default_branch": "main"})
+    ui.gh.routes[("GET", f"/repos/{other}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": []})
+    ui.gh.routes[("POST", f"/repos/{other}/actions/workflows/radar.yml/dispatches")] = (204, None)
+    ui.fill("#repo", other)
+    ui.click("#go")                                                                # a send to the other repository: allowed, it has nothing in flight
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert len(ui.gh.posts()) == posts_here + 1
+    ui.fill("#repo", REPO)
+    assert ui.is_disabled("#go")                                                   # the first repository's run is still known to be queued
 
 
 def test_runs_of_another_repository_are_never_taken_for_mine(ui):
