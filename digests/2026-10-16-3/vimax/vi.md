@@ -35,9 +35,9 @@ _Đánh dấu từng mục khi đã có đủ._
 - [ ] **Hệ điều hành Linux hoặc Windows**: README ghi môi trường là Linux và Windows.
 - [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.
 - [ ] **uv**: Công cụ README dùng để quản lý môi trường Python.  
-  Lấy tại: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/) _(liên kết lấy từ README)_
+  Liên kết trong README: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/)
 - [ ] **Node.js 18 trở lên**: Cần cho giao diện web. Không dùng giao diện web thì có thể bỏ qua.
-- [ ] **Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video**: Ví dụ trong README dùng OpenRouter cho mô hình chat, Nanobanana (Google API) cho ảnh và Veo (Google API) cho video.
+- [ ] **Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video**: README minh họa (file `configs/idea2video.yaml`) mô hình chat qua OpenRouter, ảnh bằng Nanobanana và video bằng Veo, đều qua API của Google.
 
 ## 🗺️ Lộ trình
 
@@ -54,7 +54,7 @@ _Đánh dấu từng mục khi đã có đủ._
 3. Cài Node.js phiên bản 18 trở lên để dùng giao diện web.
 4. Mở một cửa sổ terminal.
 
-🔗 Lấy tại: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/)
 
 <sub>Căn cứ: `README`</sub>
 
@@ -91,9 +91,29 @@ cp configs/agent.example.yaml configs/agent.local.yaml
 **Mục đích:** Để agent biết gọi mô hình chat, mô hình ảnh và mô hình video nào.
 
 1. Mở file `configs/agent.local.yaml` bằng trình soạn thảo.
-2. Điền ba nhóm `llm`, `image` và `video`; mỗi nhóm có `model`, `base_url` và `api_key` (nhóm `llm` còn có `model_provider`).
-3. Thay các chỗ giữ chỗ trong dấu < > bằng giá trị thật của bạn.
+2. Điền ba nhóm `llm`, `image` và `video` theo mẫu bên dưới; thay mọi giá trị giữ chỗ trong dấu &lt; > bằng giá trị thật của bạn.
+3. Mỗi nhóm cần `model`, `base_url` và `api_key`. Nhóm `llm` còn có `model_provider`; mẫu của README đặt giá trị là `openai`.
 4. Cách khác: để file trống và đặt khóa bằng biến môi trường `VIMAX_LLM_API_KEY`, `VIMAX_IMAGE_API_KEY`, `VIMAX_VIDEO_API_KEY`.
+
+_Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị của bạn)_
+
+```yaml
+llm:
+  model_provider: openai
+  model: <YOUR_LLM_MODEL>
+  base_url: <YOUR_LLM_BASE_URL>
+  api_key: <YOUR_API_KEY>
+
+image:
+  model: <YOUR_IMAGE_MODEL>
+  base_url: <YOUR_IMAGE_BASE_URL>
+  api_key: <YOUR_API_KEY>
+
+video:
+  model: <YOUR_VIDEO_MODEL>
+  base_url: <YOUR_VIDEO_BASE_URL>
+  api_key: <YOUR_API_KEY>
+```
 
 <sub>Căn cứ: `README`</sub>
 
@@ -120,31 +140,33 @@ npm run dev
 
 **Mục đích:** Chạy quy trình từ ý tưởng đến video.
 
-1. Tạo một dự án có tên trong giao diện web.
-2. Trò chuyện với ViMax Agent. README liệt kê hai cách bắt đầu: từ một ý tưởng ngắn (Idea2Video) hoặc từ kịch bản có sẵn (Script2Video).
-3. Xem lại các sản phẩm trung gian như kịch bản, nhân vật và bản xem trước phân cảnh, rồi sửa kế hoạch nếu cần.
-4. Cho phép dựng và xem bản xem trước video.
+1. Tạo một dự án có tên trong giao diện web rồi trò chuyện với ViMax Agent.
+2. README mô tả ViMax làm được hai việc: từ một ý tưởng ngắn (Idea2Video) hoặc từ kịch bản có sẵn (Script2Video).
+3. Ví dụ trong README: ý tưởng If a cat and a dog are best friends, what would happen when they meet a new cat? cùng yêu cầu For children, do not exceed 3 scenes. và phong cách Cartoon.
+4. Xem lại các sản phẩm trung gian (kịch bản, nhân vật, bản xem trước phân cảnh), sửa kế hoạch nếu cần, rồi cho dựng.
 
-<sub>Căn cứ: `README`</sub>
+🩹 **Nếu không được:** README không mô tả từng nút trên giao diện web; hãy làm theo gợi ý hiển thị trong giao diện.
+
+<sub>Căn cứ: `main_idea2video.py`</sub>
 
 ### Bước 7 · Cách khác: dùng giao diện terminal (TUI)
 
 **Mục đích:** Làm cùng việc đó ngay trong terminal, không cần trình duyệt.
 
-1. Chạy lệnh đầu từ thư mục gốc ViMax để mở TUI.
-2. Lệnh thứ hai bắt đầu phiên mới, lệnh thứ ba tiếp tục phiên gần nhất.
+1. Chạy lệnh dưới đây từ thư mục gốc ViMax để mở TUI.
+2. README còn có `vimax tui new` để bắt đầu phiên mới và `vimax tui resume` để tiếp tục phiên đã có.
 
 ```bash
 vimax tui
-vimax tui new
-vimax tui resume
 ```
+
+🩹 **Nếu không được:** README không nói rõ lệnh vimax chạy được ngay sau uv sync hay không; nếu máy báo không tìm thấy lệnh, hãy dùng giao diện web ở bước trước.
 
 <sub>Căn cứ: `README`</sub>
 
 ## ✔️ Kiểm tra kết quả
 
-Bạn mở được giao diện web, tạo được một dự án và agent trả về kế hoạch cùng bản xem trước. README không mô tả từng nút trên màn hình, nên hãy làm theo gợi ý ngay trong giao diện.
+Bạn mở được giao diện web ở địa chỉ trên, tạo được dự án và trò chuyện với ViMax Agent. README nói giao diện cho xem kịch bản, phân cảnh và bản xem trước video đã dựng, nhưng không mô tả từng nút.
 
 ## 🩹 Lỗi thường gặp
 

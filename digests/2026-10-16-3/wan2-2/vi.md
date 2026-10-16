@@ -35,7 +35,7 @@ _Đánh dấu từng mục khi đã có đủ._
 - [ ] **Python, pip và PyTorch từ bản 2.4.0 trở lên**: README dặn đảm bảo torch >= 2.4.0 trước khi cài thư viện.
 - [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.
 - [ ] **Chỗ trống ổ đĩa cho tệp mô hình**: README không nêu dung lượng cụ thể; mô hình tải về thư mục riêng, hãy chuẩn bị dư chỗ.  
-  Lấy tại: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B) _(liên kết lấy từ README)_
+  Liên kết trong README: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B)
 
 ## 🗺️ Lộ trình
 
@@ -94,7 +94,7 @@ pip install "huggingface_hub[cli]"
 2. Đừng chạy nguyên dòng đó, vì nó tải mô hình lớn hơn. Hãy dùng đúng cấu trúc lệnh ấy nhưng đổi cả hai chỗ `Wan2.2-T2V-A14B` thành `Wan2.2-TI2V-5B`.
 3. Mã mô hình TI2V-5B nằm trong bảng mô hình của README (xem liên kết dưới đây). Có thể tải bằng modelscope-cli nếu Hugging Face khó truy cập.
 
-🔗 Lấy tại: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B)
 
 <sub>Căn cứ: `README`</sub>
 
@@ -103,7 +103,7 @@ pip install "huggingface_hub[cli]"
 **Mục đích:** Chạy mô hình để biến câu mô tả thành video.
 
 1. Chạy lệnh dưới đây trong thư mục Wan2.2. Câu trong dấu ngoặc kép sau --prompt là mô tả cảnh bằng tiếng Anh; bạn thay bằng mô tả của mình.
-2. README ghi 720P của tác vụ này là 1280*704 hoặc 704*1280, và lệnh chạy được trên GPU có ít nhất 24GB VRAM.
+2. README ghi 720P của tác vụ này là 1280\*704 hoặc 704\*1280, và lệnh chạy được trên GPU có ít nhất 24GB VRAM.
 
 ```bash
 python generate.py --task ti2v-5B --size 1280*704 --ckpt_dir ./Wan2.2-TI2V-5B --offload_model True --convert_model_dtype --t5_cpu --prompt "Two anthropomorphic cats in comfy boxing gear and bright gloves fight intensely on a spotlighted stage"

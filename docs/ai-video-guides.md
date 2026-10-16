@@ -24,7 +24,7 @@ Mục lục đầy đủ của lần quét: [`digests/2026-10-16-3/README.md`](.
 1. **Bạn sẽ làm ra được gì**: kết quả cuối cùng, nói cụ thể.
 2. **Lưu ý trước khi dùng** và **Chuẩn bị**: danh sách đánh dấu được (phần mềm, phần cứng, tài khoản, khóa API), có liên kết lấy từ README.
 3. **Lộ trình**: một hình tóm tắt các bước, mỗi bước cho biết có bao nhiêu lệnh.
-4. **Làm theo từng bước**: mỗi bước có *mục đích*, việc cần làm, khối lệnh để chép, *bạn sẽ thấy*, *nếu không được* và *căn cứ* (README hoặc một đường dẫn có thật trong repo).
+4. **Làm theo từng bước**: mỗi bước có *mục đích*, việc cần làm, khối lệnh để chép, khối cấu hình mẫu (in nguyên văn từ README, có thụt lề), *bạn sẽ thấy*, *nếu không được* và *căn cứ* (README hoặc một đường dẫn có thật trong repo).
 5. **Kiểm tra kết quả**, **Lỗi thường gặp** (chỉ những lỗi README tự nêu), **Làm tiếp**.
 6. Phần giải thích cách nó chạy bên trong, bài học thiết kế và từ khóa nằm **sau** phần hướng dẫn.
 
@@ -48,7 +48,9 @@ không phải giấy phép mã nguồn mở chuẩn, nên chưa đưa vào. Mu�
   Mỗi bản nháp (`draft-vi.json`) ghi rõ điều này trong khóa `note`. Máy vẫn kiểm: số liệu phải có trong README hoặc dữ kiện repo, mỗi
   lệnh phải là một dòng của README, chữ nằm giữa dấu backtick phải có trong README hoặc là đường dẫn có thật, không có URL do model viết
   (liên kết được máy in ra từ danh sách liên kết của README), không có lời quảng cáo.
-- **README là nguồn duy nhất.** Chỗ README không nói (tên nút trên giao diện, vị trí tệp kết quả, dung lượng mô hình), bài cũng nói là README không nêu.
+- **README là nguồn duy nhất.** Chỗ README không nói (tên nút trên giao diện, vị trí tệp kết quả, dung lượng mô hình), bài cũng nói là README không nêu. Hai bài (ViMax, VideoLingo)
+  vì thế còn những bước README chỉ mô tả chung, nơi bạn phải làm theo gợi ý hiện trong giao diện.
+- Bài Wan2.2 dựng từ phần README dài 16.000 ký tự (cấu hình mặc định của bộ quét là 12.000) để có đủ mục mô hình TI2V-5B, đường chạy cần 24GB VRAM; `note` trong bản nháp ghi số ký tự đã dùng.
 - Số sao là ảnh chụp ngày quét, đọc từ trang repo và làm tròn theo trang.
 - Đây không phải đánh giá bảo mật. Các repo này gọi dịch vụ bên thứ ba (LLM, nguồn clip, giọng đọc) có thể tính phí; hãy xem điều khoản của từng nhà cung cấp và bản quyền của clip, nhạc, video bạn xử lý.
 

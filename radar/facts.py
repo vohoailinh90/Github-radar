@@ -53,6 +53,7 @@ def build(gh, cand: dict, cfg: dict, today: dt.date) -> dict:
         "tree": tree[:budget],
         "readme": text,
         "links": readmelib.links(text),               # [[label, url], ...]: the only addresses a guide may point to, by number
+        "blocks": readmelib.blocks(text),             # [[language, text], ...]: README samples (config files...) a guide may show, by number
         "bucket": cand["bucket"],
         "topic": cand["topic"],
         "score": cand["score"],

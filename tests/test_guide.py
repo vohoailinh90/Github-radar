@@ -14,7 +14,7 @@ FACTS = {"full_name": "example-org/sample-agent-kit", "url": "https://github.com
          "description": "Run AI agents", "readme": README, "stars": 24000, "forks": 2400, "open_issues": 12, "license": "MIT",
          "language": "Python", "languages": ["Python"], "topics": ["llm"], "created": "2024-11-14", "pushed": "2026-10-09",
          "age_years": 1, "tree": TREE + ["src/planner.py", "src/memory.py", "src/tools/"], "bucket": "ai", "scanned": "2026-10-14",
-         "links": readme.links(README)}
+         "links": readme.links(README), "blocks": readme.blocks(README)}
 
 
 def errs(draft, facts=FACTS, lang="vi", require=True):
@@ -150,7 +150,7 @@ def test_the_digest_leads_with_the_outcome_then_what_to_prepare_then_every_step(
 
 def test_a_readme_address_is_printed_by_the_renderer_and_a_local_one_is_code(tmp_path):
     _, md = render(tmp_path, make_draft(FACTS, "vi"))
-    assert "[the helpdesk key page](https://helpdesk.example.org/settings/keys)" in md and L["vi"]["from_readme"] in md
+    assert f"{L['vi']['get_link']}: [the helpdesk key page](https://helpdesk.example.org/settings/keys)" in md
     assert "`http://localhost:8080`" in md and "](http://localhost:8080)" not in md
 
 
@@ -175,15 +175,17 @@ def test_the_draft_with_its_guide_is_kept_and_the_links_it_points_at_with_it(tmp
     folder, _ = render(tmp_path, make_draft(FACTS, "vi"))
     stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
     assert stored["draft"]["guide"]["steps"][2]["link_ref"] == 0 and stored["facts"]["links"] == FACTS["links"]
+    assert stored["draft"]["guide"]["steps"][2]["snippet_ref"] == 0 and stored["facts"]["blocks"] == FACTS["blocks"]
 
 
 def test_a_draft_from_before_the_guide_renders_exactly_the_older_layout(tmp_path):
     folder, md = render(tmp_path, make_draft(FACTS, "vi", legacy=True))
     assert L["vi"]["try"] in md and L["vi"]["do_steps"] not in md and not (folder / "path-vi.svg").exists()
     assert "```bash\npip install sample-agent-kit\nsample-agent run --queue support\n```" in md
-    old = {k: v for k, v in FACTS.items() if k != "links"}
+    old = {k: v for k, v in FACTS.items() if k not in ("links", "blocks")}
     folder2, _ = render(tmp_path / "old", make_draft(old, "vi", legacy=True), facts=old)
-    assert "links" not in json.loads((folder2 / "draft-vi.json").read_text(encoding="utf-8"))["facts"]
+    stored_facts = json.loads((folder2 / "draft-vi.json").read_text(encoding="utf-8"))["facts"]
+    assert "links" not in stored_facts and "blocks" not in stored_facts
 
 
 @pytest.mark.parametrize("lang", ["vi", "en", "ja"])
@@ -209,3 +211,88 @@ def test_the_index_of_a_run_says_what_each_guide_ends_with_and_how_many_steps_it
     text = (tmp_path / "digests" / "2026-10-14" / "README.md").read_text(encoding="utf-8")
     assert f"🎯 {GUIDE_T['vi']['outcome']} · 🪜 5 {L['vi']['steps_n']}" in text
     assert text.count("🎯") == 1                         # a draft from before the guide gets no such line
+
+
+# ---- a model may answer with any JSON: the gates must return Problems, never raise ---------------------------
+
+ODD = [None, 1, True, "`x`", [], ["a"], [1], {}, {"a": 1}]
+
+
+def paths(node, prefix=()):
+    """Every key path of a draft: a list is entered by position, so each element is mutated on its own."""
+    yield prefix
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from paths(v, prefix + (k,))
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from paths(v, prefix + (i,))
+
+
+def replace_at(draft, path, value):
+    d = copy.deepcopy(draft)
+    if not path:
+        return value
+    node = d
+    for key in path[:-1]:
+        node = node[key]
+    node[path[-1]] = value
+    return d
+
+
+def test_the_gates_never_raise_whatever_shape_a_model_sends_for_any_field():
+    base = make_draft(FACTS, "vi")
+    tried = 0
+    for path in paths(base):
+        for odd in ODD:
+            draft = replace_at(base, path, odd)
+            if not isinstance(draft, dict):
+                continue
+            gates.schema(draft)
+            gates.check(draft, FACTS, "vi", require_guide=True)
+            tried += 1
+    assert tried > 1000
+
+
+def test_a_draft_that_is_not_an_object_at_all_is_refused_by_the_caller_not_by_a_crash():
+    from radar.llm import parse_json
+    for text in ('["a"]', '"x"', "3", "null"):
+        try:
+            parse_json(text)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"parse_json accepted {text!r}")
+
+
+def test_a_config_sample_is_printed_exactly_as_the_readme_has_it(tmp_path):
+    _, md = render(tmp_path, make_draft(FACTS, "vi"))
+    assert f"_{L['vi']['snippet']}_\n\n```toml\n[helpdesk]\nkey = \"YOUR_KEY\"\nqueue = \"support\"\n```" in md
+
+
+def test_a_snippet_ref_must_name_a_block_the_readme_has():
+    assert errs(mutate(lambda d: d["guide"]["steps"][2].update(snippet_ref=0))) == []
+    for bad in (5, -1, True, "0", [0], 1.0):
+        assert any("snippet_ref" in e for e in errs(mutate(lambda d: d["guide"]["steps"][2].update(snippet_ref=bad)))), bad
+    no_blocks = {k: v for k, v in FACTS.items() if k != "blocks"}
+    assert any("snippet_ref" in e for e in errs(mutate(lambda d: d["guide"]["steps"][2].update(snippet_ref=0)), no_blocks))
+
+
+def test_a_stored_block_that_is_unsafe_is_never_printed(tmp_path):
+    hostile = {**FACTS, "blocks": [["<script>", "x"], ["yaml", "a: 1\n" * 60], ["yaml", "k: ```\nv: 1"]]}
+    d = mutate(lambda d: [d["guide"]["steps"][2].update(snippet_ref=1), d["guide"]["steps"][3].update(snippet_ref=2)], facts=hostile)
+    _, md = render(tmp_path, d, facts=hostile)
+    assert "a: 1\na: 1" not in md                                   # 60 lines: too long to print
+    assert "````yaml\nk: ```\nv: 1\n````" in md                    # a fence inside the text gets a longer fence around it
+    d = mutate(lambda d: d["guide"]["steps"][2].update(snippet_ref=0), facts=hostile)
+    assert "<script>" not in render(tmp_path / "x", d, facts=hostile)[1]       # a language tag that is not plain is dropped
+
+
+def test_stars_and_angle_brackets_in_the_guide_prose_stay_plain_text(tmp_path):
+    d = mutate(lambda d: d["guide"]["steps"][0].update(why="Kích thước 1280*704 hoặc 704*1280, đặt <user> thay cho tên, xem `a<b*c`."))
+    _, md = render(tmp_path, d)
+    assert "1280\\*704 hoặc 704\\*1280" in md and "&lt;user>" in md and "`a<b*c`" in md
+
+
+def test_the_coverage_rule_does_not_count_a_config_sample_as_a_command():
+    assert gates.command_coverage(make_draft(FACTS, "vi"), FACTS) == (4, 4)

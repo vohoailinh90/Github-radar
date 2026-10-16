@@ -33,12 +33,12 @@ Một video đã dịch sang ngôn ngữ bạn chọn, có phụ đề và giọ
 _Đánh dấu từng mục khi đã có đủ._
 
 - [ ] **Windows 10/11 (cách nhanh nhất) hoặc macOS/Linux/Windows cho nhà phát triển**: Bản đóng gói sẵn chạy trên Windows, không cần cấu hình Python. Các hệ khác cài từ mã nguồn.  
-  Lấy tại: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases) _(liên kết lấy từ README)_
+  Liên kết trong README: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases)
 - [ ] **Python 3.10 (khi cài từ mã nguồn)**: README khuyên dùng bản 3.10.
 - [ ] **FFmpeg**: Phải được cài và khai báo trong biến môi trường. Trên Windows, có thể đặt ffmpeg.exe và ffprobe.exe vào thư mục dự án.  
-  Lấy tại: [Download FFmpeg](https://ffmpeg.org/download.html) _(liên kết lấy từ README)_
+  Liên kết trong README: [Download FFmpeg](https://ffmpeg.org/download.html)
 - [ ] **uv (khi cài từ mã nguồn)**: Công cụ quản lý thư viện README khuyên dùng.  
-  Lấy tại: [uv](https://docs.astral.sh/uv/) _(liên kết lấy từ README)_
+  Liên kết trong README: [uv](https://docs.astral.sh/uv/)
 - [ ] **Video cần dịch**: Bạn có quyền xử lý video đó; README nhắc người dùng tự chịu trách nhiệm pháp lý.
 
 ## 🗺️ Lộ trình
@@ -55,7 +55,7 @@ _Đánh dấu từng mục khi đã có đủ._
 2. Giải nén vào đường dẫn không có chữ Hán hay dấu cách, ví dụ `D:\pyVideoTrans`. Đừng chạy trực tiếp trong file nén.
 3. Nhấp đúp `sp.exe` trong thư mục vừa giải nén.
 
-🔗 Lấy tại: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases)
 
 🩹 **Nếu không được:** Muốn dùng tăng tốc GPU thì README yêu cầu GPU NVIDIA đã cài CUDA 12.8 và cuDNN 9.11.
 
@@ -103,7 +103,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-🔗 Lấy tại: [uv](https://docs.astral.sh/uv/) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [uv](https://docs.astral.sh/uv/)
 
 <sub>Căn cứ: `README`</sub>
 

@@ -55,6 +55,12 @@
           "link_ref": 5
         },
         {
+          "detail": "README không hướng dẫn cài hai công cụ này. Trên Windows, OneKeyStart.bat tự cài uv nên bạn không cần làm tay.",
+          "evidence": "README",
+          "item": "Git và uv (khi cài từ mã nguồn)",
+          "link_ref": null
+        },
+        {
           "detail": "README nói công cụ có thể tải video YouTube bằng yt-dlp.",
           "evidence": "README",
           "item": "Video cần xử lý",
@@ -81,14 +87,14 @@
             "uv run start.py"
           ],
           "do": [
-            "Cài uv nếu máy chưa có, vì lệnh dưới đây chạy qua uv.",
+            "Cài Git và uv nếu máy chưa có: README không nêu cách cài, hãy dùng trang chính thức của từng công cụ.",
             "Chạy lệnh đầu để tải mã nguồn và vào thư mục dự án.",
             "Chạy lệnh thứ hai để cài thư viện còn thiếu và khởi động.",
             "Lần sau muốn mở lại, chạy `uv run start.py` trong thư mục VideoLingo."
           ],
           "evidence": "start.py",
           "expect": "",
-          "if_fails": "",
+          "if_fails": "README chỉ nói bản Windows tự mở trình duyệt, không nêu giao diện mở ở địa chỉ nào sau lệnh này; nếu không thấy, hãy xem thông báo trong terminal.",
           "link_ref": null,
           "title": "macOS, Linux (hoặc Windows) cài từ mã nguồn",
           "why": "Cách cài chung cho mọi hệ điều hành. Bỏ qua bước này nếu bạn đã làm xong bước Windows."
@@ -97,7 +103,8 @@
           "commands": [],
           "do": [
             "Trên giao diện, nhìn sang thanh bên (sidebar).",
-            "Nhập địa chỉ API, khóa và tên mô hình của dịch vụ LLM bạn chọn."
+            "Nhập địa chỉ API, khóa và tên mô hình của dịch vụ LLM bạn chọn: dịch vụ tương thích OpenAI Chat Completions nào cũng được.",
+            "README gợi ý OpenLux; địa chỉ API của nó ở liên kết dưới. Mã mô hình README nêu: `gpt-6-luna` (hợp giá), `gpt-6-sol` (chất lượng tốt hơn), `claude-opus-5-5` (chất lượng cao nhất)."
           ],
           "evidence": "README",
           "expect": "",
@@ -124,7 +131,7 @@
           "do": [
             "Thêm video cần xử lý vào giao diện (README nói có thể tải video YouTube).",
             "Chạy các bước xử lý. Bạn có thể tạm dừng, tiếp tục hoặc dừng ở bất kỳ bước nào.",
-            "Mở kết quả: tệp phụ đề, và video có phụ đề hoặc lồng tiếng nếu bạn chọn."
+            "Mở kết quả: tệp phụ đề, và video có phụ đề hoặc lồng tiếng nếu bạn chọn. README nhắc thư mục `output/` khi nói về quy trình và log."
           ],
           "evidence": "docs",
           "expect": "",
@@ -155,7 +162,8 @@
           ],
           "do": [
             "Cài Docker, trình điều khiển GPU tương thích và NVIDIA Container Toolkit (liên kết bên dưới).",
-            "Chạy lệnh dựng image, rồi lệnh chạy container."
+            "Chạy lệnh dựng image, rồi lệnh chạy container.",
+            "Lệnh chạy mở cổng 8501 ra máy bạn (`-p 8501:8501`); hãy mở trình duyệt vào cổng đó."
           ],
           "evidence": "Dockerfile",
           "expect": "",

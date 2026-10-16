@@ -53,3 +53,6 @@ Routing: dimensions ambiguity 1, scope 2, architecture 1, dependencies 1, risk 1
 - New gates: guide commands are README lines/code spans (continuations joined), backtick text must come from the README or the tree, `link_ref` must index `facts["links"]`, a guide with no commands is refused when the README has two or more.
 - Links: the model never writes a URL; it picks an entry of `facts["links"]` by number and the renderer prints it (tracking/affiliate links never enter the list). CLAUDE.md rule updated.
 - Not verified here: free-model answers (token size of the longer answer and of the checker request), and nobody ran the five AI-video guides' steps on a real machine.
+- After the independent review (code-reviewer, 2026-10-16): `gates.check` no longer raises on any JSON shape (systematic test over every key path and nine odd values; also fixed the same defect in older fields);
+  `readme.select` never exceeds its limit (it did by up to 490 characters); `is_local` compares the host exactly and links with a `user@` part are dropped; `links` is bounded and bisects;
+  configuration samples are shown by `snippet_ref` into `facts["blocks"]` (README code blocks that are not shell), printed as the README has them; guide prose escapes `*` and `<` outside code spans.

@@ -23,12 +23,19 @@ def _cell(text) -> str:
 
 # The few facts every renderer reads; the README and the file tree are not needed to draw a digest again.
 META_KEYS = ("full_name", "url", "stars", "forks", "license", "language", "bucket", "scanned")
-OPTIONAL_META = ("links",)       # kept when a run found them: a guide points at them by number (older drafts have none)
+OPTIONAL_META = ("links", "blocks")   # kept when a run found them: a guide points at them by number (older drafts have none)
+
+
+def _g(text) -> str:
+    """`_md` for the guide's sentences, also making `*` and `<` plain text outside code spans: a README's `1280*704` must not turn
+    into emphasis and a stray `<tag>` must not reach the page as HTML."""
+    parts = re.split(r"(`[^`\n]*`)", _md(text))
+    return "".join(p if i % 2 else p.replace("*", "\\*").replace("<", "&lt;") for i, p in enumerate(parts))
 
 
 def _link(facts: dict, ref, t: dict) -> str:
-    """The README address a `link_ref` names, printed by the renderer: a local address as code, any other as a link marked as
-    taken from the README. An entry that is not a plain http(s) address is left out, whatever the stored draft says."""
+    """The README address a `link_ref` names, printed by the renderer: a local address as code, any other as a link. An entry that
+    is not a plain http(s) address is left out, whatever the stored draft says."""
     links = facts.get("links") or []
     if not isinstance(ref, int) or isinstance(ref, bool) or not 0 <= ref < len(links):
         return ""
@@ -37,7 +44,23 @@ def _link(facts: dict, ref, t: dict) -> str:
         return ""
     if readmelib.is_local(url):
         return f"{t['open_addr']}: `{url}`"
-    return f"{t['get_link']}: [{_cell(readmelib.clean_label(label, url))}]({url}) _({t['from_readme']})_"
+    return f"{t['get_link']}: [{_cell(readmelib.clean_label(label, url))}]({url})"
+
+
+def _snippet(facts: dict, ref, t: dict) -> list[str]:
+    """A code block of the README (a config file, a sample) a `snippet_ref` names, exactly as the README has it."""
+    blocks = facts.get("blocks") or []
+    if not isinstance(ref, int) or isinstance(ref, bool) or not 0 <= ref < len(blocks):
+        return []
+    lang, body = blocks[ref]
+    lang = lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", str(lang)) else ""
+    body = str(body)
+    if len(body.splitlines()) > 40 or len(body) > 1800:
+        return []
+    fence = "```"
+    while fence in body:
+        fence += "`"
+    return ["", f"_{t['snippet']}_", "", fence + lang] + body.splitlines() + [fence]
 
 
 def _command(text) -> str:
@@ -51,49 +74,50 @@ def _evidence(value, t: dict) -> str:
 def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     """The how-to document: outcome, what to prepare, a route, then every step with its commands and what to expect."""
     g, hiw = draft["guide"], draft["how_it_works"]
-    md = [f"# {_md(draft['title'])}", "", f"![{_cell(draft['title'])}](card-{lang}.svg)", "",
-          f"> {_md(draft['hook'])}", "", f"**{_md(draft['one_liner'])}**", "",
-          f"## 🎯 {t['outcome']}", "", _md(g["outcome"]), "",
-          f"## {t['problem']}", "", _md(draft["problem"]), "", f"> 💡 **{t['analogy']}:** {_md(draft['analogy'])}", "",
-          f"## {t['who']}", ""] + [f"- {_md(x)}" for x in draft["who_for"]]
-    md += ["", f"## ⚠️ {t['caveats']}", ""] + [f"- {_md(x)}" for x in draft["caveats"]]
+    md = [f"# {_g(draft['title'])}", "", f"![{_cell(draft['title'])}](card-{lang}.svg)", "",
+          f"> {_g(draft['hook'])}", "", f"**{_g(draft['one_liner'])}**", "",
+          f"## 🎯 {t['outcome']}", "", _g(g["outcome"]), "",
+          f"## {t['problem']}", "", _g(draft["problem"]), "", f"> 💡 **{t['analogy']}:** {_g(draft['analogy'])}", "",
+          f"## {t['who']}", ""] + [f"- {_g(x)}" for x in draft["who_for"]]
+    md += ["", f"## ⚠️ {t['caveats']}", ""] + [f"- {_g(x)}" for x in draft["caveats"]]
     if g["requirements"]:
         md += ["", f"## 🧰 {t['before']}", "", f"_{t['tick']}_", ""]
         for r in g["requirements"]:
-            line = f"- [ ] **{_md(r['item'])}**" + (f": {_md(r['detail'])}" if r.get("detail") else "")
+            line = f"- [ ] **{_g(r['item'])}**" + (f": {_g(r['detail'])}" if r.get("detail") else "")
             link = _link(facts, r.get("link_ref"), t)
             md.append(line + (f"  \n  {link}" if link else ""))
     md += ["", f"## 🗺️ {t['roadmap']}", "", f"![{t['roadmap']}](path-{lang}.svg)", "", f"## 🪜 {t['do_steps']}", ""]
     hinted = False
     for i, step in enumerate(g["steps"], 1):
-        md += [f"### {t['step']} {i} · {_md(step['title'])}", "", f"**{t['why']}:** {_md(step['why'])}", ""]
-        md += [f"{n}. {_md(d)}" for n, d in enumerate(step["do"], 1)]
+        md += [f"### {t['step']} {i} · {_g(step['title'])}", "", f"**{t['why']}:** {_g(step['why'])}", ""]
+        md += [f"{n}. {_g(d)}" for n, d in enumerate(step["do"], 1)]
         if step.get("commands"):
             md += [""] + ([f"_{t['type_here']}_", ""] if not hinted else []) + ["```bash"] + [_command(c) for c in step["commands"]] + ["```"]
             hinted = True
+        md += _snippet(facts, step.get("snippet_ref"), t)
         link = _link(facts, step.get("link_ref"), t)
         if link:
             md += ["", f"🔗 {link}"]
         if step.get("expect"):
-            md += ["", f"✅ **{t['expect']}:** {_md(step['expect'])}"]
+            md += ["", f"✅ **{t['expect']}:** {_g(step['expect'])}"]
         if step.get("if_fails"):
-            md += ["", f"🩹 **{t['if_fails']}:** {_md(step['if_fails'])}"]
+            md += ["", f"🩹 **{t['if_fails']}:** {_g(step['if_fails'])}"]
         md += ["", _evidence(step["evidence"], t), ""]
-    md += [f"## ✔️ {t['verify']}", "", _md(g["verify"]), ""]
+    md += [f"## ✔️ {t['verify']}", "", _g(g["verify"]), ""]
     if g.get("troubleshooting"):
         md += [f"## 🩹 {t['trouble']}", "", f"| {t['problem_col']} | {t['fix_col']} | {t['evidence']} |", "|---|---|---|"]
         md += [f"| {_cell(x['problem'])} | {_cell(x['fix'])} | `{_cell(x['evidence'])}` |" for x in g["troubleshooting"]]
         md.append("")
     if g.get("next"):
-        md += [f"## 🚀 {t['next']}", ""] + [f"- {_md(x)}" for x in g["next"]] + [""]
+        md += [f"## 🚀 {t['next']}", ""] + [f"- {_g(x)}" for x in g["next"]] + [""]
     md += [f"## 🔍 {t['inside']}", "", f"![{t['inside']}](flow-{lang}.svg)", "", f"![{t['inside']}](steps-{lang}.svg)", ""]
     for i, step in enumerate(hiw["steps"], 1):
-        md.append(f"{i}. **{_md(step['title'])}**: {_md(step['text'])} _({t['evidence']}: `{_cell(step['evidence'])}`)_")
+        md.append(f"{i}. **{_g(step['title'])}**: {_g(step['text'])} _({t['evidence']}: `{_cell(step['evidence'])}`)_")
     md += ["", f"### {t['parts']}", "", f"| | {t['parts']} | {t['evidence']} |", "|---|---|---|"]
     md += [f"| **{_cell(c['name'])}** | {_cell(c['role'])} | `{_cell(c['evidence'])}` |" for c in hiw["components"]]
-    md += ["", f"## {t['learn']}", ""] + [f"- {_md(x)}" for x in draft["learn"]]
+    md += ["", f"## {t['learn']}", ""] + [f"- {_g(x)}" for x in draft["learn"]]
     if draft["glossary"]:
-        md += ["", f"## {t['glossary']}", ""] + [f"- **{_md(x['term'])}**: {_md(x['meaning'])}" for x in draft["glossary"]]
+        md += ["", f"## {t['glossary']}", ""] + [f"- **{_g(x['term'])}**: {_g(x['meaning'])}" for x in draft["glossary"]]
     return md + footer(facts, t)
 
 

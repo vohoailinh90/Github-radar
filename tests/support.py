@@ -36,7 +36,13 @@ Copy the example settings, then put your helpdesk key in `config.toml`:
 cp config.example.toml config.toml
 ```
 
-Get a key from [the helpdesk key page](https://helpdesk.example.org/settings/keys).
+Get a key from [the helpdesk key page](https://helpdesk.example.org/settings/keys), then fill in the file:
+
+```toml
+[helpdesk]
+key = "YOUR_KEY"
+queue = "support"
+```
 
 ## Web console
 
@@ -253,15 +259,24 @@ def link_ref(facts: dict, needle: str) -> int | None:
     return None
 
 
+def block_ref(facts: dict, needle: str) -> int | None:
+    """Position of the README code block whose first line contains `needle`. Works on facts built here ([lang, text]) and on the prompt's [n, lang, first line]."""
+    for i, entry in enumerate(facts.get("blocks") or []):
+        if needle in str(entry[-1]):
+            return i
+    return None
+
+
 def make_guide(facts: dict, lang: str = "vi") -> dict:
     g = GUIDE_T[lang]
     refs = [None, None, link_ref(facts, "helpdesk.example.org"), None, link_ref(facts, "localhost")]
+    snippets = [None, None, block_ref(facts, "[helpdesk]"), None, None]
     return {
         "outcome": g["outcome"],
         "requirements": [{"item": a, "detail": b, "evidence": "README", "link_ref": link_ref(facts, "helpdesk.example.org") if i else None}
                          for i, (a, b) in enumerate(g["req"])],
         "steps": [{"title": t, "why": w, "do": do, "commands": GUIDE_COMMANDS[i], "expect": ex, "if_fails": "", "link_ref": refs[i],
-                   "evidence": GUIDE_EVIDENCE[i]} for i, (t, w, do, ex) in enumerate(g["steps"])],
+                   "snippet_ref": snippets[i], "evidence": GUIDE_EVIDENCE[i]} for i, (t, w, do, ex) in enumerate(g["steps"])],
         "verify": g["verify"],
         "troubleshooting": [{"problem": g["trouble"][0], "fix": g["trouble"][1], "evidence": "README"}],
         "next": g["next"],

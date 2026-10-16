@@ -21,7 +21,7 @@ L = {
         "outcome": "Bạn sẽ làm ra được gì", "before": "Chuẩn bị trước khi bắt đầu", "roadmap": "Lộ trình", "do_steps": "Làm theo từng bước",
         "step": "Bước", "why": "Mục đích", "expect": "Bạn sẽ thấy", "if_fails": "Nếu không được", "verify": "Kiểm tra kết quả",
         "trouble": "Lỗi thường gặp", "problem_col": "Hiện tượng", "fix_col": "Cách xử lý", "next": "Làm tiếp", "inside": "Bên trong nó hoạt động ra sao",
-        "open_addr": "Mở địa chỉ", "get_link": "Lấy tại", "from_readme": "liên kết lấy từ README", "commands": "lệnh", "goal": "Kết quả",
+        "open_addr": "Mở địa chỉ", "get_link": "Liên kết trong README", "snippet": "Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị của bạn)", "commands": "lệnh", "goal": "Kết quả",
         "tick": "Đánh dấu từng mục khi đã có đủ.", "steps_n": "bước", "type_here": "Gõ hoặc dán từng dòng, theo thứ tự.",
     },
     "en": {
@@ -40,7 +40,7 @@ L = {
         "outcome": "What you will end up with", "before": "Before you start", "roadmap": "The route", "do_steps": "Follow along, step by step",
         "step": "Step", "why": "Why", "expect": "You should see", "if_fails": "If it does not work", "verify": "Check the result",
         "trouble": "Common problems", "problem_col": "Problem", "fix_col": "What to do", "next": "Where to go next", "inside": "What happens inside",
-        "open_addr": "Open the address", "get_link": "Get it here", "from_readme": "link taken from the README", "commands": "commands", "goal": "Result",
+        "open_addr": "Open the address", "get_link": "Link in the README", "snippet": "Example from the README (replace the placeholders with your own values)", "commands": "commands", "goal": "Result",
         "tick": "Tick each item once you have it.", "steps_n": "steps", "type_here": "Type or paste each line, in order.",
     },
     "ja": {
@@ -59,7 +59,7 @@ L = {
         "outcome": "できあがるもの", "before": "始める前に用意するもの", "roadmap": "全体の流れ", "do_steps": "手順どおりに進める",
         "step": "手順", "why": "目的", "expect": "期待される結果", "if_fails": "うまくいかないとき", "verify": "結果の確認",
         "trouble": "よくある問題", "problem_col": "症状", "fix_col": "対処", "next": "次のステップ", "inside": "内部のしくみ",
-        "open_addr": "次のアドレスを開く", "get_link": "入手先", "from_readme": "README にあるリンク", "commands": "コマンド", "goal": "完成",
+        "open_addr": "次のアドレスを開く", "get_link": "README にあるリンク", "snippet": "README の例（プレースホルダーを自分の値に置き換えます）", "commands": "コマンド", "goal": "完成",
         "tick": "用意できたものからチェックを入れましょう。", "steps_n": "手順", "type_here": "1行ずつ、順番に入力または貼り付けます。",
     },
 }

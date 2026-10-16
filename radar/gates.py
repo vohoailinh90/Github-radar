@@ -85,25 +85,36 @@ def bad_numbers(text: str, facts: dict) -> list[str]:
     return bad
 
 
+def _dicts(value) -> list[tuple[int, dict]]:
+    """(position, item) for the objects of a list; anything else a model sent in its place is the schema's business, not a crash."""
+    return [(i, v) for i, v in enumerate(value) if isinstance(v, dict)] if isinstance(value, list) else []
+
+
+def _obj(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
 def texts(draft: dict) -> list[tuple[str, str]]:
-    """(field, text) for every string a reader will see."""
+    """(field, text) for every string a reader will see. Written for arbitrary JSON: a model may answer with any shape."""
     out = []
     for key in ("title", "hook", "one_liner", "problem", "analogy"):
         out.append((key, str(draft.get(key, ""))))
-    hiw = draft.get("how_it_works") or {}
-    for i, s in enumerate(hiw.get("steps") or []):
+    hiw = _obj(draft.get("how_it_works"))
+    for i, s in _dicts(hiw.get("steps")):
         out += [(f"steps[{i}]", f"{s.get('title', '')} {s.get('text', '')}")]
-    for i, c in enumerate(hiw.get("components") or []):
+    for i, c in _dicts(hiw.get("components")):
         out += [(f"components[{i}]", f"{c.get('name', '')} {c.get('role', '')}")]
     for key in ("who_for", "learn", "caveats"):
-        out += [(f"{key}[{i}]", str(t)) for i, t in enumerate(draft.get(key) or [])]
-    for i, g in enumerate(draft.get("glossary") or []):
+        value = draft.get(key)
+        out += [(f"{key}[{i}]", str(t)) for i, t in enumerate(value if isinstance(value, list) else [])]
+    for i, g in _dicts(draft.get("glossary")):
         out += [(f"glossary[{i}]", f"{g.get('term', '')} {g.get('meaning', '')}")]
     out += guide_texts(draft.get("guide"))
-    fb = draft.get("facebook") or {}
+    fb = _obj(draft.get("facebook"))
+    tags = fb.get("hashtags")
     out.append(("facebook.caption", str(fb.get("caption", ""))))
-    out.append(("facebook.hashtags", " ".join(str(t) for t in fb.get("hashtags") or [])))
-    out += [("try_it.note", str((draft.get("try_it") or {}).get("note", "")))]
+    out.append(("facebook.hashtags", " ".join(str(t) for t in (tags if isinstance(tags, list) else []))))
+    out += [("try_it.note", str(_obj(draft.get("try_it")).get("note", "")))]
     return out
 
 
@@ -112,18 +123,16 @@ def guide_texts(guide) -> list[tuple[str, str]]:
     if not isinstance(guide, dict):
         return []
     out = [("guide.outcome", str(guide.get("outcome", ""))), ("guide.verify", str(guide.get("verify", "")))]
-    for i, r in enumerate(guide.get("requirements") or []):
-        if isinstance(r, dict):
-            out.append((f"guide.requirements[{i}]", f"{r.get('item', '')} {r.get('detail', '')}"))
-    for i, s in enumerate(guide.get("steps") or []):
-        if not isinstance(s, dict):
-            continue
+    for i, r in _dicts(guide.get("requirements")):
+        out.append((f"guide.requirements[{i}]", f"{r.get('item', '')} {r.get('detail', '')}"))
+    for i, s in _dicts(guide.get("steps")):
         out.append((f"guide.steps[{i}]", " ".join(str(s.get(k, "")) for k in ("title", "why", "expect", "if_fails"))))
-        out += [(f"guide.steps[{i}].do[{j}]", str(d)) for j, d in enumerate(s.get("do") or [])]
-    for i, t in enumerate(guide.get("troubleshooting") or []):
-        if isinstance(t, dict):
-            out.append((f"guide.troubleshooting[{i}]", f"{t.get('problem', '')} {t.get('fix', '')}"))
-    out += [(f"guide.next[{i}]", str(t)) for i, t in enumerate(guide.get("next") or [])]
+        do = s.get("do")
+        out += [(f"guide.steps[{i}].do[{j}]", str(d)) for j, d in enumerate(do if isinstance(do, list) else [])]
+    for i, t in _dicts(guide.get("troubleshooting")):
+        out.append((f"guide.troubleshooting[{i}]", f"{t.get('problem', '')} {t.get('fix', '')}"))
+    nxt = guide.get("next")
+    out += [(f"guide.next[{i}]", str(t)) for i, t in enumerate(nxt if isinstance(nxt, list) else [])]
     return out
 
 
@@ -190,6 +199,8 @@ def guide_schema(guide) -> list[Problem]:
                 p.append(Problem("error", field + ".commands", f"each command is text up to {GUIDE['command']} chars"))
         if not _link_ref_ok(s.get("link_ref")):
             p.append(Problem("error", field + ".link_ref", "must be a number from FACTS.links, or null"))
+        if not _link_ref_ok(s.get("snippet_ref")):
+            p.append(Problem("error", field + ".snippet_ref", "must be a number from FACTS.blocks, or null"))
     for i, t in enumerate(_guide_list(guide.get("troubleshooting", []), "troubleshooting", "guide.troubleshooting", p)):
         field = f"guide.troubleshooting[{i}]"
         if not isinstance(t, dict) or not t.get("evidence"):
@@ -296,10 +307,12 @@ def readme_commands(readme: str) -> set[str]:
 def guide_commands(draft: dict) -> list[tuple[str, object]]:
     """(field, command) for every line a reader is told to type: the guide's steps, or an older draft's try_it."""
     out = []
-    guide = draft.get("guide")
-    for i, step in enumerate(guide.get("steps") or [] if isinstance(guide, dict) else []):
-        out += [(f"guide.steps[{i}].commands", c) for c in (step.get("commands") or [] if isinstance(step, dict) else [])]
-    out += [("try_it.commands", c) for c in (draft.get("try_it") or {}).get("commands") or []]
+    guide = _obj(draft.get("guide"))
+    for i, step in _dicts(guide.get("steps")):
+        cmds = step.get("commands")
+        out += [(f"guide.steps[{i}].commands", c) for c in (cmds if isinstance(cmds, list) else [])]
+    cmds = _obj(draft.get("try_it")).get("commands")
+    out += [("try_it.commands", c) for c in (cmds if isinstance(cmds, list) else [])]
     return out
 
 
@@ -354,10 +367,10 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         for word in HYPE.get(lang, []):
             if _flat(word) in flat:
                 problems.append(Problem("error", field, f"hype wording '{word}'"))
-    hiw = draft.get("how_it_works") or {}
+    hiw = _obj(draft.get("how_it_works"))
     for key in ("steps", "components"):
-        for i, item in enumerate(hiw.get(key) or []):
-            if isinstance(item, dict) and item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
+        for i, item in _dicts(hiw.get(key)):
+            if item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                 problems.append(Problem("error", f"{key}[{i}]", f"evidence {item['evidence']!r} is not README or a path in the repository"))
     known = readme_commands(facts["readme"])
     for field, cmd in guide_commands(draft):
@@ -366,15 +379,16 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
     guide = draft.get("guide")
     if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):
-        links = len(facts.get("links") or [])
+        links, blocks = len(facts.get("links") or []), len(facts.get("blocks") or [])
         for key in ("requirements", "steps", "troubleshooting"):
             for i, item in enumerate(guide.get(key) or []):
                 field = f"guide.{key}[{i}]"
                 if item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                     problems.append(Problem("error", field, f"evidence {item['evidence']!r} is not README or a path in the repository"))
-                ref = item.get("link_ref")
-                if ref is not None and ref >= links:
-                    problems.append(Problem("error", field + ".link_ref", f"{ref} is not an entry of FACTS.links (it has {links})"))
+                for name, size, source in (("link_ref", links, "links"), ("snippet_ref", blocks, "blocks")):
+                    ref = item.get(name)
+                    if ref is not None and ref >= size:
+                        problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
         used, wanted = command_coverage(draft, facts)
         typed = [c for _, c in guide_commands(draft)]
         if wanted >= 2 and not typed:

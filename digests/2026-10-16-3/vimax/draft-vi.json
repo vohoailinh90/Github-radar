@@ -61,7 +61,7 @@
           "link_ref": null
         },
         {
-          "detail": "Ví dụ trong README dùng OpenRouter cho mô hình chat, Nanobanana (Google API) cho ảnh và Veo (Google API) cho video.",
+          "detail": "README minh họa (file `configs/idea2video.yaml`) mô hình chat qua OpenRouter, ảnh bằng Nanobanana và video bằng Veo, đều qua API của Google.",
           "evidence": "README",
           "item": "Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video",
           "link_ref": null
@@ -117,14 +117,15 @@
           "commands": [],
           "do": [
             "Mở file `configs/agent.local.yaml` bằng trình soạn thảo.",
-            "Điền ba nhóm `llm`, `image` và `video`; mỗi nhóm có `model`, `base_url` và `api_key` (nhóm `llm` còn có `model_provider`).",
-            "Thay các chỗ giữ chỗ trong dấu < > bằng giá trị thật của bạn.",
+            "Điền ba nhóm `llm`, `image` và `video` theo mẫu bên dưới; thay mọi giá trị giữ chỗ trong dấu < > bằng giá trị thật của bạn.",
+            "Mỗi nhóm cần `model`, `base_url` và `api_key`. Nhóm `llm` còn có `model_provider`; mẫu của README đặt giá trị là `openai`.",
             "Cách khác: để file trống và đặt khóa bằng biến môi trường `VIMAX_LLM_API_KEY`, `VIMAX_IMAGE_API_KEY`, `VIMAX_VIDEO_API_KEY`."
           ],
           "evidence": "README",
           "expect": "",
           "if_fails": "",
           "link_ref": null,
+          "snippet_ref": 1,
           "title": "Điền mô hình và khóa API vào file cấu hình",
           "why": "Để agent biết gọi mô hình chat, mô hình ảnh và mô hình video nào."
         },
@@ -148,31 +149,29 @@
         {
           "commands": [],
           "do": [
-            "Tạo một dự án có tên trong giao diện web.",
-            "Trò chuyện với ViMax Agent. README liệt kê hai cách bắt đầu: từ một ý tưởng ngắn (Idea2Video) hoặc từ kịch bản có sẵn (Script2Video).",
-            "Xem lại các sản phẩm trung gian như kịch bản, nhân vật và bản xem trước phân cảnh, rồi sửa kế hoạch nếu cần.",
-            "Cho phép dựng và xem bản xem trước video."
+            "Tạo một dự án có tên trong giao diện web rồi trò chuyện với ViMax Agent.",
+            "README mô tả ViMax làm được hai việc: từ một ý tưởng ngắn (Idea2Video) hoặc từ kịch bản có sẵn (Script2Video).",
+            "Ví dụ trong README: ý tưởng If a cat and a dog are best friends, what would happen when they meet a new cat? cùng yêu cầu For children, do not exceed 3 scenes. và phong cách Cartoon.",
+            "Xem lại các sản phẩm trung gian (kịch bản, nhân vật, bản xem trước phân cảnh), sửa kế hoạch nếu cần, rồi cho dựng."
           ],
-          "evidence": "README",
+          "evidence": "main_idea2video.py",
           "expect": "",
-          "if_fails": "",
+          "if_fails": "README không mô tả từng nút trên giao diện web; hãy làm theo gợi ý hiển thị trong giao diện.",
           "link_ref": null,
           "title": "Tạo dự án và nêu ý tưởng cho ViMax Agent",
           "why": "Chạy quy trình từ ý tưởng đến video."
         },
         {
           "commands": [
-            "vimax tui",
-            "vimax tui new",
-            "vimax tui resume"
+            "vimax tui"
           ],
           "do": [
-            "Chạy lệnh đầu từ thư mục gốc ViMax để mở TUI.",
-            "Lệnh thứ hai bắt đầu phiên mới, lệnh thứ ba tiếp tục phiên gần nhất."
+            "Chạy lệnh dưới đây từ thư mục gốc ViMax để mở TUI.",
+            "README còn có `vimax tui new` để bắt đầu phiên mới và `vimax tui resume` để tiếp tục phiên đã có."
           ],
           "evidence": "README",
           "expect": "",
-          "if_fails": "",
+          "if_fails": "README không nói rõ lệnh vimax chạy được ngay sau uv sync hay không; nếu máy báo không tìm thấy lệnh, hãy dùng giao diện web ở bước trước.",
           "link_ref": null,
           "title": "Cách khác: dùng giao diện terminal (TUI)",
           "why": "Làm cùng việc đó ngay trong terminal, không cần trình duyệt."
@@ -190,7 +189,7 @@
           "problem": "Cần đổi cổng giao diện web"
         }
       ],
-      "verify": "Bạn mở được giao diện web, tạo được một dự án và agent trả về kế hoạch cùng bản xem trước. README không mô tả từng nút trên màn hình, nên hãy làm theo gợi ý ngay trong giao diện."
+      "verify": "Bạn mở được giao diện web ở địa chỉ trên, tạo được dự án và trò chuyện với ViMax Agent. README nói giao diện cho xem kịch bản, phân cảnh và bản xem trước video đã dựng, nhưng không mô tả từng nút."
     },
     "hook": "Bạn nêu ý tưởng, nhóm agent AI lo kịch bản, phân cảnh, nhân vật rồi dựng thành video",
     "how_it_works": {
@@ -268,6 +267,28 @@
     ]
   },
   "facts": {
+    "blocks": [
+      [
+        "",
+        "OS: Linux, Windows"
+      ],
+      [
+        "yaml",
+        "llm:\n  model_provider: openai\n  model: <YOUR_LLM_MODEL>\n  base_url: <YOUR_LLM_BASE_URL>\n  api_key: <YOUR_API_KEY>\n\nimage:\n  model: <YOUR_IMAGE_MODEL>\n  base_url: <YOUR_IMAGE_BASE_URL>\n  api_key: <YOUR_API_KEY>\n\nvideo:\n  model: <YOUR_VIDEO_MODEL>\n  base_url: <YOUR_VIDEO_BASE_URL>\n  api_key: <YOUR_API_KEY>"
+      ],
+      [
+        "yaml",
+        "image_selection:\n  num_candidates: 2 # Set to 1 to disable selection."
+      ],
+      [
+        "yaml",
+        "chat_model:\n  init_args:\n    model: google/gemini-2.5-flash-lite-preview-09-2025\n    model_provider: openai\n    api_key: <YOUR_API_KEY>\n    base_url: https://openrouter.ai/api/v1\n\nimage_generator:\n  class_path: tools.ImageGeneratorNanobananaGoogleAPI\n  init_args:\n    api_key: <YOUR_API_KEY>\n\nvideo_generator:\n  class_path: tools.VideoGeneratorVeoGoogleAPI\n  init_args:\n    api_key: <YOUR_API_KEY>\n\nworking_dir: .working_dir/idea2video"
+      ],
+      [
+        "python",
+        "script = \\\n\"\"\"\nEXT. SCHOOL GYM - DAY\nA group of students are practicing basketball in the gym. The gym is large and open, with a basketball hoop at one end and a large crowd of spectators at the other end. John (18, male, tall, athletic) is the star player, and he is practicing his dribble and shot. Jane (17, female, short, athletic) is the assistant coach, and she is helping John with his practice. The other students are watching the practice and cheering for John.\nJohn: (dribbling the ball) I'm going to score a basket!\nJane: (smiling) Good job, John!\nJohn: (shooting the ball) Yes!\n...\n\"\"\"\nuser_requirement = \\\n\"\"\"\nFast-paced with no more than 20 shots.\n\"\"\"\nstyle = \"Animate Style\""
+      ]
+    ],
     "bucket": "ai",
     "forks": 1900,
     "full_name": "HKUDS/ViMax",

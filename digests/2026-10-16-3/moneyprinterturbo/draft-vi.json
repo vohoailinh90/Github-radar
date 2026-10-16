@@ -295,6 +295,28 @@
     ]
   },
   "facts": {
+    "blocks": [
+      [
+        "text",
+        "使用这个 Skill：https://raw.githubusercontent.com/harry0703/MoneyPrinterTurbo/main/docs/skill/SKILL.md\n帮我生成一个主题为“人工智能如何改变普通人的日常生活”的视频。"
+      ],
+      [
+        "",
+        "RuntimeError: No ffmpeg exe could be found.\nInstall ffmpeg on your system, or set the IMAGEIO_FFMPEG_EXE environment variable."
+      ],
+      [
+        "toml",
+        "[app]\n# 请根据你的实际路径设置，注意 Windows 路径分隔符为 \\\\\nffmpeg_path = \"C:\\\\Users\\\\harry\\\\Downloads\\\\ffmpeg.exe\""
+      ],
+      [
+        "",
+        "LocalEntryNotFoundError: Cannot find an appropriate cached snapshot folder for the specified revision on the local disk and\noutgoing traffic has been disabled.\nTo enable repo look-ups and downloads online, pass 'local_files_only=False' as input."
+      ],
+      [
+        "",
+        "An error occurred while synchronizing the model Systran/faster-whisper-large-v3 from the Hugging Face Hub:\nAn error happened while trying to locate the files on the Hub and we cannot find the appropriate snapshot folder for the\nspecified revision on the local disk. Please check your internet connection and try again.\nTrying to load the model directly from the local cache, if it exists."
+      ]
+    ],
     "bucket": "ai",
     "forks": 20700,
     "full_name": "harry0703/MoneyPrinterTurbo",
@@ -467,6 +489,6 @@
     "url": "https://github.com/harry0703/MoneyPrinterTurbo"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 4b7b965 of a shallow checkout, cut to 12081 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. Facts: README.md (or readme.md) at commit 4b7b965 of a shallow checkout, cut to 11926 characters by radar/readme.py; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date. The draft passed radar/gates.py with require_guide=True.",
   "position": 1
 }

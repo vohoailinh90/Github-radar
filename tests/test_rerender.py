@@ -39,7 +39,7 @@ def test_every_digest_keeps_the_draft_the_model_wrote(tmp_path, servers):
     first_run(tmp_path, langs=["vi", "en"])
     stored = json.loads(next((tmp_path / "digests").glob("2026-10-14/*/draft-en.json")).read_text(encoding="utf-8"))
     assert stored["lang"] == "en" and stored["draft"]["how_it_works"]["flow"] and "readme" not in stored["facts"]
-    assert set(stored["facts"]) == {"full_name", "url", "stars", "forks", "license", "language", "bucket", "scanned", "links"}
+    assert set(stored["facts"]) == {"full_name", "url", "stars", "forks", "license", "language", "bucket", "scanned", "links", "blocks"}
 
 
 def test_rerender_draws_exactly_the_same_files_from_the_stored_drafts(tmp_path, servers):

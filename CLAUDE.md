@@ -31,7 +31,8 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
   only through `links:` + `{link}` in the first comment. A digest's guide may point at an address the README shows (where to get a
   key, a local address) only by number (`link_ref` into `facts["links"]`, extracted by script, tracking/affiliate links dropped); the
-  renderer prints it, marked as taken from the README, and never in a studio post.
+  renderer prints it, and never in a studio post. Likewise a configuration sample is a README code block chosen by number
+  (`snippet_ref` into `facts["blocks"]`) and printed as the README has it; a model never retypes a setting.
 - **Guide commands are copied, not written.** A `guide` command is one README line or inline code span (a command split over lines
   with a trailing backslash counts as one), and any text between backticks must occur in the README or be a repository path.
   Never loosen these to make a draft pass: fix the prompt or hold the draft.

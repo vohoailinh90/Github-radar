@@ -33,12 +33,12 @@ _Đánh dấu từng mục khi đã có đủ._
 
 - [ ] **Git**: Để chạy lệnh git clone tải mã nguồn về máy.
 - [ ] **uv**: Công cụ README khuyên dùng để quản lý Python và thư viện; nó cũng cài giúp Python 3.11.  
-  Lấy tại: [uv](https://docs.astral.sh/uv/) _(liên kết lấy từ README)_
+  Liên kết trong README: [uv](https://docs.astral.sh/uv/)
 - [ ] **Máy tính đủ sức chạy**: Windows 10, macOS 11.0 trở lên hoặc Linux. Tối thiểu CPU 4 nhân, RAM 4 GB; card đồ họa không bắt buộc.
 - [ ] **Khóa API của một dịch vụ mô hình ngôn ngữ (LLM)**: Để viết kịch bản. README liệt kê OpenAI, Google Gemini, DeepSeek… và cả Ollama chạy ngay trên máy.  
-  Lấy tại: [OpenAI](https://platform.openai.com/api-keys) _(liên kết lấy từ README)_
+  Liên kết trong README: [OpenAI](https://platform.openai.com/api-keys)
 - [ ] **Khóa API của nguồn clip, ví dụ Pexels (miễn phí)**: Để tự lấy clip nền. README cũng liệt kê Pixabay (miễn phí) và Coverr.  
-  Lấy tại: [Pexels（免费）](https://www.pexels.com/api/) _(liên kết lấy từ README)_
+  Liên kết trong README: [Pexels（免费）](https://www.pexels.com/api/)
 - [ ] **Trình duyệt Chrome hoặc Edge**: Nếu trang web mở ra trống, README khuyên đổi sang một trong hai trình duyệt này.
 
 ## 🗺️ Lộ trình
@@ -55,7 +55,7 @@ _Đánh dấu từng mục khi đã có đủ._
 2. Cài uv theo hướng dẫn ở trang uv.
 3. Mở một cửa sổ terminal (trên Windows dùng CMD hoặc PowerShell).
 
-🔗 Lấy tại: [uv](https://docs.astral.sh/uv/) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [uv](https://docs.astral.sh/uv/)
 
 <sub>Căn cứ: `README`</sub>
 
@@ -134,7 +134,7 @@ sh webui.sh
 3. Dán khóa API của nguồn clip, ví dụ Pexels.
 4. Giọng đọc Azure TTS V1 dựa trên Edge TTS, miễn phí và không cần khóa, nên dùng được ngay.
 
-🔗 Lấy tại: [Pexels（免费）](https://www.pexels.com/api/) _(liên kết lấy từ README)_
+🔗 Liên kết trong README: [Pexels（免费）](https://www.pexels.com/api/)
 
 ✅ **Bạn sẽ thấy:** Ở lần chạy đầu, dự án tự tạo file config.toml từ file mẫu config.example.toml, bạn không cần tạo tay.
 

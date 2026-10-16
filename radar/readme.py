@@ -9,7 +9,10 @@ sections, ranked by how much they help someone follow the project, and puts them
 from __future__ import annotations
 
 import re
+import textwrap
+from bisect import bisect_right
 from dataclasses import dataclass
+from urllib.parse import urlsplit
 
 FENCE = re.compile(r"^\s{0,3}(```|~~~)")
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*$")
@@ -49,7 +52,7 @@ COMMAND_WORDS = {"git", "pip", "pip3", "python", "python3", "py", "uv", "uvx", "
 BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "hits.seeyoufarcry")      # badges and counters
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]]+")
 MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://[^\s)]+)(?:\s+\"[^\"]*\")?\)")
-HTML_LINK = re.compile(r"<a\b[^>]*?href=[\"'](https?://[^\"'\s>]+)[\"'][^>]*>(.*?)</a>", re.I | re.S)
+HTML_LINK = re.compile(r"<a\b[^>]{0,300}?href=[\"'](https?://[^\"'\s>]+)[\"'][^>]{0,300}>(.{0,200}?)</a>", re.I | re.S)
 BARE_URL = re.compile(r"https?://[^\s<>\"'`)\]]+")
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "[::1]")
 TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|track_id|promo|campaign|source|from)=", re.I)
@@ -130,21 +133,30 @@ def _head(lines: list[str], room: int) -> str:
     return "".join(out).rstrip() + "\n"
 
 
+def _assemble(keep: dict[int, str], count: int) -> str:
+    out, prev = [], -1
+    for i in sorted(keep):
+        if i != prev + 1:
+            out.append(GAP)
+        out.append(keep[i])
+        prev = i
+    if prev != count - 1:
+        out.append(GAP)
+    return "\n\n".join(x.strip("\n") for x in out).strip()
+
+
 def select(text: str, limit: int) -> str:
-    """`text` itself when it fits; else its opening plus the most useful whole sections, in their original order."""
+    """`text` itself when it fits; else its opening plus the most useful whole sections, in their original order, never more than
+    `limit` characters (the gap markers and the blank lines between sections are counted)."""
     if len(text) <= limit:
         return text
     sections = split_sections(text)
     if len(sections) == 1:                        # no headings to choose between: the start of it, as before
         return _head(sections[0].lines, limit).strip() or text[:limit]
     rank(sections)
-    keep: dict[int, str] = {}
-    room = limit
-    if sections:                                  # the preamble, or the title section when the README opens with a heading
-        keep[0] = _head(sections[0].lines, min(INTRO_CHARS, room))
-    room -= sum(len(v) for v in keep.values())
-    order = sorted(range(1, len(sections)), key=lambda i: (-sections[i].value, i))
-    for i in order:
+    keep: dict[int, str] = {0: _head(sections[0].lines, min(INTRO_CHARS, limit))}   # the preamble, or the title section
+    room = limit - len(keep[0])
+    for i in sorted(range(1, len(sections)), key=lambda i: (-sections[i].value, i)):
         sec = sections[i]
         if sec.value < 0:
             continue
@@ -156,15 +168,15 @@ def select(text: str, limit: int) -> str:
             part = _head(sec.lines, room - len(GAP) - 2)
             keep[i] = part
             room -= len(part)
-    out, prev = [], -1
-    for i in sorted(keep):
-        if i != prev + 1:
-            out.append(GAP + "\n")
-        out.append(keep[i])
-        prev = i
-    if prev != len(sections) - 1:
-        out.append(GAP + "\n")
-    return "\n\n".join(x.strip("\n") for x in out).strip()
+    result = _assemble(keep, len(sections))
+    while len(result) > limit and len(keep) > 1:  # the markers and joins cost a little: drop the least useful kept section
+        worst = min((i for i in keep if i), key=lambda i: (sections[i].value, -i))
+        del keep[worst]
+        result = _assemble(keep, len(sections))
+    if len(result) > limit:                       # only the opening is left and it still does not fit
+        keep[0] = _head(sections[0].lines, max(0, limit - len(GAP) - 2))
+        result = _assemble(keep, len(sections))
+    return result[:limit]
 
 
 def clean_label(text: str, url: str) -> str:
@@ -180,8 +192,24 @@ def clean_label(text: str, url: str) -> str:
 def url_ok(url: str) -> bool:
     if len(url) > 200 or not URL_CHARS.fullmatch(url):
         return False
-    host = url.split("/")[2].lower()
-    return bool(host) and not host.startswith("img.") and not any(bad in host for bad in BAD_HOSTS)
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    # no `user@` part: `http://127.0.0.1@evil.example/` goes to evil.example
+    return bool(host) and parts.username is None and not host.startswith("img.") and not any(bad in host for bad in BAD_HOSTS)
+
+
+MAX_SCAN = 200_000            # characters of README `links` and `blocks` look at (the pipeline passes far less: readme_max_chars)
+
+
+def _value_at(text: str):
+    """pos -> the value of the section that holds that position, by bisection over the section ends."""
+    sections = split_sections(text)
+    rank(sections)
+    ends, total = [], 0
+    for sec in sections:
+        total += len(sec.text)
+        ends.append(total)
+    return lambda pos: sections[min(bisect_right(ends, pos), len(sections) - 1)].value if sections else 0
 
 
 def links(text: str, limit: int = 40) -> list[list[str]]:
@@ -190,6 +218,7 @@ def links(text: str, limit: int = 40) -> list[list[str]]:
     characters is left out, and so is anything with a tracking or affiliate parameter. Links in the sections about installing,
     configuring and running come first, so a long list of vendors in a features section cannot push out the page that says where
     to get a key; within a kind, README order."""
+    text = text[:MAX_SCAN]
     found: list[tuple[int, str, str]] = []
     for m in MD_LINK.finditer(text):
         found.append((m.start(), m.group(2), m.group(1)))
@@ -197,26 +226,20 @@ def links(text: str, limit: int = 40) -> list[list[str]]:
         found.append((m.start(), m.group(1), m.group(2)))
     for m in BARE_URL.finditer(text):
         found.append((m.start(), m.group(0).rstrip(".,;:!?"), ""))
-    sections = split_sections(text)
-    rank(sections)
-    ends, total = [], 0
-    for sec in sections:
-        total += len(sec.text)
-        ends.append(total)
+    value_at = _value_at(text)
     ranked, seen = [], set()
     for pos, url, label in sorted(found, key=lambda x: x[0]):
         if url in seen or not url_ok(url) or TRACKING.search(url):
             continue
         seen.add(url)
-        value = next((sec.value for sec, end in zip(sections, ends) if pos < end), 0)
-        ranked.append((-value, pos, [clean_label(label, url), url]))
+        ranked.append((-value_at(pos), pos, [clean_label(label, url), url]))
     return [item for _, _, item in sorted(ranked, key=lambda x: (x[0], x[1]))[:limit]]
 
 
 def is_local(url: str) -> bool:
-    parts = url.split("/")
-    host = parts[2] if len(parts) > 2 else ""
-    return host.startswith(LOCAL_HOSTS) or host.rsplit("@", 1)[-1].startswith(LOCAL_HOSTS)
+    """True for an address on this machine: the host is exactly localhost, 127.0.0.1, 0.0.0.0 or [::1] (not `localhost.example.org`)."""
+    host = (urlsplit(url).hostname or "").lower()
+    return host in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
 
 SHELL_LANGS = {"bash", "sh", "shell", "zsh", "console", "terminal", "powershell", "ps1", "cmd", "bat", "batch", "shell-session"}
@@ -267,3 +290,32 @@ def setup_commands(text: str) -> list[str]:
             if bare and not bare.startswith(("#", "//", "REM ", "::")) and (lang in SHELL_LANGS or is_command_line(line)):
                 out.append(bare)
     return out
+
+
+def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 1800) -> list[list[str]]:
+    """[[language, text], ...] for the README's code blocks that are not shell commands: a configuration file, a YAML/TOML/JSON
+    sample, an example prompt. A guide points at one by number and the renderer prints it as the README has it, indentation
+    included, so a model never retypes a setting. Blocks of the sections about installing and configuring come first."""
+    text = text[:MAX_SCAN]
+    value_at = _value_at(text)
+    found, fence, lang, lines, start, pos = [], None, "", [], 0, 0
+    for line in text.splitlines(keepends=True):
+        m = FENCE.match(line)
+        if m and fence is None:
+            fence, lang, lines, start = m.group(1), line.strip()[3:].strip().split(" ")[0].lower(), [], pos
+        elif m and fence == m.group(1):
+            body = textwrap.dedent("".join(lines)).strip("\n")
+            found.append((start, lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", lang) else "", body))
+            fence = None
+        elif fence is not None:
+            lines.append(line.rstrip("\r\n") + "\n")
+        pos += len(line)
+    ranked = []
+    for start, lang, body in found:
+        rows = [r for r in body.splitlines() if r.strip()]
+        if not rows or len(rows) > max_lines or len(body) > max_chars or lang in SHELL_LANGS:
+            continue
+        if not lang and all(is_command_line(r) for r in rows):      # an untagged block of commands is a shell block
+            continue
+        ranked.append((-value_at(start), start, [lang, body]))
+    return [item for _, _, item in sorted(ranked, key=lambda x: (x[0], x[1]))[:limit]]

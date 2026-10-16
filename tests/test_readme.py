@@ -113,3 +113,53 @@ def test_links_from_the_setup_sections_come_before_a_long_list_of_vendors_and_tr
     got = readme.links(text)
     assert [u for _, u in got[:2]] == ["https://www.pexels.com/api/", "https://docs.astral.sh/uv/"]
     assert len(got) == 40 and not any("sponsor" in u or "deal" in u for _, u in got)
+
+
+def test_select_never_returns_more_than_the_limit_and_keeps_code_blocks_whole():
+    import random
+    rng = random.Random(7)
+    titles = ["Install", "Run", "Showcase", "License", "Notes", "FAQ", "Config", "Thanks"]
+    for _ in range(300):
+        parts = []
+        for i in range(rng.randint(2, 40)):
+            parts.append("#" * rng.randint(1, 3) + f" {rng.choice(titles)} {i}\n\n" + "text line\n" * rng.randint(0, 60)
+                         + ("```bash\npip install x\n```\n" if rng.random() < .5 else "") + "\n")
+        text, limit = "".join(parts), rng.choice([300, 800, 2000, 6000])
+        out = readme.select(text, limit)
+        assert len(out) <= limit, (len(out), limit)
+        assert out.count("```") % 2 == 0
+
+
+def test_a_very_long_hostile_readme_is_handled_in_reasonable_time():
+    import time
+    start = time.monotonic()
+    readme.links("<a href='https://a.example'>" * 40000)
+    readme.links("".join(f"## S{i}\n[l](https://e{i}.example)\n" for i in range(15000)))
+    readme.blocks("```yaml\n" * 20000)
+    assert time.monotonic() - start < 8
+
+
+def test_an_address_is_local_only_when_the_host_is_exactly_a_local_one():
+    for url in ("http://localhost.evil.example/", "http://127.0.0.1.evil.example/", "http://localhost@evil.example/", "https://evil.example/localhost"):
+        assert not readme.is_local(url), url
+    assert readme.is_local("http://[::1]:8080/x")
+    assert readme.is_local("http://0.0.0.0:8501") and readme.is_local("http://LOCALHOST:3000/a")
+
+
+def test_an_address_with_a_user_part_is_not_a_link_at_all():
+    assert readme.links("[x](http://127.0.0.1@evil.example/) [y](https://user:pw@host.example/) [z](https://host.example/@name)") == \
+        [["z", "https://host.example/@name"]]
+
+
+def test_code_blocks_that_are_not_shell_come_out_as_the_readme_has_them_with_indentation():
+    text = ("## Configure\n\n```yaml\nllm:\n  model: <MODEL>\n  api_key: <KEY>\n```\n\n```bash\npip install x\n```\n\n```\nsample-tool run\n```\n\n"
+            "```\nExample output\n```\n\n## Thanks\n\n```toml\n[a]\nb = 1\n```\n")
+    # an untagged block counts as shell only when its lines start with a known program, so `sample-tool run` comes out too
+    assert readme.blocks(text) == [["yaml", "llm:\n  model: <MODEL>\n  api_key: <KEY>"], ["", "sample-tool run"], ["", "Example output"],
+                                   ["toml", "[a]\nb = 1"]]
+
+
+def test_a_block_that_is_too_long_or_has_an_odd_language_tag_is_dropped_or_cleaned():
+    big = "```yaml\n" + "k: v\n" * 60 + "```\n"
+    odd = "```<script>x\nvalue\n```\n"
+    assert readme.blocks(big) == [] and readme.blocks(odd) == [["", "value"]]

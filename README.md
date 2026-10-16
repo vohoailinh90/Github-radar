@@ -22,7 +22,7 @@ flowchart LR
 Mỗi repo thành một **hướng dẫn làm theo từng bước**, để người đọc chỉ cần nhìn tài liệu là tự làm được điều repo làm:
 `digests/<ngày>/<repo>/vi.md` gồm: thẻ tóm tắt (ảnh), **bạn sẽ làm ra được gì**, vấn đề repo giải quyết, **lưu ý** (phần cứng, chi phí, bản quyền),
 **chuẩn bị** (danh sách đánh dấu: phần mềm, phần cứng, tài khoản, khóa API, có liên kết lấy từ README), **lộ trình** (hình tóm tắt các bước),
-**làm theo từng bước** (mỗi bước: mục đích, việc cần làm, khối lệnh chép nguyên văn từ README, *bạn sẽ thấy*, *nếu không được*, căn cứ),
+**làm theo từng bước** (mỗi bước: mục đích, việc cần làm, khối lệnh chép nguyên văn từ README, khối cấu hình mẫu in đúng như README, *bạn sẽ thấy*, *nếu không được*, căn cứ),
 **kiểm tra kết quả**, **lỗi thường gặp** (chỉ lỗi README tự nêu), **làm tiếp**; rồi mới đến phần giải thích bên trong (sơ đồ các mảnh ghép, bài học thiết kế, từ khóa).
 Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng dẫn làm video AI](docs/ai-video-guides.md) (5 repo, quét 16/10/2026).
 Bài cũ (trước khi có hướng dẫn) vẫn được vẽ như trước: `draft` không có khóa `guide` dùng bố cục giải thích cũ.
@@ -41,7 +41,9 @@ Model chỉ viết lời giải thích; **script** quyết định bài có đư
 | Lệnh | Mỗi lệnh trong hướng dẫn phải là **một dòng** (hoặc một đoạn mã nội dòng) của README; lệnh README chia nhiều dòng bằng `\` được ghép thành một |
 | Chữ trong dấu backtick | Chữ model viết giữa dấu backtick (hiện ra như mã để chép) phải có trong README hoặc là đường dẫn có thật; không thể giấu một lệnh bịa trong câu văn |
 | Có lệnh khi README có lệnh | README có từ 2 dòng lệnh trở lên mà hướng dẫn không đưa lệnh nào: bị chặn. README có từ 4 dòng lệnh mà hướng dẫn dùng dưới 2: cảnh báo |
-| Liên kết | Không URL/tên miền do model viết. Link repo do script thêm; link khác (nơi lấy khóa API, địa chỉ cục bộ như `localhost:8080`) model chỉ **chọn theo số** trong danh sách liên kết README mà script trích, script in ra. Link có tham số theo dõi/affiliate bị loại |
+| Liên kết | Không URL/tên miền do model viết. Link repo do script thêm; link khác (trang khóa API, địa chỉ cục bộ như `localhost:8080`) model chỉ **chọn theo số** trong danh sách liên kết README mà script trích, script in ra. Link có tham số theo dõi/affiliate hoặc có phần `user@` bị loại; `localhost` giả (`localhost.example.org`) không được coi là địa chỉ cục bộ |
+| Khối cấu hình mẫu | File cấu hình/ví dụ (YAML, TOML...) model không gõ lại: nó chọn **theo số** một khối mã của README, script in nguyên văn kèm thụt lề |
+| Văn bản lạ trong bài | Mọi `*` và `<` trong câu văn của model hiện ra như chữ thường (không thành chữ nghiêng hay HTML); bộ kiểm tra không bao giờ ném lỗi dù model trả JSON sai hình dạng, chỉ trả danh sách lỗi |
 | Lời quảng cáo | "tốt nhất thế giới", "100%", "số 1"... bị chặn (vi/en/ja) |
 | Ngôn ngữ, độ dài | Đúng ngôn ngữ; tiêu đề, hook Facebook ≤125 ký tự, số lượng bước, v.v. |
 
