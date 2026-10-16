@@ -302,10 +302,10 @@ def _norm_cmd(text: str) -> str:
     return readmelib.PROMPT.sub("", re.sub(r"\s+", " ", str(text)).strip())
 
 
-def _command_variants(readme: str):
-    """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the logical lines
-    of its code blocks (a command written over several lines is ONE line; its pieces are not commands; in a `console` transcript only the
-    lines after a prompt, the rest is output), and outside the blocks whole lines and inline code spans. Each text also comes without a trailing `# comment`."""
+def _block_variants(readme: str):
+    """(text, prompt pattern) for the logical lines of the README's code blocks (a command written over several lines is ONE line; its
+    pieces are not commands; in a `console` transcript only the lines after a prompt, the rest is output). Each comes without a trailing
+    `# comment` too."""
     for lang, lines in readmelib.code_blocks(readme):
         prompt = readmelib.prompt_for(lang)
         for line in lines:
@@ -313,6 +313,13 @@ def _command_variants(readme: str):
                 continue
             yield line, prompt
             yield re.split(r"\s+#\s", line)[0], prompt
+
+
+def _command_variants(readme: str):
+    """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the lines of its
+    code blocks (see `_block_variants`), and outside the blocks whole lines and inline code spans. Each text also comes without a
+    trailing `# comment`."""
+    yield from _block_variants(readme)
     for line in (l.strip() for l in readmelib.prose_lines(readme)):
         yield line, readmelib.SHELL_PROMPT
         yield re.split(r"\s+#\s", line)[0], readmelib.SHELL_PROMPT
@@ -339,6 +346,12 @@ def command_texts(readme: str) -> dict[str, list[str]]:
             if shown not in out.setdefault(key, []):
                 out[key].append(shown)
     return out
+
+
+def block_commands(readme: str) -> set[str]:
+    """The comparable form of every line of the README's code blocks: what a reader types, as opposed to a line of prose or a code
+    span, where a pair of backticks is Markdown and not part of a command."""
+    return {key for text, _ in _block_variants(readme) if (key := _norm_cmd(text))}
 
 
 def readme_commands(readme: str) -> set[str]:
@@ -441,12 +454,13 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
         for i, item in _dicts(hiw.get(key)):
             if item.get("evidence") and not _evidence_ok(item["evidence"], facts["tree"]):
                 problems.append(Problem("error", f"{key}[{i}]", f"evidence {item['evidence']!r} is not README or a path in the repository"))
-    known = readme_commands(facts["readme"])
+    known, typed = readme_commands(facts["readme"]), block_commands(facts["readme"])
     for field, cmd in guide_commands(draft):
         if cmd == "":                                  # a blank line between two lines of a block (a heredoc body)
             continue
         shown = _norm_cmd(cmd)
-        if not isinstance(cmd, str) or "`" in cmd or "\n" in cmd or len(shown) < 3 or shown not in known:
+        # a backtick is shell (command substitution) only in a line of a code block; around a span of prose it is Markdown
+        if not isinstance(cmd, str) or "\n" in cmd or len(shown) < 3 or shown not in known or ("`" in shown and shown not in typed):
             problems.append(Problem("error", field, f"command is not a line or code span of the README: {cmd!r}"))
     guide = draft.get("guide")
     if isinstance(guide, dict) and not any(p.level == "error" and p.field.startswith("guide") for p in problems):

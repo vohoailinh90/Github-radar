@@ -496,11 +496,13 @@ def blocks(text: str, limit: int = 12, max_lines: int = SNIPPET_LINES, max_chars
             info = fence_opens(line)[1]
             lang, lines, start = (info.split(" ")[0].lower() if info else ""), [], pos
         elif on_fence:
-            body = "\n".join(dedent(lines)).strip("\n")
-            found.append((start, lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", lang) else "", body))
+            found.append((start, lang, "\n".join(dedent(lines)).strip("\n")))
         elif fence is not None:
             lines.append(line.rstrip("\r\n"))
         pos += len(line)
+    if fence is not None:                             # an unclosed block runs to the end of the README, as `code_blocks` reads it
+        found.append((start, lang, "\n".join(dedent(lines)).strip("\n")))
+    found = [(start, lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", lang) else "", body) for start, lang, body in found]
     ranked = []
     for start, lang, body in found:
         rows = [r for r in body.splitlines() if r.strip()]

@@ -63,6 +63,15 @@ def _snippet(facts: dict, ref, t: dict) -> list[str]:
     return ["", f"_{t['snippet']}_", "", fence + lang] + body.splitlines() + [fence]
 
 
+def _bash_block(commands) -> list[str]:
+    """The lines of a fenced `bash` block holding `commands`, the fence longer than any run of backticks in them."""
+    lines = [_command(c) for c in commands]
+    fence = "```"
+    while any(fence in line for line in lines):
+        fence += "`"
+    return [fence + "bash"] + lines + [fence]
+
+
 def _command(text) -> str:
     """One line to type, as stored. A guide's commands are the README's own text (gates.canonicalize), so only the end is trimmed
     and a leading `$ ` or `PS C:\\>` that an older draft kept is dropped; a leading `> ` is a redirection in a shell block and stays.
@@ -107,7 +116,7 @@ def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
         md += [f"### {t['step']} {i} · {_g(step['title'])}", "", f"**{t['why']}:** {_g(step['why'])}", ""]
         md += [f"{n}. {_g(d)}" for n, d in enumerate(step["do"], 1)]
         if step.get("commands"):
-            md += [""] + ([f"_{t['type_here']}_", ""] if not hinted else []) + ["```bash"] + [_command(c) for c in step["commands"]] + ["```"]
+            md += [""] + ([f"_{t['type_here']}_", ""] if not hinted else []) + _bash_block(step["commands"])
             hinted = True
         md += _snippet(facts, step.get("snippet_ref"), t)
         link = _link(facts, step.get("link_ref"), t)
@@ -158,7 +167,7 @@ def concept_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
     md += ["", f"## {t['who']}", ""] + [f"- {_md(x)}" for x in draft["who_for"]]
     md += ["", f"## {t['try']}", ""]
     cmds = draft["try_it"]["commands"]
-    md += (["```bash"] + [_command(c) for c in cmds] + ["```"]) if cmds else [t["no_cmd"]]
+    md += _bash_block(cmds) if cmds else [t["no_cmd"]]
     if draft["try_it"].get("note"):
         md += ["", _md(draft["try_it"]["note"])]
     md += ["", f"## {t['caveats']}", ""] + [f"- {_md(x)}" for x in draft["caveats"]]

@@ -456,6 +456,34 @@ def test_a_piece_of_a_command_the_readme_splits_over_lines_is_not_a_command():
         assert (not any("steps[0].commands" in e for e in errs(d, facts))) is ok, command
 
 
+TICKS_README = (README + "\n```bash\nexport VERSION=`git describe --tags`\nexport BUILD=`date +%s`\n```\n\n"
+                "Run `pip install tick-tool` first.\n\n`pip install wrapped-tool`\n")
+TICKS_FACTS = {**FACTS, "readme": TICKS_README, "links": readme.links(TICKS_README), "blocks": readme.blocks(TICKS_README)}
+
+
+def test_a_command_with_backticks_is_accepted_when_a_code_block_of_the_readme_has_it_and_not_when_they_are_markdown(tmp_path):
+    """`export V=`git describe`` is command substitution in a shell block; the backticks around a span of prose are Markdown and must not be typed."""
+    cases = (("export VERSION=`git describe --tags`", True), ("export BUILD=`date +%s`", True), ("pip install tick-tool", True),
+             ("pip install wrapped-tool", True), ("`pip install wrapped-tool`", False), ("`pip install tick-tool`", False),
+             ("export VERSION=git describe --tags", False), ("export VERSION=`git describe --tags", False))
+    for command, ok in cases:
+        d = make_draft(TICKS_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert (not any("steps[0].commands" in e for e in errs(d, TICKS_FACTS))) is ok, command
+    d = make_draft(TICKS_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["export VERSION=`git describe --tags`", "export BUILD=`date +%s`"], evidence="README")
+    fixed = gates.canonicalize(d, TICKS_FACTS)
+    assert fixed["guide"]["steps"][0]["commands"] == ["export VERSION=`git describe --tags`", "export BUILD=`date +%s`"]
+    assert "```bash\nexport VERSION=`git describe --tags`\nexport BUILD=`date +%s`\n```" in render(tmp_path, fixed, facts=TICKS_FACTS)[1]
+
+
+def test_the_fence_of_a_command_block_is_longer_than_any_run_of_backticks_in_it(tmp_path):
+    d = make_draft(FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["echo ```x```", "echo ok"])
+    md = render(tmp_path, d)[1]
+    assert "````bash\necho ```x```\necho ok\n````" in md
+
+
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
     text = README + "\n```console\n$ my-tool serve\nServer started\nListening on port 8000\n```\n"
     facts = {**FACTS, "readme": text, "links": readme.links(text), "blocks": readme.blocks(text)}

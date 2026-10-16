@@ -190,6 +190,13 @@ def test_a_console_transcript_counts_only_the_lines_after_a_prompt_as_typed():
     assert readme.setup_commands(text) == ["my-tool run", "second-tool go", "third-tool", "my-tool --flag"]
 
 
+def test_a_sample_that_runs_to_the_end_of_the_readme_is_kept_like_the_block_the_command_reader_sees():
+    text = "# T\n\n## Configuration\n\n```yaml\nkey: 1\n\nother: 2\n"
+    assert readme.code_blocks(text) == [("yaml", ["key: 1", "", "other: 2"])]
+    assert readme.blocks(text) == [["yaml", "key: 1\n\nother: 2"]]
+    assert readme.blocks("```bash\npip install x\n") == []                  # an unclosed shell block is still a command block, not a sample
+
+
 def test_a_console_block_without_typed_lines_is_a_sample_and_one_with_them_is_not():
     output_only = "```console\nStarting server on port 8000\nDone\n```\n"
     transcript = "```console\n$ my-tool run\nStarted\n```\n"
