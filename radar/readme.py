@@ -775,9 +775,9 @@ def _join(lang: str, text: str, line: str, glue) -> str:
 
 
 def _ps_token_start(text: str, i: int) -> bool:
-    """Whether a comment may begin at `text[i]` in PowerShell: it is the start of a token, after whitespace or one of `; | ( ) { } [ ] & ,`.
-    `Foo<#Bar#>` and `a#b` are one word each."""
-    return i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"
+    """Whether a comment may begin at `text[i]` in PowerShell: it is the start of a token, after whitespace, one of `; | ( ) { } [ ] & ,` or the
+    quote that closes a string (`'x'<# note #>`). `Foo<#Bar#>` and `a#b` are one word each."""
+    return i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,'\""
 
 
 def _strip_ps_block_comments(lines: list[str]) -> list[str]:

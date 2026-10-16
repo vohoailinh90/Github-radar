@@ -1233,3 +1233,13 @@ def test_a_parenthesis_in_a_cmd_variable_reference_groups_nothing():
     assert readme._cmd_depth("echo %ProgramFiles(x86)%") == 0 and readme._cmd_depth("echo 100% (done)") == 0 and readme._cmd_depth("IF x (") == 1
     assert scanned("```bat\nIF EXIST build (\n  echo %ProgramFiles(x86)%\n)\nver\n```\n") == [("IF EXIST build (", None), ("  echo %ProgramFiles(x86)%", 0), (")", 0), ("ver", None)]
     assert scanned("```bat\nfor %%i in (a b) do echo %%i\nver\n```\n") == [("for %%i in (a b) do echo %%i", None), ("ver", None)]          # a loop variable is not a reference
+
+
+def test_a_powershell_comment_may_begin_right_after_the_quote_that_closes_a_string():
+    strip = readme._strip_ps_block_comments
+    assert strip(["Write-Output 'x'<#", "Remove-Item build", "#>", "Get-Date"]) == ["Write-Output 'x'", "Get-Date"]
+    assert strip(['Write-Output "x"<# gone #> y']) == ['Write-Output "x" y']
+    assert strip(["Write-Output Foo<#Bar#>"]) == ["Write-Output Foo<#Bar#>"]          # inside a word it is not a comment
+    assert readme._ps_state("Write-Output 'x'# note")[2] == len("Write-Output 'x'")
+    lines = [line for _, block in readme.code_blocks("```powershell\nWrite-Output \"x\"# note `\nGet-Date\n```\n") for line in block]
+    assert lines == ['Write-Output "x"# note `', "Get-Date"]                      # and the backtick in it is text
