@@ -676,10 +676,11 @@ def _is_powershell(lang: str, command: str) -> bool:
     return lang in POWERSHELL_LANGS or bool(POWERSHELL_PROMPT.match(command))
 
 
-PS_WORD_OPERATORS = ("and", "or", "xor", "is", "isnot", "as", "join", "band", "bor", "bxor", "shl", "shr")
+PS_WORD_OPERATORS = ("and", "or", "xor", "not", "bnot", "is", "isnot", "as", "join", "band", "bor", "bxor", "shl", "shr")
 PS_COMPARISONS = ("eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match", "notmatch", "contains", "notcontains", "in", "notin", "replace", "split")
 PS_OPERATOR_END = re.compile(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + "|[ci]?(?:" + "|".join(PS_COMPARISONS) + "))$", re.I)       # `-ceq`, `-ireplace`: case-qualified
 PS_FORMAT_END = re.compile(r"\s-f$", re.I)                                  # `-f` is also the abbreviation of `-Force`: only in a statement that is an expression
+PS_UNARY_END = re.compile(r"[=(,*/%]\s*(?:!|\+\+|--|[-+])$")                  # `$x = !`, `$y = -`, `$i = ++`: a prefix operator wants its operand (`$i++` is complete)
 PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
 PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+(?:[-*/%:?]|\?\?|\.\.)$")     # `$x = 4 -`, `$a ??`, `$a ..`, `$ok ?` over `'yes' :`: an operand and then a binary or ternary operator
 
@@ -689,8 +690,9 @@ def _ps_continues(code: str, last: str) -> bool:
     comma, an operator (`+`, `=`, a pipeline chain's `&&` and `||`, `-and`, `-eq`, `-join` ...), or `-`, `*`, `/`, `%` after an operand in
     a statement that is an expression (`$x = 4 -`). A wildcard or a path ends a command (`Get-ChildItem *`, `Copy-Item $src *`)."""
     code = code.rstrip()
-    return (last in ("|", ",") or code.endswith(("&&", "||", "+", "=")) or bool(PS_OPERATOR_END.search(code))
-            or bool(PS_EXPRESSION.match(code) and (PS_OPERAND_THEN_OPERATOR.search(code) or PS_FORMAT_END.search(code))))
+    return (last in ("|", ",") or code.endswith(("&&", "||", "=")) or (code.endswith("+") and not code.endswith("++"))          # `$i++` is complete
+            or bool(PS_OPERATOR_END.search(code))
+            or bool(PS_EXPRESSION.match(code) and (PS_OPERAND_THEN_OPERATOR.search(code) or PS_FORMAT_END.search(code) or PS_UNARY_END.search(code))))
 
 
 def _ps_state(text: str):

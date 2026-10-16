@@ -188,7 +188,8 @@ def guide_schema(guide) -> list[Problem]:
         field = f"guide.requirements[{i}]"
         if not isinstance(r, dict) or not r.get("evidence"):
             p.append(Problem("error", field, "needs item and evidence"))
-            continue
+            if not isinstance(r, dict):
+                continue                                 # the other fields of an item are still checked: one round of feedback has to hold them all
         _guide_text(r.get("item"), GUIDE["item"], field + ".item", p)
         _guide_text(r.get("detail"), GUIDE["detail"], field + ".detail", p, required=False)
         p += _ref_problems(r, field)
@@ -196,7 +197,8 @@ def guide_schema(guide) -> list[Problem]:
         field = f"guide.steps[{i}]"
         if not isinstance(s, dict) or not s.get("evidence"):
             p.append(Problem("error", field, "needs title, do and evidence"))
-            continue
+            if not isinstance(s, dict):
+                continue                                 # the other fields of an item are still checked: one round of feedback has to hold them all
         _guide_text(s.get("title"), GUIDE["title"], field + ".title", p)
         _guide_text(s.get("why"), GUIDE["why"], field + ".why", p)
         _guide_text(s.get("expect"), GUIDE["expect"], field + ".expect", p, required=False)
@@ -212,7 +214,8 @@ def guide_schema(guide) -> list[Problem]:
         field = f"guide.troubleshooting[{i}]"
         if not isinstance(t, dict) or not t.get("evidence"):
             p.append(Problem("error", field, "needs problem, fix and evidence"))
-            continue
+            if not isinstance(t, dict):
+                continue                                 # the other fields of an item are still checked: one round of feedback has to hold them all
         _guide_text(t.get("problem"), GUIDE["problem"], field + ".problem", p)
         _guide_text(t.get("fix"), GUIDE["fix"], field + ".fix", p)
         p += _ref_problems(t, field)

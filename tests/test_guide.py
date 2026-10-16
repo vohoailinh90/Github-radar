@@ -891,3 +891,14 @@ def test_a_schema_error_in_one_item_does_not_hide_a_wrong_reference_in_a_valid_i
     assert any("guide.steps[1]" in m for m in errs(bad_step)) and any("docs/nope.md" in m for m in errs(bad_step))
     not_dicts = mutate(lambda d: d["guide"].update(requirements=["x", 3, None], troubleshooting="nope"))
     assert errs(not_dicts)                                                                                       # shapes the checks cannot read are refused, never a crash
+
+
+def test_an_item_without_evidence_is_still_checked_for_its_other_fields():
+    def bad(d):
+        d["guide"]["steps"][0].update(evidence="", title="", commands="bad", link_ref="bad")
+    messages = errs(mutate(bad))
+    assert any("guide.steps[0]" in m and "evidence" in m for m in messages) and any("guide.steps[0].title" in m for m in messages)
+    assert any("guide.steps[0].commands" in m for m in messages) and any("link_ref" in m for m in messages)          # all in the one round of feedback
+    missing = mutate(lambda d: (d["guide"]["requirements"][0].update(evidence="", item=""), d["guide"]["troubleshooting"][0].update(evidence="", fix="")))
+    texts = errs(missing)
+    assert any("guide.requirements[0].item" in m for m in texts) and any("guide.troubleshooting[0].fix" in m for m in texts)

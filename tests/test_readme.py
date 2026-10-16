@@ -1252,3 +1252,11 @@ def test_a_root_prompt_is_recognized_after_a_line_that_makes_the_shell_root_s():
     assert readme.setup_commands("```console\n$ sudo su\n# make install\n```\n") == ["sudo su", "make install"]
     assert readme.setup_commands("```console\n$ ls\n# apt-get update\n```\n") == ["ls"]                     # with no escalation `# ` after a `$` prompt is still a comment
     assert readme.setup_commands("```console\n# apt-get update\n# apt-get install x\n```\n") == ["apt-get update", "apt-get install x"]
+
+
+def test_a_powershell_prefix_operator_at_the_end_of_a_line_wants_its_operand_and_a_postfix_one_does_not():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    text = "```powershell\n$disabled = -not\n$enabled\n$a = !\n$b\n$c = -\n5\n$d = ++\n$i\n$j = --\n$k\n$e = $i++\nls\n$n = $i--\nls\n$m = 1 +\n2\n```\n"
+    assert lines(text) == ["$disabled = -not $enabled", "$a = ! $b", "$c = - 5", "$d = ++ $i", "$j = -- $k", "$e = $i++", "ls", "$n = $i--", "ls", "$m = 1 + 2"]
+    assert lines("```powershell\nWrite-Host Hello!\nls\n$g = Get-Date -\n```\n") == ["Write-Host Hello!", "ls", "$g = Get-Date -"]          # a command's own `!` or `-` ends nothing
