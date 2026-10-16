@@ -1,0 +1,21 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Giao diện web hoặc TUI",
+      "icon": "monitor"
+    },
+    {
+      "name": "Mô hình chat",
+      "icon": "message-square"
+    },
+    {
+      "name": "Bộ tạo ảnh",
+      "icon": "image"
+    },
+    {
+      "name": "Bộ tạo video",
+      "icon": "video"
+    }
+  ]
+}

@@ -58,4 +58,4 @@ Lượt quét không xuất PNG: dựng ảnh Excalidraw và draw.io cần trìn
 
 ## Vẽ cho các bài cũ
 
-`python3 radar.py rerender` thêm ba tệp (`board-`, `moda-`, `drawio-`) vào mọi bài đã lưu `draft-*.json`; bản draw.io của bài cũ có icon khi bài có `icons-<ngôn ngữ>.json` (mục Icon ở trên). Nó cũng vẽ lại phần còn lại bằng bộ vẽ hiện tại; chạy trên 10 bài hiện có (2026-10-12 đến 2026-10-16), kết quả chỉ là 30 tệp mới (3 mỗi bài), không tệp có sẵn nào đổi. Vẫn nên xem `git status` trước khi commit, vì bộ vẽ có thể đã đổi từ lần đó.
+`python3 radar.py rerender` thêm ba tệp (`board-`, `moda-`, `drawio-`) vào mọi bài đã lưu `draft-*.json`; bản draw.io của bài cũ có icon khi bài có `icons-<ngôn ngữ>.json` (mục Icon ở trên). Nó cũng vẽ lại phần còn lại bằng bộ vẽ hiện tại; chạy trên 10 bài đầu (2026-10-12 đến 2026-10-16), kết quả chỉ là 30 tệp mới (3 mỗi bài), không tệp có sẵn nào đổi; thêm `icons-vi.json` cho một bài đã có bản draw.io thì chỉ tệp `drawio-` của bài đó đổi (có thêm icon). Vẫn nên xem `git status` trước khi commit, vì bộ vẽ có thể đã đổi từ lần đó.
