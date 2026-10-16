@@ -1,0 +1,46 @@
+<!-- radar: Moda canvas 1200x1480; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">DeepSeek Harness: Khám phá kiến trúc mọi thứ là plugin</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Tìm hiểu hệ thống AI agent mã nguồn mở từ DeepSeek với triết lý thiết kế module cực độc đáo.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">CLI và Web UI</text>
+<text x="80" y="577" width="440" height="21" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cung cấp cổng giao tiếp trực quan cho người dùng.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cordis Engine</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đảm bảo kiến trúc mọi thứ là plugin hoạt động trơn tru.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="723" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="789" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="811" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="811" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cài đặt và chạy</text>
+<text x="154" y="847" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Sử dụng Node.js để chạy trực tiếp từ npm hoặc clone mã nguồn từ kho chứa để bắt đầu khởi động giao diện Web.</text>
+<line x1="584" y1="863" x2="616" y2="863" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="789" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="811" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="811" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Sử dụng kiến trúc Plugin</text>
+<text x="714" y="847" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hệ thống vận hành dựa trên triết lý mọi thứ là plugin, được hỗ trợ bởi Cordis để tăng tính linh hoạt và khả năng kết hợp.</text>
+<rectangle x="60" y="961" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="983" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="983" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Phát triển và mở rộng</text>
+<text x="154" y="1019" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nhà phát triển có thể tận dụng các công cụ dòng lệnh, tài liệu hướng dẫn và gói nguồn mở để xây dựng các tiện ích mở rộng riêng.</text>
+<text x="60" y="1191" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1257" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1297.8" x2="97.6" y2="1305" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1305" x2="110" y2="1289.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1277" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách thiết kế kiến trúc phần mềm dựa hoàn toàn trên plugin</text>
+<rectangle x="430" y="1257" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1297.8" x2="467.6" y2="1305" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1305" x2="480" y2="1289.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1277" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Ứng dụng framework Cordis vào quản lý tính năng</text>
+<rectangle x="800" y="1257" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1297.8" x2="837.6" y2="1305" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1305" x2="850" y2="1289.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1277" width="244" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tổ chức mã nguồn cho một dự án AI agent quy mô lớn</text>
+<text x="60" y="1417" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: deepseek-ai/deepseek-harness · Giấy phép: MIT · 249.184 sao · Quét ngày 2026-10-14</text>
+</content>

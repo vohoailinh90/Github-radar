@@ -10,7 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import conditions, contract, digest, discover, facts as factslib, gates, history, studio_export
+from . import conditions, contract, digest, discover, facts as factslib, gates, history, icons, studio_export
 from .llm import AllModelsFailed, Gateway
 from .net import HttpError
 from .write import write_one
@@ -152,15 +152,21 @@ def load_entries(root: Path, slug: str) -> list[dict]:
     day = root / "digests" / slug
     entries = []
     for folder in sorted(p for p in day.iterdir() if p.is_dir()) if day.is_dir() else []:
-        drafts, facts, position, note = {}, None, None, None
+        drafts, facts, position, note, icon_files = {}, None, None, None, {}
         for path in sorted(folder.glob("draft-*.json")):
             stored = json.loads(path.read_text(encoding="utf-8"))
             facts = facts or stored["facts"]
             position = position or stored.get("position")
             note = note or stored.get("note")
             drafts[stored["lang"]] = stored["draft"]
+            beside = folder / icons.FILE.format(lang=stored["lang"])        # only drafts that predate icons have one (docs/design-files.md)
+            if beside.is_file():
+                try:
+                    icon_files[stored["lang"]] = json.loads(beside.read_text(encoding="utf-8"))
+                except (OSError, ValueError, RecursionError):                # unreadable, not JSON or absurdly nested: `rerender` skips the run and says so
+                    icon_files[stored["lang"]] = None
         if drafts:
-            entries.append({"facts": facts, "drafts": drafts, "position": position or 999, "note": note})
+            entries.append({"facts": facts, "drafts": drafts, "position": position or 999, "note": note, "icon_files": icon_files})
     return sorted(entries, key=lambda e: (e["position"], e["facts"]["full_name"]))
 
 
@@ -184,6 +190,12 @@ def rerender(cfg: dict, root: Path, slug: str | None = None) -> dict:
         if bad:
             report["skipped"][name] = "a stored draft no longer fits the schema: " + "; ".join(bad[:2])
             continue
+        stale = [f"{e['facts']['full_name']} [{lang}]: {p}" for e in entries for lang, data in e["icon_files"].items()
+                 if not icons.has_icons(e["drafts"][lang])           # a draft that names its icons wins: a file beside it is never read
+                 for p in gates.icon_file(e["drafts"][lang], data)]
+        if stale:
+            report["skipped"][name] = "an icon file does not fit its draft: " + "; ".join(stale[:2])
+            continue
         present = {lang for e in entries for lang in e["drafts"]}
         langs = [l for l in cfg["langs"] if l in present] + sorted(present - set(cfg["langs"]))
         try:
@@ -197,7 +209,8 @@ def rerender(cfg: dict, root: Path, slug: str | None = None) -> dict:
             for lang in langs:
                 have = [e for e in entries if lang in e["drafts"]]
                 for e in have:
-                    digest.render_repo(stage, name, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1, note=e.get("note"))
+                    digest.render_repo(stage, name, e["facts"], {lang: e["drafts"][lang]}, position=entries.index(e) + 1, note=e.get("note"),
+                                       icon_files=e["icon_files"])
                 digest.render_index(stage, name, have, lang)
             for rel, text in files.items():
                 target = stage / "export" / "studio" / rel

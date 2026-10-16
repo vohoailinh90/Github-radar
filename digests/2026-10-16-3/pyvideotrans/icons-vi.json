@@ -1,0 +1,21 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Nhận dạng giọng nói (ASR)",
+      "icon": "mic"
+    },
+    {
+      "name": "Dịch phụ đề",
+      "icon": "message-square"
+    },
+    {
+      "name": "Tổng hợp giọng nói (TTS)",
+      "icon": "volume-2"
+    },
+    {
+      "name": "Ghép video",
+      "icon": "video"
+    }
+  ]
+}

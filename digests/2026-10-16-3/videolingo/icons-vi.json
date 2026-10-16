@@ -1,0 +1,21 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Giao diện Streamlit",
+      "icon": "monitor"
+    },
+    {
+      "name": "Nhận dạng giọng nói",
+      "icon": "mic"
+    },
+    {
+      "name": "Mô hình dịch (LLM)",
+      "icon": "brain"
+    },
+    {
+      "name": "Lồng tiếng (TTS)",
+      "icon": "volume-2"
+    }
+  ]
+}

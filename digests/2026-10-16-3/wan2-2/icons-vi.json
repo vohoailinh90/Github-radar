@@ -1,0 +1,21 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Câu mô tả và ảnh",
+      "icon": "image"
+    },
+    {
+      "name": "Mở rộng mô tả",
+      "icon": "sparkles"
+    },
+    {
+      "name": "generate.py",
+      "icon": "terminal"
+    },
+    {
+      "name": "Mô hình Wan2.2",
+      "icon": "brain"
+    }
+  ]
+}

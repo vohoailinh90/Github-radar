@@ -1,0 +1,17 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Skill tái tạo AGENTS.md",
+      "icon": "puzzle"
+    },
+    {
+      "name": "Khung ứng dụng (src/app/)",
+      "icon": "layers"
+    },
+    {
+      "name": "Thư mục tài nguyên (public/)",
+      "icon": "image"
+    }
+  ]
+}

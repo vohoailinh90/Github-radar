@@ -1,0 +1,52 @@
+<!-- radar: Moda canvas 1200x1650; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="411" fill="#0B1B3A"/>
+<rectangle x="0" y="411" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="203" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Scrapling: Framework web scraping tự thích ứng trên Python</text>
+<text x="60" y="337" width="1080" height="34" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Website đổi giao diện hay bật chống bot làm mã cào dữ liệu hỏng liên tục?</text>
+<text x="60" y="485" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="579" width="280" height="166" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="601" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">StealthyFetcher</text>
+<text x="80" y="639" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Thành phần tải trang web dưới dạng browser ngầm giúp vượt qua hệ thống chống bot.</text>
+<rectangle x="460" y="579" width="280" height="166" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="601" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Adaptive Parser</text>
+<text x="480" y="639" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bộ phân tích dữ liệu có khả năng ghi nhớ và tự tái định vị phần tử khi cấu trúc HTML thay đổi.</text>
+<rectangle x="860" y="579" width="280" height="166" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="601" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Spider Engine</text>
+<text x="880" y="639" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Khung điều phối crawl quy mô lớn, hỗ trợ xoay proxy và tự điều chỉnh tốc độ request.</text>
+<line x1="1000" y1="579" x2="1000" y2="553" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="553" x2="200" y2="553" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="553" x2="200" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="340" y1="662" x2="460" y2="662" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="827" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="893" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="915" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="915" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Gửi request ngầm</text>
+<text x="154" y="951" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">StealthyFetcher thực hiện tải website ở chế độ headless và network idle để vượt qua các bộ lọc bot như Cloudflare Turnstile.</text>
+<line x1="584" y1="978" x2="616" y2="978" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="893" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="915" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="915" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bóc tách tự thích ứng</text>
+<text x="714" y="951" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Khi chọn phần tử với auto_save=True, parser lưu lại đặc điểm; khi trang đổi layout, cờ adaptive=True giúp tự tìm lại phần tử đó.</text>
+<rectangle x="60" y="1087" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1109" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1109" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Điều phối crawl diện rộng</text>
+<text x="154" y="1145" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Spider quản lý crawl đồng thời đa phiên, hỗ trợ tạm dừng, xoay vòng proxy và tự động lùi bước giảm tốc khi máy chủ có dấu hiệu chặn.</text>
+<text x="60" y="1339" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1405" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1445.8" x2="97.6" y2="1453" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1453" x2="110" y2="1437.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1425" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cơ chế tự phục hồi bộ chọn (self-healing selectors) giúp giảm chi phí bảo trì script.</text>
+<rectangle x="430" y="1405" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1445.8" x2="467.6" y2="1453" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1453" x2="480" y2="1437.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1425" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách biệt rõ ràng giữa tầng fetcher (thu thập), parser (bóc tách) và spider (điều phối).</text>
+<rectangle x="800" y="1405" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1445.8" x2="837.6" y2="1453" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1453" x2="850" y2="1437.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1425" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chiến thuật backoff thích ứng theo phản hồi của server để duy trì kết nối ổn định.</text>
+<text x="60" y="1587" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: D4Vinci/Scrapling · Giấy phép: BSD-3-Clause · 87.320 sao · Quét ngày 2026-10-13</text>
+</content>

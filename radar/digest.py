@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from . import drawio, excalidraw, moda, readme as readmelib, svg
+from . import drawio, excalidraw, icons, moda, readme as readmelib, svg
 from .facts import slug
 from .labels import L
 
@@ -207,8 +207,11 @@ def repo_dir(root: Path, date: str, facts: dict) -> Path:
 
 
 def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], position: int | None = None,
-                note: str | None = None) -> list[Path]:
-    """Write <date>/<repo>/<lang>.md plus card/flow/steps SVGs per language. Returns the files."""
+                note: str | None = None, icon_files: dict[str, dict] | None = None) -> list[Path]:
+    """Write <date>/<repo>/<lang>.md plus card/flow/steps SVGs per language. Returns the files.
+
+    `icon_files` maps a language to the content of its `icons-<lang>.json`, for a draft stored before icons existed: the
+    draw.io diagram shows them, while the stored draft stays exactly the model's answer."""
     out = repo_dir(root, date, facts)
     out.mkdir(parents=True, exist_ok=True)
     written = []
@@ -224,7 +227,7 @@ def render_repo(root: Path, date: str, facts: dict, drafts: dict[str, dict], pos
             # None is linked from the Markdown.
             f"board-{lang}.excalidraw": excalidraw.board(facts, draft, t),
             f"moda-{lang}.xml": moda.markup(facts, draft, t, lang),
-            f"drawio-{lang}.drawio": drawio.diagram(facts, draft, t),
+            f"drawio-{lang}.drawio": drawio.diagram(facts, icons.overlay(draft, (icon_files or {}).get(lang)), t),
         }
         if draft.get("guide"):
             files[f"path-{lang}.svg"] = svg.roadmap(draft["guide"]["steps"], t["roadmap"], draft["guide"]["outcome"], t, facts.get("shells"))

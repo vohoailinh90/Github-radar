@@ -10,6 +10,7 @@ returns one of `NAMES`, `gates.schema` refuses anything else, and `svg()` re-ser
 from __future__ import annotations
 
 import base64
+import copy
 import hashlib
 import json
 import re
@@ -84,6 +85,31 @@ def svg(name: str, *, size: int = 56, tile: str = "#0B1B3A", ink: str = "#FFFFFF
 def data_uri(name: str, **kw) -> str:
     """The icon as a draw.io image source: `data:image/svg+xml,<base64>` (draw.io writes no `;base64` because `;` ends a style entry)."""
     return "data:image/svg+xml," + base64.b64encode(svg(name, **kw).encode("ascii")).decode("ascii")
+
+
+FILE = "icons-{lang}.json"            # beside draft-<lang>.json: {"components": [{"name": ..., "icon": ...}, ...]}
+
+
+def has_icons(draft: dict) -> bool:
+    """True when the draft names an icon itself (any component): such a draft never needs an icon file, and a file beside it is ignored."""
+    comps = (draft.get("how_it_works") or {}).get("components") or []
+    return any(isinstance(c, dict) and c.get("icon") not in (None, "") for c in comps)
+
+
+def overlay(draft: dict, data) -> dict:
+    """The draft as it is drawn when a draft stored before icons existed has an icon file beside it: a copy with each component's
+    `icon` filled in. A draft that already names icons wins, and a row whose name is not the component's or whose icon is not in
+    the set is never applied (the gate refuses such a file before anything is drawn; this is the second lock). The stored draft
+    is the model's answer and is never changed: only the copy that is handed to the renderer carries the icons."""
+    comps = (draft.get("how_it_works") or {}).get("components") or []
+    rows = data.get("components") if isinstance(data, dict) else None
+    if has_icons(draft) or not isinstance(rows, list) or len(rows) != len(comps):
+        return draft
+    shown = copy.deepcopy(draft)
+    for comp, row in zip(shown["how_it_works"]["components"], rows):
+        if isinstance(row, dict) and row.get("name") == comp.get("name") and isinstance(row.get("icon"), str) and row["icon"] in NAMES:
+            comp["icon"] = row["icon"]
+    return shown
 
 
 def verify() -> list[str]:

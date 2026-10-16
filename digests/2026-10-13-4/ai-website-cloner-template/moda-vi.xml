@@ -1,0 +1,57 @@
+<!-- radar: Moda canvas 1200x1664; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">AI Website Cloner Template: Tái tạo website thành Next.js</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Đưa URL cho AI agent để tái hiện giao diện web thành Next.js thay vì bóc tách CSS thủ công.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="214" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Skill tái tạo AGENTS.md</text>
+<text x="80" y="632" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Quy trình chuẩn hóa các bước trích xuất, đối chiếu và tái tạo giao diện dùng chung cho nhiều AI coding agent.</text>
+<rectangle x="460" y="545" width="280" height="214" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Khung ứng dụng (src/app/)</text>
+<text x="480" y="632" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cấu trúc Next.js 16 với App Router, React 19, TypeScript strict và shadcn/ui để chứa mã nguồn tạo ra.</text>
+<rectangle x="860" y="545" width="280" height="214" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Thư mục tài nguyên (public/)</text>
+<text x="880" y="632" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lưu trữ hình ảnh, font chữ, video trích xuất từ website nguồn theo từng thư mục site riêng biệt.</text>
+<line x1="340" y1="652" x2="460" y2="652" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="841" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="907" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="929" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="929" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Map</text>
+<text x="154" y="965" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Khớp nối các URL nguồn sang hệ thống định tuyến (routes) cục bộ của Next.js và giữ lại các phần việc đã thực hiện trước đó.</text>
+<line x1="584" y1="992" x2="616" y2="992" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="907" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="929" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="929" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Observe</text>
+<text x="714" y="965" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Kiểm tra giao diện máy tính lẫn di động, trích xuất hình ảnh, font chữ thực tế và kích hoạt các trạng thái giao diện thay thế.</text>
+<rectangle x="60" y="1101" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1123" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1123" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Build</text>
+<text x="154" y="1159" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hiện thực hóa các component có thể chỉnh sửa, thiết lập tương tác hoạt động và phân chia các phần độc lập khi cần thiết.</text>
+<line x1="584" y1="1175" x2="616" y2="1175" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1101" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1123" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1123" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Compare</text>
+<text x="714" y="1159" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">So sánh trực quan giữa trang nguồn và bản dựng ở cùng kích thước, khắc phục các lỗi lệch hiển thị và chạy kiểm tra đóng gói.</text>
+<text x="60" y="1331" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1397" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1437.8" x2="97.6" y2="1445" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1445" x2="110" y2="1429.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1417" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Quy hoạch quy trình AI thành 4 giai đoạn rõ ràng (Map, Observe, Build, Compare) thay vì yêu cầu sinh code một lần</text>
+<rectangle x="430" y="1397" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1437.8" x2="467.6" y2="1445" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1445" x2="480" y2="1429.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1417" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tổ chức Agent Skill độc lập ở một thư mục để các công cụ khác nhau như Codex, Cursor, Claude Code đều dùng chung được</text>
+<rectangle x="800" y="1397" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1437.8" x2="837.6" y2="1445" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1445" x2="850" y2="1429.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1417" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Phân tách ranh giới thư mục tài nguyên và component theo từng tên website để tránh đè lẫn mã nguồn</text>
+<text x="60" y="1601" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: JCodesMore/ai-website-cloner-template · Giấy phép: MIT · 36.720 sao · Quét ngày 2026-10-13</text>
+</content>

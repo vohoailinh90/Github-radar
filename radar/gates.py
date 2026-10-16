@@ -304,6 +304,25 @@ def schema(draft: dict, require_guide: bool = False) -> list[Problem]:
     return p
 
 
+def icon_file(draft: dict, data) -> list[Problem]:
+    """Problems with an `icons-<lang>.json` placed beside a draft that predates icons: one row per component, in order, naming that
+    component exactly, with an icon from the closed set. Such a file is chosen by a person or a Claude session, not by the writer
+    model, so it gets the same refusal of an unknown name as a draft does, plus the check that it still belongs to its draft."""
+    rows = data.get("components") if isinstance(data, dict) else None
+    if not isinstance(rows, list):
+        return [Problem("error", "icons", "is not a JSON object with a `components` list of {name, icon}")]
+    comps = (draft.get("how_it_works") or {}).get("components") or []
+    if len(rows) != len(comps):
+        return [Problem("error", "icons", f"{len(rows)} rows for {len(comps)} components")]
+    out = []
+    for i, (row, comp) in enumerate(zip(rows, comps)):
+        if not isinstance(row, dict) or row.get("name") != comp.get("name"):
+            out.append(Problem("error", f"icons.components[{i}]", "name is not the draft's component name"))
+        elif not isinstance(row.get("icon"), str) or row["icon"] not in icons.NAMES:
+            out.append(Problem("error", f"icons.components[{i}]", f"icon {row.get('icon')!r} is not one of the ICONS names"))
+    return out
+
+
 def _evidence_ok(evidence: str, tree: list[str]) -> bool:
     ev = str(evidence).strip().strip("`").lstrip("./").rstrip("/").lower()
     if ev == "readme":

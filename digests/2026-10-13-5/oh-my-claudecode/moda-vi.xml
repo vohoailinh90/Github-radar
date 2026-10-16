@@ -1,0 +1,50 @@
+<!-- radar: Moda canvas 1200x1658; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Điều phối Multi-agent cho Claude Code với OMC</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Làm sao để AI tự chia giai đoạn lập kế hoạch, viết mã và kiểm thử thay vì làm dở dang?</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="187" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Terminal CLI</text>
+<text x="80" y="577" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Giao diện dòng lệnh chạy từ terminal ngoài để cài đặt môi trường, cấu hình và gửi yêu cầu hỏi các nhà cung cấp.</text>
+<rectangle x="460" y="517" width="280" height="187" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">In-session Skills</text>
+<text x="480" y="577" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tập hợp các kỹ năng được kích hoạt bằng lệnh gạch chéo trực tiếp bên trong phiên làm việc của Claude Code.</text>
+<rectangle x="860" y="517" width="280" height="187" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Autopilot Engine</text>
+<text x="880" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bộ máy điều phối chuỗi thực thi tác vụ theo các hồ sơ giai đoạn cấu hình sẵn.</text>
+<line x1="340" y1="610.5" x2="460" y2="610.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="610.5" x2="860" y2="610.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="786" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="852" width="520" height="197" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="874" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="874" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cài đặt và thiết lập</text>
+<text x="154" y="910" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Người dùng cài đặt gói CLI hoặc bổ sung plugin, sau đó thực hiện lệnh thiết lập để đồng bộ hóa các kỹ năng và tác tử vào môi trường làm việc.</text>
+<line x1="584" y1="950.5" x2="616" y2="950.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="852" width="520" height="197" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="874" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="874" width="404" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Phân chia giai đoạn qua Autopilot</text>
+<text x="714" y="937" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lệnh autopilot phân tách nhiệm vụ thành các giai đoạn tuần tự đã định hình trước như ralplan (lập kế hoạch), execution (thực thi) và qa (kiểm định chất lượng).</text>
+<rectangle x="60" y="1073" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1095" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1095" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Đồng bộ hóa trạng thái an toàn</text>
+<text x="154" y="1131" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hệ thống kiểm soát các bước ghi nhận tiến trình bằng cơ chế khóa advisory trên nhân hệ điều hành, đảm bảo trạng thái không bị ghi đè hay xung đột khi chạy.</text>
+<text x="60" y="1325" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1391" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1431.8" x2="97.6" y2="1439" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1439" x2="110" y2="1423.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1411" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách biệt trách nhiệm bằng cách chia nhỏ quy trình AI thành các khâu riêng biệt thay vì dùng một câu lệnh duy nhất</text>
+<rectangle x="430" y="1391" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1431.8" x2="467.6" y2="1439" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1439" x2="480" y2="1423.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1411" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Hỗ trợ song song cả giao diện dòng lệnh bên ngoài lẫn kỹ năng bên trong môi trường phiên làm việc</text>
+<rectangle x="800" y="1391" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1431.8" x2="837.6" y2="1439" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1439" x2="850" y2="1423.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1411" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Sử dụng khóa hệ thống cấp kernel để bảo vệ tính toàn vẹn trạng thái khi thực thi quy trình phức tạp</text>
+<text x="60" y="1595" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Yeachan-Heo/oh-my-claudecode · Giấy phép: MIT · 39.876 sao · Quét ngày 2026-10-13</text>
+</content>

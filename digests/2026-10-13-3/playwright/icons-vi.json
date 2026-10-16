@@ -1,0 +1,17 @@
+{
+  "note": "Icons for the components of draft-vi.json, picked from radar/icons by a Claude session because the draft was stored before the icon field existed. The draft itself is untouched (docs/design-files.md).",
+  "components": [
+    {
+      "name": "Playwright Test",
+      "icon": "bug"
+    },
+    {
+      "name": "Playwright Core",
+      "icon": "globe"
+    },
+    {
+      "name": "Trace Viewer",
+      "icon": "activity"
+    }
+  ]
+}
