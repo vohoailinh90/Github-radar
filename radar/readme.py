@@ -611,11 +611,13 @@ def _ends_in_redirection(command: str) -> bool:
 GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
 
 
-def _piece(lang: str, line: str) -> str:
-    """A physical line as it joins the command before it: without its margin and, in a transcript, without the secondary prompt
-    (`> `, PowerShell's `>> `, cmd's `More? `)."""
+def _piece(lang: str, line: str, command: str = "") -> str:
+    """A physical line as it joins the command before it: without its margin and, in a transcript or after a command that was typed at a
+    prompt (`$ docker run \\` over `> --rm image` in a `bash` fence), without the secondary prompt (`> `, PowerShell's `>> `, cmd's `More? `)."""
     piece = line.strip()
-    return PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece)) if lang in CONSOLE_LANGS else piece
+    if lang in CONSOLE_LANGS or SHELL_PROMPT.match(command):
+        return PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece))
+    return piece
 
 
 def _is_powershell(lang: str, command: str) -> bool:
@@ -623,15 +625,15 @@ def _is_powershell(lang: str, command: str) -> bool:
 
 
 def _ps_state(text: str):
-    """(brackets still open, whether the line ends in `|` or `,`) for a PowerShell command line, or None when it cannot be told: a
-    string that does not close on the line, a `<# block comment #>`, or a `# comment` while the command is still open."""
+    """(brackets still open, whether the code ends in `|` or `,`, where the code ends: at a `# comment` or at the end of the line) for a
+    PowerShell command line, or None when it cannot be told: a string that does not close on the line, or a `<# block comment #>`."""
     stack, last, i = [], "", 0
     while i < len(text):
         ch = text[i]
         if text.startswith("<#", i):
             return None
-        if ch == "#" and (i == 0 or text[i - 1].isspace()):
-            return None if stack or last in "|," and last else (stack, False)
+        if ch == "#" and (i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"):          # a `#` that begins a token: `Write-Host hi;# note`
+            return stack, last in ("|", ","), i
         if ch in "'\"":
             end = i + 1
             while end < len(text):
@@ -657,22 +659,22 @@ def _ps_state(text: str):
         if not ch.isspace():
             last = ch
         i += 1
-    return stack, last in ("|", ",")
+    return stack, last in ("|", ","), len(text)
 
 
 def _ps_open(text: str):
-    """True when PowerShell would ask for more of the command (it ends in `|` or `,`, or a bracket is open), False when it is complete,
-    None when that cannot be told (see `_ps_state`)."""
+    """True when PowerShell would ask for more of the command (the code ends in `|` or `,`, or a bracket is open), False when it is
+    complete, None when that cannot be told (see `_ps_state`). A comment is not code."""
     state = _ps_state(text)
     return None if state is None else bool(state[0]) or state[1]
 
 
-def _ps_joiner(text: str, piece: str) -> str:
-    """What joins the next line to a PowerShell command that is not finished: a space after a pipe, a comma or an opening bracket,
-    before a closing bracket and inside `[ ]`; `; ` between two statements inside `{ }` or `( )`, where a line break ends one."""
-    state = _ps_state(text)
+def _ps_joiner(code: str, piece: str) -> str:
+    """What joins the next line to the code of a PowerShell command that is not finished: a space after a pipe, a comma or an opening
+    bracket, before a closing bracket and inside `[ ]`; `; ` between two statements inside `{ }` or `( )`, where a line break ends one."""
+    state = _ps_state(code)
     stack = state[0] if state else []
-    if (state and state[1]) or text.rstrip().endswith(("(", "[", "{")) or piece[:1] in (")", "]", "}", "|") or not stack or stack[-1] == "[":
+    if (state and state[1]) or code.endswith(("(", "[", "{")) or piece[:1] in (")", "]", "}", "|") or not stack or stack[-1] == "[":
         return " "
     return "; "
 
@@ -680,9 +682,13 @@ def _ps_joiner(text: str, piece: str) -> str:
 def _join(lang: str, text: str, line: str, glue) -> str:
     """The command so far and the next physical line as one logical line. `glue` is what a continuation mark leaves between them (see
     `_glue`), or None when the grammar of the shell, not a mark, joins them."""
-    piece = _piece(lang, line)
+    piece = _piece(lang, line, text)
     if glue is None:
-        return text + (_ps_joiner(text, piece) if _is_powershell(lang, text) else " ") + piece
+        if _is_powershell(lang, text):
+            state = _ps_state(text)
+            code = text[:state[2]].rstrip() if state else text         # the comment at the end of the line before is dropped: the rest would be in it
+            return code + _ps_joiner(code, piece) + piece
+        return text + " " + piece
     return text + (glue if not line[:1].isspace() else " ") + piece
 
 
@@ -811,7 +817,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
                 owners.append(opener)
-                bare = PROMPT.sub("", line) if lang in CONSOLE_LANGS else line         # a transcript shows `> ` before each line of the body
+                prompted = lang in CONSOLE_LANGS or bool(SHELL_PROMPT.match(logical[opener]))
+                bare = PROMPT.sub("", line) if prompted else line                      # a transcript shows `> ` before each line of the body
                 if (bare.lstrip("\t") if ends[0][1] else bare) == ends[0][0]:           # the closing word alone on its line (`<<-`: after tabs)
                     ends.pop(0)
                 continue
@@ -860,6 +867,7 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     return [(lang, logical) for lang, logical, _ in _scan(text)]
 
 
+NO_PROMPT = re.compile(r"(?!)")                 # matches nothing: a line with no prompt to drop
 ROOT_PROMPT = re.compile(r"^#\s+")              # the prompt of root in a transcript: `# apt-get update`
 SECONDARY_PROMPT = re.compile(r"^>\s+")         # what a shell shows when a command goes on over several lines
 
@@ -892,7 +900,10 @@ def block_lines(text: str) -> list[tuple[str, str, str, object]]:
     for lang, logical, owners in _scan(text):
         openers = {owner for owner in owners if owner is not None}
         roles = ["body" if owner is not None else "opener" if i in openers else "" for i, owner in enumerate(owners)]
-        prompts = transcript_prompts(logical, roles) if lang in CONSOLE_LANGS else [prompt_for(lang)] * len(logical)
+        if lang in CONSOLE_LANGS:
+            prompts = transcript_prompts(logical, roles)
+        else:                                          # the data of a heredoc is data, but a prompted opener shows `> ` before each line of it
+            prompts = [prompt_for(lang) if owner is None else PROMPT if SHELL_PROMPT.match(logical[owner]) else NO_PROMPT for owner in owners]
         out += [(lang, line, role, prompt) for line, role, prompt in zip(logical, roles, prompts)]
     return out
 

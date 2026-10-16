@@ -762,7 +762,8 @@ def test_a_powershell_command_that_cannot_be_told_is_left_as_it_is_and_one_that_
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```powershell\nGet-ChildItem |\n```\n") == []                                # a trailing pipe with nothing after it
     assert lines("```powershell\nforeach ($f in $x) {\n\nRemove-Item $f\n```\n") == ["", "Remove-Item $f"]       # a blank line ends it
-    assert lines("```powershell\nfoo { # note\n bar\n}\n```\n") == ["foo { # note", " bar", "}"]                  # a comment inside: no grouping
+    assert lines("```powershell\nfoo { # note\n bar\n}\n```\n") == ["foo { bar }"]                                  # a comment inside is left out of the join
+    assert lines("```powershell\nfoo <# a #> {\n bar\n}\n```\n") == ["foo <# a #> {", " bar", "}"]                  # a block comment: not told, left as it is
     assert lines("```powershell\nGet-Item 'it's\nGet-Item x\n```\n") == ["Get-Item 'it's", "Get-Item x"]       # a string that does not close
     assert lines("```powershell\nWrite-Host \"a | b\" # |\nWrite-Host 'x,'\n```\n") == ["Write-Host \"a | b\" # |", "Write-Host 'x,'"]
     assert readme._ps_open("Get-ChildItem |") and readme._ps_open("foo (") and readme._ps_open("1,2,")
@@ -792,3 +793,32 @@ def test_a_fish_only_command_keeps_its_shell_but_a_line_a_bash_block_shows_too_n
     text = "```fish\nset -Ux EDITOR vim\npip install x\n```\n\n```bash\npip install x\nexport EDITOR=vim\n```\n"
     assert readme.shells(text) == {"set -Ux EDITOR vim": "fish"}
     assert readme.shells("```fish\nset -Ux EDITOR vim\n```\n\n```powershell\nGet-Item x\n```\n") == {"set -Ux EDITOR vim": "fish", "Get-Item x": "powershell"}
+
+
+def test_a_powershell_comment_after_a_statement_separator_hides_the_pipe_in_it():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\nWrite-Host hi;# note |\nGet-Item x\n```\n") == ["Write-Host hi;# note |", "Get-Item x"]       # the `|` is in the comment
+    assert lines("```powershell\nWrite-Host hi # note |\nGet-Item x\n```\n") == ["Write-Host hi # note |", "Get-Item x"]
+    assert lines("```powershell\nGet-ChildItem | # sort them\n  Sort-Object Name\n```\n") == ["Get-ChildItem | Sort-Object Name"]       # the comment is dropped, not joined into
+    assert lines("```powershell\nGet-Item a#b |\n  Select x\n```\n") == ["Get-Item a#b | Select x"]     # `#` inside a word is not a comment
+    assert lines("```pwsh\nforeach ($x in $y) {# go\n  Write-Host $x\n}\n```\n") == ["foreach ($x in $y) { Write-Host $x }"]
+    assert readme._ps_open("Write-Host hi;# note |") is False and readme._ps_open("Write-Host hi |") is True
+
+
+def test_the_secondary_prompt_of_a_command_typed_at_a_prompt_is_dropped_in_any_shell_fence():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\n$ docker run \\\n> --rm image\n$ ls\n```\n") == ["$ docker run --rm image", "$ ls"]
+    assert readme.setup_commands("```bash\n$ docker run \\\n> --rm image\n```\n") == ["docker run --rm image"]
+    assert lines("```bash\n$ printf foo |\n> sed s/foo/bar/\n```\n") == ["$ printf foo | sed s/foo/bar/"]
+    assert lines("```powershell\nPS C:\\> Get-Item x `\n>> -Force\n```\n") == ["PS C:\\> Get-Item x -Force"]
+    assert lines("```bash\ntool \\\n> out.log\n```\n") == ["tool > out.log"]                  # no prompt: `> out.log` is a redirection, as before
+
+
+def test_a_heredoc_typed_at_a_prompt_in_a_shell_fence_closes_and_loses_the_prompt_of_its_lines_but_a_plain_one_keeps_its_data():
+    prompted = "```bash\n$ cat <<EOF\n> body one\n> EOF\n$ ls\n```\n"
+    assert readme.heredocs(prompted) == ([["$ cat <<EOF", "> body one", "> EOF"]], ["$ cat <<EOF", "$ ls"])
+    assert readme.setup_commands(prompted) == ["cat <<EOF", "body one", "EOF", "ls"]
+    plain = "```bash\ncat <<EOF\n> not a prompt\n$ nor this\nEOF\n```\n"
+    assert readme.setup_commands(plain) == ["cat <<EOF", "> not a prompt", "$ nor this", "EOF"]          # the data of a plain heredoc is data

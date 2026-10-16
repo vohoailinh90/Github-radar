@@ -301,9 +301,6 @@ def _flat(text: str) -> str:
 _norm_cmd = readmelib.norm_command
 
 
-NO_PROMPT = re.compile(r"(?!)")           # matches nothing: a line with no prompt to drop
-
-
 def _block_variants(readme: str):
     """(text, prompt pattern) for the logical lines of the README's code blocks that a reader types (a command written over several
     lines is ONE line; its pieces are not commands; in a `console` transcript only the lines after a prompt, the rest is output; in a
@@ -314,8 +311,6 @@ def _block_variants(readme: str):
             continue
         if not (role or lang in readmelib.SHELL_LANGS or lang in readmelib.CONSOLE_LANGS or readmelib.is_command_line(line)):
             continue
-        if role == "body" and lang not in readmelib.CONSOLE_LANGS:
-            prompt = NO_PROMPT                                              # `$ literal price` in a heredoc is data, not a prompt
         yield line, prompt
         yield readmelib.strip_trailing_comment(line), prompt
 
