@@ -10,6 +10,14 @@ Thư mục này là **mẫu để xem trước và so sánh**, không phải k�
 
 Cách áp markup lên Moda: `docs/design-files.md`.
 
+## Thử draw.io (chỉ `agent-reach`)
+
+`2026-10-12/agent-reach/drawio-vi.drawio` là một thử nghiệm riêng, **chưa thuộc pipeline**: mở bằng [app.diagrams.net](https://app.diagrams.net) (*File → Open from → Device*). So với bản Excalidraw/Moda:
+- Mũi tên là connector thật, gắn vào thẻ: kéo thẻ thì mũi tên đi theo; hai mũi tên đi ngược nhau ở hai làn riêng, chỗ giao nhau có nét nhảy.
+- Mỗi thành phần có một icon từ thư viện stencil của draw.io. **Icon do người chọn tay cho mẫu này**; trong pipeline cần một danh sách đóng để draft chọn và có gate kiểm (xem `CLAUDE.md`: không bịa icon). Tên stencil mới kiểm trên draw.io 14.6.12; bản mới có thể khác, khi đó icon hiện thành ô vuông xanh đen.
+- Chữ vẫn chỉ là trường của draft, nhãn của `labels.py` hoặc dữ kiện (đã kiểm máy), nhưng dùng font Helvetica/Arial của draw.io chứ không phải Be Vietnam Pro như Moda.
+- File do một script tạm vẽ từ `draft-vi.json`, không nằm trong `radar/`; nếu bạn chọn hướng này mới đưa vào `boards.py` kèm test.
+
 Cách tạo: đọc `digests/<ngày>/<repo>/draft-vi.json`, vẽ bằng đúng hàm `digest.render_repo` mà `rerender` dùng, vào một thư mục tạm, rồi chép **chỉ hai tệp mới** vào đây. Mọi tệp khác của bài (`vi.md`, `card/flow/steps-vi.svg`, `draft-vi.json`) được vẽ lại giống hệt từng byte với tệp có sẵn (đã so từng tệp cho cả ba bài), nên không có gì trong `digests/` bị đổi.
 
 Lưu ý khi so sánh với bản cũ (`card/flow/steps-vi.svg` trong `digests/`):
