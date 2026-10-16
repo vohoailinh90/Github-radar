@@ -163,3 +163,35 @@ def test_a_block_that_is_too_long_or_has_an_odd_language_tag_is_dropped_or_clean
     big = "```yaml\n" + "k: v\n" * 60 + "```\n"
     odd = "```<script>x\nvalue\n```\n"
     assert readme.blocks(big) == [] and readme.blocks(odd) == [["", "value"]]
+
+
+def test_a_bracketed_placeholder_host_is_ignored_not_a_crash():
+    """`http://[HOST]:8080` passes the character check but urlsplit raises ValueError: it used to fail facts.build and hold the repo."""
+    text = "Open http://[HOST]:8080 or [x](http://[::1:8080/) or [ok](https://ok.example.org/p) or http://[]:1/ or http://[ab/"
+    assert readme.links(text) == [["ok", "https://ok.example.org/p"]]
+    for url in ("http://[HOST]:8080", "http://[::1:8080/", "http://[]:1", "https://[1:2"):
+        assert readme.url_ok(url) is False and readme.is_local(url) is False
+
+
+def test_links_never_raise_on_address_like_noise():
+    import random
+    rng = random.Random(3)
+    alphabet = ["http://", "https://", "[", "]", "(", ")", ":", "/", ".", "@", "1", "a", "::", "%", "-", " ", "\n", "<a href='", "'>", "</a>"]
+    for _ in range(2000):
+        text = "".join(rng.choice(alphabet) for _ in range(rng.randint(1, 30)))
+        readme.links(text)
+        readme.blocks(text)
+        readme.is_local(text)
+
+
+def test_a_console_transcript_counts_only_the_lines_after_a_prompt_as_typed():
+    text = ("```console\n$ my-tool run\nStarting server on port 8000\nSet up complete\n> second-tool go\nPS C:\\> third-tool\n```\n\n"
+            "```bash\nmy-tool --flag\n```\n\n```terminal\nOutput only\n```\n")
+    assert readme.setup_commands(text) == ["my-tool run", "second-tool go", "third-tool", "my-tool --flag"]
+
+
+def test_a_console_block_without_typed_lines_is_a_sample_and_one_with_them_is_not():
+    output_only = "```console\nStarting server on port 8000\nDone\n```\n"
+    transcript = "```console\n$ my-tool run\nStarted\n```\n"
+    assert readme.blocks(output_only) == [["console", "Starting server on port 8000\nDone"]]
+    assert readme.blocks(transcript) == []

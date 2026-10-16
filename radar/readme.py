@@ -189,10 +189,22 @@ def clean_label(text: str, url: str) -> str:
     return text[:60]
 
 
+def _split(url: str):
+    """`urlsplit`, or None when the address cannot be parsed: a README placeholder such as `http://[HOST]:8080` raises ValueError."""
+    try:
+        parts = urlsplit(url)
+        parts.hostname                           # a bracketed host is validated here too
+        return parts
+    except ValueError:
+        return None
+
+
 def url_ok(url: str) -> bool:
     if len(url) > 200 or not URL_CHARS.fullmatch(url):
         return False
-    parts = urlsplit(url)
+    parts = _split(url)
+    if parts is None:
+        return False
     host = (parts.hostname or "").lower()
     # no `user@` part: `http://127.0.0.1@evil.example/` goes to evil.example
     return bool(host) and parts.username is None and not host.startswith("img.") and not any(bad in host for bad in BAD_HOSTS)
@@ -238,11 +250,13 @@ def links(text: str, limit: int = 40) -> list[list[str]]:
 
 def is_local(url: str) -> bool:
     """True for an address on this machine: the host is exactly localhost, 127.0.0.1, 0.0.0.0 or [::1] (not `localhost.example.org`)."""
-    host = (urlsplit(url).hostname or "").lower()
-    return host in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
+    parts = _split(url)
+    return parts is not None and (parts.hostname or "").lower() in ("localhost", "127.0.0.1", "0.0.0.0", "::1")
 
 
-SHELL_LANGS = {"bash", "sh", "shell", "zsh", "console", "terminal", "powershell", "ps1", "cmd", "bat", "batch", "shell-session"}
+SHELL_LANGS = {"bash", "sh", "shell", "zsh", "powershell", "ps1", "cmd", "bat", "batch"}      # every line is something to type
+CONSOLE_LANGS = {"console", "shell-session", "terminal"}                                       # a transcript: only a line after a prompt is typed
+PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*)")
 
 
 def code_blocks(text: str) -> list[tuple[str, list[str]]]:
@@ -281,13 +295,18 @@ def code_lines(text: str) -> list[str]:
 
 
 def setup_commands(text: str) -> list[str]:
-    """What a person types, from the README's code blocks: every line of a block tagged as a shell, and in any other block the
-    lines that start with a known program. Comments and a `$ ` prompt are dropped."""
+    """What a person types, from the README's code blocks: every line of a block tagged as a shell; in a `console` transcript only
+    the lines after a prompt (`$ `, `> `, `PS C:\\>`), because the rest is output; in any other block the lines that start with a
+    known program. Comments and the prompt are dropped."""
     out = []
     for lang, lines in code_blocks(text):
         for line in lines:
-            bare = re.sub(r"^(?:[$>]\s+)", "", line)
-            if bare and not bare.startswith(("#", "//", "REM ", "::")) and (lang in SHELL_LANGS or is_command_line(line)):
+            prompt = PROMPT.match(line)
+            bare = line[prompt.end():] if prompt else line
+            if not bare or bare.startswith(("#", "//", "REM ", "::")):
+                continue
+            typed = bool(prompt) if lang in CONSOLE_LANGS else (lang in SHELL_LANGS or is_command_line(line))
+            if typed:
                 out.append(bare)
     return out
 
@@ -314,6 +333,8 @@ def blocks(text: str, limit: int = 12, max_lines: int = 40, max_chars: int = 180
     for start, lang, body in found:
         rows = [r for r in body.splitlines() if r.strip()]
         if not rows or len(rows) > max_lines or len(body) > max_chars or lang in SHELL_LANGS:
+            continue
+        if lang in CONSOLE_LANGS and any(PROMPT.match(r) for r in rows):      # a transcript with typed lines is a shell block, not a sample
             continue
         if not lang and all(is_command_line(r) for r in rows):      # an untagged block of commands is a shell block
             continue

@@ -296,3 +296,10 @@ def test_stars_and_angle_brackets_in_the_guide_prose_stay_plain_text(tmp_path):
 
 def test_the_coverage_rule_does_not_count_a_config_sample_as_a_command():
     assert gates.command_coverage(make_draft(FACTS, "vi"), FACTS) == (4, 4)
+
+
+def test_a_stored_link_with_an_unparsable_host_is_never_printed_and_never_raises(tmp_path):
+    hostile = {**FACTS, "links": [["x", "http://[HOST]:8080"], ["y", "https://ok.example.org/p"]]}
+    d = mutate(lambda d: d["guide"]["steps"][2].update(link_ref=0), facts=hostile)
+    _, md = render(tmp_path, d, facts=hostile)
+    assert "[HOST]" not in md
