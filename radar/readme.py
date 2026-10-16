@@ -420,7 +420,7 @@ POWERSHELL_LANGS = {"powershell", "ps1"}                                   # a b
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
-HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^'\s]+)'|\"([^\"\s]+)\"|\\?([A-Za-z_][A-Za-z0-9_]*))")      # what follows `<<`: `EOF`, `-'EOF'`, ` "EOF"`
+HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^']+)'|\"([^\"]+)\"|\\?([^\s;&|<>()'\"\\]+))")      # what follows `<<`: `EOF`, `-'END MARK'`, ` "EOF"`, `END-MARK`
 HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh"} | CONSOLE_LANGS
 
 
@@ -429,27 +429,35 @@ def _continues(lang: str, line: str) -> bool:
     `cd C:\\`), a backtick in PowerShell or a line after a PowerShell prompt, a caret in `cmd` and `bat`."""
     if lang in POWERSHELL_LANGS or POWERSHELL_PROMPT.match(line):
         return re.search(r"(?<!`)`$", line) is not None
-    if lang in CMD_LANGS:
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return re.search(r"(?<!\^)\^$", line) is not None
     return (len(line) - len(line.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(line)       # `\\` at the end is an escaped backslash
 
 
 def _heredoc_ends(line: str) -> list[str]:
     """The words that end the heredocs a command line opens (`cat <<'EOF' > f` -> ["EOF"]); the lines after it are data until each.
-    A `<<` inside quotes, after a backslash, in a `# comment` or as `<<<` (a here-string) opens nothing."""
-    ends, i, quote = [], 0, ""
+    A `<<` inside quotes, after a backslash, in a `# comment`, in `$(( ))` or `(( ))` arithmetic, or as `<<<` (a here-string) opens nothing."""
+    ends, i, quote, arithmetic = [], 0, "", 0
     while i < len(line):
         ch = line[i]
         if quote:
             i += 2 if ch == "\\" and quote == '"' else 1
             quote = "" if i <= len(line) and ch == quote else quote
-            continue
-        if ch == "\\":
+        elif arithmetic:                          # inside `$(( ))`: nothing opens a heredoc, a nested `$((` needs its own `))`
+            if line.startswith("))", i):
+                arithmetic, i = arithmetic - 1, i + 2
+            elif line.startswith("$((", i):
+                arithmetic, i = arithmetic + 1, i + 3
+            else:
+                i += 1
+        elif ch == "\\":
             i += 2
         elif ch in "'\"":
             quote, i = ch, i + 1
         elif ch == "#" and (i == 0 or line[i - 1].isspace()):
             break
+        elif line.startswith("$((", i) or (line.startswith("((", i) and (i == 0 or line[i - 1] in " \t;&|")):
+            arithmetic, i = arithmetic + 1, i + (3 if line.startswith("$((", i) else 2)
         elif line.startswith("<<<", i):
             i += 3
         elif line.startswith("<<", i):
@@ -505,8 +513,8 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 continue
             if pending:
                 piece = line.strip()
-                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag` (`>> -Flag` in PowerShell): the shell's secondary prompt
-                    piece = PROMPT.sub("", re.sub(r"^>>\s+", "", piece))
+                if lang in CONSOLE_LANGS:             # `$ tool \` then `> --flag` (`>> -Flag` in PowerShell, `More? ` in cmd): the shell's secondary prompt
+                    piece = PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece))
                 pending = f"{pending} {piece}"
             else:
                 pending = line.rstrip()

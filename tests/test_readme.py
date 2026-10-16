@@ -355,6 +355,24 @@ def test_a_heredoc_marker_in_a_quote_a_comment_or_after_a_backslash_opens_nothin
     assert readme.heredocs(text) == ([], ["# Example: cat <<EOF", "pip install pkg", 'echo "write <<EOF to begin"', "pip install other"])
 
 
+def test_a_heredoc_delimiter_is_the_whole_shell_word_and_arithmetic_opens_nothing():
+    ends = readme._heredoc_ends
+    assert ends("cat <<END-MARK") == ["END-MARK"] and ends("cat <<'END MARK' > f") == ["END MARK"] and ends("cat <<EOF>f") == ["EOF"]
+    assert ends("cat <<-\"A.B\" <<C_D;") == ["A.B", "C_D"] and ends("cat <<EOF # note") == ["EOF"]
+    for line in ("echo $((mask << SHIFT))", "(( x = 1 << SH ))", "echo $((1<<2))", "echo $(( (1 << 2) | 3 ))", "echo $((1 << 2"):
+        assert ends(line) == [], line
+    assert ends("echo $(( (1 << 2) | 3 )) && cat <<EOF") == ["EOF"] and ends("echo $((1<<2)) | cat <<'END'") == ["END"]
+    assert ends("echo $(( $((1 << 2)) << 3 )) <<X") == ["X"]
+    text = "```bash\ncat <<END-MARK\nline\nEND-MARK\necho $((mask << SHIFT))\npip install pkg\n```\n"
+    assert readme.heredocs(text) == ([["cat <<END-MARK", "line", "END-MARK"]], ["cat <<END-MARK", "echo $((mask << SHIFT))", "pip install pkg"])
+
+
+def test_a_cmd_transcript_continues_a_line_with_a_caret_and_drops_the_more_prompt():
+    text = "```console\nC:\\repo> echo hello ^\nMore? world\nC:\\repo> echo done ^^\nC:\\repo> dir\n```\n"
+    assert readme.code_blocks(text) == [("console", ["C:\\repo> echo hello world", "C:\\repo> echo done ^^", "C:\\repo> dir"])]
+    assert readme.setup_commands(text) == ["echo hello world", "echo done ^^", "dir"]
+
+
 def test_the_prompts_a_terminal_usually_shows_are_prompts_and_a_redirection_is_not():
     text = ("```console\nuser@host:~$ pip install pkg\nC:\\Users\\me> winget install pkg\n[me@box ~]$ ls\nroot@host:/# apt install x\n$ plain\n"
             "C:\\tools\\run.exe > out.txt\noutput line\n```\n")
