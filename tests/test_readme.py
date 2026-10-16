@@ -502,6 +502,30 @@ def test_the_data_of_a_heredoc_in_a_list_of_commands_is_told_from_the_commands()
     assert readme.command_count(commands) == 3 and readme.heredoc_data(None) == [] and readme.heredoc_data([1, "ls"]) == [False, False]
 
 
+def test_a_virtual_environment_prefix_does_not_hide_a_prompt_and_a_subshell_redirection_is_not_one():
+    text = "```console\n(venv) $ pip install pkg\n(.venv) user@host:~$ ls\n(base) $ conda list\n$ plain\n(echo a) > out.txt\n(cd x && ls)\n```\n"
+    assert readme.setup_commands(text) == ["pip install pkg", "ls", "conda list", "plain"]
+    for prompted in ("(venv) $ x", "(.venv) user@host:~$ x", "(base) [me@box ~]$ x"):
+        assert readme.SHELL_PROMPT.sub("", prompted) == "x", prompted
+    for plain in ("(echo a) > out.txt", "(cd x && ls)", "(venv) x"):
+        assert readme.SHELL_PROMPT.sub("", plain) == plain, plain
+
+
+def test_a_heredoc_delimiter_may_be_made_of_quoted_and_escaped_pieces():
+    ends = readme._heredoc_ends
+    for line in ("cat <<E\\OF", "cat <<'E'OF", "cat <<\"E\"'O'F", "cat <<\\EOF", "cat <<\"EOF\"", "cat << 'EOF'"):
+        assert ends(line) == ["EOF"], line
+    assert ends("cat <<END-MARK") == ["END-MARK"] and ends("cat <<'END MARK' > f") == ["END MARK"] and ends("cat <<-\"A.B\" <<C_D;") == ["A.B", "C_D"]
+    text = "```bash\ncat <<'E'OF\nbody\nEOF\npip install pkg\n```\n"
+    assert readme.heredocs(text) == ([["cat <<'E'OF", "body", "EOF"]], ["cat <<'E'OF", "pip install pkg"])
+
+
+def test_a_command_wrapper_or_an_assignment_before_the_program_does_not_hide_it_in_an_untagged_block():
+    text = "```\nsudo apt-get install ffmpeg\nsudo -E pip install x\nFOO=1 BAR=2 make\nsudo dnf install y\nsudo\nwho cares\n```\n"
+    assert readme.setup_commands(text) == ["sudo apt-get install ffmpeg", "sudo -E pip install x", "FOO=1 BAR=2 make", "sudo dnf install y"]
+    assert readme.is_command_line("$ sudo -E git status") and not readme.is_command_line("sudo") and not readme.is_command_line("sudo hello")
+
+
 def test_a_pwsh_fence_is_powershell():
     text = "```pwsh\nInstall-Module -Name Pester `\n  -Force\nGet-Item x\n```\n"
     assert readme.code_blocks(text) == [("pwsh", ["Install-Module -Name Pester -Force", "Get-Item x"])]

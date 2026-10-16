@@ -50,7 +50,9 @@ RULES: list[tuple[int, str]] = [
 COMMAND_WORDS = {"git", "pip", "pip3", "python", "python3", "py", "uv", "uvx", "npm", "npx", "pnpm", "yarn", "bun", "docker",
                  "docker-compose", "conda", "mamba", "cd", "cp", "mv", "mkdir", "curl", "wget", "huggingface-cli", "hf",
                  "modelscope", "apt", "apt-get", "brew", "winget", "choco", "bash", "sh", "make", "source", "export",
-                 "set", "cargo", "go", "pipx", "poetry", "ollama", "ffmpeg", "streamlit", "torchrun", "chmod"}
+                 "set", "cargo", "go", "pipx", "poetry", "ollama", "ffmpeg", "streamlit", "torchrun", "chmod",
+                 "dnf", "yum", "pacman", "apk", "zypper", "snap", "flatpak"}
+WRAPPERS = {"sudo", "doas", "time", "nohup", "exec", "command", "env", "nice", "xargs"}      # a command line may start with one of these before its program
 BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "hits.seeyoufarcry")      # badges and counters
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]()]+")
 MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://(?:[^\s()]|\([^\s()]*\))+)(?:\s+\"[^\"]*\")?\)")      # a target may hold pairs of parentheses
@@ -107,11 +109,15 @@ class Section:
 
 def is_command_line(line: str) -> bool:
     """A line of a code block that a person types: a known program first (after an optional `$ `), not a comment."""
-    text = re.sub(r"^\s*(?:[$>]\s+|PS [^>]*>\s*)", "", line).strip()
+    text = re.sub(r"^\s*(?:[$>]\s+|PS [^>]*>\s*)", "", SHELL_PROMPT.sub("", line.strip())).strip()
     if not text or text.startswith(("#", "//", "<", "{", "}")):
         return False
-    first = text.split()[0].lower().lstrip("./")
-    return first in COMMAND_WORDS or text.startswith(("./", ".\\"))
+    words = text.split()
+    i = 0
+    while i < len(words) - 1 and (words[i].lower() in WRAPPERS or re.fullmatch(r"[A-Za-z_]\w*=\S*", words[i]) or (i and words[i].startswith("-"))):
+        i += 1                                      # `sudo -E pip install x`, `FOO=1 make`: the program is the first word after them
+    first = words[i].lower().lstrip("./")
+    return first in COMMAND_WORDS or words[i].startswith(("./", ".\\"))
 
 
 COMMENT = re.compile(r"<!--.*?-->", re.S)
@@ -378,8 +384,9 @@ POSIX_PROMPT = r"(?:\[[\w.+-]+@[\w.-]+[^\]\n]*\]|[\w.+-]+@[\w.-]+(?::[^\s$#]*)?)
 _NOT_A_FILE = "(?i:" + "".join(f"(?<!\\.{ext})" for ext in ("exe", "bat", "cmd", "com", "ps1", "py", "sh", "js")) + ")"        # `run.exe>out`: a file, not a folder
 CMD_PROMPT = (r"[A-Za-z]:\\(?:[^>\r\n]*[^\s>])?(?<![ \t]\d)(?<!&)"
               r"(?:>(?:\s+|$)|" + _NOT_A_FILE + r">(?=[^\s>]))")      # `C:\Users\me> dir`, `C:\test>dir /x`; a space before the `>` or `run.exe>out` is a redirection
-PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")             # a prompt in a transcript (`console`): `$ `, `> `, `PS C:\\>`, the two above
-SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*|" + POSIX_PROMPT + "|" + CMD_PROMPT + ")")        # a prompt in any other block: `> file` there is a redirection, a command
+VENV = r"(?:\([^()\r\n]{1,40}\)\s+)?"                                  # `(venv) `, `(.venv) `, `(base) `: the environment a shell prompt starts with
+PROMPT = re.compile(r"^(?:[$>]\s+|PS [^>]*>\s*|" + VENV + r"(?:\$\s+|" + POSIX_PROMPT + ")|" + CMD_PROMPT + ")")      # a prompt in a transcript (`console`): `$ `, `> `, `PS C:\\>`, the two above
+SHELL_PROMPT = re.compile(r"^(?:\$\s+|PS [^>]*>\s*|" + VENV + r"(?:\$\s+|" + POSIX_PROMPT + ")|" + CMD_PROMPT + ")")   # a prompt in any other block: `> file` there is a redirection, a command
 
 
 TAB_STOP = 4
@@ -426,7 +433,32 @@ POWERSHELL_LANGS = {"powershell", "pwsh", "ps1"}                                
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
-HEREDOC_WORD = re.compile(r"-?[ \t]*(?:'([^']+)'|\"([^\"]+)\"|\\?([^\s;&|<>()'\"\\]+))")      # what follows `<<`: `EOF`, `-'END MARK'`, ` "EOF"`, `END-MARK`
+def _shell_word(line: str, i: int) -> tuple[str, int]:
+    """(the word that starts at `i` with its quotes and backslashes removed, where it ends): a word is made of plain characters and
+    'single', "double" and backslash-escaped pieces, and ends at whitespace or one of `; & | < > ( )` outside quotes (`E\\OF`, `'E'OF`, `END-MARK`)."""
+    word, quote = "", ""
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            if ch == quote:
+                quote = ""
+            elif ch == "\\" and quote == '"' and i + 1 < len(line):
+                i += 1
+                word += line[i]
+            else:
+                word += ch
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "\\" and i + 1 < len(line):
+            i += 1
+            word += line[i]
+        elif ch.isspace() or ch in ";&|<>()":
+            break
+        else:
+            word += ch
+        i += 1
+    return word, i
+
 HEREDOC_LANGS = {"", "bash", "sh", "shell", "zsh", "ksh", "dash", "ash"} | CONSOLE_LANGS          # fish has no heredoc
 
 
@@ -576,10 +608,14 @@ def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
         elif line.startswith("<<<", i):
             i += 3
         elif line.startswith("<<", i):
-            word = HEREDOC_WORD.match(line, i + 2)
+            dash = line.startswith("-", i + 2)
+            start = i + 2 + dash
+            while start < len(line) and line[start] in " \t":
+                start += 1
+            word, i = _shell_word(line, start)
             if word:
-                ends.append((next(g for g in word.groups() if g), line.startswith("-", i + 2)))
-            i = word.end() if word else i + 2
+                ends.append((word, dash))
+            i = max(i, start)
         else:
             i += 1
     return ends
