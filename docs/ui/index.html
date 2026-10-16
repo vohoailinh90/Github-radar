@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PD05zsgt1mtahg3F/kJnJJNACTQHh11+1bpzKmso1QE='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tVZg4tB0C87F7KT+9wENDxE2vLdkQHOTj0jPjPg59sw='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -383,12 +383,13 @@ const $ = (id) => document.getElementById(id);
 const token = () => $("token").value.trim();
 // The default branch is only good for the repository it was read from; a request that finishes after the field changed must not set it for another one.
 let branch = { repo: "", name: "" };
-let clickedAt = 0;
 let pollTimer = null;
 let sending = false;
-let mineActive = false;
-let baseline = null;                                 // the newest run id listed before my send; null = I have sent nothing
-let seenMine = false;                                // has the run list shown the run I just sent? GitHub lists a new run a few seconds late
+let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
+// The send I am following, kept for the repository it went to (so typing another name and coming back keeps the lock):
+// { repo, sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
+//   active: was that run last seen queued or running }. null = nothing sent.
+let watch = null;
 const DISCOVERY_MS = 120000;
 
 function say(id, text, kind) {
@@ -424,7 +425,8 @@ function repoName() { return $("repo").value.trim(); }
 function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?event=workflow_dispatch&per_page=10"; }
 // Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
 // could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
-function busy() { return sending || mineActive || (clickedAt > 0 && !seenMine && Date.now() - clickedAt < DISCOVERY_MS); }
+function watching() { return watch !== null && watch.repo === repoName(); }
+function busy() { return sending || (watching() && (watch.active || (!watch.seen && Date.now() - watch.sentAt < DISCOVERY_MS))); }
 
 async function checkToken() {
   const repo = repoName();
@@ -545,13 +547,13 @@ async function go() {
     const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
     if (res.status >= 500) throw new Error("no clear answer");           // a gateway error can follow an accepted send: treat it like a lost answer
     if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // GitHub refused: nothing was sent, nothing to wait for
-    watchSent(attempt);
+    watchSent(attempt, repo);
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
     await loadRuns();
   } catch (e) {
     if (attempt === null) say("msg", "Không kết nối được api.github.com.", "bad");
     else {                                                                // the answer to the send was lost: it may have been accepted, so do not allow a second one yet
-      watchSent(attempt);
+      watchSent(attempt, repo);
       say("msg", "Mất kết nối lúc gửi: chưa biết lệnh đã tới GitHub chưa. Trang đợi tối đa 2 phút xem có lượt mới hiện ra; đừng gửi lại ngay.", "warn");
       await loadRuns();
     }
@@ -562,27 +564,28 @@ async function go() {
 }
 
 // From a send that may have started a run: recognise that run by its id and keep the button off until it is listed (or the wait ends).
-function watchSent(attempt) {
-  clickedAt = attempt.sentAt;
-  baseline = attempt.before;
-  seenMine = false;
+function watchSent(attempt, repo) {
+  watch = { repo, sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false };
   $("confirm").value = "";
 }
 
 async function loadRuns() {
   clearTimeout(pollTimer);
+  const look = ++looks;
   const repo = repoName();                                   // one repository for the request and for every link below
-  if (!isRepo(repo) || !token()) { mineActive = false; return; }
+  if (!isRepo(repo) || !token()) return;
   let anyActive = false;
   try {
     const res = await call("GET", runsPath(repo));
+    if (look !== looks) return;                              // a newer look was started meanwhile; this answer may be older than what that one saw
     if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { say("msg", explain(res.status, res.data), "bad"); return; }      // not knowing is not "finished": the lock stays as it was
+    const mineOf = watch !== null && watch.repo === repo ? watch : null;
     const rows = [];
-    mineActive = false;
+    let mineActive = false, seenMine = false;
     for (const run of res.data.workflow_runs.slice(0, 10)) {
       if (!run || !Number.isInteger(run.id) || typeof run.status !== "string" || typeof run.created_at !== "string") continue;
       const state = runState(run);
-      const mine = baseline !== null && run.id > baseline;
+      const mine = mineOf !== null && run.id > mineOf.baseline;
       anyActive = anyActive || state.active;
       mineActive = mineActive || (mine && state.active);
       seenMine = seenMine || mine;
@@ -594,13 +597,17 @@ async function loadRuns() {
                 el("td", state.text + (mine ? " (lượt bạn vừa gửi)" : "")), el("td"));
       tr.lastChild.append(link);
     }
+    if (mineOf !== null) { mineOf.active = mineActive; mineOf.seen = mineOf.seen || seenMine; }
     $("runs-body").replaceChildren(...rows);
   } catch (e) {
-    say("msg", "Không tải được danh sách lượt chạy.", "bad");
+    if (look === looks) say("msg", "Không tải được danh sách lượt chạy.", "bad");
   } finally {
-    // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
-    if (anyActive || mineActive || Date.now() - clickedAt < DISCOVERY_MS) pollTimer = setTimeout(loadRuns, 10000);
-    refresh();
+    if (look === looks) {
+      // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
+      const followed = watch !== null && watch.repo === repo && (watch.active || Date.now() - watch.sentAt < DISCOVERY_MS);
+      if (anyActive || followed) pollTimer = setTimeout(loadRuns, 10000);
+      refresh();
+    }
   }
 }
 
@@ -633,12 +640,12 @@ $("preset").addEventListener("change", () => {
   refresh();
 });
 for (const node of document.querySelectorAll("input, select")) {
-  const changed = () => { if (node.id === "repo") { mineActive = false; clickedAt = 0; baseline = null; seenMine = false; } refresh(); };      // runs of another repository are not "mine"
+  const changed = () => { refresh(); if (node.id === "repo" && watching() && token() !== "") loadRuns(); };      // back on the repository I sent to: find out where its run stands
   node.addEventListener("input", changed);
   node.addEventListener("change", changed);
 }
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; mineActive = false; clickedAt = 0; baseline = null; seenMine = false; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watch = null; looks++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);

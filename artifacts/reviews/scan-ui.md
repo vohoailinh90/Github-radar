@@ -55,3 +55,12 @@ Both came from the page treating "I do not know" as "finished/not sent". The rul
 |---|---|---|---|
 | 1 | A failed or malformed run-list answer cleared the active-run flag, so the button re-enabled while the run was still queued | true (my own fix for review finding 1 did this) | a failed look keeps the last known state and the page keeps looking until a good answer says the run ended; "Quên token" or a reload frees it; tests with a fake clock, mutations killed |
 | 2 | If the answer to the dispatch is lost (connection drop after the server accepted it), the button re-enabled and a retry could replace the first run | true | an unanswered send, or a 5xx, is treated as possibly sent: the page enters the discovery wait, recognises the run by id, asks for the word again, and does not allow a second send at once; tests for a dropped connection, 502, 504, a forced second click, and the wait ending after 2 minutes |
+
+## Codex review of head fbf4e4e (2 findings, both P2, both confirmed; the cause was how the tracking state was kept)
+
+The state of "the send I am following" lived in four loose variables that were reset from several places. Instead of patching each path it became one object, kept per repository.
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | Typing another repository wiped the tracking; typing the original back showed an unlocked button while its run was still queued | true | `watch = { repo, sentAt, baseline, seen, active }`; the lock applies only to its own repository and survives going away and coming back; returning triggers a look; runs of another repository are never marked "mine"; three tests, each mutation killed |
+| 2 | Overlapping run-list requests: an older (empty) answer arriving after a newer one cleared the active flag while `seen` stayed true, enabling a second send | true | requests are numbered and only the newest answer may change state, schedule polling or refresh; a test holds one answer back with a fetch wrapper and delivers it late; fails on the old page |

@@ -570,6 +570,74 @@ def test_a_failed_answer_while_waiting_for_the_run_does_not_stop_the_looking(bro
     context.close()
 
 
+def test_the_lock_of_a_run_survives_looking_at_another_repository_and_coming_back(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.fill("#repo", "someone/else")                                               # a different repository has nothing of mine in flight
+    assert ui.is_enabled("#go")
+    ui.fill("#repo", REPO)                                                         # back: the run sent here is still queued
+    assert ui.is_disabled("#go")
+    ui.fill("#repo", "someone/else")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.fill("#repo", REPO)                                                         # back again after it finished: found out without a click
+    wait(ui, "document.getElementById('go').disabled === false")
+    assert "Xong" in text(ui, "#runs-body")
+
+
+def test_runs_of_another_repository_are_never_taken_for_mine(ui):
+    connect(ui)
+    other = "someone/else"
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (
+        200, ui.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    ui.gh.routes[("GET", f"/repos/{other}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 500, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    ui.fill("#repo", other)
+    ui.click("#refresh")
+    wait(ui, "document.getElementById('runs-body').textContent.includes('Xong')")
+    assert "lượt bạn vừa gửi" not in text(ui, "#runs-body")                       # a larger id in another repository proves nothing about mine
+    ui.fill("#repo", REPO)
+    assert ui.is_disabled("#go")                                                   # and it did not mark my run as finished either
+
+
+HOLD = """(() => { const real = window.fetch; window.__held = []; window.__hold = false;
+  window.fetch = async (...args) => { const res = await real(...args);
+    if (window.__hold && String(args[0]).includes('/runs?')) { window.__hold = false; await new Promise((r) => window.__held.push(r)); }
+    return res; };
+  window.__release = () => { window.__held.splice(0).forEach((r) => r()); }; })();"""
+
+
+def test_an_older_run_list_answer_arriving_late_changes_nothing(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)                                                  # lets the test keep one answer back and deliver it late
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    connect(page)
+    page.click("#go")                                                              # accepted; the list still shows nothing
+    wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    page.evaluate("window.__hold = true")
+    page.click("#refresh")                                                         # look A: answered (empty) but held back
+    wait(page, "window.__held.length === 1")
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    gh.routes[runs] = (200, {"workflow_runs": [{"id": 40, "status": "queued", "conclusion": None, "created_at": now}]})
+    page.click("#refresh")                                                         # look B, newer: sees the run queued
+    wait(page, "document.getElementById('runs-body').children.length === 1")
+    assert page.is_disabled("#go")
+    page.evaluate("window.__release()")                                            # now A's older, empty answer arrives
+    page.wait_for_timeout(500)
+    assert page.is_disabled("#go") and "Đang chờ" in text(page, "#runs-body")      # it was discarded: the queued run is still known
+    context.close()
+
+
 def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (422, {"message": "nope"})
