@@ -67,6 +67,10 @@ def test_a_damaged_history_file_never_stops_a_scan_and_says_what_it_dropped(tmp_
     path.write_text('{"o/ok": {"2026-10-01": 5}, "o/a": 5, "o/b": [1], "o/c": {"2026-10-02": "n/a", "soon": 3, "2026-10-03": null}}')
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1
+    for only_repo_level in ('{"o/ok": {"2026-10-01": 5}, "o/a": 5}', '{"o/ok": {"2026-10-01": 5}, "o/b": [1]}', '{"o/ok": {"2026-10-01": 5}, "o/n": null}'):
+        path.write_text(only_repo_level)                    # the only damage is a repository whose value is not an object: still reported
+        problems = []
+        assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and len(problems) == 1, only_repo_level
     path.write_text('{"o/ok": {"2026-10-01": 5}}')
     problems = []
     assert history.load(path, problems) == {"o/ok": {"2026-10-01": 5}} and problems == []

@@ -30,14 +30,19 @@ def load(path: Path, problems: list[str] | None = None) -> dict:
             problems.append(f"{path.name} is not a JSON object: starting with no history")
         return {}
     clean: dict = {}
+    dropped = False
     for name, points in data.items():
-        for day, stars in (points.items() if isinstance(points, dict) else ()):
+        if not isinstance(points, dict):             # a repository whose value is not {date: stars}
+            dropped = True
+            continue
+        for day, stars in points.items():
             try:
                 dt.date.fromisoformat(day)
                 clean.setdefault(str(name), {})[day] = int(stars)
             except (TypeError, ValueError):
-                if problems is not None and "dropped" not in " ".join(problems):
-                    problems.append(f"{path.name}: dropped entries that are not a date and a star count")
+                dropped = True
+    if dropped and problems is not None:
+        problems.append(f"{path.name}: dropped entries that are not a date and a star count")
     return clean
 
 
