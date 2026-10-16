@@ -119,6 +119,12 @@ jobs:
       # and the job still ends red because the step above failed.
       - name: Commit digests, export and state
         if: ${{ !cancelled() && env.DRY != 'true' }}
+        # RADAR_PR_TOKEN (a secret, optional): when it is set the results go to a branch and a pull request instead of a push to
+        # main, which is what a protected main needs (docs/branch-protection.md). RADAR_AUTOMERGE=true (a variable) also asks
+        # GitHub to merge that pull request once the required checks pass. Neither set: the push to main below, as before.
+        env:
+          RADAR_PR_TOKEN: ${{ secrets.RADAR_PR_TOKEN }}
+          RADAR_AUTOMERGE: ${{ vars.RADAR_AUTOMERGE }}
         run: |
           git config user.name "github-radar"
           git config user.email "radar@users.noreply.github.com"
@@ -133,8 +139,13 @@ jobs:
             echo "nothing new to commit"
           else
             git commit -m "radar: scan $(date -u +%F)"
-            # main may have moved while the scan ran (someone pushed); these folders are bot-only, so rebasing is safe
-            git push || { git pull --rebase --autostash origin "$GITHUB_REF_NAME" && git push; }
+            if [ -n "$RADAR_PR_TOKEN" ]; then
+              # no fallback to a push here: with a token the owner chose pull requests, and a failed publish must be red
+              python radar.py publish
+            else
+              # main may have moved while the scan ran (someone pushed); these folders are bot-only, so rebasing is safe
+              git push || { git pull --rebase --autostash origin "$GITHUB_REF_NAME" && git push; }
+            fi
           fi
 
       - name: Hand off to tool-marketing-studio (draft pull request)

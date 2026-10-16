@@ -36,7 +36,9 @@ def test_secrets_are_only_passed_as_environment_to_the_steps_that_need_them():
     steps = W["jobs"]["radar"]["steps"]
     carrying = [s["name"] for s in steps if any("secrets." in str(v) for v in (s.get("env") or {}).values())]
     assert carrying == ["Doctor (keys)", "Doctor (is each model still offered?)", "Scan, write, check, export",
-                        "Hand off to tool-marketing-studio (draft pull request)"]
+                        "Commit digests, export and state", "Hand off to tool-marketing-studio (draft pull request)"]
+    commit = next(s for s in steps if s.get("name") == "Commit digests, export and state")
+    assert [v for v in commit["env"].values() if "secrets." in str(v)] == ["${{ secrets.RADAR_PR_TOKEN }}"]   # the one new secret, here only
     ping = next(s for s in steps if s.get("name", "").startswith("Doctor (is each"))
     assert ping["continue-on-error"] is True and "--ping" in ping["run"]
     assert "--ping" not in next(s for s in steps if s.get("name") == "Doctor (keys)")["run"]
@@ -125,3 +127,50 @@ def test_the_commit_step_rebases_when_main_moved_during_the_scan(checkout, tmp_p
     assert out.returncode == 0, out.stderr
     tree = sh("git", "ls-tree", "-r", "--name-only", "main", cwd=bare).stdout
     assert "state/seen.json" in tree and "NOTES.md" in tree
+
+
+# --- the same step when a token is configured: a branch and a pull request instead of a push to main -----------------
+
+@pytest.fixture
+def stub_python(tmp_path):
+    """A `python` first on PATH that records how it was called, so the step's `python radar.py publish` can be observed."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "python").write_text('#!/bin/sh\necho "$@" >> "$STUB_LOG"\nexit "${STUB_EXIT:-0}"\n')
+    (bin_dir / "python").chmod(0o755)
+    return {"PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}", "STUB_LOG": str(tmp_path / "stub.log")}
+
+
+def write_results(work):
+    (work / "state").mkdir()
+    (work / "state" / "seen.json").write_text("{}\n")
+
+
+def test_with_a_token_the_results_are_published_through_a_pull_request_and_main_is_not_pushed(checkout, tmp_path, stub_python):
+    bare, work = checkout
+    write_results(work)
+    out = sh("bash", "-e", "-c", commit_script(), cwd=work, check=False,
+             env={"GITHUB_REF_NAME": "main", "RADAR_PR_TOKEN": "tok", **stub_python})
+    assert out.returncode == 0, out.stderr
+    assert (tmp_path / "stub.log").read_text().strip() == "radar.py publish"
+    assert sh("git", "log", "--oneline", "main", cwd=bare).stdout.count("\n") == 1          # the commit is local; publish does the pushing
+    assert "radar: scan " in sh("git", "log", "--oneline", "-1", cwd=work).stdout                # the results are committed locally
+
+
+def test_a_failed_publish_turns_the_step_red_and_does_not_fall_back_to_pushing_main(checkout, tmp_path, stub_python):
+    bare, work = checkout
+    write_results(work)
+    out = sh("bash", "-e", "-c", commit_script(), cwd=work, check=False,
+             env={"GITHUB_REF_NAME": "main", "RADAR_PR_TOKEN": "tok", "STUB_EXIT": "1", **stub_python})
+    assert out.returncode != 0
+    assert sh("git", "log", "--oneline", "main", cwd=bare).stdout.count("\n") == 1          # the owner chose pull requests: no silent push
+
+
+def test_an_empty_token_means_the_old_direct_push(checkout, tmp_path, stub_python):
+    bare, work = checkout
+    write_results(work)
+    out = sh("bash", "-e", "-c", commit_script(), cwd=work, check=False,
+             env={"GITHUB_REF_NAME": "main", "RADAR_PR_TOKEN": "", **stub_python})      # GitHub passes an unset secret as an empty string
+    assert out.returncode == 0, out.stderr
+    assert "state/seen.json" in sh("git", "ls-tree", "-r", "--name-only", "main", cwd=bare).stdout
+    assert not (tmp_path / "stub.log").exists()

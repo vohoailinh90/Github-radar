@@ -19,14 +19,19 @@ GIT_SAFE = ["-c", "core.hooksPath=/dev/null", "-c", "protocol.ext.allow=never", 
             "-c", "core.fsmonitor=false", "-c", "commit.gpgsign=false"]
 
 
-def _git(args: list[str], cwd: Path, token: str = "", host: str = "github.com") -> str:
+def _git(args: list[str], cwd: Path, token: str = "", host: str = "github.com", reset_header: bool = False) -> str:
     env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
     env.update({"GIT_TERMINAL_PROMPT": "0", "GIT_AUTHOR_NAME": "github-radar", "GIT_AUTHOR_EMAIL": "radar@users.noreply.github.com",
                 "GIT_COMMITTER_NAME": "github-radar", "GIT_COMMITTER_EMAIL": "radar@users.noreply.github.com"})
     if token:
         basic = base64.b64encode(f"x-access-token:{token}".encode()).decode()
-        env.update({"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": f"http.https://{host}/.extraheader",
-                    "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: basic {basic}"})
+        key, header = f"http.https://{host}/.extraheader", f"AUTHORIZATION: basic {basic}"
+        # `reset_header`: inside a checkout, actions/checkout has already stored the workflow token under this same key, and git
+        # sends every value of it. An empty value first clears that list, so the token given here is the only one sent.
+        pairs = ([(key, "")] if reset_header else []) + [(key, header)]
+        env["GIT_CONFIG_COUNT"] = str(len(pairs))
+        for i, (k, v) in enumerate(pairs):
+            env[f"GIT_CONFIG_KEY_{i}"], env[f"GIT_CONFIG_VALUE_{i}"] = k, v
     proc = subprocess.run(["git", *GIT_SAFE, *args], cwd=cwd, env=env, text=True, capture_output=True)
     if proc.returncode:
         raise RuntimeError(f"git {args[0]} failed: {proc.stderr.strip()[:300]}")
