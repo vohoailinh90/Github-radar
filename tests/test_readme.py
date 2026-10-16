@@ -1179,3 +1179,13 @@ def test_a_block_comment_marker_inside_a_powershell_string_that_goes_on_over_lin
     assert strip(['$x = @"', "abc <# kept #>", '"@', "<# gone #>", "Get-Date"]) == ['$x = @"', "abc <# kept #>", '"@', "Get-Date"]          # a here-string is not a quote left open
     lines = [line for _, block in readme.code_blocks("```powershell\nWrite-Output 'first\n<# literal #>\nlast'\nGet-Date\n```\n") for line in block]
     assert lines == ["Write-Output 'first", "<# literal #>", "last'", "Get-Date"]
+
+
+def test_powershell_null_coalescing_and_range_operators_go_on_and_so_does_a_pipe_that_starts_the_next_line():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\n$x = $a ??\n  $b\n$r = $a ..\n  $b\nls\n```\n") == ["$x = $a ?? $b", "$r = $a .. $b", "ls"]
+    assert lines("```powershell\ncd ..\nGet-ChildItem ..\nls\n```\n") == ["cd ..", "Get-ChildItem ..", "ls"]          # `..` is the parent folder after a command
+    assert lines("```pwsh\nGet-Process\n  | Where-Object CPU\n  | Sort-Object CPU\nGet-Date\n```\n") == ["Get-Process | Where-Object CPU | Sort-Object CPU", "Get-Date"]
+    assert lines("```console\nPS C:\\> Get-Process\n>> | Where-Object CPU\nPS C:\\> Get-Date\n```\n") == ["PS C:\\> Get-Process | Where-Object CPU", "PS C:\\> Get-Date"]
+    assert lines("```pwsh\nGet-Process\n\n| Where-Object CPU\n```\n") == ["Get-Process", "", "| Where-Object CPU"]          # a blank line ends the command

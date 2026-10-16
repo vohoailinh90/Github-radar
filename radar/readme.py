@@ -665,7 +665,7 @@ PS_COMPARISONS = ("eq", "ne", "gt", "ge", "lt", "le", "like", "notlike", "match"
 PS_OPERATOR_END = re.compile(r"(?:^|\s)-(?:" + "|".join(PS_WORD_OPERATORS) + "|[ci]?(?:" + "|".join(PS_COMPARISONS) + "))$", re.I)       # `-ceq`, `-ireplace`: case-qualified
 PS_FORMAT_END = re.compile(r"\s-f$", re.I)                                  # `-f` is also the abbreviation of `-Force`: only in a statement that is an expression
 PS_EXPRESSION = re.compile(r"^\s*(?:\$|\(|\[|\d|['\"])")                  # a statement that starts like an expression, not with a command name
-PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+[-*/%]$")     # `$x = 4 -`: an operand and then a binary operator
+PS_OPERAND_THEN_OPERATOR = re.compile(r"(?:\$[\w:.]+|\b\d[\w.]*|[)\]}'\"])\s+(?:[-*/%]|\?\?|\.\.)$")     # `$x = 4 -`, `$a ??`, `$a ..`: an operand and then a binary operator
 
 
 def _ps_continues(code: str, last: str) -> bool:
@@ -1037,11 +1037,13 @@ def _ps_awaits_block(text: str) -> bool:
 
 
 def _ps_clause_follows(lang: str, text: str, line: str) -> bool:
-    """Whether the line after a complete PowerShell command goes on with it: a `{` on the next line (Allman style) after a header that waits for
-    its block (`function Get-X`, `if ($ok)`, `try`); `catch`, `finally`, `else` or `elseif` after the `}` that closes a `try` or an `if`;
+    """Whether the line after a complete PowerShell command goes on with it: a `|` that begins it (PowerShell 7), a `{` on the next line (Allman
+    style) after a header that waits for its block (`function Get-X`, `if ($ok)`, `try`); `catch`, `finally`, `else` or `elseif` after the `}` that closes a `try` or an `if`;
     `while` or `until` after the `}` of a `do`. Alone, the first part is not a command, and the clause is not either."""
     code = _ps_code(text)
     nxt = _piece(lang, line, text)
+    if nxt.startswith("|"):
+        return True                                            # PowerShell 7: a pipe at the start of the next line goes on with the pipeline
     if nxt.startswith("{"):
         return _ps_awaits_block(text)
     if not code.endswith("}"):
