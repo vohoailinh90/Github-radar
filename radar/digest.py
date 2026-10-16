@@ -128,7 +128,7 @@ def guide_markdown(facts: dict, draft: dict, lang: str, t: dict) -> list[str]:
         for r in g["requirements"]:
             line = f"- [ ] **{_g(r['item'])}**" + (f": {_g(r['detail'])}" if r.get("detail") else "")
             link = _link(facts, r.get("link_ref"), t)
-            md.append(line + (f"  \n  {link}" if link else ""))
+            md.append(line + (f"  \n  {link}" if link else "") + (f"  \n  {_evidence(r['evidence'], t)}" if r.get("evidence") else ""))
     md += ["", f"## 🗺️ {t['roadmap']}", "", f"![{t['roadmap']}](path-{lang}.svg)", "", f"## 🪜 {t['do_steps']}", ""]
     hinted = False
     for i, step in enumerate(g["steps"], 1):

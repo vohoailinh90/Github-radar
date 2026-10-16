@@ -32,12 +32,17 @@ Muốn đưa một video sang ngôn ngữ khác, bạn phải chép lời, cắt
 
 _Đánh dấu từng mục khi đã có đủ._
 
-- [ ] **Windows, macOS hoặc Linux**: README nói hỗ trợ cả ba; macOS dùng được cả Apple Silicon lẫn Intel.
-- [ ] **Kết nối Internet**: Lần chạy đầu tự tải và cài uv, Python 3.12, thư viện và FFmpeg nên cần mạng.
+- [ ] **Windows, macOS hoặc Linux**: README nói hỗ trợ cả ba; macOS dùng được cả Apple Silicon lẫn Intel.  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Kết nối Internet**: Lần chạy đầu tự tải và cài uv, Python 3.12, thư viện và FFmpeg nên cần mạng.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **Một dịch vụ LLM tương thích OpenAI Chat Completions**: Cần địa chỉ API, khóa và tên mô hình trả được JSON có cấu trúc. README gợi ý OpenLux và liệt kê sẵn mã mô hình đề xuất.  
-  Liên kết trong README: [api.openlux.ai](https://api.openlux.ai/v1)
-- [ ] **Git và uv (khi cài từ mã nguồn)**: README không hướng dẫn cài hai công cụ này. Trên Windows, OneKeyStart.bat tự cài uv nên bạn không cần làm tay.
-- [ ] **Video cần xử lý**: README nói công cụ có thể tải video YouTube bằng yt-dlp.
+  Liên kết trong README: [api.openlux.ai](https://api.openlux.ai/v1)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Git và uv (khi cài từ mã nguồn)**: README không hướng dẫn cài hai công cụ này. Trên Windows, OneKeyStart.bat tự cài uv nên bạn không cần làm tay.  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Video cần xử lý**: README nói công cụ có thể tải video YouTube bằng yt-dlp.  
+  <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
 

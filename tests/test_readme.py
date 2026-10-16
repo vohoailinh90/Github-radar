@@ -327,8 +327,10 @@ def test_a_powershell_backtick_and_a_cmd_caret_continue_a_line_and_a_doubled_mar
 def test_the_shell_a_readme_writes_a_command_line_for_is_known_when_it_is_not_a_unix_shell():
     text = ("```powershell\n.\\webui.bat\n# a comment\nWrite-Host   hi\n```\n\n```bat\nwebui.bat\nREM remark\n```\n\n```bash\nls -la\n.\\webui.bat\n```\n\n"
             "```console\nPS C:\\> Get-Item x\n$ ls\n```\n")
-    assert readme.shells(text) == {".\\webui.bat": "powershell", "Write-Host hi": "powershell", "webui.bat": "bat", "Get-Item x": "powershell"}
+    assert readme.shells(text) == {"Write-Host hi": "powershell", "webui.bat": "bat", "Get-Item x": "powershell"}          # `.\webui.bat` is in a bash block too: the text does not say the shell
     assert readme.shells("```bash\nls\n```\n") == {} and readme.shells("no code") == {}
+    assert readme.shells("```powershell\ncd project\nGet-Date\n```\n```bash\ncd project\nls\n```\n") == {"Get-Date": "powershell"}          # first in PowerShell, then in bash
+    assert readme.shells("```bat\ncd project\n```\n```sh\ncd project\n```\n```bash\ncd project\n```\n") == {}
 
 
 def test_only_an_unescaped_backslash_continues_a_line():

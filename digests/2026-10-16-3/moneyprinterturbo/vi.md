@@ -31,15 +31,21 @@ Làm một video ngắn bằng tay đòi hỏi nhiều khâu: viết kịch bả
 
 _Đánh dấu từng mục khi đã có đủ._
 
-- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn về máy.
+- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn về máy.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **uv**: Công cụ README khuyên dùng để quản lý Python và thư viện; nó cũng cài giúp Python 3.11.  
-  Liên kết trong README: [uv](https://docs.astral.sh/uv/)
-- [ ] **Máy tính đủ sức chạy**: Windows 10, macOS 11.0 trở lên hoặc Linux. Tối thiểu CPU 4 nhân, RAM 4 GB; card đồ họa không bắt buộc.
+  Liên kết trong README: [uv](https://docs.astral.sh/uv/)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Máy tính đủ sức chạy**: Windows 10, macOS 11.0 trở lên hoặc Linux. Tối thiểu CPU 4 nhân, RAM 4 GB; card đồ họa không bắt buộc.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **Khóa API của một dịch vụ mô hình ngôn ngữ (LLM)**: Để viết kịch bản. README liệt kê OpenAI, Google Gemini, DeepSeek… và cả Ollama chạy ngay trên máy.  
-  Liên kết trong README: [OpenAI](https://platform.openai.com/api-keys)
+  Liên kết trong README: [OpenAI](https://platform.openai.com/api-keys)  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **Khóa API của nguồn clip, ví dụ Pexels (miễn phí)**: Để tự lấy clip nền. README cũng liệt kê Pixabay (miễn phí) và Coverr.  
-  Liên kết trong README: [Pexels（免费）](https://www.pexels.com/api/)
-- [ ] **Trình duyệt Chrome hoặc Edge**: Nếu trang web mở ra trống, README khuyên đổi sang một trong hai trình duyệt này.
+  Liên kết trong README: [Pexels（免费）](https://www.pexels.com/api/)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Trình duyệt Chrome hoặc Edge**: Nếu trang web mở ra trống, README khuyên đổi sang một trong hai trình duyệt này.  
+  <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
 

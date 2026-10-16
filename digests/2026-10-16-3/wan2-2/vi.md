@@ -31,11 +31,15 @@ Các dịch vụ tạo video AI thường là dịch vụ trả phí chạy trê
 
 _Đánh dấu từng mục khi đã có đủ._
 
-- [ ] **Card đồ họa (GPU) có ít nhất 24GB VRAM**: README ghi lệnh mô hình TI2V-5B chạy được trên GPU 24GB, ví dụ RTX 4090. Lệnh mô hình T2V-A14B trên một GPU cần ít nhất 80GB.
-- [ ] **Python, pip và PyTorch từ bản 2.4.0 trở lên**: README dặn đảm bảo torch >= 2.4.0 trước khi cài thư viện.
-- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.
+- [ ] **Card đồ họa (GPU) có ít nhất 24GB VRAM**: README ghi lệnh mô hình TI2V-5B chạy được trên GPU 24GB, ví dụ RTX 4090. Lệnh mô hình T2V-A14B trên một GPU cần ít nhất 80GB.  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Python, pip và PyTorch từ bản 2.4.0 trở lên**: README dặn đảm bảo torch >= 2.4.0 trước khi cài thư viện.  
+  <sub>Căn cứ: `requirements.txt`</sub>
+- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **Chỗ trống ổ đĩa cho tệp mô hình**: README không nêu dung lượng cụ thể; mô hình tải về thư mục riêng, hãy chuẩn bị dư chỗ.  
-  Liên kết trong README: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B)
+  Liên kết trong README: [Huggingface](https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B)  
+  <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
 

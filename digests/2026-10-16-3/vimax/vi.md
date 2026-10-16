@@ -32,12 +32,17 @@ Nhiều công cụ AI chỉ tạo vài giây hình, nhân vật dễ thay đổi
 
 _Đánh dấu từng mục khi đã có đủ._
 
-- [ ] **Hệ điều hành Linux hoặc Windows**: README ghi môi trường là Linux và Windows.
-- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.
+- [ ] **Hệ điều hành Linux hoặc Windows**: README ghi môi trường là Linux và Windows.  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Git**: Để chạy lệnh git clone tải mã nguồn.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **uv**: Công cụ README dùng để quản lý môi trường Python.  
-  Liên kết trong README: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/)
-- [ ] **Node.js 18 trở lên**: Cần cho giao diện web. Không dùng giao diện web thì có thể bỏ qua.
-- [ ] **Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video**: README minh họa (file `configs/idea2video.yaml`) mô hình chat qua OpenRouter, ảnh bằng Nanobanana và video bằng Veo, đều qua API của Google.
+  Liên kết trong README: [docs.astral.sh](https://docs.astral.sh/uv/getting-started/installation/)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Node.js 18 trở lên**: Cần cho giao diện web. Không dùng giao diện web thì có thể bỏ qua.  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Khóa API cho ba loại mô hình: chat, tạo ảnh, tạo video**: README minh họa (file `configs/idea2video.yaml`) mô hình chat qua OpenRouter, ảnh bằng Nanobanana và video bằng Veo, đều qua API của Google.  
+  <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
 

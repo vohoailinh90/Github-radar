@@ -1402,12 +1402,12 @@ def norm_command(text) -> str:
 
 def shells(text: str) -> dict[str, str]:
     """{comparable form of a command: "powershell", "bat" or "fish"} for the lines the README writes in a PowerShell, cmd or fish block (or
-    after a `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. A fish line that a bash-like block
-    shows too is left out: both run it. Only a line that is typed counts: not the
+    after a `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. A line that a bash-like block
+    shows too is left out, whichever block comes first: its text does not tell the shell. Only a line that is typed counts: not the
     output of a transcript, the data of a heredoc or a line of a sample. A line a Unix shell block also holds, or one the README shows
     first in a Unix shell block, is not listed: the guide's default is a Unix shell."""
     found: dict[str, str] = {}
-    posix: set[str] = set()                                   # the lines a bash-like block shows: fish runs them too, so they need no caption
+    posix: set[str] = set()                                   # the lines a bash-like block shows: the guide's default shell runs them, so they need no caption
     for lang, line, role, prompt in block_lines(text):
         if prompt is None or role == "body":                  # transcript output and the data of a heredoc are not commands of any shell
             continue
@@ -1426,7 +1426,7 @@ def shells(text: str) -> dict[str, str]:
             shell = "bash"
             posix.add(key)
         found.setdefault(key, shell)
-    return {key: shell for key, shell in found.items() if shell != "bash" and not (shell == "fish" and key in posix)}
+    return {key: shell for key, shell in found.items() if shell != "bash" and key not in posix}
 
 
 def setup_commands(text: str) -> list[str]:

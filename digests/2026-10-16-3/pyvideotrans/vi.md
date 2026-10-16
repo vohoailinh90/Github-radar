@@ -33,13 +33,18 @@ Một video đã dịch sang ngôn ngữ bạn chọn, có phụ đề và giọ
 _Đánh dấu từng mục khi đã có đủ._
 
 - [ ] **Windows 10/11 (cách nhanh nhất) hoặc macOS/Linux/Windows cho nhà phát triển**: Bản đóng gói sẵn chạy trên Windows, không cần cấu hình Python. Các hệ khác cài từ mã nguồn.  
-  Liên kết trong README: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases)
-- [ ] **Python 3.10 (khi cài từ mã nguồn)**: README khuyên dùng bản 3.10.
+  Liên kết trong README: [Click to download the latest pre-packaged version](https://github.com/jianchang512/pyvideotrans/releases)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Python 3.10 (khi cài từ mã nguồn)**: README khuyên dùng bản 3.10.  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **FFmpeg**: Phải được cài và khai báo trong biến môi trường. Trên Windows, có thể đặt ffmpeg.exe và ffprobe.exe vào thư mục dự án.  
-  Liên kết trong README: [Download FFmpeg](https://ffmpeg.org/download.html)
+  Liên kết trong README: [Download FFmpeg](https://ffmpeg.org/download.html)  
+  <sub>Căn cứ: `README`</sub>
 - [ ] **uv (khi cài từ mã nguồn)**: Công cụ quản lý thư viện README khuyên dùng.  
-  Liên kết trong README: [uv](https://docs.astral.sh/uv/)
-- [ ] **Video cần dịch**: Bạn có quyền xử lý video đó; README nhắc người dùng tự chịu trách nhiệm pháp lý.
+  Liên kết trong README: [uv](https://docs.astral.sh/uv/)  
+  <sub>Căn cứ: `README`</sub>
+- [ ] **Video cần dịch**: Bạn có quyền xử lý video đó; README nhắc người dùng tự chịu trách nhiệm pháp lý.  
+  <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
 

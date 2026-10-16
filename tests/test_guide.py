@@ -162,6 +162,9 @@ def test_the_digest_leads_with_the_outcome_then_what_to_prepare_then_every_step(
     assert "```bash\nsample-agent console --port 8080\n```" in md          # joined from the README's two lines
     assert "path-vi.svg" in md and (folder / "path-vi.svg").exists()
     assert t["expect"] in md and "Hàng đợi hiện ra." in md
+    d = make_draft(FACTS, "vi")["guide"]["requirements"][0]
+    item = md.split(f"**{d['item']}**", 1)[1].split("\n- ", 1)[0].split("\n\n", 1)[0]
+    assert f"<sub>{t['evidence']}: `{d['evidence']}`</sub>" in item          # a prerequisite shows where the guide read it, as a step does
 
 
 def test_a_readme_address_is_printed_by_the_renderer_and_a_local_one_is_code(tmp_path):
