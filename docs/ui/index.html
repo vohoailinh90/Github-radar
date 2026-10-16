@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-4TjJBeIoUwl4UoiXaJDrESwDGZzrcauOkO+Oc0+4GLQ='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-JyvTI39Epxb+N6p56+rz9ZHcT30IM3UDakXlfUuk2ak='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -533,7 +533,7 @@ function refresh() {
     const dryRun = $("dry").checked;
     const e = estimateRun(v, one, dryRun);
     $("estimate").textContent = "Ước tính: " + (one ? "quét đúng một repo (không tìm kiếm, bỏ qua số bài), " : "ít nhất " + e.searches + " lượt tìm (khoảng " + e.search_seconds + " giây), ") +
-      (dryRun ? "quét thử nên không gọi model và không nghỉ giữa các bài." : e.model_calls + " lượt gọi model và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.");
+      (dryRun ? "quét thử nên không gọi model và không nghỉ giữa các bài." : "ít nhất " + e.model_calls + " lượt gọi model (vòng sửa và thử lại sẽ thêm) và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.");
     $("json").value = JSON.stringify(canon(v), null, 2);
   } else {
     $("estimate").textContent = "";

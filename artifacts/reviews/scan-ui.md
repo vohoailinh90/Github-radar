@@ -135,3 +135,9 @@ The ordinary review of `928d53b` found nothing ("Didn't find any major issues").
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | The default branch read earlier was cached; if it was renamed, every dispatch returned 422 and the cache was never refreshed (until "Kiểm tra token" or "Quên token") | true | a dispatch GitHub refuses drops the cached branch, so the next send reads it again; test (renamed branch: 422, then a send with the new name); mutation killed |
+
+## Codex review of head bb6efae (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The estimate showed the model-call count as exact, but `conditions.estimate` defines it as a minimum (a checker-requested fix, malformed output and retries add calls) | true: the docstring says so, and the CLI prints "at least" | the page says "ít nhất N lượt gọi model (vòng sửa và thử lại sẽ thêm)"; the browser tests assert the wording for a full scan and for a single repository; mutation (word dropped) killed |
