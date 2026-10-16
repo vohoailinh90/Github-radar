@@ -518,7 +518,7 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
         return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return re.search(r"(?<!\^)\^$", physical) is not None
-    quote, _, commented = _shell_state(line)
+    quote, _, commented, _ = _shell_state(line)
     if commented or quote == "'":                 # `echo a # note \`: the backslash belongs to the comment; in 'single quotes' it is literal
         return False
     return (len(physical) - len(physical.rstrip("\\"))) % 2 == 1 and not DRIVE_ROOT.search(physical)       # `\\` at the end is an escaped backslash
@@ -563,8 +563,9 @@ def strip_trailing_comment(line: str) -> str:
     return line
 
 
-def _shell_state(text: str) -> tuple[str, int, bool]:
-    """(the quote still open at the end, the parentheses still open, whether a `# comment` starts) for a POSIX shell command line."""
+def _shell_state(text: str) -> tuple[str, int, bool, int]:
+    """(the quote still open at the end, the parentheses still open, whether a `# comment` starts, where the code ends: at the comment
+    or at the end of the line) for a POSIX shell command line."""
     quote, depth, i = "", 0, 0
     while i < len(text):
         ch = text[i]
@@ -578,21 +579,33 @@ def _shell_state(text: str) -> tuple[str, int, bool]:
         if ch in "'\"":
             quote = ch
         elif _comment_at(text, i):
-            return "", 0, True                    # the rest of the line is the comment's: it opens and closes nothing
+            return "", 0, True, i                 # the rest of the line is the comment's: it opens and closes nothing
         elif ch == "(":
             depth += 1
         elif ch == ")":
             depth = max(0, depth - 1)
         i += 1
-    return quote, depth, False
+    return quote, depth, False, len(text)
 
 
 def _incomplete(command: str) -> bool:
     """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `&&` or `||`, or a quote
     or a parenthesis is still open; a comment opens and closes nothing. A command that is complete is followed by output, and `> ` there
     (npm prints `> pkg@1.0.0 start`) is not a prompt."""
-    quote, depth, commented = _shell_state(command)
+    quote, depth, commented, _ = _shell_state(command)
     return not commented and (bool(quote) or depth > 0 or command.rstrip().endswith(("|", "&&", "||")))
+
+
+def _ends_in_redirection(command: str) -> bool:
+    """True when the code of a POSIX command line (a trailing comment cut off) ends in a redirection operator with no file after it
+    (`echo hi >`, `cat <`, `cmd >>`): the shell reports a syntax error and does not go on in the next line. A placeholder in angle
+    brackets (`git clone <repo-url>`, `cd <your folder>`) is not one: its `>` closes a `<`."""
+    quote, _, _, end = _shell_state(command)
+    code = command[:end].rstrip()
+    found = re.search(r"(\\*)([<>])$", code)
+    if quote or not found or len(found.group(1)) % 2:
+        return False
+    return found.group(2) == "<" or code.count(">") > code.count("<")
 
 
 GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
@@ -763,7 +776,9 @@ def _dangling(lang: str, command: str) -> bool:
         typed = True
     else:
         typed = not lang and is_command_line(command)
-    return typed and (_ps_open(command) is True if _is_powershell(lang, command) else _incomplete(command))
+    if _is_powershell(lang, command):
+        return typed and _ps_open(command) is True
+    return typed and (_incomplete(command) or _ends_in_redirection(command))
 
 
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
@@ -945,11 +960,13 @@ def norm_command(text) -> str:
 
 
 def shells(text: str) -> dict[str, str]:
-    """{comparable form of a command: "powershell" or "bat"} for the lines the README writes in a PowerShell or cmd block (or after a
-    `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. Only a line that is typed counts: not the
+    """{comparable form of a command: "powershell", "bat" or "fish"} for the lines the README writes in a PowerShell, cmd or fish block (or
+    after a `PS ...>` prompt of a transcript), so that the guide can say which shell a line is for. A fish line that a bash-like block
+    shows too is left out: both run it. Only a line that is typed counts: not the
     output of a transcript, the data of a heredoc or a line of a sample. A line a Unix shell block also holds, or one the README shows
     first in a Unix shell block, is not listed: the guide's default is a Unix shell."""
     found: dict[str, str] = {}
+    posix: set[str] = set()                                   # the lines a bash-like block shows: fish runs them too, so they need no caption
     for lang, line, role, prompt in block_lines(text):
         if prompt is None or role == "body":                  # transcript output and the data of a heredoc are not commands of any shell
             continue
@@ -962,10 +979,13 @@ def shells(text: str) -> dict[str, str]:
             shell = "powershell"
         elif lang in CMD_LANGS or (lang in CONSOLE_LANGS and re.match(CMD_PROMPT, line)):
             shell = "bat"
+        elif lang == "fish":
+            shell = "fish"
         else:
             shell = "bash"
+            posix.add(key)
         found.setdefault(key, shell)
-    return {key: shell for key, shell in found.items() if shell != "bash"}
+    return {key: shell for key, shell in found.items() if shell != "bash" and not (shell == "fish" and key in posix)}
 
 
 def setup_commands(text: str) -> list[str]:

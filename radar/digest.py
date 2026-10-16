@@ -79,7 +79,7 @@ def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
     groups: list[tuple[str, list]] = []
     for command, data in zip(commands, readmelib.heredoc_data(commands)):
         shell = table.get(readmelib.norm_command(command))
-        shell = shell if shell in ("powershell", "bat") else "bash"
+        shell = shell if shell in ("powershell", "bat", "fish") else "bash"
         if groups and (data or groups[-1][0] == shell or not str(command).strip()):        # a blank line and the data of a heredoc stay in the block they are in
             groups[-1][1].append(command)
         else:

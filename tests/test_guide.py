@@ -841,3 +841,13 @@ def test_the_data_of_a_heredoc_stays_in_the_shell_block_of_its_opener_even_when_
     assert lines == ["```bash", "cat > run.ps1 <<EOF", "Write-Host hi", "EOF", "```"]               # one block, the opener's shell
     lines = digest._command_blocks(facts, ["Write-Host hi", "cat > run.ps1 <<EOF", "Write-Host hi", "EOF"], L["en"])
     assert lines.count("```powershell") == 1 and lines.count("```bash") == 1 and lines[-3:] == ["Write-Host hi", "EOF", "```"]
+
+
+def test_a_fish_command_is_fenced_as_fish_with_a_caption_in_every_language():
+    facts = {**FACTS, "shells": {"set -Ux EDITOR vim": "fish"}}
+    for lang in ("vi", "en", "ja"):
+        assert L[lang]["shell_fish"]
+        lines = digest._command_blocks(facts, ["pip install x", "set -Ux EDITOR vim"], L[lang])
+        assert lines == [f"_{L[lang]['shell_bash']}_", "", "```bash", "pip install x", "```", "", f"_{L[lang]['shell_fish']}_", "", "```fish",
+                         "set -Ux EDITOR vim", "```"], lang
+    assert digest._command_blocks(facts, ["set -Ux EDITOR vim"], L["en"])[-3:] == ["```fish", "set -Ux EDITOR vim", "```"]

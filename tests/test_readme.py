@@ -774,3 +774,21 @@ def test_only_a_typed_command_chooses_the_shell_of_a_line_not_a_sample_an_output
             "```bash\ncat <<EOF\nWrite-Host hi\nEOF\n```\n\n```console\n$ ls\ndir\n```\n\n```cmd\ndir\n```\n")
     assert readme.shells(text) == {"Get-ChildItem": "powershell", "Write-Host hi": "powershell", "dir": "bat"}
     assert readme.shells("```console\nPS C:\\> Get-Item x\nGet-Item y\n```\n") == {"Get-Item x": "powershell"}      # `Get-Item y` is output
+
+
+def test_a_command_that_ends_in_a_redirection_operator_is_dropped_but_an_angle_bracket_placeholder_is_not():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nls\necho hi >\ncat <\ncat file >>\nrun 2>\nnpm install x\n```\n") == ["ls", "npm install x"]
+    assert lines("```bash\ngit clone <repo-url>\ncd <your folder>\nrun --in <path> --out <dir>\nrun a >b >\n```\n") == [
+        "git clone <repo-url>", "cd <your folder>", "run --in <path> --out <dir>"]              # `<url>` closes its `<`; `a >b >` has a `>` too many
+    assert lines("```bash\necho a\\>\necho '>'\necho \"a >\"\necho hi > # note\necho ok # >\n```\n") == ["echo a\\>", "echo '>'", 'echo "a >"', "echo ok # >"]
+    assert lines("```console\n$ echo hi >\nok >\n$ ls\n```\n") == ["ok >", "$ ls"]                 # a typed line is dropped, an output line is not
+    assert readme.setup_commands("```bash\necho hi >\npip install x\n```\n") == ["pip install x"]
+    assert readme._ends_in_redirection("echo hi >") and readme._ends_in_redirection("cat <") and not readme._ends_in_redirection("git clone <u>")
+
+
+def test_a_fish_only_command_keeps_its_shell_but_a_line_a_bash_block_shows_too_needs_no_caption():
+    text = "```fish\nset -Ux EDITOR vim\npip install x\n```\n\n```bash\npip install x\nexport EDITOR=vim\n```\n"
+    assert readme.shells(text) == {"set -Ux EDITOR vim": "fish"}
+    assert readme.shells("```fish\nset -Ux EDITOR vim\n```\n\n```powershell\nGet-Item x\n```\n") == {"set -Ux EDITOR vim": "fish", "Get-Item x": "powershell"}
