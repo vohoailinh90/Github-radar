@@ -472,6 +472,36 @@ def test_the_wait_for_a_run_that_never_shows_up_ends_after_two_minutes(browser):
     context.close()
 
 
+def _with_a_fake_clock(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    page = context.new_page()
+    page.clock.install(time=dt.datetime.now(dt.timezone.utc))
+    page.goto(PAGE_URL)
+    page.gh = gh
+    return context, page
+
+
+def test_a_failed_answer_while_waiting_for_the_run_does_not_stop_the_looking(browser):
+    context, page = _with_a_fake_clock(browser)
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    connect(page)
+    page.click("#go")
+    wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert page.is_disabled("#go")
+    page.gh.routes[runs] = (500, {"message": "busy"})
+    page.clock.fast_forward(10_000)                                                # the next look fails ...
+    wait(page, "document.getElementById('msg').className.includes('bad')")
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 77, "status": "completed", "conclusion": "success", "created_at": now}]})
+    page.clock.fast_forward(10_000)                                                # ... and the one after it still happens
+    wait(page, "document.getElementById('runs-body').children.length === 1")
+    wait(page, "document.getElementById('go').disabled === false")
+    assert "lượt bạn vừa gửi" in text(page, "#runs-body")
+    context.close()
+
+
 def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (422, {"message": "nope"})

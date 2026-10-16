@@ -40,3 +40,9 @@ Not covered by anyone: real CORS from `file://`, the real dispatch answer (204),
 |---|---|---|---|
 | 1 | Another dispatcher's run that gets an id above the snapshot (listed already finished or cancelled) can be taken for the run just sent, so the button unlocks while the real one is still unindexed and a quick second send could replace it | the path exists but is far-fetched: it needs a foreign dispatch in the roughly one-second gap between the page's snapshot and its own send, and that run to be finished or cancelled before ours is indexed; a scan job needs well over the indexing delay to finish, so only an instant cancellation by the concurrency group fits; one owner, one repository | **rejected, no code** (a P2; a fix needs a unique correlation id as a new workflow input, a change to the workflow's contract for a one-second window); the limit is written in `docs/ui.md`; reported to the owner in the PR thread |
 | 2 | The estimate for a dry run (the default) still showed model calls and pauses, although `pipeline.run` returns before them (`if dry_run or not picks`) | true | `estimateRun`: a dry run keeps the search and shows no model calls and no pauses; Node test against Python and mutation-killed browser tests |
+
+## Codex review of head b565a20 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | After an accepted dispatch, a failed answer from the run list (non-200 or a network error) left `loadRuns` without scheduling the next look, so the run never appeared and the button stayed off until the person refreshed | true: the failure paths returned before the scheduling line | the scheduling moved into a `finally`, so the page keeps looking while a run is active or the run just sent is not listed yet, also after a bad answer; `test_a_failed_answer_while_waiting_for_the_run_does_not_stop_the_looking` (fake clock) fails on the old page, and the mutation (no look after a failure) is killed |

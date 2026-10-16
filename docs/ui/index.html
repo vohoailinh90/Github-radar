@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-hlQnA0cdji3u7+Ml6UE9QRG7o815z8iy6Bb0oK6K2WU='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5N6EBPyF6qnay8i3wWAJJqJIwpXClKGZutNjCJ7pgyo='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -562,11 +562,11 @@ async function loadRuns() {
   clearTimeout(pollTimer);
   const repo = repoName();                                   // one repository for the request and for every link below
   if (!isRepo(repo) || !token()) { mineActive = false; return; }
+  let anyActive = false;
   try {
     const res = await call("GET", runsPath(repo));
-    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { mineActive = false; say("msg", explain(res.status, res.data), "bad"); refresh(); return; }
+    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { mineActive = false; say("msg", explain(res.status, res.data), "bad"); return; }
     const rows = [];
-    let anyActive = false;
     mineActive = false;
     for (const run of res.data.workflow_runs.slice(0, 10)) {
       if (!run || !Number.isInteger(run.id) || typeof run.status !== "string" || typeof run.created_at !== "string") continue;
@@ -584,12 +584,14 @@ async function loadRuns() {
       tr.lastChild.append(link);
     }
     $("runs-body").replaceChildren(...rows);
-    if (anyActive || Date.now() - clickedAt < DISCOVERY_MS) pollTimer = setTimeout(loadRuns, 10000);
   } catch (e) {
     mineActive = false;
     say("msg", "Không tải được danh sách lượt chạy.", "bad");
+  } finally {
+    // Keep asking while a run is active or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
+    if (anyActive || Date.now() - clickedAt < DISCOVERY_MS) pollTimer = setTimeout(loadRuns, 10000);
+    refresh();
   }
-  refresh();
 }
 
 async function copyJson() {
