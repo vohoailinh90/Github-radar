@@ -939,3 +939,17 @@ def test_a_powershell_string_with_an_escaped_quote_before_its_line_break_stays_i
     assert readme.heredoc_data(commands) == [False, False, True]                              # POSIX rules would end the string at the escaped quote
     lines = digest._command_blocks({"shells": table}, commands, {"shell_bash": "bash", "shell_powershell": "PowerShell"})
     assert lines == ["_PowerShell_", "", "```powershell", 'Write-Host "say `"', 'hi"', "Get-Item x", "```"]        # one block, in the opener's shell
+
+
+def test_a_function_defined_with_the_function_keyword_and_a_pipe_with_stderr_are_unfinished_constructs():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    c = readme._compound_depth
+    for text, depth in (("function setup {", 1), ("function setup {\n  rm -rf build\n}", 0), ("function f { echo hi; }", 0), ("function f() {", 1),
+                        ("function f()\n{", 1), ("echo function {", 0), ("function f", 0), ("function f; echo {", 0), ("function f() { echo a; }", 0)):
+        assert c(text) == depth, text
+    text = "```bash\nfunction setup {\n  rm -rf build\n}\nsetup\n```\n"
+    assert readme.heredocs(text) == ([["function setup {", "  rm -rf build", "}"]], ["function setup {", "setup"])
+    assert lines("```bash\nproducer |&\ntee log\nls\n```\n") == ["producer |& tee log", "ls"]                 # `|&` is a pipeline operator: it takes the next line
+    assert lines("```bash\nls\nproducer |&\n```\n") == ["ls"]                                              # one that has no next line is dropped
+    assert lines("```bash\nsleep 1 &\nls\n```\n") == ["sleep 1 &", "ls"]                                  # a lone `&` is a background job, complete

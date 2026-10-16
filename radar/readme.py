@@ -595,12 +595,12 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
 
 
 def _incomplete(command: str) -> bool:
-    """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `&&` or `||`, or a quote
+    """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `|&`, `&&` or `||`, or a quote
     or a parenthesis is still open; a comment opens and closes nothing. A command that is complete is followed by output, and `> ` there
     (npm prints `> pkg@1.0.0 start`) is not a prompt."""
     quote, depth, commented, _ = _shell_state(command)
     code = command.rstrip()
-    return not commented and (bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||")) and not code.endswith(">|")))       # `>|` is a redirection
+    return not commented and (bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||", "|&")) and not code.endswith(">|")))     # `>|` is a redirection
 
 
 def _ends_in_redirection(command: str) -> bool:
@@ -758,16 +758,18 @@ def _compound_depth(text: str) -> int:
     until `fi`, `done` or `esac`, and a `{ ... }` group (also the body of `name() {`). A keyword counts where a command begins, outside quotes
     and comments, so `echo if`, `"fi"` and `${x}` are not keywords."""
     text = SHELL_PROMPT.sub("", text.lstrip(), count=1)
-    depth, word, quote, command_start, i = 0, "", "", True, 0
+    depth, word, quote, command_start, defining, i = 0, "", "", True, False, 0
 
     def end_word() -> None:
-        nonlocal depth, word, command_start
+        nonlocal depth, word, command_start, defining
         if not word:
             return
-        if command_start and (word in COMPOUND_OPEN or word == "{"):
-            depth += 1
+        if command_start and (word in COMPOUND_OPEN or word == "{") or defining and word == "{":
+            depth += 1                                       # `function name {`: the brace follows the name
+            defining = False
         elif command_start and (word in COMPOUND_CLOSE or word == "}"):
             depth = max(0, depth - 1)
+        defining = defining or (command_start and word == "function")
         command_start = command_start and word in COMMAND_FOLLOWS
         word = ""
 
@@ -796,6 +798,7 @@ def _compound_depth(text: str) -> int:
         elif ch in "\n;&|(":
             end_word()
             command_start = True
+            defining = defining and ch == "("                        # `function name() {`: the parentheses belong to the definition
         elif ch in ")<>":
             end_word()
             command_start = ch == ")"                        # `a) cmd` in a `case`
