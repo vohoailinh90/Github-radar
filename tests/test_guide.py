@@ -121,6 +121,21 @@ def test_coverage_counts_distinct_readme_commands_the_draft_uses():
     assert (used, wanted) == (4, 4)
 
 
+def test_a_legacy_try_it_next_to_a_guide_adds_nothing_to_the_coverage_and_cannot_satisfy_the_gate():
+    """The renderer shows `try_it` only for an older draft that has no guide: with both, its commands are never seen by a reader."""
+    d = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]])
+    d["try_it"] = {"commands": ["pip install sample-agent-kit"]}                   # a README command, in the field nobody sees
+    assert gates.command_coverage(d, FACTS)[0] == 0
+    assert any("uses none of them" in e for e in errs(d))
+    assert [field for field, _ in gates.shown_commands(d)] == []
+    assert any(field == "try_it.commands" for field, _ in gates.guide_commands(d))      # still checked as a command
+    d["try_it"] = {"commands": ["rm -rf not-in-the-readme"]}
+    assert any("try_it.commands" in e and "not a line or code span" in e for e in errs(d))
+    older = {k: v for k, v in make_draft(FACTS, "vi").items() if k != "guide"}
+    older["try_it"] = {"commands": ["pip install sample-agent-kit"]}
+    assert gates.command_coverage(older, FACTS)[0] == 1                             # no guide: the try_it is what the reader sees
+
+
 def test_a_link_ref_may_point_at_a_link_that_exists():
     assert errs(mutate(lambda d: d["guide"]["steps"][2].update(link_ref=1))) == []
     no_links = {k: v for k, v in FACTS.items() if k != "links"}

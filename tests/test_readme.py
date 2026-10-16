@@ -674,3 +674,16 @@ def test_the_lines_npm_prints_after_a_root_prompt_are_output_too():
     text = "```console\n# npm start\n> app@1.0.0 start\n> node index.js\nServer started\n# npm test\n```\n"
     assert readme.setup_commands(text) == ["npm start", "npm test"]          # `# npm test` after the output is still root's prompt
     assert readme.setup_commands("```console\n$ npm start\n> app@1.0.0 start\n# npm test\n```\n") == ["npm start"]      # but not after a `$` prompt
+
+
+def test_a_comment_after_a_control_operator_opens_no_heredoc_and_hides_no_command():
+    text = "```bash\necho hi;# example <<EOF\nnpm install x\npip install y\n```\n"
+    assert readme.code_blocks(text) == [("bash", ["echo hi;# example <<EOF", "npm install x", "pip install y"])]
+    assert readme.setup_commands(text) == ["echo hi;# example <<EOF", "npm install x", "pip install y"]
+    for line in ("echo hi;# x", "make && # x", "a | # x", "(# x", "# x", "echo hi # x"):
+        assert readme._has_comment(line), line
+        assert readme._heredoc_openers(line + " <<EOF") == [], line
+    for line in ("echo $#", "echo ${#x}", "echo a#b", "echo 'a;# b'", 'echo "(# b"', r"echo a\;# b"):
+        assert not readme._has_comment(line), line
+    assert readme._heredoc_openers("cat <<EOF;# note") == [("EOF", False)]
+    assert not readme._incomplete("echo hi;# it's here") and readme._incomplete("echo hi; echo 'it")

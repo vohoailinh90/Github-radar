@@ -396,7 +396,8 @@ def canonicalize(draft: dict, facts: dict) -> dict:
 
 
 def guide_commands(draft: dict) -> list[tuple[str, object]]:
-    """(field, command) for every line a reader is told to type: the guide's steps, or an older draft's try_it."""
+    """(field, command) for every command line of the draft that the gate checks: the guide's steps and the `try_it` an older draft has
+    (a draft that has both also has a `try_it` the renderer never shows; its commands are still checked)."""
     out = []
     guide = _obj(draft.get("guide"))
     for i, step in _dicts(guide.get("steps")):
@@ -407,10 +408,17 @@ def guide_commands(draft: dict) -> list[tuple[str, object]]:
     return out
 
 
+def shown_commands(draft: dict) -> list[tuple[str, object]]:
+    """(field, command) for the lines a reader is told to type: the guide's steps, or an older draft's `try_it` when it has no guide."""
+    has_guide = isinstance(draft.get("guide"), dict)
+    return [(field, c) for field, c in guide_commands(draft) if field.startswith("guide.") == has_guide]
+
+
 def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
-    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows."""
+    """(README command lines the draft uses, command lines the README's code blocks hold): how much of the way in it shows. Only the
+    commands the reader sees count, so a `try_it` next to a guide adds nothing."""
     wanted = {_norm_cmd(c) for c in readmelib.setup_commands(facts["readme"])}
-    used = {_norm_cmd(c) for _, c in guide_commands(draft) if isinstance(c, str)}
+    used = {_norm_cmd(c) for _, c in shown_commands(draft) if isinstance(c, str)}
     return len(used & wanted), len(wanted)
 
 

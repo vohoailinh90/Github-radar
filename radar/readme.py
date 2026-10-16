@@ -433,6 +433,19 @@ POWERSHELL_LANGS = {"powershell", "pwsh", "ps1"}                                
 CMD_LANGS = {"cmd", "bat", "batch"}                                        # a caret at the end of a line continues it
 POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
 DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
+
+
+def _comment_at(line: str, i: int) -> bool:
+    """True when the `#` at `line[i]` starts a shell comment: it is the first character of a word, so it follows whitespace, a control
+    operator (`echo hi;# note`) or a parenthesis, or the start of the line. `a#b`, `$#` and `${#x}` are not comments."""
+    if line[i] != "#":
+        return False
+    if i == 0 or line[i - 1].isspace():
+        return True
+    slashes = len(line[:i - 1]) - len(line[:i - 1].rstrip("\\"))
+    return line[i - 1] in ";&|()" and slashes % 2 == 0                # `echo a\;# b`: the `;` is escaped, so it is part of a word
+
+
 def _shell_word(line: str, i: int) -> tuple[str, int]:
     """(the word that starts at `i` with its quotes and backslashes removed, where it ends): a word is made of plain characters and
     'single', "double" and backslash-escaped pieces, and ends at whitespace or one of `; & | < > ( )` outside quotes (`E\\OF`, `'E'OF`, `END-MARK`)."""
@@ -479,7 +492,7 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
 
 
 def _has_comment(line: str) -> bool:
-    """True when the line has a `#` that starts a shell comment: at the start of a word, outside quotes and not escaped."""
+    """True when the line has a `#` that starts a shell comment (see `_comment_at`), outside quotes and not escaped."""
     quote, i = "", 0
     while i < len(line):
         ch = line[i]
@@ -490,7 +503,7 @@ def _has_comment(line: str) -> bool:
             i += 2
         elif ch in "'\"":
             quote, i = ch, i + 1
-        elif ch == "#" and (i == 0 or line[i - 1].isspace()):
+        elif _comment_at(line, i):
             return True
         else:
             i += 1
@@ -531,7 +544,7 @@ def _shell_state(text: str) -> tuple[str, int, bool]:
             continue
         if ch in "'\"":
             quote = ch
-        elif ch == "#" and (i == 0 or text[i - 1].isspace()):
+        elif _comment_at(text, i):
             return "", 0, True                    # the rest of the line is the comment's: it opens and closes nothing
         elif ch == "(":
             depth += 1
@@ -601,7 +614,7 @@ def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
             i += 2
         elif ch in "'\"":
             quote, i = ch, i + 1
-        elif ch == "#" and (i == 0 or line[i - 1].isspace()):
+        elif _comment_at(line, i):
             break
         elif line.startswith("$((", i) or (line.startswith("((", i) and (i == 0 or line[i - 1] in " \t;&|")):
             arithmetic, i = arithmetic + 1, i + (3 if line.startswith("$((", i) else 2)
