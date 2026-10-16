@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import config, contract, pipeline
+from . import conditions, config, contract, history, pipeline
 from .github import GitHub
 from .llm import PROVIDER_KEYS, Gateway, base_url, family, has_key, split_model
 from .net import HttpError, request_json
@@ -21,13 +21,22 @@ def _date(value: str | None) -> dt.date:
     return dt.date.fromisoformat(value) if value else dt.datetime.now(dt.timezone.utc).date()
 
 
+def _github(cfg) -> GitHub:
+    return GitHub(search_interval=float(cfg["search_interval_seconds"]))
+
+
 def cmd_scan(args, cfg) -> int:
     from . import discover, facts
-    gh = GitHub()
+    gh = _github(cfg)
     seen = facts.load_seen(ROOT / "state" / "seen.json")
-    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date))
+    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date), history.load(ROOT / "state" / "stars.json"))
+    print("score    bucket       stars   stars/30d  repo   (* = measured from stored snapshots, else the lifetime average)")
     for c in ranked[:20]:
-        print(f"{c['score']:7.3f}  {c['bucket']:<10} {c['repo']['stargazers_count']:>7,}  {c['full_name']}")
+        mark = "*" if c["velocity"]["source"] == "measured" else " "
+        on = cfg["rising"]["enabled"] and int(cfg["rising"]["slots"]) > 0
+        tags = (["rising"] if c["rising"] and on else []) + [f"!{f}" for f in c["flags"]]
+        print(f"{c['score']:7.3f}  {c['bucket']:<10} {c['repo']['stargazers_count']:>7,}  {c['velocity']['per_30d']:>7,.0f}{mark}  "
+              f"{c['full_name']}" + (f"  [{' '.join(tags)}]" if tags else ""))
     print(f"dropped: {json.dumps(dropped, ensure_ascii=False)}")
     return 0 if ranked else 1
 
@@ -37,10 +46,25 @@ def cmd_run(args, cfg) -> int:
     # RADAR_REPO is how the workflow passes its input (never through the shell command line).
     only = (os.environ.get("RADAR_REPO", "") if args.repo is None else args.repo).strip() or None
     bucket = (os.environ.get("RADAR_BUCKET", "") if args.bucket is None else args.bucket).strip() or None
-    report = pipeline.run(cfg, GitHub(), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
+    report = pipeline.run(cfg, _github(cfg), Gateway(), ROOT, _date(args.date), dry_run=args.dry_run,
                           pace=float(cfg.get("pace_seconds", 3)), only=only, bucket=bucket)
     print(json.dumps({k: v for k, v in report.items() if k != "models_log"}, indent=2, ensure_ascii=False))
     return 0 if report["ok"] else 1
+
+
+def cmd_presets(args, cfg) -> int:
+    """Saved scan conditions and what each would cost. Nothing is fetched."""
+    for name, item in sorted(conditions.load_presets().items()):
+        try:
+            effective = config.load(args.config, {**os.environ, "RADAR_PRESET": name, "RADAR_CONDITIONS": ""})
+        except ValueError as exc:
+            print(f"FAIL  {name}: {exc}")
+            return 1
+        cost = conditions.estimate(effective)
+        print(f"{name:<18} {item['label']}")
+        print(f"{'':<18} {cost['searches']} searches (~{cost['search_seconds']} s), {cost['model_calls']}+ model calls, "
+              f"~{cost['pace_seconds']} s of pauses between posts; conditions: {json.dumps(item['conditions'], ensure_ascii=False)}")
+    return 0
 
 
 def cmd_doctor(args, cfg) -> int:
@@ -122,6 +146,19 @@ def cmd_rerender(args, cfg) -> int:
     return 1 if args.slug and args.slug in report["skipped"] else 0
 
 
+def cmd_publish(args, cfg) -> int:
+    """Push the results commit in the current checkout to a new branch and open a pull request (see radar/publish.py)."""
+    from . import publish
+    repo = args.repo or os.environ.get("GITHUB_REPOSITORY", "")
+    run_id = os.environ.get("GITHUB_RUN_ID", "")
+    run_url = f"{os.environ.get('GITHUB_SERVER_URL', 'https://github.com')}/{repo}/actions/runs/{run_id}" if repo and run_id.isdigit() else ""
+    result = publish.publish(repo=repo, token=os.environ.get("RADAR_PR_TOKEN", ""), cwd=Path.cwd(), base=args.base,
+                             automerge=os.environ.get("RADAR_AUTOMERGE", "").lower() == "true", run_url=run_url,
+                             run_id=run_id, attempt=os.environ.get("GITHUB_RUN_ATTEMPT", "1"))
+    print(json.dumps(result, ensure_ascii=False))
+    return 0 if result["status"] in ("opened", "branch-exists") else 1
+
+
 def cmd_handoff(args, cfg) -> int:
     from . import handoff
     token = os.environ.get("STUDIO_REPO_TOKEN", "")
@@ -154,12 +191,17 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.set_defaults(fn=fn)
         p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today, UTC)")
+        if name in ("scan", "run"):
+            p.add_argument("--preset", default=None, help="saved scan conditions (python3 radar.py presets)")
+            p.add_argument("--conditions", default=None, help="one-off conditions as JSON, e.g. '{\"picks_per_run\": 2}' (wins over --preset)")
         if "dry" in extra:
             p.add_argument("--dry-run", action="store_true", help="discover and rank only: no model calls, nothing written")
             p.add_argument("--repo", default=None, help="cover this one repository (owner/name or a github.com link) instead of searching")
             p.add_argument("--bucket", default=None, help="with --repo: ai, software, solutions or startup (default: from the repository's topics)")
         if "ping" in extra:
             p.add_argument("--ping", action="store_true", help="ask each provider whether the configured models still exist")
+    p = sub.add_parser("presets", help="list the saved scan conditions and what each costs")
+    p.set_defaults(fn=cmd_presets)
     p = sub.add_parser("models")
     p.set_defaults(fn=cmd_models)
     p.add_argument("provider", choices=sorted(PROVIDER_KEYS))
@@ -167,6 +209,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("rerender", help="draw digests, diagrams and studio posts again from the stored drafts (no model, no GitHub)")
     p.set_defaults(fn=cmd_rerender)
     p.add_argument("--slug", default=None, help="one run, e.g. 2026-10-12 (default: every run that has stored drafts)")
+    p = sub.add_parser("publish", help="push the committed results to a new branch and open a pull request (token: RADAR_PR_TOKEN)")
+    p.set_defaults(fn=cmd_publish)
+    p.add_argument("--repo", default=None, help="owner/name (default: GITHUB_REPOSITORY)")
+    p.add_argument("--base", default="main")
     p = sub.add_parser("handoff")
     p.set_defaults(fn=cmd_handoff)
     p.add_argument("campaign", nargs="?", default="")
@@ -175,7 +221,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--base", default="main")
     args = parser.parse_args(argv)
     try:
-        cfg = config.load(args.config)
+        # --preset / --conditions are the same conditions a workflow input carries (radar/conditions.py), given on the command line
+        env = {**os.environ}
+        if getattr(args, "preset", None) is not None:
+            env["RADAR_PRESET"] = args.preset
+        if getattr(args, "conditions", None) is not None:
+            env["RADAR_CONDITIONS"] = args.conditions
+        cfg = config.load(args.config, env)
         return args.fn(args, cfg)
     except (ValueError, HttpError, RuntimeError) as exc:
         print(f"error: {exc}", file=sys.stderr)

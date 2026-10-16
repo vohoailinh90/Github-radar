@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mQqf0lBLLw/sWoNRihFRefOl6MJ/0F9vh8/Y/AsFrd4='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>GitHub Radar: quét theo yêu cầu</title>
+<style>
+:root { --bg: #f6f8fa; --card: #ffffff; --ink: #1f2328; --muted: #59636e; --line: #d1d9e0; --accent: #0969da; --accent-ink: #ffffff; --ok: #1a7f37; --bad: #cf222e; --warn: #9a6700; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --card: #161b22; --ink: #e6edf3; --muted: #9198a1; --line: #30363d; --accent: #4493f8; --accent-ink: #0d1117; --ok: #3fb950; --bad: #f85149; --warn: #d29922; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 22px; margin: 8px 0 4px; }
+h2 { font-size: 17px; margin: 0 0 10px; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 14px 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+label { display: block; margin: 10px 0 4px; font-weight: 600; }
+label.inline { display: inline-flex; align-items: center; gap: 6px; margin: 4px 14px 4px 0; font-weight: 400; }
+input[type=text], input[type=password], input[type=number], select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; min-height: 90px; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.bucket { display: grid; grid-template-columns: 130px 1fr; gap: 8px; align-items: center; margin: 6px 0; }
+button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.msg { margin: 10px 0 0; min-height: 1.4em; }
+.ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+ul.problems { margin: 8px 0 0; padding-left: 20px; color: var(--bad); }
+.box { border: 1px solid var(--warn); border-radius: 6px; padding: 10px 12px; margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<noscript><main><p>Trang này cần JavaScript để gọi GitHub. Không có gì được gửi đi khi chưa bật.</p></main></noscript>
+<main>
+  <h1>GitHub Radar · quét theo yêu cầu</h1>
+  <p class="muted small">Trang này chạy hoàn toàn trong trình duyệt của bạn và chỉ nói chuyện với <code>api.github.com</code>. Nó gửi lệnh chạy workflow <code>radar.yml</code>; việc quét, viết bài và lưu kết quả vẫn do GitHub Actions làm. Token chỉ nằm trong bộ nhớ của trang này và mất khi bạn đóng hoặc tải lại trang.</p>
+
+  <section id="connect">
+    <h2>1. Kết nối</h2>
+    <label for="repo">Repo (<code>chủ/tên</code>)</label>
+    <input id="repo" type="text" autocomplete="off" spellcheck="false">
+    <p id="origin-warning" class="bad" role="alert" hidden>Trang này đang chạy trên github.io: mọi trang của cùng một chủ dùng chung một origin ở đó, nên một trang khác có thể mở trang này và đọc ô token. Vì vậy trang không nhận token ở đây. Hãy tải file về mở trực tiếp, hoặc mở qua <code>python3 -m http.server</code> trên máy bạn (xem docs/ui.md).</p>
+    <label for="token">Token (fine-grained, chỉ repo này, quyền <b>Actions: Read and write</b>, không cần quyền nào khác)</label>
+    <input id="token" type="password" autocomplete="off" spellcheck="false">
+    <div class="actions">
+      <button id="check" type="button">Kiểm tra token</button>
+      <button id="forget" type="button">Quên token</button>
+    </div>
+    <p id="connect-msg" class="msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="conditions">
+    <h2>2. Điều kiện quét</h2>
+    <label for="preset">Bộ điều kiện đã lưu</label>
+    <select id="preset"></select>
+    <p id="preset-note" class="muted small"></p>
+    <div class="row">
+      <div><label for="picks">Số bài</label><input id="picks" type="number" min="1" max="10" step="1"></div>
+      <div><label for="min_stars">Sàn sao</label><input id="min_stars" type="number" min="0" step="1"></div>
+      <div><label for="max_days">Commit trong (ngày)</label><input id="max_days" type="number" min="1" step="1"></div>
+    </div>
+    <label>Ngôn ngữ bài viết <span class="muted small">(mỗi ngôn ngữ thêm là thêm lượt gọi model)</span></label>
+    <div>
+      <label class="inline"><input id="lang-vi" type="checkbox"> Tiếng Việt</label>
+      <label class="inline"><input id="lang-en" type="checkbox"> English</label>
+      <label class="inline"><input id="lang-ja" type="checkbox"> 日本語</label>
+    </div>
+    <label>Repo đang lên (tạo gần đây, ít sao hơn)</label>
+    <div><label class="inline"><input id="rising-enabled" type="checkbox"> Bật lượt tìm repo trẻ</label></div>
+    <div class="row">
+      <div><label for="rising-slots">Số suất</label><input id="rising-slots" type="number" min="0" max="10" step="1"></div>
+      <div><label for="rising-days">Tạo trong (ngày)</label><input id="rising-days" type="number" min="1" step="1"></div>
+      <div><label for="rising-stars">Sàn sao</label><input id="rising-stars" type="number" min="0" step="1"></div>
+    </div>
+    <label>Nhóm và topic <span class="muted small">(bỏ chọn nhóm để không quét nhóm đó; topic ngăn cách bằng dấu phẩy)</span></label>
+    <div id="buckets"></div>
+    <label for="single">Hoặc chỉ quét đúng một repo <span class="muted small">(chủ/tên; để trống để quét theo điều kiện trên)</span></label>
+    <div class="row">
+      <div><input id="single" type="text" autocomplete="off" spellcheck="false" placeholder="ví dụ: owner/name"></div>
+      <div><select id="single-bucket"></select></div>
+    </div>
+    <ul id="problems" class="problems"></ul>
+    <p id="estimate" class="muted" role="status"></p>
+    <label for="json">Điều kiện dạng JSON <span class="muted small">(dán vào <code>radar/presets.json</code> nếu muốn lưu thành bộ mới)</span></label>
+    <textarea id="json" readonly spellcheck="false"></textarea>
+    <div class="actions"><button id="copy" type="button">Sao chép JSON</button></div>
+  </section>
+
+  <section id="run">
+    <h2>3. Quét</h2>
+    <label class="inline"><input id="dry" type="checkbox" checked> Quét thử: chỉ xếp hạng, không gọi model, không ghi gì</label>
+    <div id="confirm-box" class="box" hidden>
+      <p><b>Quét thật</b> gọi model, ghi bài vào <code>main</code> (hoặc mở PR nếu đã cấu hình) và mở PR nháp vào studio, dùng hạn mức model miễn phí của bạn. Gõ <b>QUET</b> để xác nhận.</p>
+      <input id="confirm" type="text" autocomplete="off" spellcheck="false" aria-label="Gõ QUET để xác nhận">
+    </div>
+    <div class="actions"><button id="go" type="button" class="primary" disabled>Quét ngay</button></div>
+    <p id="busy-note" class="muted small" role="status"></p>
+    <p id="msg" class="msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="runs">
+    <h2>4. Các lượt chạy gần đây</h2>
+    <table>
+      <thead><tr><th>Thời điểm</th><th>Trạng thái</th><th></th></tr></thead>
+      <tbody id="runs-body"></tbody>
+    </table>
+    <div class="actions"><button id="refresh" type="button">Làm mới</button></div>
+    <p class="muted small">Kết quả của lượt quét thử nằm trong phần <i>Summary</i> của lượt chạy (mục "Radar run"). Lượt quét thật ghi bài vào thư mục <code>digests/</code>.</p>
+  </section>
+</main>
+<script type="application/json" id="radar-data">
+{
+ "defaultRepo": "vohoailinh90/Github-radar",
+ "schema": {
+  "ints": {
+   "picks_per_run": [
+    1,
+    10
+   ],
+   "min_stars": [
+    0,
+    1000000
+   ],
+   "max_days_since_push": [
+    1,
+    3650
+   ]
+  },
+  "rising_ints": {
+   "slots": [
+    0,
+    10
+   ],
+   "created_within_days": [
+    1,
+    1825
+   ],
+   "min_stars": [
+    0,
+    1000000
+   ]
+  },
+  "langs": [
+   "vi",
+   "en",
+   "ja"
+  ],
+  "topic_pattern": "[a-z0-9][a-z0-9-]{0,49}",
+  "bucket_id_pattern": "[a-z][a-z0-9-]{0,19}",
+  "max_topics_per_bucket": 8,
+  "max_json_chars": 4000
+ },
+ "base": {
+  "picks_per_run": 3,
+  "min_stars": 1500,
+  "max_days_since_push": 120,
+  "langs": [
+   "vi"
+  ],
+  "rising": {
+   "enabled": true,
+   "slots": 1,
+   "created_within_days": 120,
+   "min_stars": 300
+  },
+  "buckets": {
+   "ai": [
+    "llm",
+    "ai-agents",
+    "rag",
+    "machine-learning"
+   ],
+   "software": [
+    "developer-tools",
+    "self-hosted",
+    "cli",
+    "productivity"
+   ],
+   "solutions": [
+    "automation",
+    "workflow",
+    "open-source-alternative",
+    "low-code"
+   ],
+   "startup": [
+    "saas",
+    "startup",
+    "boilerplate",
+    "indie-hacker"
+   ]
+  }
+ },
+ "costs": {
+  "pace_seconds": 45,
+  "search_interval_seconds": 2.1
+ },
+ "emoji": {
+  "ai": "🤖",
+  "software": "🧰",
+  "solutions": "🧩",
+  "startup": "🚀"
+ },
+ "presets": {
+  "ai-sau": {
+   "label": "AI: quét sâu mảng AI",
+   "conditions": {
+    "buckets": {
+     "ai": [
+      "llm",
+      "ai-agents",
+      "rag",
+      "machine-learning"
+     ]
+    },
+    "picks_per_run": 3
+   }
+  },
+  "repo-moi-noi": {
+   "label": "Repo mới nổi (tạo trong 90 ngày)",
+   "conditions": {
+    "picks_per_run": 4,
+    "rising": {
+     "enabled": true,
+     "slots": 2,
+     "created_within_days": 90,
+     "min_stars": 200
+    }
+   }
+  },
+  "khoi-nghiep-saas": {
+   "label": "Khởi nghiệp và SaaS",
+   "conditions": {
+    "buckets": {
+     "startup": [
+      "saas",
+      "startup",
+      "boilerplate",
+      "indie-hacker"
+     ]
+    },
+    "picks_per_run": 2
+   }
+  },
+  "cong-cu-dev": {
+   "label": "Công cụ cho lập trình viên",
+   "conditions": {
+    "buckets": {
+     "software": [
+      "developer-tools",
+      "self-hosted",
+      "cli",
+      "productivity"
+     ]
+    },
+    "picks_per_run": 2
+   }
+  },
+  "quet-nhanh": {
+   "label": "Quét nhanh: 1 bài",
+   "conditions": {
+    "picks_per_run": 1,
+    "rising": {
+     "enabled": false,
+     "slots": 0
+    }
+   }
+  }
+ }
+}
+</script>
+<script>
+(() => {
+"use strict";
+// A page inside someone else's frame could be clicked through: a meta CSP cannot forbid framing, so refuse to run framed.
+if (window.top !== window.self) {
+  document.documentElement.textContent = "Trang này không chạy trong khung nhúng.";
+  throw new Error("framed");
+}
+const DATA = JSON.parse(document.getElementById("radar-data").textContent);
+// github.io serves every site of an owner from ONE origin, so a sibling site's script can open this page and read the token field (same-origin windows
+// reach into each other; the CSP and the frame check do not stop that). Take no token there.
+const SHARED_ORIGIN = /^https?:\/\/[^/]*\.github\.io\.?(:\d+)?$/i.test(window.origin);      // any scheme: Pages answers on http too until HTTPS is enforced
+const API = "https://api.github.com";
+
+/* LOGIC:BEGIN (pure: no DOM, no network; tests/test_ui.py runs it under Node against radar/conditions.py) */
+const SEGMENT = /^[A-Za-z0-9._-]{1,100}$/;
+const TOPIC = new RegExp("^" + DATA.schema.topic_pattern + "$");
+const INTS = DATA.schema.ints;
+const RISING = DATA.schema.rising_ints;
+
+function isRepo(text) {
+  const parts = String(text).split("/");
+  return parts.length === 2 && parts.every((p) => SEGMENT.test(p) && p !== "." && p !== "..");
+}
+// A branch name as `git check-ref-format` reads it. It only ever travels inside JSON (never a shell or a URL), so this guards against a wrong
+// answer, not against injection: it must not refuse names GitHub allows, such as release@next. (Git sets no length limit, so neither does this.)
+function isBranch(name) {
+  return typeof name === "string" && name.length > 0 && !/[\x00-\x20\x7f~^:?*[\\]/.test(name) && !name.includes("..") &&
+    !name.includes("@{") && name !== "@" && !/^[-/.]|[/.]$|\/\/|\/\.|\.lock(\/|$)/.test(name);
+}
+function clone(x) { return JSON.parse(JSON.stringify(x)); }
+function canon(x) {
+  if (Array.isArray(x)) return x.map(canon);
+  if (x && typeof x === "object") { const o = {}; for (const k of Object.keys(x).sort()) o[k] = canon(x[k]); return o; }
+  return x;
+}
+// `top` over `base`, key by key; rising setting by setting, buckets replaced as a whole (radar/conditions.py merge)
+function merge(base, top) {
+  const out = clone(base);
+  for (const k of Object.keys(top)) out[k] = (k === "rising" && base.rising) ? Object.assign({}, base.rising, top.rising) : clone(top[k]);
+  return out;
+}
+function resolve(name) {
+  const preset = name && Object.prototype.hasOwnProperty.call(DATA.presets, name) ? DATA.presets[name] : null;
+  return preset ? merge(DATA.base, preset.conditions) : clone(DATA.base);
+}
+function risingSlots(v) { return v.rising.enabled ? Math.min(v.rising.slots, Math.floor(v.picks_per_run / 2)) : 0; }
+function roundHalfEven(x) {            // Python's round(): the estimate must print the same numbers as `radar.py presets`
+  const f = Math.floor(x), d = x - f;
+  if (d < 0.5) return f;
+  if (d > 0.5) return f + 1;
+  return f % 2 === 0 ? f : f + 1;
+}
+function estimate(v) {
+  const topics = Object.values(v.buckets).reduce((n, t) => n + t.length, 0);
+  const passes = risingSlots(v) > 0 ? 2 : 1;
+  const posts = v.picks_per_run * v.langs.length;
+  return { searches: topics * passes, search_seconds: roundHalfEven(topics * passes * DATA.costs.search_interval_seconds),
+           model_calls: posts * 2, pace_seconds: Math.max(0, posts - 1) * roundHalfEven(DATA.costs.pace_seconds) };
+}
+// Vietnamese messages for everything radar/conditions.py and config.validate would refuse; the runner stays the authority
+function problems(v) {
+  const out = [];
+  const whole = (value, range, label) => {
+    if (!Number.isInteger(value) || value < range[0] || value > range[1]) out.push(label + ": số nguyên từ " + range[0] + " đến " + range[1]);
+  };
+  whole(v.picks_per_run, INTS.picks_per_run, "Số bài");
+  whole(v.min_stars, INTS.min_stars, "Sàn sao");
+  whole(v.max_days_since_push, INTS.max_days_since_push, "Số ngày kể từ commit cuối");
+  whole(v.rising.slots, RISING.slots, "Số suất repo đang lên");
+  whole(v.rising.created_within_days, RISING.created_within_days, "Tuổi tối đa của repo trẻ");
+  whole(v.rising.min_stars, RISING.min_stars, "Sàn sao của repo trẻ");
+  if (!v.langs.length) out.push("Chọn ít nhất một ngôn ngữ");
+  if (Number.isInteger(v.rising.slots) && Number.isInteger(v.picks_per_run) && v.rising.slots > v.picks_per_run) out.push("Số suất repo đang lên không được lớn hơn số bài");
+  const ids = Object.keys(v.buckets);
+  if (!ids.length) out.push("Chọn ít nhất một nhóm");
+  for (const id of ids) {
+    const topics = v.buckets[id];
+    if (!topics.length || topics.length > DATA.schema.max_topics_per_bucket) out.push("Nhóm " + id + ": từ 1 đến " + DATA.schema.max_topics_per_bucket + " topic");
+    else if (new Set(topics).size !== topics.length) out.push("Nhóm " + id + ": có topic bị lặp");
+    const badTopic = topics.find((t) => !TOPIC.test(t));
+    if (badTopic !== undefined) out.push("\"" + badTopic.slice(0, 30) + "\" không phải topic GitHub (chữ thường, số, gạch ngang, tối đa 50 ký tự)");
+  }
+  if (!out.length && JSON.stringify(canon(v)).length > DATA.schema.max_json_chars) out.push("Điều kiện dài quá " + DATA.schema.max_json_chars + " ký tự");
+  return out;
+}
+// Only what the person changed: the fields whose value differs from the chosen preset (or radar.yaml). Everything else is left to the runner, which applies
+// the conditions on top of its own, current preset and radar.yaml; sending the whole snapshot would pin a page that has gone out of date. `rising` goes
+// setting by setting (the runner merges it that way); every other field, buckets included, goes whole (the runner replaces those whole).
+function delta(v, base) {
+  const same = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b));
+  const out = {};
+  for (const k of Object.keys(v)) {
+    if (k === "rising") {
+      const r = {};
+      for (const f of Object.keys(v.rising)) if (!same(v.rising[f], base.rising[f])) r[f] = v.rising[f];
+      if (Object.keys(r).length) out.rising = r;
+    } else if (!same(v[k], base[k])) out[k] = clone(v[k]);
+  }
+  return out;
+}
+// What goes into the workflow's inputs.
+function dispatchInputs(v, presetName, dry, single, bucket) {
+  const changed = delta(v, resolve(presetName));
+  return { dry_run: dry ? "true" : "false", preset: presetName || "none", conditions: Object.keys(changed).length ? JSON.stringify(canon(changed)) : "",
+           repo: single || "", bucket: bucket || "" };
+}
+// A single repository skips the search and writes one repository in every language (radar/discover.py requested), whatever the number of posts says.
+function estimateFor(v, singleRepo) { return singleRepo ? estimate(Object.assign({}, v, { picks_per_run: 1, buckets: {} })) : estimate(v); }
+// A dry run stops after the ranking (radar/pipeline.py: `if dry_run`): it searches, but calls no model and pauses between no posts.
+function estimateRun(v, singleRepo, dry) { return Object.assign({}, estimateFor(v, singleRepo), dry ? { model_calls: 0, pace_seconds: 0 } : {}); }
+// The bucket of a single repository must be one the scan keeps: the runner refuses a bucket the conditions have left out.
+function bucketFor(v, singleRepo, chosen) { return singleRepo && Object.prototype.hasOwnProperty.call(v.buckets, chosen) ? chosen : ""; }
+// GitHub run ids only grow: a run with a larger id than any listed before the send is the one the send started, whatever the clocks say.
+function newestId(runs) { return runs.reduce((m, r) => (r && Number.isInteger(r.id) && r.id > m ? r.id : m), 0); }
+// The runs a new dispatch could replace: `radar.yml` allows ONE waiting run per group (`concurrency: radar`), so a listed run that is queued and not yet
+// running may be cancelled by the next send. Whether GitHub calls a run held by the group "pending" or "queued" is unverified, so every active run that is
+// not in progress counts.
+function replaceable(runs) { return runs.filter((r) => r && Number.isInteger(r.id) && typeof r.status === "string" && runState(r).active && r.status !== "in_progress").map((r) => r.id).sort((a, b) => a - b); }
+function runState(run) {
+  const active = ["queued", "pending", "waiting", "requested", "in_progress"].includes(run.status);
+  if (active) return { active: true, text: run.status === "in_progress" ? "Đang chạy" : "Đang chờ" };
+  const text = { success: "Xong", failure: "Lỗi", cancelled: "Đã hủy (có thể bị thay bằng một yêu cầu mới hơn)", skipped: "Bỏ qua", timed_out: "Quá thời gian" }[run.conclusion];
+  return { active: false, text: text || "Kết thúc (" + String(run.conclusion).slice(0, 20) + ")" };
+}
+/* LOGIC:END */
+
+const $ = (id) => document.getElementById(id);
+// The token is only ever the text of its own password field: nothing else stores it, and it is cleared when the page is left.
+const token = () => (SHARED_ORIGIN ? "" : $("token").value.trim());
+// The default branch is only good for the repository it was read from; a request that finishes after the field changed must not set it for another one.
+let branch = { repo: "", name: "" };
+let pollTimer = null;
+let sending = false;
+let session = 0;                                     // counts "Quên token": a send that was under way when it happened must not leave anything behind
+let askedFor = "";                                   // the waiting runs the person has already been told a send could replace (repo + ids): a second click confirms
+let lastActive = false;                              // was any listed run queued or running at the last good look: not knowing is not "finished", so keep looking
+let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
+// The send I am following in each repository I sent to (so typing another name, even sending there, and coming back keeps the lock):
+// repo -> { sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
+//   active: was that run last seen queued or running, checked: when a look at the list last succeeded }.
+const watches = new Map();
+const repoKey = (repo) => repo.toLowerCase();                  // GitHub reads owner and repository names without regard to case (the pattern allows ASCII only)
+const watchOf = (repo) => watches.get(repoKey(repo)) || null;
+const DISCOVERY_MS = 120000;
+
+function say(id, text, kind) {
+  const node = $(id);
+  node.textContent = text;
+  node.className = "msg" + (kind ? " " + kind : "");
+}
+function el(tag, text, attrs) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+  return node;
+}
+
+// ---- GitHub ---------------------------------------------------------------------------------------------------------
+async function call(method, path, body) {
+  const headers = { "Accept": "application/vnd.github+json", "Authorization": "Bearer " + token() };
+  const init = { method, headers, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" };
+  if (body !== undefined) { headers["Content-Type"] = "application/json"; init.body = JSON.stringify(body); }
+  const res = await fetch(API + path, init);
+  let data = null;
+  try { data = await res.json(); } catch (e) { data = null; }      // a 204 has no body
+  return { status: res.status, data };
+}
+function explain(status, data) {
+  if (status === 401) return "Token sai hoặc đã hết hạn.";
+  if (status === 403) return "Token không đủ quyền: cần Actions: Read and write trên repo này (hoặc GitHub đang giới hạn tốc độ).";
+  if (status === 404) return "Không thấy repo hoặc workflow radar.yml: kiểm tra tên repo, và token phải được cấp cho đúng repo này.";
+  if (status === 422) return "GitHub từ chối đầu vào: " + String((data && data.message) || "").slice(0, 200);
+  return "GitHub trả mã " + status + ".";
+}
+function repoName() { return $("repo").value.trim(); }
+// All runs of the workflow, scheduled ones too: they share the `radar` concurrency group, so a waiting scheduled scan can be replaced by a manual one.
+function runsPath(repo) { return "/repos/" + repo + "/actions/workflows/radar.yml/runs?per_page=10"; }
+// Nothing may be sent while a send is under way, my run is queued or running, or a send was accepted and its run is not listed yet (a second send
+// could replace the waiting one). The button shows it; go() enforces it, so a double click or a forced click cannot get around it.
+function watching() { return watchOf(repoName()) !== null; }
+// Does this send still forbid another one? While its run is active; or while it has not been listed yet, until a look that SUCCEEDED after the wait
+// found nothing: not looking, or a look that failed, is not evidence that there is no run.
+function holds(w) { return w !== null && (w.active || (!w.seen && !(w.checked >= w.sentAt + DISCOVERY_MS))); }
+function busy() { return sending || holds(watchOf(repoName())); }
+
+async function checkToken() {
+  const repo = repoName();
+  if (!isRepo(repo)) return say("connect-msg", "Tên repo phải dạng chủ/tên.", "bad");
+  if (!token()) return say("connect-msg", "Dán token trước.", "bad");
+  say("connect-msg", "Đang kiểm tra…");
+  try {
+    const info = await call("GET", "/repos/" + repo);
+    if (info.status !== 200) return say("connect-msg", explain(info.status, info.data), "bad");
+    const name = info.data && info.data.default_branch;
+    if (!isBranch(name)) return say("connect-msg", "GitHub không trả nhánh mặc định hợp lệ.", "bad");
+    const flow = await call("GET", "/repos/" + repo + "/actions/workflows/radar.yml");
+    if (flow.status !== 200) return say("connect-msg", explain(flow.status, flow.data), "bad");
+    branch = { repo: repoKey(repo), name };
+    if (repoName() !== repo) return say("connect-msg", "Tên repo đã đổi trong lúc kiểm tra: bấm kiểm tra lại.", "warn");
+    say("connect-msg", "Token đọc được repo và workflow radar.yml (sẽ chạy trên nhánh " + name.slice(0, 80) + "). Quyền ghi Actions chưa kiểm được: GitHub chỉ cho biết khi bạn gửi lượt đầu.", "ok");
+  } catch (e) {
+    say("connect-msg", "Không kết nối được api.github.com.", "bad");
+  }
+  refresh();
+  if (watching()) loadRuns();                                         // a token that works again: find out where the run I sent stands
+}
+
+// ---- form -----------------------------------------------------------------------------------------------------------
+const LANGS = Object.keys({ vi: 1, en: 1, ja: 1 }).filter((l) => DATA.schema.langs.includes(l));
+const BUCKET_IDS = Object.keys(DATA.base.buckets);
+
+function writeValues(v) {
+  $("picks").value = v.picks_per_run;
+  $("min_stars").value = v.min_stars;
+  $("max_days").value = v.max_days_since_push;
+  for (const l of LANGS) $("lang-" + l).checked = v.langs.includes(l);
+  $("rising-enabled").checked = v.rising.enabled;
+  $("rising-slots").value = v.rising.slots;
+  $("rising-days").value = v.rising.created_within_days;
+  $("rising-stars").value = v.rising.min_stars;
+  for (const id of BUCKET_IDS) {
+    $("bucket-" + id).checked = Object.prototype.hasOwnProperty.call(v.buckets, id);
+    $("topics-" + id).value = (v.buckets[id] || DATA.base.buckets[id]).join(", ");
+  }
+}
+function readValues() {
+  const whole = (id) => { const raw = $(id).value.trim(); return /^-?\d+$/.test(raw) ? Number(raw) : NaN; };
+  const buckets = {};
+  for (const id of BUCKET_IDS) {
+    if ($("bucket-" + id).checked) buckets[id] = $("topics-" + id).value.split(",").map((t) => t.trim()).filter((t) => t !== "");
+  }
+  return { picks_per_run: whole("picks"), min_stars: whole("min_stars"), max_days_since_push: whole("max_days"),
+           langs: LANGS.filter((l) => $("lang-" + l).checked),
+           rising: { enabled: $("rising-enabled").checked, slots: whole("rising-slots"), created_within_days: whole("rising-days"), min_stars: whole("rising-stars") },
+           buckets };
+}
+// The single-repository bucket list follows the buckets the scan keeps: a preset or an unticked bucket must not leave a choice the runner would refuse.
+function syncBucketChoices(v) {
+  const ids = BUCKET_IDS.filter((id) => Object.prototype.hasOwnProperty.call(v.buckets, id));
+  const select = $("single-bucket");
+  if ([...select.options].slice(1).map((o) => o.value).join() === ids.join()) return;
+  const chosen = select.value;
+  select.replaceChildren(el("option", "Nhóm: tự đoán từ topic", { value: "" }), ...ids.map((id) => el("option", (DATA.emoji[id] || "") + " " + id, { value: id })));
+  select.value = ids.includes(chosen) ? chosen : "";
+}
+function selectedPreset() { const name = $("preset").value; return name === "none" ? "" : name; }
+function single() { return $("single").value.trim(); }
+
+function refresh() {
+  const v = readValues();
+  const issues = problems(v);
+  const list = $("problems");
+  list.replaceChildren(...issues.map((t) => el("li", t)));
+  const singleText = single();
+  if (singleText && !isRepo(singleText)) list.append(el("li", "Repo cần quét phải dạng chủ/tên."));
+  syncBucketChoices(v);
+  if (!issues.length) {
+    const one = singleText !== "" && isRepo(singleText);
+    const dryRun = $("dry").checked;
+    const e = estimateRun(v, one, dryRun);
+    $("estimate").textContent = "Ước tính: " + (one ? "quét đúng một repo (không tìm kiếm, bỏ qua số bài), " : "ít nhất " + e.searches + " lượt tìm (khoảng " + e.search_seconds + " giây), ") +
+      (dryRun ? "quét thử nên không gọi model và không nghỉ giữa các bài." : "khoảng " + e.model_calls + " lượt gọi model" + (one ? " (vòng sửa và thử lại sẽ thêm)" : " nếu tìm đủ số bài (ít hơn nếu thiếu repo; vòng sửa và thử lại sẽ thêm)") +
+        " và khoảng " + e.pace_seconds + " giây nghỉ giữa các bài. Thời gian chờ model là phần lâu nhất.");
+    $("json").value = JSON.stringify(canon(v), null, 2);
+  } else {
+    $("estimate").textContent = "";
+    $("json").value = "";
+  }
+  const dry = $("dry").checked;
+  $("confirm-box").hidden = dry;
+  const confirmed = dry || $("confirm").value === "QUET";
+  const ready = isRepo(repoName()) && token() !== "" && !issues.length && !(singleText && !isRepo(singleText)) && confirmed && !busy();
+  $("busy-note").textContent = holds(watchOf(repoName())) ? "Đang theo dõi lượt vừa gửi: nút mở lại khi lượt đó xong. Bấm Làm mới để kiểm tra ngay." : "";
+  $("go").disabled = !ready;
+  $("go").textContent = dry ? "Quét thử" : "Quét thật";
+}
+
+// ---- running --------------------------------------------------------------------------------------------------------
+async function go() {
+  const v = readValues();
+  const repo = repoName(), singleRepo = single(), dry = $("dry").checked, presetName = selectedPreset();      // read once: the fields may change while we wait
+  if (busy() || problems(v).length || !isRepo(repo) || !token() || (singleRepo && !isRepo(singleRepo))) return;
+  if (!dry && $("confirm").value !== "QUET") return;
+  const bucket = bucketFor(v, singleRepo, $("single-bucket").value);
+  const epoch = session;
+  const forgotten = () => epoch !== session;                            // "Quên token" was pressed while this send was under way
+  sending = true;
+  refresh();
+  say("msg", "Đang gửi lệnh…");
+  let attempt = null;                                                   // set once the send is under way: from then on a run may exist
+  try {
+    let ref = branch.repo === repoKey(repo) ? branch.name : "";
+    if (!ref) {
+      const info = await call("GET", "/repos/" + repo);
+      const name = info.status === 200 && info.data && info.data.default_branch;
+      if (forgotten()) { say("msg", "Đã xóa token: chưa gửi gì.", "warn"); return; }
+      if (!isBranch(name)) { say("msg", explain(info.status, info.data), "bad"); return; }
+      ref = name;
+      branch = { repo: repoKey(repo), name };
+    }
+    const inputs = dispatchInputs(v, presetName, dry, singleRepo, bucket);
+    const listed = await call("GET", runsPath(repo));                       // what exists before the send, to recognise the run the send starts
+    if (forgotten()) { say("msg", "Đã xóa token: chưa gửi gì.", "warn"); return; }
+    if (listed.status !== 200 || !listed.data || !Array.isArray(listed.data.workflow_runs)) {
+      say("msg", "Chưa gửi: không đọc được danh sách lượt chạy để theo dõi lượt vừa gửi. " + explain(listed.status, listed.data), "bad");
+      return;
+    }
+    const waitingRuns = replaceable(listed.data.workflow_runs);
+    const key = repoKey(repo) + ":" + waitingRuns.join(",");
+    if (waitingRuns.length && askedFor !== key) {                        // a waiting run exists: tell the person once, send only on the second click
+      askedFor = key;
+      say("msg", "Đang có " + waitingRuns.length + " lượt chờ trong hàng; GitHub chỉ giữ một lượt chờ nên gửi lúc này có thể thay nó. Bấm lần nữa nếu vẫn muốn gửi.", "warn");
+      return;
+    }
+    attempt = { before: newestId(listed.data.workflow_runs), sentAt: Date.now() };
+    const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
+    if (forgotten()) { say("msg", "Bạn đã xóa token lúc đang gửi: lệnh có thể đã tới GitHub, hãy xem tab Actions của repo. Trang không theo dõi nữa.", "warn"); return; }
+    if (res.status >= 500) throw new Error("no clear answer");           // a gateway error can follow an accepted send: treat it like a lost answer
+    if (res.status !== 204) {                                           // GitHub refused: nothing was sent, nothing to wait for
+      branch = { repo: "", name: "" };                                  // and the branch read earlier may be the reason (renamed since): read it again next time
+      say("msg", explain(res.status, res.data), "bad");
+      return;
+    }
+    askedFor = "";
+    watchSent(attempt, repo);
+    say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
+    await loadRuns();
+  } catch (e) {
+    if (forgotten()) say("msg", "Bạn đã xóa token lúc đang gửi: lệnh có thể đã tới GitHub, hãy xem tab Actions của repo. Trang không theo dõi nữa.", "warn");
+    else if (attempt === null) say("msg", "Không kết nối được api.github.com.", "bad");
+    else {                                                                // the answer to the send was lost: it may have been accepted, so do not allow a second one yet
+      askedFor = "";
+      watchSent(attempt, repo);
+      say("msg", "Mất kết nối lúc gửi: chưa biết lệnh đã tới GitHub chưa. Trang đợi tối đa 2 phút xem có lượt mới hiện ra; đừng gửi lại ngay.", "warn");
+      await loadRuns();
+    }
+  } finally {
+    if (!forgotten()) sending = false;                                  // after "Quên token" the flag belongs to whatever send came next
+    refresh();
+  }
+}
+
+// From a send that may have started a run: recognise that run by its id and keep the button off until it is listed (or the wait ends).
+function watchSent(attempt, repo) {
+  watches.set(repoKey(repo), { sentAt: attempt.sentAt, baseline: attempt.before, seen: false, active: false, checked: 0 });
+  $("confirm").value = "";
+}
+
+async function loadRuns() {
+  clearTimeout(pollTimer);
+  const look = ++looks;
+  const repo = repoName();                                   // one repository for the request and for every link below
+  if (!isRepo(repo) || !token()) return;
+  let anyActive = false;
+  try {
+    const res = await call("GET", runsPath(repo));
+    if (look !== looks) return;                              // a newer look was started meanwhile; this answer may be older than what that one saw
+    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { say("msg", explain(res.status, res.data), "bad"); return; }      // not knowing is not "finished": the lock stays as it was
+    const mineOf = watchOf(repo);
+    const rows = [];
+    let mineActive = false, seenMine = false;
+    for (const run of res.data.workflow_runs.slice(0, 10)) {
+      if (!run || !Number.isInteger(run.id) || typeof run.status !== "string" || typeof run.created_at !== "string") continue;
+      const state = runState(run);
+      const mine = mineOf !== null && run.id > mineOf.baseline;
+      anyActive = anyActive || state.active;
+      mineActive = mineActive || (mine && state.active);
+      seenMine = seenMine || mine;
+      const when = new Date(run.created_at);
+      const link = el("a", "Mở trên GitHub", { href: "https://github.com/" + repo + "/actions/runs/" + run.id, target: "_blank", rel: "noopener noreferrer" });
+      const tr = el("tr");
+      rows.push(tr);
+      tr.append(el("td", Number.isNaN(when.getTime()) ? "?" : when.toLocaleString("vi-VN")),
+                el("td", state.text + (mine ? " (lượt bạn vừa gửi)" : "")), el("td"));
+      tr.lastChild.append(link);
+    }
+    lastActive = anyActive;
+    if (mineOf !== null) { mineOf.active = mineActive; mineOf.seen = mineOf.seen || seenMine; mineOf.checked = Date.now(); }
+    $("runs-body").replaceChildren(...rows);
+  } catch (e) {
+    if (look === looks) say("msg", "Không tải được danh sách lượt chạy.", "bad");
+  } finally {
+    if (look === looks) {
+      // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
+      if (lastActive || holds(watchOf(repo))) pollTimer = setTimeout(loadRuns, 10000);
+      refresh();
+    }
+  }
+}
+
+async function copyJson() {
+  const box = $("json");
+  if (!box.value) return;
+  try { await navigator.clipboard.writeText(box.value); say("msg", "Đã sao chép.", "ok"); }
+  catch (e) { box.select(); say("msg", "Hãy nhấn Ctrl+C để sao chép phần đã chọn.", "warn"); }
+}
+
+// ---- start ----------------------------------------------------------------------------------------------------------
+$("repo").value = DATA.defaultRepo;
+$("preset").append(el("option", "Không dùng (radar.yaml nguyên trạng)", { value: "none" }));
+for (const name of Object.keys(DATA.presets)) $("preset").append(el("option", DATA.presets[name].label + " (" + name + ")", { value: name }));
+$("single-bucket").append(el("option", "Nhóm: tự đoán từ topic", { value: "" }));
+for (const id of BUCKET_IDS) {
+  $("single-bucket").append(el("option", (DATA.emoji[id] || "") + " " + id, { value: id }));
+  const row = el("div", undefined, { class: "bucket" });
+  const label = el("label", undefined, { class: "inline", for: "bucket-" + id });
+  label.append(el("input", undefined, { id: "bucket-" + id, type: "checkbox" }), document.createTextNode((DATA.emoji[id] || "") + " " + id));
+  row.append(label, el("input", undefined, { id: "topics-" + id, type: "text", autocomplete: "off", spellcheck: "false", "aria-label": "Topic của nhóm " + id }));
+  $("buckets").append(row);
+}
+writeValues(resolve(""));
+if (SHARED_ORIGIN) {
+  $("origin-warning").hidden = false;
+  $("token").disabled = true;
+  $("check").disabled = true;
+}
+
+$("preset").addEventListener("change", () => {
+  const name = selectedPreset();
+  writeValues(resolve(name));
+  $("preset-note").textContent = name ? "Đã điền theo bộ \"" + DATA.presets[name].label + "\". Bạn vẫn sửa được từng ô; chỉ phần khác bộ này được gửi kèm." : "";
+  refresh();
+});
+for (const node of document.querySelectorAll("input, select")) {
+  const changed = () => {
+    if (node.id === "repo") {                                       // another repository: whatever was being loaded for the old one must not land in this one's table
+      looks++;
+      lastActive = false;
+      askedFor = "";
+      clearTimeout(pollTimer);
+      $("runs-body").replaceChildren();
+    }
+    refresh();
+    if (node.id === "repo" && watching() && token() !== "") loadRuns();      // back on a repository I sent to: find out where its run stands
+  };
+  node.addEventListener("input", changed);
+  node.addEventListener("change", changed);
+}
+// Leaving the token field with a token in it while a send is being followed (cleared and pasted back, or pasted after "Quên token"): look again.
+// Not `change`: pasting the same value again in one visit to the field fires none.
+$("token").addEventListener("blur", () => { if (watching() && token() !== "") loadRuns(); });
+$("check").addEventListener("click", checkToken);
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; session++; sending = false; lastActive = false; askedFor = ""; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("go").addEventListener("click", go);
+$("refresh").addEventListener("click", loadRuns);
+$("copy").addEventListener("click", copyJson);
+window.addEventListener("pagehide", () => { $("token").value = ""; });
+refresh();
+})();
+</script>
+</body>
+</html>

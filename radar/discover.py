@@ -6,9 +6,12 @@ import datetime as dt
 import math
 import re
 
+from . import conditions, history
 from .net import HttpError
 
 FALLBACK_BUCKET = "software"     # for a requested repo none of whose topics is in any bucket
+LOW_FORKS_PER_1K = 10            # flag (never a filter): fewer forks than this per 1,000 stars
+SPIKE_RATIO = 0.25               # flag (never a filter): gained this share of all its stars within one measured window
 _SEGMENT = re.compile(r"[A-Za-z0-9._-]+")
 
 
@@ -16,8 +19,9 @@ def _days(iso: str, today: dt.date) -> int:
     return max(0, (today - dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).date()).days)
 
 
-def eligible(repo: dict, cfg: dict, seen: dict, today: dt.date) -> str | None:
-    """None when the repo may be picked, else the reason it was dropped."""
+def eligible(repo: dict, cfg: dict, seen: dict, today: dt.date, min_stars: int | None = None) -> str | None:
+    """None when the repo may be picked, else the reason it was dropped. `min_stars` overrides the configured floor
+    (the rising pass has a lower one)."""
     name = repo.get("full_name", "")
     spdx = ((repo.get("license") or {}).get("spdx_id") or "").lower()
     if name in seen:
@@ -28,66 +32,138 @@ def eligible(repo: dict, cfg: dict, seen: dict, today: dt.date) -> str | None:
         return "archived, fork, disabled or private"
     if not (repo.get("description") or "").strip():
         return "no description"
-    if int(repo.get("stargazers_count", 0)) < int(cfg["min_stars"]):
+    if int(repo.get("stargazers_count", 0)) < int(cfg["min_stars"] if min_stars is None else min_stars):
         return "below min_stars"
     if _days(repo.get("pushed_at", "1970-01-01T00:00:00Z"), today) > int(cfg["max_days_since_push"]):
         return "not pushed recently"
     return None
 
 
-def score(repo: dict, today: dt.date) -> float:
-    """ln(stars) + half of ln(stars gained per 30 days of life) + 1 if pushed in the last 30 days.
+def momentum(repo: dict, today: dt.date, hist: dict | None = None) -> dict:
+    """Stars gained per 30 days, and where the number comes from.
+
+    "measured": the difference to a stored snapshot (radar.history), the only honest "what is climbing now".
+    "lifetime": stars / age, used until a repository has a snapshot to compare with."""
+    stars = int(repo.get("stargazers_count", 0))
+    measured = history.velocity(hist or {}, repo.get("full_name", ""), stars, today)
+    if measured:
+        return {"per_30d": max(0.0, measured["per_day"]) * 30, "source": "measured",
+                "gap_days": measured["gap_days"], "gained": measured["gained"]}
+    age = max(30, _days(repo.get("created_at", today.isoformat() + "T00:00:00Z"), today))
+    return {"per_30d": stars / age * 30, "source": "lifetime"}
+
+
+def score(repo: dict, today: dt.date, hist: dict | None = None) -> float:
+    """ln(stars) + half of ln(1 + stars gained per 30 days) + 1 if pushed in the last 30 days.
 
     Stars are GitHub's only public rating. The velocity term keeps a 90k-star classic from beating
-    every newer project on every run, and needs no stored history."""
+    every newer project on every run: measured from stored snapshots when there are any, else the lifetime average."""
     stars = int(repo.get("stargazers_count", 0))
-    age = max(30, _days(repo.get("created_at", today.isoformat() + "T00:00:00Z"), today))
-    velocity = stars / age * 30
     fresh = 1.0 if _days(repo.get("pushed_at", "1970-01-01T00:00:00Z"), today) <= 30 else 0.0
-    return round(math.log(1 + stars) + 0.5 * math.log(1 + velocity) + fresh, 4)
+    return round(math.log(1 + stars) + 0.5 * math.log(1 + momentum(repo, today, hist)["per_30d"]) + fresh, 4)
 
 
-def candidates(gh, cfg: dict, seen: dict, today: dt.date) -> tuple[list[dict], dict]:
-    """Search every bucket topic. Returns (ranked candidates, drop counts by reason)."""
+def flags(repo: dict, mom: dict) -> list[str]:
+    """Reasons to look twice before trusting the stars. They are reported, never used to drop or rank a repository:
+    stars can be bought, but neither signal proves it (a viral launch also spikes)."""
+    stars, out = int(repo.get("stargazers_count", 0)), []
+    if stars and int(repo.get("forks_count", 0)) * 1000 < stars * LOW_FORKS_PER_1K:
+        out.append("few-forks")
+    if mom["source"] == "measured" and stars and mom["gained"] >= stars * SPIKE_RATIO:
+        out.append("star-spike")
+    return out
+
+
+def _candidate(repo: dict, bucket: str, topic: str, cfg: dict, today: dt.date, hist: dict | None) -> dict:
+    mom = momentum(repo, today, hist)
+    age = _days(repo.get("created_at", "1970-01-01T00:00:00Z"), today)
+    return {"full_name": repo["full_name"], "bucket": bucket, "topic": topic, "score": score(repo, today, hist),
+            "rising": age <= int(cfg["rising"]["created_within_days"]), "velocity": mom, "flags": flags(repo, mom), "repo": repo}
+
+
+def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = None) -> tuple[list[dict], dict]:
+    """Search every bucket topic. Returns (ranked candidates, drop counts by reason).
+
+    Two passes per topic, as in StarVelocity: "top" (the stars floor, what a plain star ranking finds) and "rising"
+    (young repositories under a lower floor, which a star ranking never reaches). The Search API returns at most the
+    best 1,000 hits of one query, so a single query ordered by stars would show the same classics every run.
+
+    A page is ordered by stars, so in a busy topic the rising page can fill up with young repositories that are already
+    above the stars floor and push the ones between the two floors off the page. Whenever the page is full and reaches
+    above the floor, a second rising query asks for exactly that band; a quiet topic costs no extra call."""
     since = (today - dt.timedelta(days=int(cfg["max_days_since_push"]))).isoformat()
+    rise = cfg["rising"]
+    window = int(rise["created_within_days"])
+    top_floor, rise_floor, per_page = int(cfg["min_stars"]), int(rise["min_stars"]), int(cfg["per_topic"])
+    born = f" created:>={(today - dt.timedelta(days=window)).isoformat()}"
+    rising_on = conditions.rising_slots(cfg) > 0         # no slot can be filled (e.g. one pick): the rising queries would be wasted
     found: dict[str, dict] = {}
     dropped: dict[str, int] = {}
+
+    def search(bucket_id: str, topic: str, kind: str, stars: str, floor: int, extra: str = "") -> list[dict] | None:
+        query = f"topic:{topic} stars:{stars} pushed:>={since} archived:false fork:false{extra}"
+        try:
+            results = gh.search(query, per_page=per_page)
+        except HttpError as exc:
+            key = f"search failed (HTTP {exc.status})"
+            dropped[key] = dropped.get(key, 0) + 1
+            return None
+        for repo in results:
+            name = repo.get("full_name")
+            if not name or name in found:
+                continue
+            if kind == "rising" and _days(repo.get("created_at", "1970-01-01T00:00:00Z"), today) > window:
+                continue                             # the query asked for young repositories; an old one is not "rising"
+            why = eligible(repo, cfg, seen, today, min_stars=floor)
+            if why:
+                dropped[why] = dropped.get(why, 0) + 1
+                continue
+            found[name] = _candidate(repo, bucket_id, topic, cfg, today, hist)
+        return results
+
     for bucket in cfg["buckets"]:
         for topic in bucket["topics"]:
-            query = f"topic:{topic} stars:>={cfg['min_stars']} pushed:>={since} archived:false fork:false"
-            try:
-                results = gh.search(query, per_page=int(cfg["per_topic"]))
-            except HttpError as exc:
-                key = f"search failed (HTTP {exc.status})"
-                dropped[key] = dropped.get(key, 0) + 1
+            search(bucket["id"], topic, "top", f">={top_floor}", top_floor)
+            if not rising_on:
                 continue
-            for repo in results:
-                name = repo.get("full_name")
-                if not name or name in found:
-                    continue
-                why = eligible(repo, cfg, seen, today)
-                if why:
-                    dropped[why] = dropped.get(why, 0) + 1
-                    continue
-                found[name] = {"full_name": name, "bucket": bucket["id"], "topic": topic,
-                               "score": score(repo, today), "repo": repo}
+            page = search(bucket["id"], topic, "rising", f">={rise_floor}", rise_floor, born)
+            if page and len(page) >= per_page and rise_floor < top_floor \
+                    and max(int(r.get("stargazers_count", 0)) for r in page) >= top_floor:
+                search(bucket["id"], topic, "rising", f"{rise_floor}..{top_floor - 1}", rise_floor, born)
     ranked = sorted(found.values(), key=lambda c: (-c["score"], c["full_name"]))
     return ranked, dropped
 
 
+def _rotate(pool: list[dict], order: list[str], limit: int) -> list[dict]:
+    """Best of each bucket in turn, in the order given, until `limit` are taken or the pool is empty."""
+    queues = {b: [c for c in pool if c["bucket"] == b] for b in order}
+    chosen: list[dict] = []
+    while len(chosen) < limit and any(queues.values()):
+        for bucket in order:
+            if queues[bucket] and len(chosen) < limit:
+                chosen.append(queues[bucket].pop(0))
+    return chosen
+
+
 def pick(ranked: list[dict], cfg: dict, today: dt.date) -> list[dict]:
     """Best of each bucket in turn, starting at a bucket that rotates with the date, so a run
-    does not always open with the same domain."""
+    does not always open with the same domain.
+
+    `rising.slots` (never more than half of the picks) are then filled with young, climbing repositories that the plain
+    ranking did NOT pick: on stars alone they never beat an established project, and one that already wins on merit has
+    been found without any help. Each takes the place of the weakest plain pick."""
     ids = [b["id"] for b in cfg["buckets"]]
     start = today.toordinal() % len(ids)
     order = ids[start:] + ids[:start]
-    queues = {i: [c for c in ranked if c["bucket"] == i] for i in ids}
-    chosen: list[dict] = []
-    while len(chosen) < int(cfg["picks_per_run"]) and any(queues.values()):
-        for bucket in order:
-            if queues[bucket] and len(chosen) < int(cfg["picks_per_run"]):
-                chosen.append(queues[bucket].pop(0))
-    return chosen
+    total = int(cfg["picks_per_run"])
+    slots = conditions.rising_slots(cfg)
+    plain = _rotate(ranked, order, total)
+    names = {c["full_name"] for c in plain}
+    # copies, flagged `slot`: "rising" only says a repository is young, `slot` says which picks really used a reserved slot
+    extra = [dict(c, slot=True) for c in _rotate([c for c in ranked if c.get("rising") and c["full_name"] not in names], order, slots)]
+    # weakest first; of two equal scores the later pick goes, since the rotation took it after the other
+    weakest = sorted(range(len(plain)), key=lambda i: (plain[i]["score"], -i))[:len(extra)]
+    return extra + [c for i, c in enumerate(plain) if i not in weakest]
 
 
 def parse_repo(text: str) -> str:
@@ -105,7 +181,8 @@ def parse_repo(text: str) -> str:
     return f"{owner}/{name}"
 
 
-def requested(gh, text: str, cfg: dict, seen: dict, today: dt.date, bucket: str | None = None) -> tuple[dict, list[str]]:
+def requested(gh, text: str, cfg: dict, seen: dict, today: dt.date, bucket: str | None = None,
+              hist: dict | None = None) -> tuple[dict, list[str]]:
     """One repository a person asked for, as a candidate shaped like the ones `candidates` returns.
 
     The person's choice replaces the ranking filters (stars, freshness, already covered): those only decide what the
@@ -156,5 +233,4 @@ def requested(gh, text: str, cfg: dict, seen: dict, today: dt.date, bucket: str 
     if not chosen:
         chosen = FALLBACK_BUCKET if FALLBACK_BUCKET in ids else ids[0]
         warnings.append(f"no topic of the repository is in a bucket: filed under '{chosen}' (--bucket changes it)")
-    cand = {"full_name": full, "bucket": chosen, "topic": hit or "requested", "score": score(repo, today), "repo": repo}
-    return cand, warnings
+    return _candidate(repo, chosen, hit or "requested", cfg, today, hist), warnings

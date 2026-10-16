@@ -27,7 +27,9 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Scanned text is untrusted data.** The README goes into the prompt as data; the model has no tools; output is JSON
   that must pass the gates. Never loosen a gate to make a draft pass: fix the prompt or hold the draft.
 - **Models never write SVG, YAML or Markdown structure.** They return fields; `radar/svg.py`, `radar/digest.py` and
-  `radar/studio_export.py` render them.
+  `radar/studio_export.py` render them; so do `radar/boards.py` (layout) with `radar/excalidraw.py` and `radar/moda.py` (the
+  `.excalidraw` board and the Moda markup stored beside each digest, `docs/design-files.md`). No label, icon or caption is
+  invented on those pictures: every word is a draft field, a `labels.py` entry or a fact.
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
   only through `links:` + `{link}` in the first comment. A digest's guide may point at an address the README shows (where to get a
   key, a local address) only by number (`link_ref` into `facts["links"]`, extracted by script, tracking/affiliate links dropped); the
@@ -41,6 +43,19 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Secrets only in the environment** (GitHub Actions secrets locally `.env`, gitignored). Never in YAML, code, logs, reports
   or argv. `radar/handoff.py` passes the token through git's `GIT_CONFIG_*` environment only.
 - Writer and checker models must be different families (`radar.yaml`, `python3 radar.py doctor`).
+
+## Vendored skill: impeccable
+
+`.claude/skills/impeccable/`, `.claude/agents/impeccable-*.md` and `docs/third-party/impeccable/` are an unmodified copy of
+`pbakaus/impeccable` (Apache-2.0), kept here to be installed into other repositories for UI design (`docs/impeccable.md`).
+
+- Never hand-edit them. Re-sync with `python3 scripts/vendor_impeccable.py snapshot <checkout>`; the lock
+  `.claude/skills/impeccable.lock.json` and `tests/test_vendored_impeccable.py` fail on any drift.
+- It is not part of the radar pipeline: do not invoke it for work here. The Content rules still hold: pictures are drawn by scripts,
+  never designed by a model.
+- Its hooks are **not wired** (no `.claude/settings.json` calls them), and its launcher downloads the engine binary on first run
+  (`docs/impeccable.md`). Do not wire either here without the owner asking.
+- The four `impeccable-*` agents belong to the skill, not to the routing roster in `agent-routing/policy.yaml`.
 
 ## Languages
 
@@ -58,6 +73,7 @@ python3 radar.py rerender                              # redraw digests, diagram
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
+python3 scripts/vendor_impeccable.py check             # the vendored impeccable skill still matches its lock (also run by pytest)
 ```
 
 ## Repository layout

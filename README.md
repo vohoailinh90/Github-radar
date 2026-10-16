@@ -7,7 +7,7 @@ Bài học nằm ngay trong repo này để bạn đọc; bản nháp bài đăn
 
 ```mermaid
 flowchart LR
-    A[GitHub Search<br/>sao, giấy phép, độ mới] --> B[Lấy dữ kiện<br/>README, cấu trúc thư mục]
+    A[GitHub Search<br/>sao, tốc độ tăng, giấy phép, độ mới] --> B[Lấy dữ kiện<br/>README, cấu trúc thư mục]
     B --> C[Model miễn phí A<br/>viết bài học]
     C --> D[Model miễn phí B<br/>soát lỗi, khác họ model]
     D --> E{Cổng kiểm tra<br/>bằng script}
@@ -28,7 +28,7 @@ Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng d
 Bài cũ (trước khi có hướng dẫn) vẫn được vẽ như trước: `draft` không có khóa `guide` dùng bố cục giải thích cũ.
 Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED",
 hay các hướng dẫn viết trong phiên tương tác) **không phải** câu trả lời gốc của model free. Có bản nháp thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota.
-Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn, và báo cáo `state/runs/*.json` ghi `coverage` (bài dùng bao nhiêu trong số lệnh của README).
+Mỗi lần quét còn có `stars.svg` so sánh số sao các repo đã chọn, và báo cáo `state/runs/*.json` ghi `coverage` (bài dùng bao nhiêu trong số lệnh của README). Cạnh mỗi bài còn có `board-<ngôn ngữ>.excalidraw` (bảng nét vẽ tay, mở ở excalidraw.com) và `moda-<ngôn ngữ>.xml` (markup để áp lên canvas Moda), cũng do script vẽ từ bản nháp: [`docs/design-files.md`](docs/design-files.md).
 
 ## Vì sao tin được nội dung
 
@@ -62,7 +62,7 @@ Bài vi phạm sau **một** vòng sửa sẽ bị giữ lại, không xuất. M
 2. **Chạy thử không tốn quota**: Actions → *Radar scan* → *Run workflow* (mặc định `dry_run = true`): chỉ quét và xếp hạng.
 3. Sau khi xem danh sách ổn, chạy lại với `dry_run = false`; từ đó lịch tự chạy.
 4. Chạy trên VPS (như `docs/vps-team.md`): đặt biến repo `CI_RUNNER` = nhãn runner. **Giữ repo ở chế độ private.**
-5. Nếu bật branch protection cho `main`, bước commit của bot sẽ bị chặn: cho phép bot, hoặc đổi sang chạy qua PR.
+5. Nếu bật branch protection cho `main`, bước commit của bot sẽ bị chặn. Cách làm an toàn (token riêng, kết quả đi qua PR, thứ tự các bước): [`docs/branch-protection.md`](docs/branch-protection.md). Đừng bật bảo vệ trước khi làm xong các bước đó.
 
 ## Lệnh
 
@@ -79,6 +79,12 @@ python3 radar.py rerender           # vẽ lại bài học, sơ đồ và bản
 python3 radar.py handoff            # mở PR nháp vào tool-marketing-studio
 ```
 
+### Quét ngay với điều kiện riêng
+
+Không cần chờ thứ Tư hay thứ Bảy: Actions → *Radar scan* → *Run workflow*, chọn một bộ ở ô `preset` (`ai-sau`, `repo-moi-noi`, `khoi-nghiep-saas`, `cong-cu-dev`, `quet-nhanh`) hoặc dán JSON vào ô `conditions`. Điều kiện chỉ áp dụng cho lần quét đó, được kiểm chặt trước khi gọi GitHub hay model, và được ghi vào báo cáo của lần chạy. Lịch tự chạy vẫn dùng `radar.yaml`. Chi tiết, cách thêm bộ mới và những gì cần thử tay một lần: [`docs/scan-conditions.md`](docs/scan-conditions.md). `python3 radar.py presets` liệt kê các bộ đã lưu và chi phí ước tính.
+
+**Hoặc bấm trên một trang:** mở [`docs/ui/index.html`](docs/ui/index.html) (tải về mở bằng trình duyệt; không dùng GitHub Pages `github.io`: trang từ chối nhận token ở đó, lý do trong `docs/ui.md`), chọn bộ điều kiện, xem ước tính và bấm *Quét*. Trang chỉ gửi lệnh chạy workflow bằng một token chỉ có quyền Actions của repo này (quyền đó gồm cả hủy/xóa lượt chạy và tắt workflow, xem `docs/ui.md`); mặc định là quét thử, quét thật cần gõ `QUET`. Cách tạo token, những gì đã/chưa kiểm: [`docs/ui.md`](docs/ui.md).
+
 ### Quét đúng một repo bạn chọn
 
 `python3 radar.py run --repo owner/tên --dry-run` kiểm tra repo (không gọi model, không ghi gì); bỏ `--dry-run` để viết bài.
@@ -89,6 +95,21 @@ Trên GitHub: Actions → *Radar scan* → *Run workflow*, điền ô `repo` (ô
 - Vẫn **bị từ chối**: repo riêng tư/bị khóa, hoặc giấy phép không nằm trong danh sách miễn phí (`licenses` trong `radar.yaml`), hoặc tên không hợp lệ.
 - Nhóm (`ai`, `software`, `solutions`, `startup`) được đoán từ topic của repo; không khớp thì xếp vào `software`. Đổi bằng `--bucket` (hoặc ô `bucket`).
 - Sau khi viết, `handoff` vẫn mở **pull request nháp** vào studio như các lần quét theo lịch.
+
+## Kỹ năng thiết kế UI cho các repo khác
+
+Repo này còn giữ skill [impeccable](https://github.com/pbakaus/impeccable) (`.claude/skills/impeccable/`) để chép sang repo khác khi cần thiết kế giao diện; nó không tham gia việc quét hay viết bài. Cách chép, cách cập nhật và những điều cần biết (engine tải ở lần chạy đầu, hook chưa nối): [`docs/impeccable.md`](docs/impeccable.md).
+
+## Radar chọn repo thế nào
+
+Điểm = `ln(sao) + 0,5·ln(1 + sao tăng trong 30 ngày) + 1 nếu có commit trong 30 ngày`. "Sao tăng" được **đo thật**: mỗi lần quét lưu số sao của mọi ứng viên
+vào `state/stars.json` (một điểm mỗi repo mỗi ngày), lần sau lấy hiệu số chia cho số ngày thật giữa hai lần chụp. Sau lần quét thứ hai là đã có số đo;
+trước đó dùng trung bình `sao / tuổi`. Mỗi topic được tìm hai lượt: **top** (từ `min_stars`) và **rising** (repo tạo trong `rising.created_within_days` ngày gần nhất, sàn `rising.min_stars`), (nếu trang đầu của lượt này toàn repo đã trên `min_stars`, topic đó được hỏi thêm một lượt đúng dải giữa hai ngưỡng, nên topic nóng không che mất repo nhỏ đang lên),
+và `rising.slots` suất trong mỗi lần quét dành cho repo đang lên **ngoài** các repo đã thắng theo xếp hạng thường (xếp theo tổng sao thì chúng không bao giờ tới lượt; mỗi suất thay repo yếu nhất trong danh sách thường) (tối đa một nửa số bài: `RADAR_PICKS=1` thì chưa có suất nào). Đặt `rising: {slots: 0}` để tắt.
+
+`python3 radar.py scan` in bảng xếp hạng: dấu `*` sau cột sao/30 ngày là số đo thật, `[rising]` là repo trẻ (tạo trong `rising.created_within_days` ngày), tức ứng viên cho suất đang lên; trong báo cáo, `rising` cũng chỉ là "trẻ" còn `slot: true` mới là repo thật sự chiếm một suất, `[!few-forks]` và `[!star-spike]` là **cờ để bạn xem lại**
+(sao có thể bị mua, nhưng hai dấu hiệu này không chứng minh được; chúng không đổi điểm và không loại repo). `state/runs/<ngày>.json` có thêm `shortlist` (repo đứng ngay sau các repo được chọn)
+và `history.measured`. Các công cụ quét repo khác làm gì và vì sao Radar chọn như trên: [`docs/research.md`](docs/research.md).
 
 Cấu hình trong [`radar.yaml`](radar.yaml) (số repo mỗi lần, ngôn ngữ `vi`/`en`/`ja`, chủ đề, model). Mặc định chỉ viết
 **tiếng Việt**: mỗi ngôn ngữ thêm là một lượt gọi model nữa cho mỗi repo (viết riêng, không dịch), nên hãy tính quota

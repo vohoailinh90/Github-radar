@@ -1,3 +1,5 @@
+import pytest
+
 from radar import config
 
 
@@ -51,3 +53,14 @@ def test_a_quick_start_just_past_8000_characters_still_reaches_the_prompt_and_th
     cut = facts.clean_readme(readme, limit)
     assert "./setup.sh" in cut and "pip install -r requirements.txt" in cut and len(cut) <= limit
     assert limit == config.DEFAULTS["readme_max_chars"] <= 16000  # a bigger cap must be a decision about the 20,000 tokens/minute budget
+
+
+def test_rising_and_pacing_defaults_validation_and_override():
+    cfg = config.load(path=config.ROOT / "none.yaml", env={})
+    assert cfg["rising"] == {"enabled": True, "slots": 1, "created_within_days": 120, "min_stars": 300}
+    assert cfg["search_interval_seconds"] == 2.1 and cfg["history_days"] == 60
+    assert config.load(path=config.ROOT / "none.yaml", env={"RADAR_SEARCH_INTERVAL": "0"})["search_interval_seconds"] == 0.0
+    for bad in ({"rising": {"slots": 4}}, {"rising": {"created_within_days": 0}}, {"history_days": 10}, {"search_interval_seconds": -1}):
+        merged = config.deep_merge(config.DEFAULTS, bad)
+        with pytest.raises(ValueError):
+            config.validate(merged)

@@ -26,6 +26,15 @@ on:
         description: "With repo: ai, software, solutions or startup (blank = from the repository's topics)"
         type: string
         default: ""
+      preset:
+        description: "Saved scan conditions (radar/presets.json, `python3 radar.py presets`). none = radar.yaml as it is. The picks and langs boxes above win over it"
+        type: choice
+        options: [none, ai-sau, repo-moi-noi, khoi-nghiep-saas, cong-cu-dev, quet-nhanh]
+        default: none
+      conditions:
+        description: "One-off conditions as JSON, e.g. {\"picks_per_run\": 2, \"min_stars\": 3000}. Added to the preset; where both set a value this box wins (see docs/scan-conditions.md)"
+        type: string
+        default: ""
 
 # One scan at a time; a late run waits instead of cancelling a run that is half-way through its quota.
 concurrency:
@@ -41,6 +50,11 @@ jobs:
     # self-hosted runner label to run on the VPS. Keep this repository PRIVATE if you do.
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 60
+    # A workflow_dispatch runs the workflow file of whichever branch it is started on, so a branch could remove any `if:` written in
+    # this file and read the secrets. Only a GitHub Environment can refuse the job on other branches: put RADAR_PR_TOKEN in the
+    # Environment secrets of "radar" (not in the repository secrets) and limit its deployment branches to main (docs/branch-protection.md).
+    # Until then this changes nothing: the repository secrets stay available and the environment is created without a restriction.
+    environment: radar
     env:
       DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
     steps:
@@ -94,6 +108,8 @@ jobs:
           RADAR_LANGS: ${{ inputs.langs }}
           RADAR_REPO: ${{ inputs.repo }}
           RADAR_BUCKET: ${{ inputs.bucket }}
+          RADAR_PRESET: ${{ inputs.preset }}
+          RADAR_CONDITIONS: ${{ inputs.conditions }}
         run: |
           args=""
           if [ "$DRY" = "true" ]; then args="--dry-run"; fi
@@ -108,6 +124,12 @@ jobs:
       # and the job still ends red because the step above failed.
       - name: Commit digests, export and state
         if: ${{ !cancelled() && env.DRY != 'true' }}
+        # RADAR_PR_TOKEN (a secret, optional): when it is set the results go to a branch and a pull request instead of a push to
+        # main, which is what a protected main needs (docs/branch-protection.md). RADAR_AUTOMERGE=true (a variable) also asks
+        # GitHub to merge that pull request once the required checks pass. Neither set: the push to main below, as before.
+        env:
+          RADAR_PR_TOKEN: ${{ secrets.RADAR_PR_TOKEN }}
+          RADAR_AUTOMERGE: ${{ vars.RADAR_AUTOMERGE }}
         run: |
           git config user.name "github-radar"
           git config user.email "radar@users.noreply.github.com"
@@ -122,8 +144,13 @@ jobs:
             echo "nothing new to commit"
           else
             git commit -m "radar: scan $(date -u +%F)"
-            # main may have moved while the scan ran (someone pushed); these folders are bot-only, so rebasing is safe
-            git push || { git pull --rebase --autostash origin "$GITHUB_REF_NAME" && git push; }
+            if [ -n "$RADAR_PR_TOKEN" ]; then
+              # no fallback to a push here: with a token the owner chose pull requests, and a failed publish must be red
+              python radar.py publish
+            else
+              # main may have moved while the scan ran (someone pushed); these folders are bot-only, so rebasing is safe
+              git push || { git pull --rebase --autostash origin "$GITHUB_REF_NAME" && git push; }
+            fi
           fi
 
       - name: Hand off to tool-marketing-studio (draft pull request)
