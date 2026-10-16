@@ -80,7 +80,7 @@ def test_unsafe_or_noisy_links_are_left_out_and_labels_are_plain_text():
     text = ("[x](javascript:alert(1)) [y](ftp://files.example.org/a) [z](https://img.shields.io/badge/a-b-green) "
             "[w](https://example.org/a_(b)) [long](https://example.org/" + "a" * 250 + ")\n"
             "[**bold `label` <b>here</b>**](https://ok.example.org/page)\n")
-    assert readme.links(text) == [["bold label here", "https://ok.example.org/page"]]
+    assert readme.links(text) == [["w", "https://example.org/a_(b)"], ["bold label here", "https://ok.example.org/page"]]      # a pair of parentheses is part of an address
 
 
 def test_a_local_address_is_told_apart_from_a_website():
@@ -261,6 +261,52 @@ def test_cleaning_a_readme_without_code_blocks_is_what_the_plain_regexes_did():
     for _ in range(1500):
         text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 12)))
         assert readme.clean_markup(text) == plain(text), repr(text)
+
+
+def test_an_address_with_pairs_of_parentheses_is_kept_whole_and_one_with_a_stray_parenthesis_is_not_cut_short():
+    text = ("See [docs](https://example.org/wiki/Foo_(bar)) and https://en.wikipedia.org/wiki/Baz_(qux). Or (see https://x.example.com/a) and\n"
+            "[b](https://x.example.com/b)** done. Not https://y.example.com/p(note or <a href=\"https://z.example.com/q(r\">z</a>.\n")
+    assert [u for _, u in readme.links(text)] == ["https://example.org/wiki/Foo_(bar)", "https://en.wikipedia.org/wiki/Baz_(qux)",
+                                                  "https://x.example.com/a", "https://x.example.com/b"]
+    assert readme.url_ok("https://example.org/wiki/Foo_(bar)")
+    for bad in ("https://example.org/a)", "https://example.org/a(", "https://example.org/)a(", "https://example.org/a)b"):
+        assert not readme.url_ok(bad), bad
+
+
+def test_the_cut_of_a_readme_with_no_headings_never_ends_inside_a_code_block():
+    big = "```bash\n" + "x" * 300 + "\n```\n"
+    assert readme.select(big + "tail\n", 100) == ""                         # nothing whole fits: no half command
+    assert readme.code_blocks(readme.select("intro\n" + big, 120)) == []
+    assert readme._cut("intro\n```bash\nabcdef\n```\n", 17) == "intro\n"
+    assert readme._cut("intro\n```bash\nabcdef\n```\n", 200) == "intro\n```bash\nabcdef\n```\n"
+    import random
+    rng = random.Random(3)
+
+    def piece():
+        k = rng.random()
+        if k < .2:
+            return "## " + rng.choice(["Install", "Showcase", "Usage", "About", "Config"]) + "\n"
+        if k < .5:
+            return "word " * rng.randint(1, 30) + "\n"
+        if k < .8:
+            lang = rng.choice(["bash", "", "yaml", "python"])
+            return f"```{lang}\n" + "".join(f"line {i} " + "x" * rng.randint(1, 60) + "\n" for i in range(rng.randint(1, 12))) + "```\n"
+        return "\n"
+
+    for _ in range(600):
+        text = "".join(piece() for _ in range(rng.randint(1, 25)))
+        limit = rng.randint(20, 900)
+        out = readme.select(text, limit)
+        whole = {tuple(lines) for _, lines in readme.code_blocks(text)}
+        assert len(out) <= limit and all(tuple(lines) in whole for _, lines in readme.code_blocks(out)), (limit, text, out)
+
+
+def test_a_trailing_backslash_continues_a_line_only_where_the_shell_means_it():
+    text = ("```bat\ncd C:\\\ndir\n```\n\n```powershell\ncd C:\\\nls\n```\n\n```console\nPS C:\\> cd C:\\\nPS C:\\> dir\n```\n\n"
+            "```bash\ncd C:\\\nls\ndocker run \\\n  -p 1:1 \\\n  img\n```\n")
+    assert readme.code_blocks(text) == [("bat", ["cd C:\\", "dir"]), ("powershell", ["cd C:\\", "ls"]), ("console", ["PS C:\\> cd C:\\", "PS C:\\> dir"]),
+                                        ("bash", ["cd C:\\", "ls", "docker run -p 1:1 img"])]
+    assert readme.setup_commands(text) == ["cd C:\\", "dir", "cd C:\\", "ls", "cd C:\\", "dir", "cd C:\\", "ls", "docker run -p 1:1 img"]
 
 
 def test_adjacent_addresses_with_nothing_between_them_are_separate_links():

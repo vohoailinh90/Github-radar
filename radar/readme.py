@@ -52,11 +52,12 @@ COMMAND_WORDS = {"git", "pip", "pip3", "python", "python3", "py", "uv", "uvx", "
                  "modelscope", "apt", "apt-get", "brew", "winget", "choco", "bash", "sh", "make", "source", "export",
                  "set", "cargo", "go", "pipx", "poetry", "ollama", "ffmpeg", "streamlit", "torchrun", "chmod"}
 BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "hits.seeyoufarcry")      # badges and counters
-URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]]+")
-MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://[^\s)]+)(?:\s+\"[^\"]*\")?\)")
+URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]()]+")
+MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://(?:[^\s()]|\([^\s()]*\))+)(?:\s+\"[^\"]*\")?\)")      # a target may hold pairs of parentheses
 HTML_LINK = re.compile(r"<a\b[^>]{0,300}?href=[\"'](https?://[^\"'\s>]+)[\"'][^>]{0,300}>(.{0,200}?)</a>", re.I | re.S)
-_URL_CHAR = r"(?:(?![,;]https?://)[^\s<>\"'`)\]])"            # any character of an address, but not the comma or semicolon that begins the next one
-BARE_URL = re.compile(r"https?://(?:\[[0-9A-Fa-f:.]+\]" + _URL_CHAR + r"*|" + _URL_CHAR + r"+)")      # `http://[::1]:8080/x` keeps its brackets
+_URL_CHAR = r"(?:(?![,;]https?://)[^\s<>\"'`()\]])"            # any character of an address, but not the comma or semicolon that begins the next one
+_URL_PIECE = r"(?:" + _URL_CHAR + r"|\(" + _URL_CHAR + r"*\))"      # a character, or a pair of parentheses with characters between: `Foo_(bar)`
+BARE_URL = re.compile(r"https?://(?:\[[0-9A-Fa-f:.]+\]" + _URL_PIECE + r"*|" + _URL_PIECE + r"+)")      # `http://[::1]:8080/x` keeps its brackets
 GLUED_URLS = re.compile(r"[,;]https?://")                        # `http://a:1,https://b`: two addresses with nothing between them, not one
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "0.0.0.0", "[::1]")
 TRACKING = re.compile(r"[?&](?:utm_[a-z]+|aff|aff_id|affiliate|ref|referral|track_id|promo|campaign|source|from)=", re.I)
@@ -233,6 +234,18 @@ def _assemble(keep: dict[int, str], count: int) -> str:
     return "\n\n".join(x.strip("\n") for x in out).strip()
 
 
+def _cut(text: str, limit: int) -> str:
+    """`text[:limit]`, without the code block it would leave open: half a command or a sample is worse than none."""
+    cut, fence, at, pos = text[:limit], None, None, 0
+    for line in cut.splitlines(keepends=True):
+        before = fence
+        fence, _ = fence_step(line, fence)
+        if before is None and fence is not None:
+            at = pos
+        pos += len(line)
+    return cut[:at] if fence is not None and at is not None else cut
+
+
 def select(text: str, limit: int) -> str:
     """`text` itself when it fits; else its opening plus the most useful whole sections, in their original order, never more than
     `limit` characters (the gap markers and the blank lines between sections are counted)."""
@@ -240,7 +253,7 @@ def select(text: str, limit: int) -> str:
         return text
     sections = split_sections(text)
     if len(sections) == 1:                        # no headings to choose between: the start of it, as before
-        return _head(sections[0].lines, limit).strip() or text[:limit]
+        return _head(sections[0].lines, limit).strip() or _cut(text, limit)
     rank(sections)
     keep: dict[int, str] = {0: _head(sections[0].lines, min(INTRO_CHARS, limit))}   # the preamble, or the title section
     room = limit - len(keep[0])
@@ -264,7 +277,7 @@ def select(text: str, limit: int) -> str:
     if len(result) > limit:                       # only the opening is left and it still does not fit
         keep[0] = _head(sections[0].lines, max(0, limit - len(GAP) - 2))
         result = _assemble(keep, len(sections))
-    return result[:limit]
+    return _cut(result, limit)
 
 
 def clean_label(text: str, url: str) -> str:
@@ -286,8 +299,21 @@ def _split(url: str):
         return None
 
 
+def _balanced(text: str) -> bool:
+    """Every closing parenthesis closes an opening one and none stays open."""
+    depth = 0
+    for ch in text:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth < 0:
+                return False
+    return depth == 0
+
+
 def url_ok(url: str) -> bool:
-    if len(url) > 200 or not URL_CHARS.fullmatch(url) or GLUED_URLS.search(url):
+    if len(url) > 200 or not URL_CHARS.fullmatch(url) or GLUED_URLS.search(url) or not _balanced(url):
         return False
     parts = _split(url)
     if parts is None:
@@ -324,7 +350,8 @@ def links(text: str, limit: int = 40) -> list[list[str]]:
     for m in HTML_LINK.finditer(text):
         found.append((m.start(), m.group(1), m.group(2)))
     for m in BARE_URL.finditer(text):
-        found.append((m.start(), m.group(0).rstrip(".,;:!?"), ""))
+        if text[m.end():m.end() + 1] != "(":      # an address that stops at a parenthesis which never closes is cut short, not whole
+            found.append((m.start(), m.group(0).rstrip(".,;:!?"), ""))
     value_at = _value_at(text)
     ranked, seen = [], set()
     for pos, url, label in sorted(found, key=lambda x: x[0]):
@@ -387,6 +414,17 @@ def dedent(lines: list[str]) -> list[str]:
     return [_drop_columns(line, margin) if line.strip() else "" for line in lines]
 
 
+WINDOWS_LANGS = {"cmd", "bat", "batch", "powershell", "ps1"}            # a trailing backslash is a path there, `^` (cmd) or a backtick (PowerShell) continues
+POWERSHELL_PROMPT = re.compile(r"^\s*PS [^>]*>")
+DRIVE_ROOT = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z]:\\$")            # `cd C:\`: the root of a drive, not a line continued
+
+
+def _continues(lang: str, line: str) -> bool:
+    """True when `line` goes on in the next one: it ends in a backslash, in a shell where that is the continuation mark and not
+    the end of a Windows path (`cd C:\\`, a command after a PowerShell prompt, a `bat`, `cmd` or `powershell` block)."""
+    return (line.endswith("\\") and lang not in WINDOWS_LANGS and not POWERSHELL_PROMPT.match(line) and not DRIVE_ROOT.search(line))
+
+
 def code_blocks(text: str) -> list[tuple[str, list[str]]]:
     """(language tag, logical lines) of each fenced code block, in order. A line ending in a backslash is joined with the next
     (the padding of the continuation is dropped). Everything else is kept as the README has it: the indentation of a line (a
@@ -425,7 +463,7 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
                 pending = f"{pending} {piece}"
             else:
                 pending = line.rstrip()
-            if pending.endswith("\\"):
+            if _continues(lang, pending):
                 pending = pending[:-1].rstrip()
                 continue
             logical.append(pending)

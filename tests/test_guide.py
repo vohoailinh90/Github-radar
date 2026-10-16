@@ -155,11 +155,11 @@ def test_a_readme_address_is_printed_by_the_renderer_and_a_local_one_is_code(tmp
 
 
 def test_a_stored_link_that_is_not_a_plain_address_is_never_printed(tmp_path):
-    hostile = {**FACTS, "links": [["click", "javascript:alert(1)"], ["x", "https://a.example/(b)"], ["y", "https://ok.example.org/p"]]}
+    hostile = {**FACTS, "links": [["click", "javascript:alert(1)"], ["x", "https://a.example/b)[evil](https://evil.example/)"], ["y", "https://ok.example.org/p"]]}
     d = mutate(lambda d: d["guide"]["steps"][2].update(link_ref=0), facts=hostile)
     d["guide"]["requirements"][1]["link_ref"] = 1
     _, md = render(tmp_path, d, facts=hostile)
-    assert "javascript" not in md and "a.example" not in md
+    assert "javascript" not in md and "a.example" not in md and "evil" not in md
     d2 = mutate(lambda d: d["guide"]["steps"][2].update(link_ref=2), facts=hostile)
     assert "[y](https://ok.example.org/p)" in render(tmp_path / "again", d2, facts=hostile)[1]
 
@@ -482,6 +482,11 @@ def test_the_fence_of_a_command_block_is_longer_than_any_run_of_backticks_in_it(
     d["guide"]["steps"][0].update(commands=["echo ```x```", "echo ok"])
     md = render(tmp_path, d)[1]
     assert "````bash\necho ```x```\necho ok\n````" in md
+
+
+def test_a_link_with_a_pair_of_parentheses_is_printed_as_a_working_markdown_link():
+    facts = {**FACTS, "links": [["Foo", "https://example.org/wiki/Foo_(bar)"]]}
+    assert digest._link(facts, 0, L["vi"]).endswith("[Foo](https://example.org/wiki/Foo_(bar))")
 
 
 def test_the_output_lines_of_a_console_transcript_are_not_commands():
