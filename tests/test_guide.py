@@ -1008,7 +1008,7 @@ def test_a_multi_backtick_span_is_checked_as_a_whole_code_span():
 
 def test_a_command_in_a_quoted_fence_reaches_the_gate_whole_not_as_a_joined_quote_line():
     quoted = "# Sample\n\n> [!TIP]\n> ```bash\n> docker run \\\n>   --rm image\n> ```\n"
-    assert "docker run > --rm image" in gates.readme_commands(quoted)                                       # the raw text: prose behind a `>`, joined wrongly
+    assert "docker run > --rm image" not in gates.readme_commands(quoted)                                   # the raw text is prose behind a `>`, and its quote marks are not joined into the command
     cleaned = readme.clean_markup(quoted)                                                                   # what the facts carry (facts.clean_readme)
     assert "docker run --rm image" in gates.readme_commands(cleaned) and "docker run > --rm image" not in gates.readme_commands(cleaned)
     facts = {**FACTS, "readme": cleaned, "links": [], "blocks": []}

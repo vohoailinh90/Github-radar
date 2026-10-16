@@ -326,40 +326,13 @@ def _block_variants(readme: str):
         yield readmelib.strip_trailing_comment(line), prompt
 
 
-LIST_PREFIX = re.compile(r"(?:>\s*|(?:[-*+]|\d{1,9}[.)])\s+)+")          # the Markdown container of a line: quote marks and list markers
-
-
-def _unlisted(line: str) -> str:
-    """`line` without the list marker or quote mark in front of a prompted command (`- $ tool init`, `1. PS C:\\> Get-Date`, `> $ tool`); any other
-    line is returned as it is, so a bullet that merely starts with a program name stays a sentence."""
-    found = LIST_PREFIX.match(line)
-    return line[found.end():] if found and readmelib.SHELL_PROMPT.match(line[found.end():]) else line
-
-
-def _command_like(line: str) -> bool:
-    """Whether a whole README line outside the code blocks may be a command a reader types: it starts with a prompt, or its first word is
-    a known program written in lowercase (`First install the package.` and `Make sure it is on.` are sentences)."""
-    return bool(readmelib.SHELL_PROMPT.match(line)) or (not line[:1].isupper() and readmelib.is_command_line(line))
-
-
 def _prose_variants(readme: str):
     """(text, prompt pattern) for the code spans in the lines of the README outside its code blocks, and for the lines themselves when
-    they look like a command (see `_command_like`): a sentence is not something to type. A command line that ends in a backslash goes on
-    in the next line, as in a code block (an indented block is prose to this scan): the joined command is the text, and a line left
-    unfinished is not offered, because it is not a command."""
-    lines = [l.strip() for l in readmelib.prose_lines(readme)]
-    i = 0
-    while i < len(lines):
-        line, parts = _unlisted(lines[i]), [lines[i]]
-        i += 1
-        if _command_like(line):
-            while readmelib._continues("", line, line) and i < len(lines) and lines[i]:
-                line = readmelib._join("", line[:-1].rstrip(), lines[i], readmelib._glue("", line))
-                parts.append(lines[i])
-                i += 1
-            if not readmelib._continues("", line, line):
-                yield line, readmelib.SHELL_PROMPT
-                yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
+    they look like a command (see `readme.prose_statements`): a sentence is not something to type."""
+    for line, parts, command in readmelib.prose_statements(readme):
+        if command:
+            yield line, readmelib.SHELL_PROMPT
+            yield readmelib.strip_trailing_comment(line), readmelib.SHELL_PROMPT
         for part in parts:
             yield from ((m.group(2).strip(), readmelib.SHELL_PROMPT) for m in readmelib.CODE_SPAN.finditer(part))          # ``` ``echo `date` `` ``` is one span
 
@@ -367,7 +340,7 @@ def _prose_variants(readme: str):
 def _command_variants(readme: str):
     """(text, prompt pattern) for every text of the README a reader could copy as a command, as the README has it: the lines of its
     code blocks (see `_block_variants`), and outside the blocks inline code spans and the lines that look like a command (see
-    `_command_like`). Each text also comes without a trailing `# comment`."""
+    `readme.prose_statements`). Each text also comes without a trailing `# comment`."""
     yield from _block_variants(readme)
     yield from _prose_variants(readme)
 

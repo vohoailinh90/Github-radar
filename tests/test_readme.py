@@ -1043,6 +1043,16 @@ def test_a_powershell_operator_written_against_its_left_operand_goes_on_but_a_wi
     assert readme._ps_glued_operator("$x = $a*") and not readme._ps_glued_operator("$files = Get-ChildItem $dir*")
 
 
+def test_the_shell_of_a_prompted_prose_command_is_found_through_a_list_marker_a_quote_and_a_continuation():
+    text = ("# S\n\n- PS C:\\> Get-Date\n1. `C:\\> dir`\n> PS C:\\> Get-ChildItem `\n>   -Recurse\n  - C:\\> ver\n- $ custom-tool init\n"
+            "PS C:\\> Get-Process `\n  -Name x\n- npm install a sentence\n")
+    assert readme.shells(text) == {"Get-Date": "powershell", "dir": "bat", "Get-ChildItem -Recurse": "powershell", "ver": "bat",
+                                   "Get-Process -Name x": "powershell"}                     # `$ custom-tool init` is a Unix shell's, the bullet is a sentence
+    assert [(line, command) for line, _, command in readme.prose_statements("- $ tool init\nA sentence.\n- npm install x\ndocker run \\\n  --rm image\n")] == [
+        ("$ tool init", True), ("A sentence.", False), ("- npm install x", False), ("docker run --rm image", True)]          # the prompt stays, the marker goes
+    assert readme.prose_statements("> $ tool run \\\n>   --fast\n")[0] == ("$ tool run --fast", ["> $ tool run \\", ">   --fast"], True)          # a quoted command goes on in a quoted line
+
+
 def test_a_fenced_block_in_a_block_quote_is_the_same_block_without_the_quote_marks():
     quoted = "# S\n\n> [!TIP]\n> Run:\n>\n> ```bash\n> docker run \\\n>   --rm image\n> ```\n\nAfter `x`.\n"
     cleaned = readme.clean_markup(quoted)

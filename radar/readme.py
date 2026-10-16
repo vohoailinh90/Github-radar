@@ -1481,6 +1481,47 @@ def prompt_for(lang: str):
     return PROMPT if lang in CONSOLE_LANGS else SHELL_PROMPT
 
 
+LIST_PREFIX = re.compile(r"(?:>\s*|(?:[-*+]|\d{1,9}[.)])\s+)+")          # the Markdown container of a line: quote marks and list markers
+QUOTE_MARKS_ONLY = re.compile(r"^(?:>\s*)+")
+
+
+def unlisted(line: str) -> str:
+    """`line` without the list marker or quote mark in front of a prompted command (`- $ tool init`, `1. PS C:\\> Get-Date`, `> $ tool`); any other
+    line is returned as it is, so a bullet that merely starts with a program name stays a sentence."""
+    found = LIST_PREFIX.match(line)
+    return line[found.end():] if found and SHELL_PROMPT.match(line[found.end():]) else line
+
+
+def command_like(line: str) -> bool:
+    """Whether a whole README line outside the code blocks may be a command a reader types: it starts with a prompt, or its first word is
+    a known program written in lowercase (`First install the package.` and `Make sure it is on.` are sentences)."""
+    return bool(SHELL_PROMPT.match(line)) or (not line[:1].isupper() and is_command_line(line))
+
+
+def prose_statements(text: str) -> list[tuple[str, list[str], bool]]:
+    """(the line, its physical lines, whether it is a command to offer) for each line of the README outside its code blocks, as a reader
+    types it: the list marker or quote mark of a prompted command is dropped (see `unlisted`), and a command line that goes on in the next
+    line (a trailing backslash, a PowerShell backtick, cmd's caret) is joined with it, as in a code block (an indented block is prose to this
+    scan). A line is a command to offer when it looks like one (see `command_like`) and is not left unfinished."""
+    lines = [l.strip() for l in prose_lines(text)]
+    out, i = [], 0
+    while i < len(lines):
+        line, parts, quoted = unlisted(lines[i]), [lines[i]], lines[i].startswith(">")
+        i += 1
+        command = command_like(line)
+        if command:
+            while _continues("", line, line) and i < len(lines):
+                piece = QUOTE_MARKS_ONLY.sub("", lines[i]) if quoted else lines[i]          # a quoted command goes on in a quoted line
+                if not piece:
+                    break
+                line = _join("", line[:-1].rstrip(), piece, _glue("", line))
+                parts.append(lines[i])
+                i += 1
+            command = not _continues("", line, line)
+        out.append((line, parts, command))
+    return out
+
+
 def prose_lines(text: str) -> list[str]:
     """The README's lines outside its fenced code blocks (the fence lines themselves are left out too)."""
     out, fence = [], None
@@ -1522,9 +1563,8 @@ def shells(text: str) -> dict[str, str]:
             shell = "bash"
             posix.add(key)
         found.setdefault(key, shell)
-    for line in prose_lines(text):                            # a command written with an unambiguous prompt outside a fence: `PS C:\\> Get-Date`
-        line = line.strip()
-        for candidate in [line] + [span.group(2).strip() for span in CODE_SPAN.finditer(line)]:
+    for line, parts, _ in prose_statements(text):             # a command written with an unambiguous prompt outside a fence: `PS C:\\> Get-Date`
+        for candidate in [line] + [span.group(2).strip() for part in parts for span in CODE_SPAN.finditer(part)]:
             shell = "powershell" if POWERSHELL_PROMPT.match(candidate) else "bat" if re.match(CMD_PROMPT, candidate) else ""
             key = norm_command(candidate) if shell else ""
             if key and not _is_comment(key):
