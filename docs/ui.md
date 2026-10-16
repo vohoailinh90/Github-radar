@@ -41,6 +41,8 @@ Trang nhớ lượt đã gửi **theo từng repo** (tên repo không phân bi�
 
 Bấm *Quên token* lúc lệnh đang gửi là kết thúc phiên: trang không tạo ra khóa nào sau đó (nó báo lệnh có thể đã tới GitHub, hãy xem tab Actions). Khi nút đang khóa vì một lượt đã gửi, trang ghi lý do ngay dưới nút; dán token lại rồi rời ô (hoặc bấm *Kiểm tra token* hay *Làm mới*) thì trang đọc lại danh sách để biết lượt đó đang ở đâu.
 
+Một lệnh gửi bị treo không giữ nút khóa sau khi bạn bấm *Quên token* (phiên mới không phải chờ yêu cầu cũ), và kết thúc muộn của yêu cầu cũ không mở khóa cho lần gửi mới hơn. Bảng lượt chạy cũng tiếp tục được làm mới sau một lần đọc lỗi nếu lần đọc tốt gần nhất còn thấy lượt đang chạy (kể cả lượt do người khác bấm).
+
 Giới hạn còn lại: nếu một người hay công cụ khác gửi một lượt đúng trong khoảng một giây giữa lúc trang đọc danh sách và lúc trang gửi, và lượt đó bị hủy ngay (nhóm đồng thời thay nó bằng lượt của bạn), trang có thể coi lượt bị hủy là lượt của mình và mở nút sớm vài giây, nên một lần bấm thật nhanh nữa có thể thay lượt của bạn đang chờ. Repo một chủ thì gần như không xảy ra; phân biệt được cần thêm một mã riêng vào đầu vào của workflow, chưa đáng.
 
 ## Giữ trang đúng với mã

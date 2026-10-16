@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-lMTpPdCLBP8cQxKZQtE0lJzkJ3AdxkipHj3SbZFiGcM='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tri5qJ3PP1SecydWDr0i/rye5UKmmGGjuytplqllroc='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -402,6 +402,7 @@ let branch = { repo: "", name: "" };
 let pollTimer = null;
 let sending = false;
 let session = 0;                                     // counts "Quên token": a send that was under way when it happened must not leave anything behind
+let lastActive = false;                              // was any listed run queued or running at the last good look: not knowing is not "finished", so keep looking
 let looks = 0;                                       // numbers the run-list requests: only the newest answer may change anything
 // The send I am following in each repository I sent to (so typing another name, even sending there, and coming back keeps the lock):
 // repo -> { sentAt, baseline: the newest run id listed before the send, seen: has the list shown the run it started (GitHub lists it a few seconds late),
@@ -588,7 +589,7 @@ async function go() {
       await loadRuns();
     }
   } finally {
-    sending = false;
+    if (!forgotten()) sending = false;                                  // after "Quên token" the flag belongs to whatever send came next
     refresh();
   }
 }
@@ -627,6 +628,7 @@ async function loadRuns() {
                 el("td", state.text + (mine ? " (lượt bạn vừa gửi)" : "")), el("td"));
       tr.lastChild.append(link);
     }
+    lastActive = anyActive;
     if (mineOf !== null) { mineOf.active = mineActive; mineOf.seen = mineOf.seen || seenMine; mineOf.checked = Date.now(); }
     $("runs-body").replaceChildren(...rows);
   } catch (e) {
@@ -634,7 +636,7 @@ async function loadRuns() {
   } finally {
     if (look === looks) {
       // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
-      if (anyActive || holds(watchOf(repo))) pollTimer = setTimeout(loadRuns, 10000);
+      if (lastActive || holds(watchOf(repo))) pollTimer = setTimeout(loadRuns, 10000);
       refresh();
     }
   }
@@ -672,6 +674,7 @@ for (const node of document.querySelectorAll("input, select")) {
   const changed = () => {
     if (node.id === "repo") {                                       // another repository: whatever was being loaded for the old one must not land in this one's table
       looks++;
+      lastActive = false;
       clearTimeout(pollTimer);
       $("runs-body").replaceChildren();
     }
@@ -685,7 +688,7 @@ for (const node of document.querySelectorAll("input, select")) {
 // Not `change`: pasting the same value again in one visit to the field fires none.
 $("token").addEventListener("blur", () => { if (watching() && token() !== "") loadRuns(); });
 $("check").addEventListener("click", checkToken);
-$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; session++; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
+$("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; watches.clear(); looks++; session++; sending = false; lastActive = false; $("token").value = ""; clearTimeout(pollTimer); say("connect-msg", "Đã xóa token khỏi trang.", "ok"); refresh(); });
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);

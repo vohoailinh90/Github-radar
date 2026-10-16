@@ -692,7 +692,8 @@ HOLD = """(() => { const real = window.fetch; window.__held = []; window.__hold 
       window.__hold = false; window.__holdPost = false; await new Promise((r) => window.__held.push(r));
       if (window.__rejectHeld) { window.__rejectHeld = false; throw new TypeError('Failed to fetch'); } }      // the held answer is lost instead of delivered
     return res; };
-  window.__release = () => { window.__held.splice(0).forEach((r) => r()); }; })();"""
+  window.__release = () => { window.__held.splice(0).forEach((r) => r()); };
+  window.__releaseFirst = () => { const r = window.__held.shift(); if (r) r(); }; })();"""
 
 
 def test_an_older_run_list_answer_arriving_late_changes_nothing(browser):
@@ -777,6 +778,68 @@ def test_forgetting_the_token_while_the_answer_to_a_send_is_lost_leaves_no_lock_
     page.evaluate("window.__release()")                                            # the answer is lost, after the token was forgotten
     wait(page, "document.getElementById('msg').className.includes('warn')")
     assert "xóa token lúc đang gửi" in text(page, "#msg") and page.is_enabled("#go") and text(page, "#busy-note") == ""
+    context.close()
+
+
+def test_a_send_that_hangs_does_not_keep_the_button_off_after_the_token_was_forgotten(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    connect(page)
+    page.evaluate("window.__holdPost = true")
+    page.click("#go")
+    wait(page, "window.__held.length === 1")                                       # the answer never comes (it is held for as long as the test wants)
+    assert page.is_disabled("#go")
+    page.click("#forget")
+    page.fill("#token", TOKEN)
+    assert page.is_enabled("#go")                                                  # a new session does not wait for the old, stalled request
+    context.close()
+
+
+def test_the_end_of_an_old_send_does_not_free_the_button_while_a_newer_send_is_under_way(browser):
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.add_init_script(HOLD)
+    page = context.new_page()
+    page.goto(PAGE_URL)
+    connect(page)
+    page.evaluate("window.__holdPost = true")
+    page.click("#go")                                                              # send 1: its answer is held
+    wait(page, "window.__held.length === 1")
+    page.click("#forget")
+    connect(page)                                                                  # a new session
+    page.evaluate("window.__holdPost = true")
+    page.click("#go")                                                              # send 2: its answer is held too
+    wait(page, "window.__held.length === 2")
+    assert page.is_disabled("#go")
+    page.evaluate("window.__releaseFirst()")                                       # send 1 finally ends ...
+    wait(page, "document.getElementById('msg').className.includes('warn')")
+    assert page.is_disabled("#go")                                                 # ... and must not free the button: send 2 is still under way
+    page.evaluate("window.__release()")
+    wait(page, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    context.close()
+
+
+def test_a_run_started_elsewhere_is_still_followed_after_a_failed_look(browser):
+    context, page = _with_a_fake_clock(browser)
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    connect(page)
+    page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 3, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    page.click("#refresh")                                                         # someone else's run, no send of mine at all
+    wait(page, "document.getElementById('runs-body').textContent.includes('Đang chạy')")
+    settle(page, 1)
+    page.gh.routes[runs] = (500, {"message": "x"})
+    page.clock.fast_forward(10_000)                                                # the next look fails ...
+    wait(page, "document.getElementById('msg').className.includes('bad')")
+    settle(page, 2)
+    page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 3, "status": "completed", "conclusion": "success", "created_at": now}]})
+    page.clock.fast_forward(10_000)                                                # ... and the page still looks again, by itself
+    wait(page, "document.getElementById('runs-body').textContent.includes('Xong')")
     context.close()
 
 

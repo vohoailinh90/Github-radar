@@ -103,3 +103,12 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | The branch check kept a 255-character cap that the git ref rules do not have, so a hierarchical default branch of more than 255 characters was refused | true: `git check-ref-format` sets no total length | the cap is gone (the value only goes into JSON; GitHub does its own checking); the name is cut to 80 characters where the page shows it; table cases at 256, 301 and 5000 characters; the mutation (cap back) is killed |
+
+## Codex review of head dec9b1e (2 findings, both P2, both confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | After "Quên token" while a send hangs, the `sending` flag stayed set until the old request ended, so a new session's button stayed off (and an old send's `finally` could clear the flag of a newer one) | true | "Quên token" resets the flag; a send ended by it no longer touches the flag in its `finally`; two tests (a held answer; two sends, the first released while the second is still under way); mutations killed |
+| 2 | The poll continued only while the current look saw an active run; after a failed look an externally started run's row went stale | true | the page remembers whether the last good look saw an active run and keeps looking after a failure; reset on repository change and "Quên token"; fake-clock test, mutations killed |
+
+Note on the process: this was the eleventh Codex round on this one page. The later findings are all edge cases of the same lock (timing, identity, session end). Each was reproduced before it was fixed and each fix has a test that fails on the page before it; none was dropped except the one-second concurrent-dispatcher case (a P2 rejected with evidence, written in `docs/ui.md`).
