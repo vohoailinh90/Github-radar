@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5N6EBPyF6qnay8i3wWAJJqJIwpXClKGZutNjCJ7pgyo='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PD05zsgt1mtahg3F/kJnJJNACTQHh11+1bpzKmso1QE='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -525,6 +525,7 @@ async function go() {
   sending = true;
   refresh();
   say("msg", "Đang gửi lệnh…");
+  let attempt = null;                                                   // set once the send is under way: from then on a run may exist
   try {
     let ref = branch.repo === repo ? branch.name : "";
     if (!ref) {
@@ -540,22 +541,32 @@ async function go() {
       say("msg", "Chưa gửi: không đọc được danh sách lượt chạy để theo dõi lượt vừa gửi. " + explain(listed.status, listed.data), "bad");
       return;
     }
-    const before = newestId(listed.data.workflow_runs);
-    const sentAt = Date.now();
+    attempt = { before: newestId(listed.data.workflow_runs), sentAt: Date.now() };
     const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
-    if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // nothing was sent: nothing to wait for
-    clickedAt = sentAt;
-    baseline = before;
-    seenMine = false;
-    $("confirm").value = "";
+    if (res.status >= 500) throw new Error("no clear answer");           // a gateway error can follow an accepted send: treat it like a lost answer
+    if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // GitHub refused: nothing was sent, nothing to wait for
+    watchSent(attempt);
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
     await loadRuns();
   } catch (e) {
-    say("msg", "Không kết nối được api.github.com.", "bad");
+    if (attempt === null) say("msg", "Không kết nối được api.github.com.", "bad");
+    else {                                                                // the answer to the send was lost: it may have been accepted, so do not allow a second one yet
+      watchSent(attempt);
+      say("msg", "Mất kết nối lúc gửi: chưa biết lệnh đã tới GitHub chưa. Trang đợi tối đa 2 phút xem có lượt mới hiện ra; đừng gửi lại ngay.", "warn");
+      await loadRuns();
+    }
   } finally {
     sending = false;
     refresh();
   }
+}
+
+// From a send that may have started a run: recognise that run by its id and keep the button off until it is listed (or the wait ends).
+function watchSent(attempt) {
+  clickedAt = attempt.sentAt;
+  baseline = attempt.before;
+  seenMine = false;
+  $("confirm").value = "";
 }
 
 async function loadRuns() {
@@ -565,7 +576,7 @@ async function loadRuns() {
   let anyActive = false;
   try {
     const res = await call("GET", runsPath(repo));
-    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { mineActive = false; say("msg", explain(res.status, res.data), "bad"); return; }
+    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) { say("msg", explain(res.status, res.data), "bad"); return; }      // not knowing is not "finished": the lock stays as it was
     const rows = [];
     mineActive = false;
     for (const run of res.data.workflow_runs.slice(0, 10)) {
@@ -585,11 +596,10 @@ async function loadRuns() {
     }
     $("runs-body").replaceChildren(...rows);
   } catch (e) {
-    mineActive = false;
     say("msg", "Không tải được danh sách lượt chạy.", "bad");
   } finally {
-    // Keep asking while a run is active or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
-    if (anyActive || Date.now() - clickedAt < DISCOVERY_MS) pollTimer = setTimeout(loadRuns, 10000);
+    // Keep asking while a run is active (as last seen, too), or the run just sent is not listed yet, also after an answer that failed: one bad answer must not stop the page looking.
+    if (anyActive || mineActive || Date.now() - clickedAt < DISCOVERY_MS) pollTimer = setTimeout(loadRuns, 10000);
     refresh();
   }
 }

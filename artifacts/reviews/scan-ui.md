@@ -46,3 +46,12 @@ Not covered by anyone: real CORS from `file://`, the real dispatch answer (204),
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | After an accepted dispatch, a failed answer from the run list (non-200 or a network error) left `loadRuns` without scheduling the next look, so the run never appeared and the button stayed off until the person refreshed | true: the failure paths returned before the scheduling line | the scheduling moved into a `finally`, so the page keeps looking while a run is active or the run just sent is not listed yet, also after a bad answer; `test_a_failed_answer_while_waiting_for_the_run_does_not_stop_the_looking` (fake clock) fails on the old page, and the mutation (no look after a failure) is killed |
+
+## Codex review of head 58e8f78 (2 findings, both P2, both confirmed; one root cause)
+
+Both came from the page treating "I do not know" as "finished/not sent". The rule now: when unsure, keep the lock (never send a second time on a guess).
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | A failed or malformed run-list answer cleared the active-run flag, so the button re-enabled while the run was still queued | true (my own fix for review finding 1 did this) | a failed look keeps the last known state and the page keeps looking until a good answer says the run ended; "Quên token" or a reload frees it; tests with a fake clock, mutations killed |
+| 2 | If the answer to the dispatch is lost (connection drop after the server accepted it), the button re-enabled and a retry could replace the first run | true | an unanswered send, or a 5xx, is treated as possibly sent: the page enters the discovery wait, recognises the run by id, asks for the word again, and does not allow a second send at once; tests for a dropped connection, 502, 504, a forced second click, and the wait ending after 2 minutes |

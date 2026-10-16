@@ -59,6 +59,9 @@ class Github:
             if method == request.method and clean == prefix:
                 if callable(body):                                           # an answer that depends on what happened so far
                     status, body = body()
+                if status == "abort":                                        # the connection drops: the browser gets no answer at all
+                    self.requests[-1]["aborted"] = True
+                    return route.abort("connectionreset")
                 return route.fulfill(status=status, headers=CORS, content_type="application/json", body=json.dumps(body) if body is not None else "")
         return route.fulfill(status=404, headers=CORS, content_type="application/json", body='{"message":"Not Found"}')
 
@@ -330,7 +333,27 @@ def test_forgetting_the_token_frees_the_button_a_run_of_mine_was_holding(ui):
     assert ui.is_enabled("#go")                                                    # nothing of the old session is still waiting
 
 
-def test_a_failed_run_list_does_not_leave_the_button_off(ui):
+def test_a_failed_run_list_keeps_the_lock_of_a_run_last_seen_active_until_a_good_answer_says_it_ended(browser):
+    context, page = _with_a_fake_clock(browser)
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    connect(page)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    page.gh.routes[runs] = (200, page.gh.runs_after_dispatch([{"id": 9, "status": "queued", "conclusion": None, "created_at": now}]))
+    page.click("#go")
+    wait(page, "document.getElementById('go').disabled === true && document.getElementById('runs-body').children.length === 1")
+    page.gh.routes[runs] = (500, {"message": "x"})
+    page.clock.fast_forward(10_000)
+    wait(page, "document.getElementById('msg').className.includes('bad')")
+    assert page.is_disabled("#go")                                                 # not knowing is not "finished"
+    page.clock.fast_forward(200_000)                                               # even far beyond the discovery wait: the run was seen active
+    assert page.is_disabled("#go")
+    page.gh.routes[runs] = (200, {"workflow_runs": [{"id": 9, "status": "completed", "conclusion": "success", "created_at": now}]})
+    page.clock.fast_forward(10_000)                                                # it kept looking, and now a good answer says it ended
+    wait(page, "document.getElementById('go').disabled === false")
+    context.close()
+
+
+def test_forgetting_the_token_frees_a_lock_held_by_a_run_that_cannot_be_looked_up(ui):
     connect(ui)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
@@ -340,7 +363,52 @@ def test_a_failed_run_list_does_not_leave_the_button_off(ui):
     ui.gh.routes[runs] = (500, {"message": "x"})
     ui.click("#refresh")
     wait(ui, "document.getElementById('msg').className.includes('bad')")
+    assert ui.is_disabled("#go")
+    ui.click("#forget")
+    ui.fill("#token", TOKEN)
     assert ui.is_enabled("#go")
+
+
+@pytest.mark.parametrize("answer", [("abort", None), (502, {"message": "bad gateway"}), (504, None)])
+def test_a_send_whose_answer_is_lost_may_have_started_a_run_so_it_is_not_repeated_at_once(ui, answer):
+    connect(ui)
+    ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = answer
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('warn')")
+    assert "chưa biết lệnh đã tới GitHub chưa" in text(ui, "#msg") and ui.is_disabled("#go")
+    ui.evaluate("document.getElementById('go').disabled = false; document.getElementById('go').click()")
+    ui.wait_for_timeout(400)
+    assert len(ui.gh.posts()) == 1                                                 # a forced second send is refused too
+    ui.click("#refresh")                                                           # nothing listed yet: the page puts the lock back (it was forced open above)
+    wait(ui, "document.getElementById('go').disabled === true")
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 31, "status": "completed", "conclusion": "success", "created_at": now}]})
+    ui.click("#refresh")                                                           # the run did start: found by its id, finished, the lock ends
+    wait(ui, "document.getElementById('runs-body').children.length === 1 && document.getElementById('go').disabled === false")
+    assert "lượt bạn vừa gửi" in text(ui, "#runs-body")
+
+
+def test_a_real_scan_whose_answer_was_lost_needs_the_word_typed_again(ui):
+    connect(ui)
+    ui.uncheck("#dry")
+    ui.fill("#confirm", "QUET")
+    ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = ("abort", None)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('warn')")
+    assert ui.input_value("#confirm") == ""
+
+
+def test_a_lost_answer_that_never_produces_a_run_ends_after_the_wait(browser):
+    context, page = _with_a_fake_clock(browser)
+    connect(page)
+    page.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = ("abort", None)
+    page.click("#go")
+    wait(page, "document.getElementById('msg').className.includes('warn')")
+    assert page.is_disabled("#go")
+    page.clock.fast_forward(125_000)
+    wait(page, "document.getElementById('go').disabled === false")
+    context.close()
 
 
 def test_run_links_point_at_the_repository_the_list_was_asked_for(ui):
