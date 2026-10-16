@@ -31,7 +31,8 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   `docs/design-files.md`). No label or caption is invented on those pictures: every word is a draft field, a `labels.py`
   entry or a fact. A pictogram is the one thing a model picks, and only by name from the closed set in `radar/icons/`
   (Lucide, vendored byte for byte, `docs/third-party/lucide/`): `gates.schema` refuses any other name, a draft names an
-  icon for every component or for none, and the renderer draws the file's own shapes, never text a model wrote.
+  icon for every component or for none, and the renderer draws the file's own shapes, never text a model wrote. A draft stored
+  before icons existed is never edited to add them: its icons live in `icons-<lang>.json` beside it (`gates.icon_file`).
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
   only through `links:` + `{link}` in the first comment.
 - **Drafts only.** Posts are exported as `status: draft`. Approving, publishing and marking posted are the owner's acts in
