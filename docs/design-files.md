@@ -56,6 +56,11 @@ Kiểm tay ngày 2026-10-16 với bài `flowkit` (`digests/2026-10-16-2/`) qua c
 
 Lượt quét không xuất PNG: dựng ảnh Excalidraw và draw.io cần trình duyệt, và Moda cần phiên có connector. Muốn PNG: trong excalidraw.com chọn *Export image*; trong app.diagrams.net *File → Export as → PNG*; trong Moda dùng `export` (png, `pixel_ratio=2`).
 
+Riêng 15 bài đã lưu có sẵn `drawio-vi.png` cạnh `drawio-vi.drawio`, để xem ngay trên GitHub mà không phải mở editor. Đó là **ảnh chụp làm thủ công một lần, không do pipeline sinh**: dựng bằng một bản editor draw.io 14.6.12 (gói npm `drawio-offline`, không phải của JGraph) chạy trong Chromium không có mạng, 1200 px rộng. Vì vậy:
+- ảnh không tự cập nhật khi bộ vẽ hoặc `icons-vi.json` đổi (`rerender` không ghi ảnh), nên sau khi đổi phải dựng lại ảnh;
+- ảnh cho thấy cách bản 14.6.12 vẽ, có thể khác chút so với app.diagrams.net bản hiện tại;
+- bài quét mới chưa có ảnh cho tới khi ai đó dựng.
+
 ## Vẽ cho các bài cũ
 
 `python3 radar.py rerender` thêm ba tệp (`board-`, `moda-`, `drawio-`) vào mọi bài đã lưu `draft-*.json`; bản draw.io của bài cũ có icon khi bài có `icons-<ngôn ngữ>.json` (mục Icon ở trên). Nó cũng vẽ lại phần còn lại bằng bộ vẽ hiện tại; chạy trên 10 bài đầu (2026-10-12 đến 2026-10-16), kết quả chỉ là 30 tệp mới (3 mỗi bài), không tệp có sẵn nào đổi; thêm `icons-vi.json` cho một bài đã có bản draw.io thì chỉ tệp `drawio-` của bài đó đổi (có thêm icon). Vẫn nên xem `git status` trước khi commit, vì bộ vẽ có thể đã đổi từ lần đó.
