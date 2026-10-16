@@ -137,7 +137,7 @@ def _node(cases: list, schema: dict | None = None) -> list:
     data = json.dumps(data)
     program = f"""const DATA = {data};
 {_logic()}
-const fns = {{ isRepo, isBranch, merge, resolve, delta, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId }};
+const fns = {{ isRepo, isBranch, merge, resolve, delta, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId, replaceable }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
 process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
 """
@@ -374,3 +374,9 @@ def test_a_delta_is_empty_when_nothing_differs_and_ignores_key_order():
     shuffled = {k: base[k] for k in reversed(list(base))}
     shuffled["rising"] = {k: base["rising"][k] for k in reversed(list(base["rising"]))}
     assert _node([["delta", [shuffled, base]]]) == [{}]
+
+
+def test_the_runs_a_send_could_replace_are_the_active_ones_not_yet_running():
+    runs = [{"id": 5, "status": "in_progress"}, {"id": 4, "status": "queued"}, {"id": 3, "status": "completed"}, {"id": 7, "status": "pending"},
+            {"id": 6, "status": "waiting"}, None, {"id": "x", "status": "queued"}, {"id": 8}, {"id": 9, "status": "requested"}]
+    assert _node([["replaceable", [runs]], ["replaceable", [[]]]]) == [[4, 6, 7, 9], []]

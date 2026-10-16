@@ -920,6 +920,55 @@ def test_the_run_just_sent_is_recognised_whatever_the_clocks_say(ui, created_at)
     assert ui.is_enabled("#go")                                                    # found, finished: no two-minute lock
 
 
+def test_a_send_that_could_replace_a_waiting_run_asks_once_and_goes_on_the_second_click(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 3, "status": "queued", "conclusion": None, "created_at": now}, {"id": 2, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('warn')")
+    assert "có thể thay nó" in text(ui, "#msg") and ui.gh.posts() == [] and ui.is_enabled("#go")      # told, nothing sent, the button is still there
+    ui.click("#go")                                                                # the second click is the confirmation
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert len(ui.gh.posts()) == 1
+    # the answer was for that one send: with the same run still waiting, the next send asks again
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 10, "status": "completed", "conclusion": "success", "created_at": now}, {"id": 3, "status": "queued", "conclusion": None, "created_at": now}]})
+    ui.click("#refresh")
+    wait(ui, "document.getElementById('go').disabled === false")
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('warn')")
+    assert len(ui.gh.posts()) == 1
+
+
+def test_a_run_that_is_only_running_does_not_make_the_page_ask(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    ui.gh.routes[("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")] = (200, {"workflow_runs": [
+        {"id": 2, "status": "in_progress", "conclusion": None, "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert len(ui.gh.posts()) == 1
+
+
+def test_the_confirmation_does_not_carry_over_to_a_changed_queue_or_a_new_session(ui):
+    connect(ui)
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    runs = ("GET", f"/repos/{REPO}/actions/workflows/radar.yml/runs")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 3, "status": "queued", "conclusion": None, "created_at": now}]})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('warn')")
+    ui.gh.routes[runs] = (200, {"workflow_runs": [{"id": 4, "status": "queued", "conclusion": None, "created_at": now}]})      # a different waiting run now
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đang có 1 lượt chờ')")
+    assert ui.gh.posts() == []                                                     # asked again, not sent
+    ui.click("#forget")
+    connect(ui)
+    ui.click("#go")                                                                # a new session asks again too
+    wait(ui, "document.getElementById('msg').textContent.includes('Đang có 1 lượt chờ')")
+    assert ui.gh.posts() == []
+
+
 def test_a_run_that_was_already_listed_is_not_taken_for_the_one_just_sent(ui):
     connect(ui)
     now = dt.datetime.now(dt.timezone.utc).isoformat()

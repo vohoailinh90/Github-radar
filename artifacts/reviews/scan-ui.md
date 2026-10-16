@@ -112,3 +112,11 @@ Test hygiene found on the way: the fake-clock tests waited with `time.sleep`, wh
 | 2 | The poll continued only while the current look saw an active run; after a failed look an externally started run's row went stale | true | the page remembers whether the last good look saw an active run and keeps looking after a failure; reset on repository change and "Quên token"; fake-clock test, mutations killed |
 
 Note on the process: this was the eleventh Codex round on this one page. The later findings are all edge cases of the same lock (timing, identity, session end). Each was reproduced before it was fixed and each fix has a test that fails on the page before it; none was dropped except the one-second concurrent-dispatcher case (a P2 rejected with evidence, written in `docs/ui.md`).
+
+## Codex review of head dec9b1e, as seen by Codex while the PR still showed that head (1 finding, P2)
+
+(The branch was already at 7f24306; the pull request object lagged by seconds, so that review ran on the previous head and does not count for the current one. A new review was requested after this fix.)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The list read before a send may already hold a queued `workflow_dispatch` (waiting behind a running scan); the page used it only for the baseline and sent anyway, replacing it (`concurrency: radar` keeps one waiting run) | true: replacement of a waiting run is GitHub's rule, documented from the start, but the page did nothing to tell the person | not refused (what GitHub calls a run held by the group, `pending` or `queued`, is unverified, so a hard refusal could block legitimate sends): the page asks once ("gửi lúc này có thể thay nó") and sends on the second click; running runs do not trigger it; the answer is for one send and one waiting set, and does not carry over to a changed queue or a new session; tests and mutations killed; the unverified status value is listed in `docs/ui.md` |
