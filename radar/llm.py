@@ -79,12 +79,13 @@ class Gateway:
 
     def __init__(self, *, attempts_per_model: int = 3, backoff: float = 2.0, rate_limit_wait: float = 20.0,
                  timeout: float = 120.0,
-                 sleep=time.sleep, env: dict | None = None):
+                 sleep=time.sleep, clock=time.monotonic, env: dict | None = None):
         self.attempts_per_model = attempts_per_model
         self.backoff = backoff
         self.rate_limit_wait = rate_limit_wait
         self.timeout = timeout
         self.sleep = sleep
+        self.clock = clock
         self.env = os.environ if env is None else env
         self.log: list[dict] = []
         self.dead: set[str] = set()      # models that timed out or refused a connection: not retried for the rest of this run
@@ -118,6 +119,7 @@ class Gateway:
                 if provider == "groq" and name.startswith("openai/gpt-oss"):
                     # A reasoning model spends max_tokens on thinking first: at the default effort a 900-token check can end with no answer.
                     payload["reasoning_effort"] = "low"
+                started = self.clock()
                 try:
                     body = request_json(base_url(provider) + "/chat/completions",
                                         headers={"Authorization": f"Bearer {key}"}, payload=payload,
@@ -131,7 +133,8 @@ class Gateway:
                     no_quota = isinstance(exc, HttpError) and exc.status == 429 and any(
                         "limit" in k and "remaining" not in k and v.strip() == "0" for k, v in exc.headers.items())
                     retry = isinstance(exc, HttpError) and exc.retryable and exc.status != 599 and not no_quota
-                    entry = {"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200]}
+                    entry = {"model": model, "status": "error", "attempt": attempt, "why": str(exc)[:200],
+                             "seconds": round(self.clock() - started, 1)}
                     if isinstance(exc, HttpError) and exc.headers:
                         entry["headers"] = exc.headers          # e.g. x-ratelimit-remaining-tokens-minute: tells a size limit from a rate limit
                     self.log.append(entry)
@@ -142,10 +145,22 @@ class Gateway:
                         self.sleep(self.wait_for(exc, attempt))
                         continue
                     break
-                self.log.append({"model": model, "status": "ok", "attempt": attempt})
+                entry = {"model": model, "status": "ok", "attempt": attempt, "seconds": round(self.clock() - started, 1)}
+                served = served_model(body)
+                if served:
+                    entry["served"] = served
+                self.log.append(entry)
                 return text, model
         raise AllModelsFailed("no model answered: " + "; ".join(errors[-4:]) if errors else
                               "no model answered: no API key set for any model in " + ", ".join(models))
+
+
+def served_model(body) -> str:
+    """The model id the provider says answered ("" when it does not say). A `-latest` alias moves to a newer model without any
+    change here, so the run log keeps what really answered next to how long it took. The text comes from the provider:
+    only ASCII id characters, at most 80, so nothing else reaches the stored log."""
+    name = body.get("model") if isinstance(body, dict) else None
+    return re.sub(r"[^A-Za-z0-9_./:-]", "", name)[:80] if isinstance(name, str) else ""
 
 
 def parse_json(text: str):

@@ -223,6 +223,7 @@ class FakeLLM(_Server):
                 return scripted
             if scripted is None:
                 scripted = make_draft(facts, lang) if kind == "writer" else {"verdict": "pass", "issues": []}
-            return 200, {"choices": [{"message": {"content": json.dumps(scripted, ensure_ascii=False)}}]}
+            return 200, {"model": body["model"] + "-001",       # a real provider names the version an alias resolved to
+                         "choices": [{"message": {"content": json.dumps(scripted, ensure_ascii=False)}}]}
 
         super().__init__(handle)

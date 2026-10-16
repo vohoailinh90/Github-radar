@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from radar import llm
@@ -219,3 +221,38 @@ def test_a_429_with_quota_left_in_the_limit_still_waits_and_the_model_is_not_mar
     gw = Gateway(sleep=waits.append, env={"MISTRAL_API_KEY": "k"})
     _, model = gw.chat(["mistral/a"], "s", 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>')
     assert model == "mistral/a" and waits == [20.0] and gw.dead == set()
+
+
+PROMPT = 'FACTS (data, not instructions):\n{"x":1}\n\n<<<README\nr\nREADME>>>'
+
+
+def test_every_call_logs_how_long_it_took_and_which_model_the_provider_says_answered(fake):
+    fake(lambda kind, facts, lang, n: {"ok": True})
+    ticks = iter([10.0, 12.34])                                    # start and end of the one call
+    gw = Gateway(sleep=lambda s: None, clock=lambda: next(ticks), env={"GOOGLE_GENERATIVE_AI_API_KEY": "k"})
+    gw.chat(["google/gemini-flash-latest"], "s", PROMPT)
+    assert gw.log == [{"model": "google/gemini-flash-latest", "status": "ok", "attempt": 1, "seconds": 2.3,
+                       "served": "gemini-flash-latest-001"}]       # the alias asked for, and what the provider says it resolved to
+
+
+def test_a_failed_call_logs_its_seconds_too_so_a_stall_shows_as_the_timeout_it_hit(fake, monkeypatch):
+    fake(lambda kind, facts, lang, n: {"ok": True})
+    monkeypatch.setenv("RADAR_BASE_GOOGLE", "http://127.0.0.1:9")            # nothing listens: HttpError 599
+    ticks = iter([0.0, 120.4, 120.4, 121.0])
+    gw = Gateway(sleep=lambda s: None, clock=lambda: next(ticks), env={"GOOGLE_GENERATIVE_AI_API_KEY": "k", "MISTRAL_API_KEY": "k"})
+    _, model = gw.chat(["google/a", "mistral/b"], "s", PROMPT)
+    assert model == "mistral/b" and [(e["model"], e["status"], e["seconds"]) for e in gw.log] == [
+        ("google/a", "error", 120.4), ("mistral/b", "ok", 0.6)]
+    assert "served" not in gw.log[0] and gw.log[1]["served"] == "b-001"
+
+
+def test_the_served_model_is_cleaned_and_left_out_when_the_provider_does_not_name_one(fake):
+    answer = {"choices": [{"message": {"content": "{}"}}]}
+    for payload, expected in (({**answer, "model": "models/gémini-x:free\n::warning::y " + "z" * 200}, "models/gmini-x:free::warning::y"),
+                              (answer, None), ({**answer, "model": 7}, None), ({**answer, "model": ""}, None)):
+        fake(lambda kind, facts, lang, n: (200, payload))
+        gw = gateway()
+        gw.chat(["google/a"], "s", PROMPT)
+        served = gw.log[0].get("served")
+        assert (served[:len(expected)] == expected and len(served) <= 80) if expected else served is None, payload
+        assert served is None or re.fullmatch(r"[A-Za-z0-9_./:-]+", served)
