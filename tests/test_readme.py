@@ -946,10 +946,32 @@ def test_a_function_defined_with_the_function_keyword_and_a_pipe_with_stderr_are
         return [line for _, block in readme.code_blocks(text) for line in block]
     c = readme._compound_depth
     for text, depth in (("function setup {", 1), ("function setup {\n  rm -rf build\n}", 0), ("function f { echo hi; }", 0), ("function f() {", 1),
-                        ("function f()\n{", 1), ("echo function {", 0), ("function f", 0), ("function f; echo {", 0), ("function f() { echo a; }", 0)):
+                        ("function f()\n{", 1), ("echo function {", 0), ("function f", 1), ("function f; echo {", 0), ("function f() { echo a; }", 0)):
         assert c(text) == depth, text
     text = "```bash\nfunction setup {\n  rm -rf build\n}\nsetup\n```\n"
     assert readme.heredocs(text) == ([["function setup {", "  rm -rf build", "}"]], ["function setup {", "setup"])
     assert lines("```bash\nproducer |&\ntee log\nls\n```\n") == ["producer |& tee log", "ls"]                 # `|&` is a pipeline operator: it takes the next line
     assert lines("```bash\nls\nproducer |&\n```\n") == ["ls"]                                              # one that has no next line is dropped
     assert lines("```bash\nsleep 1 &\nls\n```\n") == ["sleep 1 &", "ls"]                                  # a lone `&` is a background job, complete
+
+
+def test_at_rem_is_a_comment_and_a_function_header_with_its_brace_on_the_next_line_is_one_group():
+    assert readme.setup_commands("```cmd\n@REM note\n@rem x\n@  Rem y\nrem z\n@echo off\nsetup.bat\n```\n") == ["@echo off", "setup.bat"]
+    assert readme.shells("```bat\n@REM note\nsetup.bat\n```\n") == {"setup.bat": "bat"}
+    c = readme._compound_depth
+    for text, depth in (("setup()", 1), ("setup ()\n{", 1), ("setup()\n{\n  rm -rf build\n}", 0), ("setup() { rm x; }", 0), ("function f\n{", 1), ("function f\n{\n a\n}", 0),
+                        ("setup()\necho hi", 0), ("foo (bar)", 0), ("echo a) b", 0), ("case $x in\n a) b;;\nesac", 0)):
+        assert c(text) == depth, text
+    text = "```bash\nsetup()\n{\n  rm -rf build\n}\nsetup\n```\n"
+    assert readme.heredocs(text) == ([["setup()", "{", "  rm -rf build", "}"]], ["setup()", "setup"])
+
+
+def test_a_redirection_with_a_space_after_an_angle_bracket_is_not_a_placeholder_whatever_the_line_holds_before_it():
+    r = readme._ends_in_redirection
+    for line in ("cat < input >", "cat <in >", "echo hi >", "run a >b >", "cat <", "cat < in > out >", "cat <in> >"):
+        assert r(line), line
+    for line in ("git clone <repo-url>", "cd <your folder>", "run --in <path> --out <dir>", "cat <in>", "cat < in > out", "echo '>'",
+                 "ssh -N -L 4173:127.0.0.1:4173 <user>@<server>", "scp <file> <user>@<host>:<dir>"):
+        assert not r(line), line
+    lines = [line for _, block in readme.code_blocks("```bash\nls\ncat < input >\ngit clone <repo-url>\n```\n") for line in block]
+    assert lines == ["ls", "git clone <repo-url>"]

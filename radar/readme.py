@@ -131,8 +131,8 @@ class Section:
 
 
 def _is_comment(line: str) -> bool:
-    """Whether a line of a code block is only a comment: `#`, `//`, `::` (cmd) or `REM` in any case (`rem note`; cmd's names are not case-sensitive)."""
-    text = line.strip()
+    """Whether a line of a code block is only a comment: `#`, `//`, `::` (cmd) or `REM` in any case, with an `@` before it or not (`rem note`, `@REM note`)."""
+    text = line.strip().lstrip("@").lstrip()                        # `@REM note`: the `@` only keeps cmd from echoing the line
     return text.startswith(("#", "//", "::")) or text.lower() == "rem" or text[:4].lower() == "rem "
 
 
@@ -603,6 +603,16 @@ def _incomplete(command: str) -> bool:
     return not commented and (bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||", "|&")) and not code.endswith(">|")))     # `>|` is a redirection
 
 
+def _closes_placeholder(code: str) -> bool:
+    """Whether the `>` that ends the code closes a placeholder in angle brackets (`<repo-url>`, `<your folder>`): it touches the word before
+    it, and the last `<` that touches the character after it has no `>` between it and this one. A `<` or `>` with a space after or before it, as in
+    `cat < input >`, is a redirection and says nothing about a placeholder."""
+    if not code.endswith(">") or len(code) < 2 or code[-2].isspace() or code[-2] in "<>&|":
+        return False
+    opens = [m.start() for m in re.finditer(r"(?<![<>&])<(?=[^\s<>])", code)]                  # `<user>@<server>`: a placeholder may sit inside a word
+    return bool(opens) and ">" not in code[opens[-1] + 1:-1]
+
+
 def _ends_in_redirection(command: str) -> bool:
     """True when the code of a POSIX command line (a trailing comment cut off) ends in a redirection operator with no word after it
     (`echo hi >`, `cat <`, `cmd >>`, `echo hi >&`, `exec 3<>`, `cmd &>`): the shell reports a syntax error and does not go on in the next line. A placeholder in angle
@@ -612,7 +622,7 @@ def _ends_in_redirection(command: str) -> bool:
     found = re.search(r"(\\*)((?:\d+|&)?(?:>>|>&|>\||<>|<&|<<<|<<-|<<|>|<))$", code)
     if quote or not found or len(found.group(1)) % 2:
         return False
-    return found.group(2) != ">" or code.count(">") > code.count("<")           # a lone `>` may close a `<url>` placeholder
+    return found.group(2) != ">" or not _closes_placeholder(code)                # a lone `>` may close a `<url>` placeholder
 
 
 GRAMMAR_LOOKAHEAD = 20            # lines after an unfinished command in which the rest of it has to come
@@ -758,18 +768,25 @@ def _compound_depth(text: str) -> int:
     until `fi`, `done` or `esac`, and a `{ ... }` group (also the body of `name() {`). A keyword counts where a command begins, outside quotes
     and comments, so `echo if`, `"fi"` and `${x}` are not keywords."""
     text = SHELL_PROMPT.sub("", text.lstrip(), count=1)
-    depth, word, quote, command_start, defining, i = 0, "", "", True, False, 0
+    depth, word, quote, command_start, i = 0, "", "", True, 0
+    names, defining, name_before_paren, empty_parens = 0, False, False, False
 
     def end_word() -> None:
-        nonlocal depth, word, command_start, defining
+        nonlocal depth, word, command_start, names, defining, name_before_paren
         if not word:
             return
         if command_start and (word in COMPOUND_OPEN or word == "{") or defining and word == "{":
-            depth += 1                                       # `function name {`: the brace follows the name
+            depth += 1                                       # `function name {`, `name()` over `{`: the brace follows the head of the definition
             defining = False
         elif command_start and (word in COMPOUND_CLOSE or word == "}"):
             depth = max(0, depth - 1)
-        defining = defining or (command_start and word == "function")
+        elif defining and names:
+            names -= 1                                       # the name after `function`
+        else:
+            defining = False
+        if command_start and word == "function":
+            defining, names = True, 1
+        name_before_paren = command_start and bool(re.fullmatch(r"[A-Za-z_][\w:.-]*", word)) and word not in COMMAND_FOLLOWS | COMPOUND_OPEN
         command_start = command_start and word in COMMAND_FOLLOWS
         word = ""
 
@@ -795,18 +812,28 @@ def _compound_depth(text: str) -> int:
             continue
         elif ch.isspace() and ch != "\n":
             end_word()
-        elif ch in "\n;&|(":
+        elif ch == "(":
             end_word()
+            empty_parens = name_before_paren                 # `name(`: perhaps a function definition
             command_start = True
-            defining = defining and ch == "("                        # `function name() {`: the parentheses belong to the definition
-        elif ch in ")<>":
+        elif ch == ")":
             end_word()
-            command_start = ch == ")"                        # `a) cmd` in a `case`
+            if empty_parens and text[:i].rstrip().endswith("("):
+                defining, names = True, 0                    # `name()`: the body follows, as `{` on this line or on the next
+            command_start, empty_parens = True, False        # `a) cmd` in a `case`
+        elif ch in "\n;&|":
+            end_word()
+            command_start, name_before_paren, empty_parens = True, False, False
+            if ch != "\n":
+                defining = False
+        elif ch in "<>":
+            end_word()
+            command_start = False
         else:
             word += ch
         i += 1
     end_word()
-    return depth
+    return depth + (1 if defining else 0)              # a definition whose body has not begun is open
 
 
 def _construct_open(lang: str, text: str) -> bool:
