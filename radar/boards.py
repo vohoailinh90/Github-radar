@@ -3,7 +3,8 @@
 `build` turns a stored draft into positioned rectangles, text, arrows and badges. `excalidraw.py` and `moda.py` only
 translate that scene into their own file format, so both pictures show the same content in the same places. Nothing here
 calls a model or the network, and every word on the scene is a field of the draft, a label of `labels.py` or a fact:
-no arrow label, caption or icon is invented, and the draft's `flow` (index pairs, no names) is drawn as plain arrows.
+no arrow label, caption or icon is invented (an icon is the draft's own pick from the closed set in `icons/`, drawn only by an
+editor whose Style asks for it), and the draft's `flow` (index pairs, no names) is drawn as plain arrows.
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ import math
 import re
 from dataclasses import dataclass
 
+from . import icons
 from .svg import _wide, fmt_int, width        # the same width estimate as the SVG diagrams, so text reserves the same room
 
 W, M = 1200, 60                    # canvas width and side margin
@@ -35,6 +37,7 @@ class Style:
     title_lh: float = 1.15
     band: bool = True              # a dark band behind the title (Moda); False puts the title straight on the page (Excalidraw)
     wscale: float = 1.0            # how much wider than svg.py's estimate this editor's font runs (Be Vietnam Pro: wider)
+    icon: int = 0                  # width of the pictogram on each component card; 0 draws none (only a draft that names an icon for every component gets them)
 
 
 def one_line(text) -> str:
@@ -152,10 +155,13 @@ def build(facts: dict, draft: dict, t: dict, st: Style) -> dict:
     gap_x, gap_y = 120, 74
     bw = (CW - (cols - 1) * gap_x) // cols
     blocks = []
+    pic = st.icon if st.icon and all(isinstance(c.get("icon"), str) and c["icon"] in icons.NAMES for c in comps) else 0
+    off = pic + 16 if pic else 0                               # the text starts right of the pictogram
     for c in comps:
-        name = wrap(c["name"], st.name, bw - 40, st.wscale)
-        role = wrap(c["role"], st.role, bw - 40, st.wscale)
-        blocks.append((name, role, 22 + math.ceil(len(name) * st.name * 1.25) + 10 + math.ceil(len(role) * st.role * st.body_lh) + 22))
+        name = wrap(c["name"], st.name, bw - 40 - off, st.wscale)
+        role = wrap(c["role"], st.role, bw - 40 - off, st.wscale)
+        blocks.append((name, role, max(22 + math.ceil(len(name) * st.name * 1.25) + 10 + math.ceil(len(role) * st.role * st.body_lh) + 22,
+                                       44 + pic)))
     rows = [blocks[i:i + cols] for i in range(0, len(blocks), cols)]
     row_h = [max(b[2] for b in row) for row in rows]
     row_y = [top]
@@ -166,12 +172,14 @@ def build(facts: dict, draft: dict, t: dict, st: Style) -> dict:
         r, c = divmod(i, cols)
         x, yy = M + c * (bw + gap_x), row_y[r]
         pos[i] = (x, yy, bw, row_h[r])
-        card = add(k="rect", role=f"layer{i % 4}", x=x, y=yy, w=bw, h=row_h[r])
+        card = add(k="rect", role=f"layer{i % 4}", x=x, y=yy, w=bw, h=row_h[r], comp=i)
+        if pic:
+            add(k="icon", name=comps[i]["icon"], x=x + 20, y=yy + 22, d=pic)
         ny = yy + 22
-        ny += text(x + 20, ny, bw - 40, comps[i]["name"], st.name, weight=800, lh=1.25, inside=card) + 10
-        text(x + 20, ny, bw - 40, comps[i]["role"], st.role, inside=card)
+        ny += text(x + 20 + off, ny, bw - 40 - off, comps[i]["name"], st.name, weight=800, lh=1.25, inside=card) + 10
+        text(x + 20 + off, ny, bw - 40 - off, comps[i]["role"], st.role, inside=card)
     for a, b in links:
-        add(k="arrow", pts=_route(a, b, cols, pos, row_y, row_h, gap_y))
+        add(k="arrow", pts=_route(a, b, cols, pos, row_y, row_h, gap_y), link=(a, b))
     close(panel, row_y[-1] + row_h[-1])
 
     # --- the steps: two columns of numbered cards ------------------------------------------------------------------------
@@ -191,14 +199,14 @@ def build(facts: dict, draft: dict, t: dict, st: Style) -> dict:
         for c, (head, body, _) in enumerate(row):
             n = r * 2 + c
             x = M + c * (sw + 40)
-            card = add(k="rect", role=f"layer{n % 4}", x=x, y=sy, w=sw, h=rh)
+            card = add(k="rect", role=f"layer{n % 4}", x=x, y=sy, w=sw, h=rh, step=n)
             add(k="badge", x=x + 22, y=sy + 22, d=56, label=str(n + 1))
             ty = sy + 22
             if head:
                 ty += text(x + tx, ty, tw, steps[n]["title"], st.step_title, weight=800, lh=1.25, inside=card) + 8
             text(x + tx, ty, tw, steps[n]["text"], st.step_text, inside=card)
             if c == 0 and len(row) == 2:                    # the hand-off to the next step on the same row
-                add(k="arrow", pts=[(x + sw + 4, sy + rh / 2), (x + sw + 36, sy + rh / 2)])
+                add(k="arrow", pts=[(x + sw + 4, sy + rh / 2), (x + sw + 36, sy + rh / 2)], step=n)
         sy += rh + 24
     close(panel, sy - 24)
 
