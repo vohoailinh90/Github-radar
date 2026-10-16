@@ -63,6 +63,7 @@ Cờ không đổi điểm và không loại repo. Nội dung bài không đổi
 - **Điểm sức khỏe kiểu criticality/projectrank** (contributor, release, issue đã đóng…). Cần thêm vài lượt gọi API cho *mỗi* ứng viên, và chưa có bằng chứng nó giúp chọn bài hay hơn
   số sao + độ mới + tốc độ. Nên thêm khi đã có vài chục bài để so xem điểm có khớp với cảm nhận của chủ repo.
 - **Phát hiện sao giả kiểu StarScout.** Cần lịch sử stargazer (có `starred_at`) và hoạt động từng tài khoản: hàng trăm lượt gọi mỗi repo. Hai cờ ở trên là phần rẻ nhất có thể làm bằng dữ liệu đã có.
+- **Đếm `incomplete_results` và chờ khi gặp giới hạn phụ không có `Retry-After`.** Xem `docs/scan-conditions.md`: cần một trần tổng cho thời gian chờ ở giai đoạn tìm trước khi làm.
 - **Gia tốc** (`vel_7d − vel_30d` của StarVelocity). Cần cửa sổ 30 ngày, tức khoảng 8 lần quét. Làm sau khi `state/stars.json` đã dài đủ.
 - **Dùng OSSInsight/GitHub Trending làm nguồn tìm.** Thêm một phụ thuộc ngoài GitHub, môi trường dựng repo không kiểm chứng được, và trang Trending không có API chính thức (các công cụ trên phải cào HTML).
 

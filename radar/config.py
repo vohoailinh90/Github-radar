@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import copy
 import os
 from pathlib import Path
 
 import yaml
 
+from . import conditions
+
 ROOT = Path(__file__).resolve().parent.parent
-LANGS = ("vi", "en", "ja")
+LANGS = conditions.LANGS
 
 DEFAULTS = {
+    "scan_label": None,             # set by load(): the preset (or "custom") whose conditions this scan runs with; recorded in the run report
     "langs": ["vi"],
     "picks_per_run": 3,
     "min_stars": 1500,
@@ -56,14 +60,20 @@ def deep_merge(base: dict, extra: dict) -> dict:
 def load(path: Path | None = None, env: dict | None = None) -> dict:
     env = os.environ if env is None else env
     path = path or ROOT / "radar.yaml"
-    cfg = dict(DEFAULTS)
+    cfg = copy.deepcopy(DEFAULTS)                    # a copy all the way down: the overrides below must never change DEFAULTS
     if path.exists():
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         if not isinstance(data, dict):
             raise ValueError(f"{path}: expected a mapping at the top level")
-        cfg = deep_merge(DEFAULTS, data)
-    # Scheduled runs override without editing the file: RADAR_LANGS=vi,en  RADAR_PICKS=2  RADAR_SEARCH_INTERVAL=0
-    # RADAR_MODELS_WRITER="google/x mistral/y"
+        cfg = copy.deepcopy(deep_merge(DEFAULTS, data))
+    # One scan's conditions (RADAR_PRESET / RADAR_CONDITIONS, see radar/conditions.py): ONE layer over the file. They are
+    # checked before they are applied, and the result is validated once, after the explicit variables below.
+    overrides, label = conditions.from_env(env, [b["id"] for b in cfg["buckets"]])
+    if overrides:
+        cfg = conditions.apply(cfg, overrides)
+    cfg["scan_label"] = label
+    # The explicit variables are more specific than a preset and win over it: RADAR_LANGS=vi,en  RADAR_PICKS=2
+    # RADAR_SEARCH_INTERVAL=0  RADAR_MODELS_WRITER="google/x mistral/y"
     if env.get("RADAR_LANGS"):
         cfg["langs"] = [x for x in env["RADAR_LANGS"].replace(",", " ").split() if x]
     if env.get("RADAR_PICKS"):
@@ -95,6 +105,9 @@ def validate(cfg: dict) -> None:
     for bucket in cfg["buckets"]:
         if not bucket.get("id") or not bucket.get("topics"):
             raise ValueError("every bucket needs an id and at least one topic")
+        # a topic is pasted into the search query (`topic:{topic}`): anything GitHub itself would not accept as a topic could add a qualifier
+        if not conditions.BUCKET_ID.fullmatch(str(bucket["id"])) or any(not isinstance(t, str) or not conditions.TOPIC.fullmatch(t) for t in bucket["topics"]):
+            raise ValueError(f"bucket {str(bucket['id'])[:20]!r}: an id or a topic that GitHub would not accept (a topic is lower case letters, digits and hyphens)")
     for role in ("writer", "checker"):
         if not cfg["models"].get(role):
             raise ValueError(f"models.{role} must list at least one <provider>/<model>")

@@ -26,6 +26,15 @@ on:
         description: "With repo: ai, software, solutions or startup (blank = from the repository's topics)"
         type: string
         default: ""
+      preset:
+        description: "Saved scan conditions (radar/presets.json, `python3 radar.py presets`). none = radar.yaml as it is. The picks and langs boxes above win over it"
+        type: choice
+        options: [none, ai-sau, repo-moi-noi, khoi-nghiep-saas, cong-cu-dev, quet-nhanh]
+        default: none
+      conditions:
+        description: "One-off conditions as JSON, e.g. {\"picks_per_run\": 2, \"min_stars\": 3000} (wins over preset; see docs/scan-conditions.md)"
+        type: string
+        default: ""
 
 # One scan at a time; a late run waits instead of cancelling a run that is half-way through its quota.
 concurrency:
@@ -94,6 +103,8 @@ jobs:
           RADAR_LANGS: ${{ inputs.langs }}
           RADAR_REPO: ${{ inputs.repo }}
           RADAR_BUCKET: ${{ inputs.bucket }}
+          RADAR_PRESET: ${{ inputs.preset }}
+          RADAR_CONDITIONS: ${{ inputs.conditions }}
         run: |
           args=""
           if [ "$DRY" = "true" ]; then args="--dry-run"; fi

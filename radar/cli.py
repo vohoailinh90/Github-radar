@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import config, contract, history, pipeline
+from . import conditions, config, contract, history, pipeline
 from .github import GitHub
 from .llm import PROVIDER_KEYS, Gateway, base_url, family, has_key, split_model
 from .net import HttpError, request_json
@@ -50,6 +50,21 @@ def cmd_run(args, cfg) -> int:
                           pace=float(cfg.get("pace_seconds", 3)), only=only, bucket=bucket)
     print(json.dumps({k: v for k, v in report.items() if k != "models_log"}, indent=2, ensure_ascii=False))
     return 0 if report["ok"] else 1
+
+
+def cmd_presets(args, cfg) -> int:
+    """Saved scan conditions and what each would cost. Nothing is fetched."""
+    for name, item in sorted(conditions.load_presets().items()):
+        try:
+            effective = config.load(args.config, {**os.environ, "RADAR_PRESET": name, "RADAR_CONDITIONS": ""})
+        except ValueError as exc:
+            print(f"FAIL  {name}: {exc}")
+            return 1
+        cost = conditions.estimate(effective)
+        print(f"{name:<18} {item['label']}")
+        print(f"{'':<18} {cost['searches']} searches (~{cost['search_seconds']} s), {cost['model_calls']}+ model calls, "
+              f"~{cost['pace_seconds']} s of pauses between posts; conditions: {json.dumps(item['conditions'], ensure_ascii=False)}")
+    return 0
 
 
 def cmd_doctor(args, cfg) -> int:
@@ -163,12 +178,17 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.set_defaults(fn=fn)
         p.add_argument("--date", default=None, help="YYYY-MM-DD (default: today, UTC)")
+        if name in ("scan", "run"):
+            p.add_argument("--preset", default=None, help="saved scan conditions (python3 radar.py presets)")
+            p.add_argument("--conditions", default=None, help="one-off conditions as JSON, e.g. '{\"picks_per_run\": 2}' (wins over --preset)")
         if "dry" in extra:
             p.add_argument("--dry-run", action="store_true", help="discover and rank only: no model calls, nothing written")
             p.add_argument("--repo", default=None, help="cover this one repository (owner/name or a github.com link) instead of searching")
             p.add_argument("--bucket", default=None, help="with --repo: ai, software, solutions or startup (default: from the repository's topics)")
         if "ping" in extra:
             p.add_argument("--ping", action="store_true", help="ask each provider whether the configured models still exist")
+    p = sub.add_parser("presets", help="list the saved scan conditions and what each costs")
+    p.set_defaults(fn=cmd_presets)
     p = sub.add_parser("models")
     p.set_defaults(fn=cmd_models)
     p.add_argument("provider", choices=sorted(PROVIDER_KEYS))
@@ -184,7 +204,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--base", default="main")
     args = parser.parse_args(argv)
     try:
-        cfg = config.load(args.config)
+        # --preset / --conditions are the same conditions a workflow input carries (radar/conditions.py), given on the command line
+        env = {**os.environ}
+        if getattr(args, "preset", None) is not None:
+            env["RADAR_PRESET"] = args.preset
+        if getattr(args, "conditions", None) is not None:
+            env["RADAR_CONDITIONS"] = args.conditions
+        cfg = config.load(args.config, env)
         return args.fn(args, cfg)
     except (ValueError, HttpError, RuntimeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
