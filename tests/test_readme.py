@@ -1235,6 +1235,16 @@ def test_a_parenthesis_in_a_cmd_variable_reference_groups_nothing():
     assert scanned("```bat\nfor %%i in (a b) do echo %%i\nver\n```\n") == [("for %%i in (a b) do echo %%i", None), ("ver", None)]          # a loop variable is not a reference
 
 
+def test_a_cmd_variable_substitution_may_hold_spaces_in_its_search_and_replacement():
+    def scanned(text):
+        return [(line, owner) for _, block, owners in readme._scan(text) for line, owner in zip(block, owners)]
+    assert scanned("```bat\necho %value:foo (=bar%\ndel build\n```\n") == [("echo %value:foo (=bar%", None), ("del build", None)]
+    assert scanned("```bat\necho !var:a (= b c!\ndel build\n```\n") == [("echo !var:a (= b c!", None), ("del build", None)]          # delayed expansion too
+    assert readme._cmd_depth("echo %PATH:; (=%") == 0 and readme._cmd_depth("echo %name:~0,3% (") == 1                 # a substring reference, then a real opener
+    assert readme._cmd_depth("echo 50% (half) of 100%") == 0 and readme._cmd_depth("IF x (") == 1                      # a percent sign in text is not a reference
+    assert scanned("```bat\nIF EXIST build (\n  echo %v:a (=b%\n)\nver\n```\n") == [("IF EXIST build (", None), ("  echo %v:a (=b%", 0), (")", 0), ("ver", None)]
+
+
 def test_a_powershell_comment_may_begin_right_after_the_quote_that_closes_a_string():
     strip = readme._strip_ps_block_comments
     assert strip(["Write-Output 'x'<#", "Remove-Item build", "#>", "Get-Date"]) == ["Write-Output 'x'", "Get-Date"]

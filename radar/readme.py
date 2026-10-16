@@ -939,7 +939,7 @@ def _compound_depth(text: str, fish: bool = False) -> int:
     return depth + tests + (1 if defining and counts_pending else 0)              # a definition whose body has not begun is open
 
 
-CMD_EXPANSION = re.compile(r'%[^%\s"]+%|![^!\s"]+!')          # a variable reference of cmd: `%name%`, `%name:search=replace%`, delayed `!name!`
+CMD_EXPANSION = re.compile(r'%[^%\s":]+(?::[^%"]*)?%|![^!\s":]+(?::[^!"]*)?!')          # a variable reference of cmd: `%name%`, `%name:search=replace%` (the text after the colon may hold spaces), delayed `!name!`
 
 
 def _cmd_depth(text: str) -> int:

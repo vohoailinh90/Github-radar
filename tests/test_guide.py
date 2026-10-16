@@ -962,3 +962,18 @@ def test_a_prompted_command_in_a_list_item_or_a_quote_is_a_command_of_the_readme
     assert gates.command_coverage(used, facts) == (2, 4)
     bare = mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]], facts=facts)
     assert any("the README shows 4 command lines but the guide uses none of them" in m for m in errs(bare, facts=facts))
+
+
+def test_a_prose_command_with_a_trailing_comment_is_one_command_for_the_coverage():
+    prose = "# Sample\n\nInstall it:\n\npip install sample-agent-kit # use the CPU build\n"
+    facts = {**FACTS, "readme": prose, "links": [], "blocks": []}
+    assert gates.command_coverage(mutate(lambda d: [s.update(commands=[]) for s in d["guide"]["steps"]], facts=facts), facts) == (0, 1)          # one command, not two
+    for shown in ("pip install sample-agent-kit # use the CPU build", "pip install sample-agent-kit"):
+        used = mutate(lambda d: d["guide"]["steps"][0].update(commands=[shown]), facts=facts)
+        assert gates.command_coverage(used, facts) == (1, 1)                                  # either form follows the README
+    one_step = mutate(lambda d: (d["guide"].update(steps=d["guide"]["steps"][:1]), d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"])), facts=facts)
+    assert not any("needs 3-10 steps" in m for m in errs(one_step, facts=facts))              # a README with one command to follow needs no more than a short guide
+    fenced = "# Sample\n\n```bash\npip install sample-agent-kit # use the CPU build\n```\n"
+    facts = {**FACTS, "readme": fenced, "links": [], "blocks": []}
+    used = mutate(lambda d: d["guide"]["steps"][0].update(commands=["pip install sample-agent-kit"]), facts=facts)
+    assert gates.command_coverage(used, facts) == (1, 1)                                      # and a code block's command, with or without its comment

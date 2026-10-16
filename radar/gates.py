@@ -477,10 +477,11 @@ def command_coverage(draft: dict, facts: dict) -> tuple[int, int]:
 
 
 def _command_keys(commands: list, shells=None) -> set[str]:
-    """The comparable form of each command of a list of command lines. A heredoc (its opening line, body and closing word) is one
-    command, keyed by its opening line: its body lines are data and not commands to count."""
+    """The comparable form of each command of a list of command lines, without a trailing `# comment` (a line with and without it is one
+    command). A heredoc (its opening line, body and closing word) is one command, keyed by its opening line: its body lines are data
+    and not commands to count."""
     return {key for command, data in zip(commands, readmelib.heredoc_data(commands, shells))
-            if not data and isinstance(command, str) and (key := _norm_cmd(command))}
+            if not data and isinstance(command, str) and (key := _norm_cmd(readmelib.strip_trailing_comment(command)))}
 
 
 def _backtick_problems(text: str, blob: str, paths: set[str]) -> list[str]:
