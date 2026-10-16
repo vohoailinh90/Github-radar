@@ -166,6 +166,15 @@ def _link_ref_ok(value) -> bool:
     return value is None or (isinstance(value, int) and not isinstance(value, bool) and value >= 0)
 
 
+REFS = (("link_ref", "links"), ("snippet_ref", "blocks"))      # a number into FACTS.<name>, or null
+
+
+def _ref_problems(item: dict, field: str) -> list[Problem]:
+    """The reference fields of any guide item must be a whole number or null, whether or not the renderer reads them there."""
+    return [Problem("error", f"{field}.{name}", f"must be a number from FACTS.{source}, or null")
+            for name, source in REFS if not _link_ref_ok(item.get(name))]
+
+
 def guide_schema(guide) -> list[Problem]:
     """Shape and size of the how-to guide. Whether its commands, evidence and links are real is `check`'s job."""
     if not isinstance(guide, dict):
@@ -180,8 +189,7 @@ def guide_schema(guide) -> list[Problem]:
             continue
         _guide_text(r.get("item"), GUIDE["item"], field + ".item", p)
         _guide_text(r.get("detail"), GUIDE["detail"], field + ".detail", p, required=False)
-        if not _link_ref_ok(r.get("link_ref")):
-            p.append(Problem("error", field + ".link_ref", "must be a number from FACTS.links, or null"))
+        p += _ref_problems(r, field)
     for i, s in enumerate(_guide_list(guide.get("steps"), "steps", "guide.steps", p)):
         field = f"guide.steps[{i}]"
         if not isinstance(s, dict) or not s.get("evidence"):
@@ -197,10 +205,7 @@ def guide_schema(guide) -> list[Problem]:
         for c in _guide_list(cmds, "commands", field + ".commands", p):
             if not isinstance(c, str) or len(c) > GUIDE["command"]:
                 p.append(Problem("error", field + ".commands", f"each command is text up to {GUIDE['command']} chars"))
-        if not _link_ref_ok(s.get("link_ref")):
-            p.append(Problem("error", field + ".link_ref", "must be a number from FACTS.links, or null"))
-        if not _link_ref_ok(s.get("snippet_ref")):
-            p.append(Problem("error", field + ".snippet_ref", "must be a number from FACTS.blocks, or null"))
+        p += _ref_problems(s, field)
     for i, t in enumerate(_guide_list(guide.get("troubleshooting", []), "troubleshooting", "guide.troubleshooting", p)):
         field = f"guide.troubleshooting[{i}]"
         if not isinstance(t, dict) or not t.get("evidence"):
@@ -208,6 +213,7 @@ def guide_schema(guide) -> list[Problem]:
             continue
         _guide_text(t.get("problem"), GUIDE["problem"], field + ".problem", p)
         _guide_text(t.get("fix"), GUIDE["fix"], field + ".fix", p)
+        p += _ref_problems(t, field)
     for i, t in enumerate(_guide_list(guide.get("next", []), "next", "guide.next", p)):
         _guide_text(t, GUIDE["next"], f"guide.next[{i}]", p)
     return p
@@ -388,7 +394,7 @@ def check(draft: dict, facts: dict, lang: str, require_guide: bool = False) -> l
                     problems.append(Problem("error", field, f"evidence {item['evidence']!r} is not README or a path in the repository"))
                 for name, size, source in (("link_ref", links, "links"), ("snippet_ref", blocks, "blocks")):
                     ref = item.get(name)
-                    if ref is not None and ref >= size:
+                    if isinstance(ref, int) and not isinstance(ref, bool) and ref >= size:
                         problems.append(Problem("error", f"{field}.{name}", f"{ref} is not an entry of FACTS.{source} (it has {size})"))
         used, wanted = command_coverage(draft, facts)
         typed = [c for _, c in guide_commands(draft)]

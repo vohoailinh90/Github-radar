@@ -229,6 +229,12 @@ def paths(node, prefix=()):
             yield from paths(v, prefix + (i,))
 
 
+def value_at(draft, path):
+    for key in path:
+        draft = draft[key]
+    return draft
+
+
 def replace_at(draft, path, value):
     d = copy.deepcopy(draft)
     if not path:
@@ -252,6 +258,47 @@ def test_the_gates_never_raise_whatever_shape_a_model_sends_for_any_field():
             gates.check(draft, FACTS, "vi", require_guide=True)
             tried += 1
     assert tried > 1000
+
+
+def test_the_gates_never_raise_when_a_model_adds_reference_keys_to_any_guide_item():
+    """An item may carry a key the schema does not list for it (snippet_ref on a requirement, link_ref on a troubleshooting entry)."""
+    base = make_draft(FACTS, "vi")
+    guide_items = [path for path in paths(base) if path[:1] == ("guide",) and isinstance(value_at(base, path), dict)]
+    assert len(guide_items) == 9                 # the guide, its two requirements, five steps and one troubleshooting entry
+    tried = 0
+    for path in guide_items:
+        for key in ("link_ref", "snippet_ref"):
+            for odd in ODD + [1.5, "0", -1, 99]:
+                draft = replace_at(base, path + (key,), odd)
+                gates.schema(draft)
+                gates.check(draft, FACTS, "vi", require_guide=True)
+                tried += 1
+    assert tried == 9 * 2 * len(ODD + [1.5, "0", -1, 99])
+
+
+def test_the_gates_never_raise_when_any_known_field_name_is_added_to_any_object_of_a_draft():
+    import random
+    rng = random.Random(11)
+    base = make_draft(FACTS, "vi")
+    keys = ["evidence", "commands", "do", "link_ref", "snippet_ref", "text", "name", "steps", "requirements", "troubleshooting", "hashtags", "flow", "try_it"]
+    objects = [path for path in paths(base) if isinstance(value_at(base, path), dict)]
+    tried = 0
+    for path in objects:
+        for key in keys:
+            draft = replace_at(base, path + (key,), rng.choice(ODD + [1.5, -1, 10 ** 30, [None], [{}]]))
+            gates.schema(draft)
+            gates.check(draft, FACTS, "vi", require_guide=True)
+            gates.command_coverage(draft, FACTS)
+            tried += 1
+    assert tried == len(objects) * len(keys) and len(objects) >= 15
+
+
+@pytest.mark.parametrize("where", ["requirements", "steps", "troubleshooting"])
+@pytest.mark.parametrize("key", ["link_ref", "snippet_ref"])
+@pytest.mark.parametrize("bad", ["x", [1], 1.5, True, -1])
+def test_a_reference_of_the_wrong_kind_is_an_error_on_every_item_of_the_guide(where, key, bad):
+    found = errs(mutate(lambda d: d["guide"][where][0].update({key: bad})))
+    assert any(f"{where}[0].{key}" in e for e in found), found
 
 
 def test_a_draft_that_is_not_an_object_at_all_is_refused_by_the_caller_not_by_a_crash():
