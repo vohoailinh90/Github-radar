@@ -539,7 +539,7 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
             return False                           # a string is open: its line break is part of it, and in 'single quotes' the backtick is a character of it
         return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
-        return re.search(r"(?<!\^)\^$", physical) is not None
+        return (len(physical) - len(physical.rstrip("^"))) % 2 == 1                # `^^` is a caret, so `^^^` is a caret and the mark
     quote, _, commented, _ = _shell_state(line)
     if commented or quote == "'":                 # `echo a # note \`: the backslash belongs to the comment; in 'single quotes' it is literal
         return False

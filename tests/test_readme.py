@@ -1205,3 +1205,10 @@ def test_inline_code_keeps_its_image_markup_and_a_prompted_command_outside_a_fen
     assert readme.shells("Try it:\n\nPS C:\\> Get-Date\n\nor `C:\\Users\\me> dir /x` here.\n\n```bash\nls\n```\n") == {"Get-Date": "powershell", "dir /x": "bat"}
     assert readme.shells("PS C:\\> ls\n\n```bash\nls\n```\n") == {}                          # a Unix block shows it too: no caption
     assert readme.shells("A sentence with PS in it and $ not a prompt.\n") == {}
+
+
+def test_a_cmd_line_continues_after_an_odd_run_of_carets_and_not_after_an_even_one():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bat\necho literal^^^\ndel file\n```\n") == ["echo literal^^ del file"]          # `^^` is a caret and the third escapes the line break
+    assert lines("```bat\necho a^^\nver\necho b^\n  c\necho d^^^^^\n  e\n```\n") == ["echo a^^", "ver", "echo b c", "echo d^^^^ e"]
