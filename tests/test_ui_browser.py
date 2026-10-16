@@ -1125,6 +1125,42 @@ def test_the_page_refuses_to_run_inside_a_frame(browser, tmp_path):
     context.close()
 
 
+def _page_served_at(browser, url):
+    """The page as a server would give it at `url` (an origin other than file://), with api.github.com answered by the test."""
+    context = browser.new_context()
+    gh = Github()
+    context.route("https://api.github.com/**", gh.handle)
+    context.route(url + "**", lambda route: route.fulfill(status=200, content_type="text/html; charset=utf-8", body=ui_sync.PAGE.read_text(encoding="utf-8")))
+    page = context.new_page()
+    page.gh = gh
+    page.goto(url)
+    return context, page
+
+
+@pytest.mark.parametrize("url", ["https://someone.github.io/Github-radar/ui/", "https://SOMEONE.GITHUB.IO/x/", "https://a.b.github.io/"])
+def test_no_token_is_taken_on_a_shared_github_io_origin(browser, url):
+    context, page = _page_served_at(browser, url)
+    assert page.is_visible("#origin-warning") and page.is_disabled("#token") and page.is_disabled("#check")
+    assert "một trang khác có thể mở trang này" in text(page, "#origin-warning")
+    page.evaluate("document.getElementById('token').disabled = false; document.getElementById('token').value = 'github_pat_x';"
+                  "document.getElementById('token').dispatchEvent(new Event('input'))")           # even a token forced into the field is not used
+    assert page.is_disabled("#go")
+    page.evaluate("document.getElementById('check').disabled = false; document.getElementById('check').click();"
+                  "document.getElementById('go').disabled = false; document.getElementById('go').click()")
+    page.wait_for_timeout(400)
+    assert page.gh.requests == []
+    context.close()
+
+
+@pytest.mark.parametrize("url", ["https://radar.example.com/", "http://localhost:8123/", "https://github.io.example.com/", "https://notgithub.io/"])
+def test_an_origin_of_its_own_takes_the_token_as_usual(browser, url):
+    context, page = _page_served_at(browser, url)
+    assert page.is_hidden("#origin-warning") and page.is_enabled("#token") and page.is_enabled("#check")
+    page.fill("#token", TOKEN)
+    assert page.is_enabled("#go")
+    context.close()
+
+
 def test_the_content_security_policy_really_blocks_injected_script(ui):
     ui.evaluate("""() => { const s = document.createElement('script'); s.textContent = 'window.__ran = 1'; document.body.append(s); }""")
     assert ui.evaluate("window.__ran") is None                                   # the hash allows our script and nothing else

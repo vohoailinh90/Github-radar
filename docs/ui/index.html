@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-JyvTI39Epxb+N6p56+rz9ZHcT30IM3UDakXlfUuk2ak='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-P5vFwqXunG24wiBvVkoHeK8CmETeNXjU3BUnnfgtC2M='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -46,6 +46,7 @@ a { color: var(--accent); }
     <h2>1. Kết nối</h2>
     <label for="repo">Repo (<code>chủ/tên</code>)</label>
     <input id="repo" type="text" autocomplete="off" spellcheck="false">
+    <p id="origin-warning" class="bad" role="alert" hidden>Trang này đang chạy trên github.io: mọi trang của cùng một chủ dùng chung một origin ở đó, nên một trang khác có thể mở trang này và đọc ô token. Vì vậy trang không nhận token ở đây. Hãy tải file về mở trực tiếp, hoặc mở qua <code>python3 -m http.server</code> trên máy bạn (xem docs/ui.md).</p>
     <label for="token">Token (fine-grained, chỉ repo này, quyền <b>Actions: Read and write</b>, không cần quyền nào khác)</label>
     <input id="token" type="password" autocomplete="off" spellcheck="false">
     <div class="actions">
@@ -283,6 +284,9 @@ if (window.top !== window.self) {
   throw new Error("framed");
 }
 const DATA = JSON.parse(document.getElementById("radar-data").textContent);
+// github.io serves every site of an owner from ONE origin, so a sibling site's script can open this page and read the token field (same-origin windows
+// reach into each other; the CSP and the frame check do not stop that). Take no token there.
+const SHARED_ORIGIN = /^https:\/\/[^/]*\.github\.io(:\d+)?$/i.test(window.origin);
 const API = "https://api.github.com";
 
 /* LOGIC:BEGIN (pure: no DOM, no network; tests/test_ui.py runs it under Node against radar/conditions.py) */
@@ -400,7 +404,7 @@ function runState(run) {
 
 const $ = (id) => document.getElementById(id);
 // The token is only ever the text of its own password field: nothing else stores it, and it is cleared when the page is left.
-const token = () => $("token").value.trim();
+const token = () => (SHARED_ORIGIN ? "" : $("token").value.trim());
 // The default branch is only good for the repository it was read from; a request that finishes after the field changed must not set it for another one.
 let branch = { repo: "", name: "" };
 let pollTimer = null;
@@ -682,6 +686,11 @@ for (const id of BUCKET_IDS) {
   $("buckets").append(row);
 }
 writeValues(resolve(""));
+if (SHARED_ORIGIN) {
+  $("origin-warning").hidden = false;
+  $("token").disabled = true;
+  $("check").disabled = true;
+}
 
 $("preset").addEventListener("change", () => {
   const name = selectedPreset();

@@ -141,3 +141,11 @@ The ordinary review of `928d53b` found nothing ("Didn't find any major issues").
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | The estimate showed the model-call count as exact, but `conditions.estimate` defines it as a minimum (a checker-requested fix, malformed output and retries add calls) | true: the docstring says so, and the CLI prints "at least" | the page says "ít nhất N lượt gọi model (vòng sửa và thử lại sẽ thêm)"; the browser tests assert the wording for a full scan and for a single repository; mutation (word dropped) killed |
+
+## Codex review of head f889757: standard review clean; security review 1 finding, P1, confirmed
+
+The standard review found nothing ("Didn't find any major issues"). The security review returned one finding:
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 (P1) | `docs/ui.md` offered GitHub Pages; every site of an owner shares `https://<owner>.github.io`, so a script in a sibling site can open this page (`window.open`) and read the token field (same-origin windows reach into each other; the CSP and the frame check do not stop it) | true; the design review had noted the shared origin, but the guide still recommended it | (1) the page refuses to take a token on `*.github.io`: it shows a warning, disables the field and the check, and every use of the token goes through one function that returns nothing there; (2) the guide no longer offers Pages, says why, and names the isolated alternatives (the file itself, or `http://localhost:<port>` through `python3 -m http.server`); browser tests serve the page at three github.io origins (token refused, nothing sent even if forced) and at four other origins (accepted: own domain, localhost, look-alike names); mutations killed. An own custom domain is called safe in principle and untried here. |

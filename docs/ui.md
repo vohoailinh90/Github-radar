@@ -5,7 +5,8 @@ Một trang HTML duy nhất để bạn chọn điều kiện, xem ước tính,
 ## Mở trang
 
 - **Cách đơn giản nhất:** tải file `docs/ui/index.html` về máy và mở bằng trình duyệt. Không cài gì, không máy chủ.
-- **Hoặc dùng GitHub Pages:** Settings → Pages → *Deploy from a branch* → `main` / thư mục `/docs`. Trang nằm ở `https://<chủ>.github.io/<repo>/ui/`. Lưu ý: Pages công khai mọi thứ trong `/docs` (kể cả khi repo riêng tư, trừ gói Enterprise Cloud có Pages riêng tư). Trang này không chứa bí mật, nhưng nếu bạn muốn giữ kín bộ điều kiện và danh sách topic thì dùng cách tải file.
+- **Nếu trình duyệt không cho trang gọi GitHub từ file** (chưa thử, xem phần kiểm tra bên dưới): chạy `python3 -m http.server 8123 --directory docs/ui` rồi mở `http://localhost:8123`. Origin đó (máy bạn, cổng đó) không dùng chung với trang nào khác.
+- **Không dùng GitHub Pages của tài khoản (`<chủ>.github.io`).** Mọi trang của cùng một chủ ở đó dùng chung **một origin**: script của một trang khác (ví dụ một trang bị chèn mã) có thể mở trang này bằng `window.open` rồi đọc ô token sau khi bạn dán, và CSP hay kiểm tra khung nhúng của trang không chặn được việc đó. Vì thế trang tự từ chối nhận token khi chạy trên `*.github.io` (hiện cảnh báo, khóa ô token). Một tên miền riêng chỉ dành cho trang này thì an toàn về điểm này, nhưng chưa được thử ở đây.
 
 Trang chỉ nói chuyện với `api.github.com` (điều này được ép bằng Content-Security-Policy trong trang, không phải chỉ lời hứa). Không có thư viện, font, ảnh hay script nào tải từ nơi khác.
 
@@ -74,7 +75,7 @@ Sửa script trong trang mà quên chạy lệnh trên thì CSP chặn chính sc
 
 Môi trường dựng trang không nối được GitHub thật, nên **chưa kiểm trên GitHub thật**. Bạn thử một lần (5 phút):
 
-1. Mở trang, dán token, *Kiểm tra token*: phải hiện "Token đọc được repo và workflow radar.yml…". Nếu báo "Không kết nối được api.github.com" khi mở từ file, thử mở qua GitHub Pages (CORS từ `file://` chưa được thử).
+1. Mở trang, dán token, *Kiểm tra token*: phải hiện "Token đọc được repo và workflow radar.yml…". Nếu báo "Không kết nối được api.github.com" khi mở từ file, thử cách `http://localhost` ở trên (CORS từ `file://` chưa được thử).
 2. Chọn `quet-nhanh`, giữ *Quét thử*, bấm *Quét thử*: phải hiện một dòng mới trong bảng ("lượt bạn vừa gửi"), rồi "Xong". Mở link, vào *Summary* xem `conditions.label` là `quet-nhanh`.
 3. Gửi hai lượt liền nhau: lượt đầu có thể hiện "Đã hủy (có thể bị thay…)" (cách GitHub xử lý nhóm đồng thời, chưa thử ở repo này).
 4. Chỉ khi hai bước trên ổn: quét thật với `quet-nhanh` (1 bài).
