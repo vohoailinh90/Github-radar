@@ -179,3 +179,9 @@ def test_a_passing_draft_is_stored_with_the_readmes_own_spelling_of_its_commands
     res = write_one(gw(), CFG, facts, "vi")
     assert res["status"] == "ok"
     assert res["draft"]["guide"]["steps"][0]["commands"] == ["sed 's/foo  bar/baz/' file"]
+
+
+def test_the_writer_prompt_formats_and_tells_how_a_split_command_is_joined():
+    from radar.write import SYSTEM
+    text = SYSTEM.format(audience="x", language="y")
+    assert "`foo\\` over `bar` is `foobar`" in text and "inside `{ }` or `( )` the join is `; `" in text

@@ -488,8 +488,8 @@ def _shell_word(line: str, i: int) -> tuple[str, int]:
         if quote:
             if ch == quote:
                 quote = ""
-            elif ch == "\\" and quote == '"' and i + 1 < len(line):
-                i += 1
+            elif ch == "\\" and quote == '"' and line[i + 1:i + 2] and line[i + 1] in '$`"\\':
+                i += 1                                  # in "double quotes" a backslash goes only before $ ` " and a backslash: `"E\OF"` is `E\OF`
                 word += line[i]
             else:
                 word += ch
@@ -605,19 +605,93 @@ def _piece(lang: str, line: str) -> str:
     return PROMPT.sub("", re.sub(r"^(?:>>|More\?)\s+", "", piece)) if lang in CONSOLE_LANGS else piece
 
 
+def _is_powershell(lang: str, command: str) -> bool:
+    return lang in POWERSHELL_LANGS or bool(POWERSHELL_PROMPT.match(command))
+
+
+def _ps_state(text: str):
+    """(brackets still open, whether the line ends in `|` or `,`) for a PowerShell command line, or None when it cannot be told: a
+    string that does not close on the line, a `<# block comment #>`, or a `# comment` while the command is still open."""
+    stack, last, i = [], "", 0
+    while i < len(text):
+        ch = text[i]
+        if text.startswith("<#", i):
+            return None
+        if ch == "#" and (i == 0 or text[i - 1].isspace()):
+            return None if stack or last in "|," and last else (stack, False)
+        if ch in "'\"":
+            end = i + 1
+            while end < len(text):
+                if ch == '"' and text[end] == "`":
+                    end += 2
+                elif text[end] == ch and text[end + 1:end + 2] == ch:
+                    end += 2                           # a doubled quote is a quote inside the string
+                elif text[end] == ch:
+                    break
+                else:
+                    end += 1
+            else:
+                return None
+            i, last = end + 1, ch
+            continue
+        if ch == "`":
+            i += 2
+            continue
+        if ch in "([{":
+            stack.append(ch)
+        elif ch in ")]}" and stack:
+            stack.pop()
+        if not ch.isspace():
+            last = ch
+        i += 1
+    return stack, last in ("|", ",")
+
+
+def _ps_open(text: str):
+    """True when PowerShell would ask for more of the command (it ends in `|` or `,`, or a bracket is open), False when it is complete,
+    None when that cannot be told (see `_ps_state`)."""
+    state = _ps_state(text)
+    return None if state is None else bool(state[0]) or state[1]
+
+
+def _ps_joiner(text: str, piece: str) -> str:
+    """What joins the next line to a PowerShell command that is not finished: a space after a pipe, a comma or an opening bracket,
+    before a closing bracket and inside `[ ]`; `; ` between two statements inside `{ }` or `( )`, where a line break ends one."""
+    state = _ps_state(text)
+    stack = state[0] if state else []
+    if (state and state[1]) or text.rstrip().endswith(("(", "[", "{")) or piece[:1] in (")", "]", "}", "|") or not stack or stack[-1] == "[":
+        return " "
+    return "; "
+
+
+def _join(lang: str, text: str, line: str, glue) -> str:
+    """The command so far and the next physical line as one logical line. `glue` is what a continuation mark leaves between them (see
+    `_glue`), or None when the grammar of the shell, not a mark, joins them."""
+    piece = _piece(lang, line)
+    if glue is None:
+        return text + (_ps_joiner(text, piece) if _is_powershell(lang, text) else " ") + piece
+    return text + (glue if not line[:1].isspace() else " ") + piece
+
+
 def _grammar_open(lang: str, command: str, following: list[str]) -> bool:
-    """True when the shell's grammar leaves the command unfinished (`printf foo |`, a quote split over lines) and the next lines finish
-    it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. A quote that never closes (an apostrophe in a sample output line) joins nothing."""
-    if lang in POWERSHELL_LANGS or lang in CMD_LANGS or POWERSHELL_PROMPT.match(command) or re.match(CMD_PROMPT, command):
+    """True when the shell's grammar leaves the command unfinished (`printf foo |`, a quote split over lines; in PowerShell a pipe, a comma
+    or an open bracket at the end of a line) and the next lines finish it within GRAMMAR_LOOKAHEAD lines, a blank line not crossed. A quote
+    that never closes (an apostrophe in a sample output line) joins nothing."""
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
         return False
+    powershell = _is_powershell(lang, command)
+    unfinished = _ps_open if powershell else _incomplete
     text = command
-    if not _incomplete(text):
+    if unfinished(text) is not True:
         return False
     for line in following[:GRAMMAR_LOOKAHEAD]:
         if not line.strip():
             return False
-        text = f"{text} {_piece(lang, line)}"
-        if not _incomplete(text):
+        text = _join(lang, text, line, None)
+        state = unfinished(text)
+        if state is None:
+            return False
+        if not state:
             return True
     return False
 
@@ -678,10 +752,10 @@ def _glue(lang: str, command: str) -> str:
 
 
 def _dangling(lang: str, command: str) -> bool:
-    """True when a command line of a POSIX shell is left unfinished for good (`printf foo |`, a quote that never closes): the shell
-    waits for more input, so it is not a command the README gives. Only what is typed counts: the output lines of a transcript and the
+    """True when a command line of a POSIX shell or PowerShell is left unfinished for good (`printf foo |`, a quote that never closes):
+    the shell waits for more input, so it is not a command the README gives. Only what is typed counts: the output lines of a transcript and the
     lines of a block in another language (a sample with an apostrophe in it) are kept as they are."""
-    if lang in POWERSHELL_LANGS or lang in CMD_LANGS or POWERSHELL_PROMPT.match(command) or re.match(CMD_PROMPT, command):
+    if lang in CMD_LANGS or re.match(CMD_PROMPT, command):
         return False
     if lang in CONSOLE_LANGS:
         typed = bool(PROMPT.match(command))
@@ -689,7 +763,7 @@ def _dangling(lang: str, command: str) -> bool:
         typed = True
     else:
         typed = not lang and is_command_line(command)
-    return typed and _incomplete(command)
+    return typed and (_ps_open(command) is True if _is_powershell(lang, command) else _incomplete(command))
 
 
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
@@ -735,7 +809,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 owners.append(None)
                 continue
             if pending:
-                pending = pending + (glue if not line[:1].isspace() else " ") + _piece(lang, line)      # `$ tool \` then `> --flag`: the shell's secondary prompt is not the command's
+                pending = _join(lang, pending, line, glue)             # `$ tool \` then `> --flag`: the shell's secondary prompt is not the command's
             else:
                 pending = line.rstrip()
             if _continues(lang, pending, line):
@@ -743,7 +817,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 pending = pending[:-1].rstrip()
                 continue
             if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`, a quote split over lines
-                glue = " "
+                glue = None
                 continue
             if _dangling(lang, pending):                              # the shell would wait for more input: not a command the README gives
                 pending = ""

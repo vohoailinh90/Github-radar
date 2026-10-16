@@ -818,3 +818,11 @@ def test_a_heredoc_is_one_command_in_the_coverage_so_a_readme_with_only_that_nee
     assert not any("3-10 steps" in p.message for p in found), found
     d["guide"]["steps"][0]["commands"] = []
     assert gates.command_coverage(d, ONLY_HEREDOC_FACTS) == (0, 1)
+
+
+def test_the_physical_lines_of_a_powershell_pipeline_are_not_commands_on_their_own():
+    pipeline = "```powershell\nGet-ChildItem *.mp4 |\n  Where-Object Length -gt 1MB\n```\n"
+    texts = gates.command_texts(pipeline)
+    assert "Get-ChildItem *.mp4 | Where-Object Length -gt 1MB" in texts
+    assert "Get-ChildItem *.mp4 |" not in texts and "Where-Object Length -gt 1MB" not in texts
+    assert gates.block_commands(pipeline) == {"Get-ChildItem *.mp4 | Where-Object Length -gt 1MB"}

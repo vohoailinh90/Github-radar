@@ -477,7 +477,7 @@ def test_an_apostrophe_in_sample_output_a_comment_or_a_blank_line_joins_nothing(
     assert lines("```bash\n./run\nIt's working\npip install x\n```\n") == ["./run", "pip install x"]          # the quote never closes: it joins nothing and is not a command
     assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "", "ls"]
     assert lines("```bash\necho \"a\n" + "line\n" * 25 + "z\"\npip install x\n```\n")[-1] == "pip install x"      # too far away to be the rest of it
-    assert lines("```powershell\nGet-Item 'it's\nGet-Item x |\nSelect y\n```\n") == ["Get-Item 'it's", "Get-Item x |", "Select y"]        # PowerShell has its own grammar
+    assert lines("```powershell\nGet-Item 'it's\nGet-Item x |\nSelect y\n```\n") == ["Get-Item 'it's", "Get-Item x | Select y"]        # PowerShell has its own grammar: a pipe at the end of a line continues it
 
 
 def test_a_backslash_inside_single_quotes_is_literal_and_inside_double_quotes_it_continues():
@@ -731,3 +731,39 @@ def test_a_command_that_never_becomes_complete_is_not_a_command_but_output_and_s
     assert lines("```yaml\nmessage: it's \"x\n```\n") == ["message: it's \"x"]
     assert lines("```bash\nls\nprintf foo |\nsed s/foo/bar/\n```\n") == ["ls", "printf foo | sed s/foo/bar/"]          # one that does complete is still joined
     assert readme.setup_commands("```bash\nnpm install x\nprintf foo |\n```\n") == ["npm install x"]
+
+
+def test_a_backslash_in_a_double_quoted_heredoc_delimiter_stays_unless_it_escapes_a_special_character():
+    assert readme._heredoc_openers('cat <<"E\\OF"') == [("E\\OF", False)]                  # `\O` is not an escape inside double quotes
+    assert readme._heredoc_openers('cat <<"E\\$F"') == [("E$F", False)]
+    assert readme._heredoc_openers('cat <<"E\\\\F"') == [("E\\F", False)]
+    assert readme._heredoc_openers("cat <<E\\OF") == [("EOF", False)]                      # unquoted, a backslash escapes any character
+    assert readme._heredoc_openers("cat <<'E\\OF'") == [("E\\OF", False)]                  # in single quotes it is literal
+    text = "```bash\ncat <<\"E\\OF\"\nbody\nE\\OF\nls\n```\n"
+    assert readme.heredocs(text) == ([['cat <<"E\\OF"', "body", "E\\OF"]], ['cat <<"E\\OF"', "ls"])         # the closing line is found, `ls` is a command
+
+
+def test_a_powershell_command_split_after_a_pipe_a_comma_or_an_open_bracket_is_one_command():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\nGet-ChildItem *.mp4 |\n  Where-Object Length -gt 1MB\nWrite-Host done\n```\n") == [
+        "Get-ChildItem *.mp4 | Where-Object Length -gt 1MB", "Write-Host done"]
+    assert lines("```pwsh\nforeach ($f in Get-ChildItem) {\n  Write-Host $f\n  Remove-Item $f\n}\n```\n") == [
+        "foreach ($f in Get-ChildItem) { Write-Host $f; Remove-Item $f }"]                       # a line break inside { } ends a statement
+    assert lines("```powershell\n$h = @{\n a = 1\n b = 2\n}\n$a = @(\n 1,\n 2\n)\n$i = $a[\n0\n]\n```\n") == [
+        "$h = @{ a = 1; b = 2 }", "$a = @( 1, 2 )", "$i = $a[ 0 ]"]
+    assert lines("```console\nPS C:\\> Get-ChildItem |\n>> Select Name\n```\n") == ["PS C:\\> Get-ChildItem | Select Name"]
+    assert readme.setup_commands("```powershell\nGet-ChildItem |\n  Select Name\n```\n") == ["Get-ChildItem | Select Name"]
+    assert readme.command_count(readme.setup_commands("```powershell\nGet-ChildItem |\n  Select Name\n```\n")) == 1
+
+
+def test_a_powershell_command_that_cannot_be_told_is_left_as_it_is_and_one_that_never_completes_is_dropped():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```powershell\nGet-ChildItem |\n```\n") == []                                # a trailing pipe with nothing after it
+    assert lines("```powershell\nforeach ($f in $x) {\n\nRemove-Item $f\n```\n") == ["", "Remove-Item $f"]       # a blank line ends it
+    assert lines("```powershell\nfoo { # note\n bar\n}\n```\n") == ["foo { # note", " bar", "}"]                  # a comment inside: no grouping
+    assert lines("```powershell\nGet-Item 'it's\nGet-Item x\n```\n") == ["Get-Item 'it's", "Get-Item x"]       # a string that does not close
+    assert lines("```powershell\nWrite-Host \"a | b\" # |\nWrite-Host 'x,'\n```\n") == ["Write-Host \"a | b\" # |", "Write-Host 'x,'"]
+    assert readme._ps_open("Get-ChildItem |") and readme._ps_open("foo (") and readme._ps_open("1,2,")
+    assert readme._ps_open("Write-Host 'a |'") is False and readme._ps_open("foo { bar }") is False and readme._ps_open("foo 'x") is None
