@@ -147,3 +147,18 @@ def test_a_rising_slot_reserves_at_most_half_the_picks():
     assert len(discover.pick(rising, cfg, TODAY)) == 4                                         # nothing else to take: they fill the run
     picked = discover.pick(sorted(rising + tops, key=lambda c: -c["score"]), cfg, TODAY)
     assert [c["full_name"] for c in picked] == ["o/r0", "o/r1", "o/t0", "o/t1"]               # 2 reserved of 4, the rest by score
+
+
+def test_the_rising_slot_goes_to_a_repository_the_plain_ranking_did_not_pick():
+    # one bucket: a classic, a young repository that already wins on merit, and a smaller young one the stars ranking never reaches
+    ranked = [{"full_name": "o/classic", "bucket": "ai", "score": 20, "rising": False},
+              {"full_name": "o/young-big", "bucket": "ai", "score": 15, "rising": True},
+              {"full_name": "o/young-small", "bucket": "ai", "score": 8, "rising": True}]
+    cfg = {**CFG, "picks_per_run": 2}
+    off = {**cfg, "rising": {**CFG["rising"], "slots": 0}}
+    assert {c["full_name"] for c in discover.pick(ranked, off, TODAY)} == {"o/classic", "o/young-big"}
+    on = discover.pick(ranked, cfg, TODAY)
+    assert {c["full_name"] for c in on} == {"o/classic", "o/young-small"}          # the reservation changed the picks, as documented
+    assert on[0]["full_name"] == "o/young-small"                                    # the slot's pick comes first
+    # nothing outside the plain picks to offer: they stay as they are
+    assert {c["full_name"] for c in discover.pick(ranked[:2], cfg, TODAY)} == {"o/classic", "o/young-big"}

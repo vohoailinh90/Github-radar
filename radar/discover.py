@@ -133,19 +133,23 @@ def _rotate(pool: list[dict], order: list[str], limit: int) -> list[dict]:
 
 def pick(ranked: list[dict], cfg: dict, today: dt.date) -> list[dict]:
     """Best of each bucket in turn, starting at a bucket that rotates with the date, so a run
-    does not always open with the same domain. Up to `rising.slots` picks (never more than half of them) go first to
-    repositories that are young and climbing: on stars alone they would never beat an established project."""
+    does not always open with the same domain.
+
+    `rising.slots` (never more than half of the picks) are then filled with young, climbing repositories that the plain
+    ranking did NOT pick: on stars alone they never beat an established project, and one that already wins on merit has
+    been found without any help. Each takes the place of the weakest plain pick."""
     ids = [b["id"] for b in cfg["buckets"]]
     start = today.toordinal() % len(ids)
     order = ids[start:] + ids[:start]
     total = int(cfg["picks_per_run"])
     rise = cfg["rising"]
     slots = min(int(rise["slots"]), total // 2) if rise["enabled"] else 0
-    chosen = _rotate([c for c in ranked if c.get("rising")], order, slots)
-    taken = {c["full_name"] for c in chosen}
-    used = {c["bucket"] for c in chosen}                  # the rest starts with the buckets the rising picks did not use
-    rest_order = [b for b in order if b not in used] + [b for b in order if b in used]
-    return chosen + _rotate([c for c in ranked if c["full_name"] not in taken], rest_order, total - len(chosen))
+    plain = _rotate(ranked, order, total)
+    names = {c["full_name"] for c in plain}
+    extra = _rotate([c for c in ranked if c.get("rising") and c["full_name"] not in names], order, slots)
+    # weakest first; of two equal scores the later pick goes, since the rotation took it after the other
+    weakest = sorted(range(len(plain)), key=lambda i: (plain[i]["score"], -i))[:len(extra)]
+    return extra + [c for i, c in enumerate(plain) if i not in weakest]
 
 
 def parse_repo(text: str) -> str:
