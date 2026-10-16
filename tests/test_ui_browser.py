@@ -1138,7 +1138,8 @@ def _page_served_at(browser, url):
     return context, page
 
 
-@pytest.mark.parametrize("url", ["https://someone.github.io/Github-radar/ui/", "https://SOMEONE.GITHUB.IO/x/", "https://a.b.github.io/"])
+@pytest.mark.parametrize("url", ["https://someone.github.io/Github-radar/ui/", "https://SOMEONE.GITHUB.IO/x/", "https://a.b.github.io/",
+                                 "http://someone.github.io/Github-radar/ui/", "http://someone.github.io:8080/x/", "https://someone.github.io:8443/x/", "https://someone.github.io./x/"])
 def test_no_token_is_taken_on_a_shared_github_io_origin(browser, url):
     context, page = _page_served_at(browser, url)
     assert page.is_visible("#origin-warning") and page.is_disabled("#token") and page.is_disabled("#check")

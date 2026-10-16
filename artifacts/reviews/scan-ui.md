@@ -155,3 +155,9 @@ The standard review found nothing ("Didn't find any major issues"). The security
 | # | Finding | Checked | Outcome |
 |---|---|---|---|
 | 1 | The previous wording ("at least N model calls") is also wrong: when discovery finds fewer repositories than `picks_per_run`, `pipeline.run` writes only the real picks, so the count can be higher than the real number of calls and is not a lower bound | true: it is a bound only under "every pick is filled"; fix rounds and retries push the other way | the page says "about N model calls if all the picks are found (fewer if repositories are missing; fix rounds and retries add more)"; for a single repository (always one pick) only the second caveat; browser tests assert both wordings and that "at least" is gone |
+
+## Codex review of head 8beaf55: standard review clean; security review 1 finding, P1, confirmed
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 (P1) | The shared-origin check matched `https://` only; GitHub Pages also answers on `http://` until HTTPS is enforced, and that origin is shared just the same, so the token was accepted there | true: the regex began with `https:` | the check is independent of the scheme, accepts a port and a trailing dot (`https?://…github.io.?(:port)?`); browser tests for http, http with a port, https with a port and a trailing dot join the https ones; each part of the pattern is killed by a mutation |
