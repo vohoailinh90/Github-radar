@@ -129,3 +129,9 @@ The ordinary review of `928d53b` found nothing ("Didn't find any major issues").
 |---|---|---|---|
 | 1 | The list read before a send was filtered by `event=workflow_dispatch`, so a scheduled scan waiting in the same `radar` concurrency group was not seen and a manual send could cancel it without the warning | true: the workflow's schedule and manual runs share the group | the filter is gone everywhere (the table now shows scheduled runs too); tests: no `event=` in any request, none in the page source; the mutation (filter back) is killed |
 | 2 | `docs/ui.md` said the token "only has the right to run workflows", which understates *Actions: Read and write* | true: it also cancels, re-runs and deletes runs and logs, disables and enables workflows and deletes caches and artifacts of the repository (it does not read or write code, secrets or variables, and cannot edit the workflow file) | the text lists what the permission allows and what it does not, says that an existing branch with a modified workflow could be run through the API (the page only runs the default branch) and that the `radar` Environment limited to `main` is what closes that, and what a leaked token costs; README and the page's own text agree |
+
+## Codex review of head 6dad0b8 (1 finding, P2, confirmed)
+
+| # | Finding | Checked | Outcome |
+|---|---|---|---|
+| 1 | The default branch read earlier was cached; if it was renamed, every dispatch returned 422 and the cache was never refreshed (until "Kiểm tra token" or "Quên token") | true | a dispatch GitHub refuses drops the cached branch, so the next send reads it again; test (renamed branch: 422, then a send with the new name); mutation killed |

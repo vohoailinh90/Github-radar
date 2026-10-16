@@ -900,6 +900,19 @@ def test_the_table_of_runs_is_emptied_when_another_repository_is_typed(ui):
     assert ui.eval_on_selector_all("#runs-body tr", "trs => trs.length") == 0      # the rows belonged to the old repository
 
 
+def test_a_refused_dispatch_makes_the_page_read_the_default_branch_again(ui):
+    connect(ui)                                                                    # the branch "main" is now cached
+    dispatches = ("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")
+    ui.gh.routes[dispatches] = (422, {"message": "No ref found for: main"})
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').className.includes('bad')")
+    ui.gh.routes[("GET", f"/repos/{REPO}")] = (200, {"default_branch": "trunk"})  # renamed meanwhile
+    ui.gh.routes[dispatches] = (204, None)
+    ui.click("#go")
+    wait(ui, "document.getElementById('msg').textContent.includes('Đã gửi')")
+    assert [p["body"]["ref"] for p in ui.gh.posts()] == ["main", "trunk"]           # the retry did not repeat the stale ref
+
+
 def test_a_dispatch_that_was_refused_does_not_start_a_wait(ui):
     connect(ui)
     ui.gh.routes[("POST", f"/repos/{REPO}/actions/workflows/radar.yml/dispatches")] = (422, {"message": "nope"})

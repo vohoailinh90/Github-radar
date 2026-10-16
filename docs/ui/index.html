@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dpbiB6y+SF1Rus5iq6U0Ip3SKn9l8hA8nAAzg4nFEic='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-4TjJBeIoUwl4UoiXaJDrESwDGZzrcauOkO+Oc0+4GLQ='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -589,7 +589,11 @@ async function go() {
     const res = await call("POST", "/repos/" + repo + "/actions/workflows/radar.yml/dispatches", { ref, inputs });
     if (forgotten()) { say("msg", "Bạn đã xóa token lúc đang gửi: lệnh có thể đã tới GitHub, hãy xem tab Actions của repo. Trang không theo dõi nữa.", "warn"); return; }
     if (res.status >= 500) throw new Error("no clear answer");           // a gateway error can follow an accepted send: treat it like a lost answer
-    if (res.status !== 204) { say("msg", explain(res.status, res.data), "bad"); return; }      // GitHub refused: nothing was sent, nothing to wait for
+    if (res.status !== 204) {                                           // GitHub refused: nothing was sent, nothing to wait for
+      branch = { repo: "", name: "" };                                  // and the branch read earlier may be the reason (renamed since): read it again next time
+      say("msg", explain(res.status, res.data), "bad");
+      return;
+    }
     askedFor = "";
     watchSent(attempt, repo);
     say("msg", (dry ? "Đã gửi lượt quét thử." : "Đã gửi lượt quét thật.") + " Lượt chạy sẽ hiện ở bảng bên dưới sau vài giây.", "ok");
