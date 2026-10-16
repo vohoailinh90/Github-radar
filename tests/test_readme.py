@@ -1108,6 +1108,8 @@ def test_a_powershell_header_and_the_brace_of_its_block_on_the_next_line_are_one
     assert lines("```console\nPS C:\\> function Get-X\n>> {\n>>   ls\n>> }\nPS C:\\> Get-X\n```\n") == ["PS C:\\> function Get-X { ls }", "PS C:\\> Get-X"]
     assert lines("```powershell\nfunction Get-X\n```\n") == []                              # a header whose block never comes is not a command
     assert lines("```powershell\nGet-Process | foreach\nWrite-Host hi\nGet-Help function\n```\n") == ["Get-Process | foreach", "Write-Host hi", "Get-Help function"]
+    assert lines("```powershell\ndata Messages\n{\n  'a'\n}\nGet-Date\n```\n") == ["data Messages { 'a' }", "Get-Date"]          # a data section is a header too
+    assert lines("```powershell\n$data = 1\nGet-Content data\n```\n") == ["$data = 1", "Get-Content data"]          # `data` as a word of a command is not
     assert lines("```powershell\ndo\n{\n  z\n}\nwhile ($i -lt 3)\nls\n```\n") == ["do { z } while ($i -lt 3)", "ls"]
     assert lines("```powershell\nWrite-Output \"Done; if needed, rerun\"\nWrite-Host 'a; else'\n```\n") == ['Write-Output "Done; if needed, rerun"', "Write-Host 'a; else'"]          # a string is no header
 

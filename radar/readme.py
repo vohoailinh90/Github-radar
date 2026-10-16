@@ -952,9 +952,9 @@ def _open_group(lang: str, command: str, following: list[str]) -> int:
 
 
 PS_BLOCK_HEADER = re.compile(
-    r"(?i)(?:^|[;{}]\s*)(?:(?:else|try|finally|do|begin|process|end|dynamicparam)"
+    r"(?i)(?:^|[;{}]\s*)(?:(?:else|try|finally|do|begin|process|end|dynamicparam|data)"
     r"|(?:if|elseif|while|until|switch|foreach|for|catch|trap)\b[^{}]*"
-    r"|(?:function|filter|workflow|configuration|class|enum)\s+[^\s{}][^{}]*)$")        # a statement that begins with one of these and has no block yet
+    r"|(?:function|filter|workflow|configuration|class|enum|data)\s+[^\s{}][^{}]*)$")        # a statement that begins with one of these and has no block yet
 
 
 PS_STRING = re.compile(r"'(?:[^']|'')*'|\"(?:`.|\"\"|[^\"`])*\"")
@@ -968,7 +968,7 @@ def _ps_code(text: str) -> str:
 
 def _ps_awaits_block(text: str) -> bool:
     """Whether a PowerShell command ends in a declaration or a control header whose block has not begun (`function Get-X`, `if ($ok)`,
-    `foreach ($i in 1..3)`, `try`, `} else`): PowerShell waits for the `{ ... }`, which may stand on the next line."""
+    `foreach ($i in 1..3)`, `try`, `data Messages`, `} else`): PowerShell waits for the `{ ... }`, which may stand on the next line."""
     code = PS_STRING.sub('""', _ps_code(text))               # what a string says is no header: `Write-Output "Done; if needed, rerun"`
     found = PS_BLOCK_HEADER.search(code)
     if found and found.group().startswith("}") and re.match(r"(?i)(?:while|until)\b", found.group()[1:].lstrip()) and re.match(r"(?i)do\b", code):
