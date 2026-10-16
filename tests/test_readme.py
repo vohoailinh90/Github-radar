@@ -474,8 +474,8 @@ def test_a_command_that_the_shell_grammar_leaves_unfinished_is_joined_in_any_pos
 def test_an_apostrophe_in_sample_output_a_comment_or_a_blank_line_joins_nothing():
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
-    assert lines("```bash\n./run\nIt's working\npip install x\n```\n") == ["./run", "It's working", "pip install x"]          # the quote never closes
-    assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "echo a |", "", "ls"]
+    assert lines("```bash\n./run\nIt's working\npip install x\n```\n") == ["./run", "pip install x"]          # the quote never closes: it joins nothing and is not a command
+    assert lines("```bash\n# don't do this\npip install x\nls # it's |\necho a |\n\nls\n```\n") == ["# don't do this", "pip install x", "ls # it's |", "", "ls"]
     assert lines("```bash\necho \"a\n" + "line\n" * 25 + "z\"\npip install x\n```\n")[-1] == "pip install x"      # too far away to be the rest of it
     assert lines("```powershell\nGet-Item 'it's\nGet-Item x |\nSelect y\n```\n") == ["Get-Item 'it's", "Get-Item x |", "Select y"]        # PowerShell has its own grammar
 
@@ -484,7 +484,7 @@ def test_a_backslash_inside_single_quotes_is_literal_and_inside_double_quotes_it
     def lines(text):
         return [line for _, block in readme.code_blocks(text) for line in block]
     assert lines("```bash\necho 'abc\\\ndef'\n```\n") == ["echo 'abc\\ def'"]
-    assert lines("```bash\necho \"abc\\\ndef\"\n```\n") == ['echo "abc def"']
+    assert lines("```bash\necho \"abc\\\ndef\"\n```\n") == ['echo "abcdef"']          # the shell removes the backslash and the newline, and nothing else
     assert lines("```bash\necho it\\\n  works\n```\n") == ["echo it works"]
 
 
@@ -699,3 +699,35 @@ def test_the_common_programs_of_other_ecosystems_are_commands_in_an_untagged_blo
     for line in ("hello world", "Next steps are below", "Server started on port 8000", "name: value"):
         assert not readme.is_command_line(line), line
         assert readme.setup_commands(f"```\n{line}\n```\n") == []
+
+
+def test_a_backslash_newline_joins_the_words_that_touch_and_keeps_the_break_the_reader_sees():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nprintf '%s\\n' foo\\\nbar\n```\n") == ["printf '%s\\n' foobar"]            # `foo\` over `bar` is `foobar`
+    assert lines("```bash\necho a \\\nb\necho c\\\n  d\necho e \\\n    f\n```\n") == ["echo a b", "echo c d", "echo e f"]
+    assert lines("```console\n$ printf x foo\\\n> bar\n$ echo a \\\n> b\n```\n") == ["$ printf x foobar", "$ echo a b"]
+    assert lines("```powershell\nGet-Item x`\n-Force\n```\n") == ["Get-Item x -Force"]                     # the other shells keep the word break
+    assert readme.setup_commands("```bash\nprintf '%s\\n' foo\\\nbar\n```\n") == ["printf '%s\\n' foobar"]
+
+
+def test_the_options_of_a_wrapper_that_take_a_word_are_skipped_with_that_word():
+    for command in ("sudo -u postgres psql", "env -u HOME make", "sudo -E -u root git pull", "sudo --user root git status", "sudo --user=root git status",
+                    "nice -n 10 make", "time -p make", "xargs -n 1 git status", "doas -u me git status", "sudo -g docker -u me docker ps"):
+        assert readme.is_command_line(command), command
+        assert readme.setup_commands(f"```\n{command}\n```\n") == [command], command
+    for command in ("sudo -u postgres", "sudo hello", "env -u HOME", "sudo -u me hello", "env -i hello"):
+        assert not readme.is_command_line(command), command
+
+
+def test_a_command_that_never_becomes_complete_is_not_a_command_but_output_and_samples_are_kept():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nls\nprintf foo |\n```\n") == ["ls"]
+    assert lines("```bash\necho \"abc\n\nnpm install x\n```\n") == ["", "npm install x"]
+    assert lines("```sh\nmake &&\n\nmake test\n```\n") == ["", "make test"]
+    assert lines("```console\n$ printf foo |\nDon't worry\n$ ls\n```\n") == ["Don't worry", "$ ls"]              # a typed line is dropped, an output line is not
+    assert lines("```\nmessage: Don't panic\n```\n") == ["message: Don't panic"]                                # a sample in another language is not shell
+    assert lines("```yaml\nmessage: it's \"x\n```\n") == ["message: it's \"x"]
+    assert lines("```bash\nls\nprintf foo |\nsed s/foo/bar/\n```\n") == ["ls", "printf foo | sed s/foo/bar/"]          # one that does complete is still joined
+    assert readme.setup_commands("```bash\nnpm install x\nprintf foo |\n```\n") == ["npm install x"]

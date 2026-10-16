@@ -63,8 +63,19 @@ COMMAND_WORDS = {"git", "pip", "pip3", "python", "python3", "py", "uv", "uvx", "
                  "pyenv", "nvm", "fnm", "volta", "corepack", "pdm", "hatch", "rye", "pixi", "accelerate", "deepspeed", "wandb",
                  # clouds, containers and hosting
                  "kubectl", "helm", "minikube", "terraform", "tofu", "pulumi", "ansible", "ansible-playbook", "vagrant", "podman", "nerdctl",
-                 "aws", "az", "gcloud", "gsutil", "gh", "glab", "heroku", "vercel", "netlify", "firebase", "supabase", "flyctl", "wrangler"}
+                 "aws", "az", "gcloud", "gsutil", "gh", "glab", "heroku", "vercel", "netlify", "firebase", "supabase", "flyctl", "wrangler",
+                 # databases
+                 "psql", "createdb", "pg_dump", "mysql", "mongosh", "redis-cli", "sqlite3"}
 WRAPPERS = {"sudo", "doas", "time", "nohup", "exec", "command", "env", "nice", "xargs"}      # a command line may start with one of these before its program
+WRAPPER_OPERANDS = {                                                 # the options of a wrapper that take the next word (`sudo -u postgres psql`)
+    "sudo": {"-u", "-g", "-C", "-h", "-p", "-r", "-t", "-U", "-D", "-T", "--user", "--group", "--close-from", "--host", "--prompt", "--role",
+             "--type", "--other-user", "--chdir", "--command-timeout"},
+    "doas": {"-u", "-C", "-a"},
+    "env": {"-u", "-C", "-S", "--unset", "--chdir", "--split-string"},
+    "nice": {"-n", "--adjustment"},
+    "time": {"-f", "-o", "--format", "--output"},
+    "xargs": {"-a", "-d", "-E", "-I", "-L", "-n", "-P", "-s", "--arg-file", "--delimiter", "--max-args", "--max-lines", "--max-procs"},
+    "exec": {"-a"}}
 BAD_HOSTS = ("shields.io", "badgen.net", "star-history.com", "visitor-badge", "hits.seeyoufarcry")      # badges and counters
 URL_CHARS = re.compile(r"https?://[A-Za-z0-9._~:/?#@!$&*+,;=%\-\[\]()]+")
 MD_LINK = re.compile(r"\[([^\]\n]{1,120})\]\((https?://(?:[^\s()]|\([^\s()]*\))+)(?:\s+\"[^\"]*\")?\)")      # a target may hold pairs of parentheses
@@ -125,9 +136,19 @@ def is_command_line(line: str) -> bool:
     if not text or text.startswith(("#", "//", "<", "{", "}")):
         return False
     words = text.split()
-    i = 0
-    while i < len(words) - 1 and (words[i].lower() in WRAPPERS or re.fullmatch(r"[A-Za-z_]\w*=\S*", words[i]) or (i and words[i].startswith("-"))):
-        i += 1                                      # `sudo -E pip install x`, `FOO=1 make`: the program is the first word after them
+    i, wrapper = 0, ""
+    while i < len(words) - 1:                       # `sudo -E pip install x`, `FOO=1 make`: the program is the first word after them
+        word = words[i]
+        if word.lower() in WRAPPERS:
+            wrapper = word.lower()
+        elif re.fullmatch(r"[A-Za-z_]\w*=\S*", word):
+            pass
+        elif i and word.startswith("-"):
+            if word in WRAPPER_OPERANDS.get(wrapper, ()) and i + 1 < len(words) - 1:
+                i += 1                              # `sudo -u postgres psql`: this option takes the next word as its operand
+        else:
+            break
+        i += 1
     first = words[i].lower().lstrip("./")
     return first in COMMAND_WORDS or words[i].startswith(("./", ".\\"))
 
@@ -646,6 +667,31 @@ def _heredoc_openers(line: str) -> list[tuple[str, bool]]:
     return ends
 
 
+def _glue(lang: str, command: str) -> str:
+    """What joins a command line that ends in its continuation mark to the line after it. A POSIX shell removes the backslash and the
+    newline and nothing else, so `foo\\` over `bar` is `foobar`; a space before the mark, or one at the start of the next line, is the
+    word break the reader sees. The other shells' marks are read as a word break."""
+    if lang in POWERSHELL_LANGS or lang in CMD_LANGS or POWERSHELL_PROMPT.match(command) or re.match(CMD_PROMPT, command):
+        return " "
+    before = command[:-1]
+    return "" if before and not before[-1].isspace() else " "
+
+
+def _dangling(lang: str, command: str) -> bool:
+    """True when a command line of a POSIX shell is left unfinished for good (`printf foo |`, a quote that never closes): the shell
+    waits for more input, so it is not a command the README gives. Only what is typed counts: the output lines of a transcript and the
+    lines of a block in another language (a sample with an apostrophe in it) are kept as they are."""
+    if lang in POWERSHELL_LANGS or lang in CMD_LANGS or POWERSHELL_PROMPT.match(command) or re.match(CMD_PROMPT, command):
+        return False
+    if lang in CONSOLE_LANGS:
+        typed = bool(PROMPT.match(command))
+    elif lang in SHELL_LANGS:
+        typed = True
+    else:
+        typed = not lang and is_command_line(command)
+    return typed and _incomplete(command)
+
+
 def _scan(text: str) -> list[tuple[str, list[str], list]]:
     """(language tag, logical lines, owners) of each fenced code block, in order; `owners[i]` is None for an ordinary line and, for a
     line of the body of a heredoc (its closing word included), the index of the line that opened it."""
@@ -671,7 +717,7 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
             body.pop(0)
         while body and not body[-1].strip():
             body.pop()
-        logical, owners, pending, ends, opener = [], [], "", [], None
+        logical, owners, pending, ends, opener, glue = [], [], "", [], None, " "
         for index, line in enumerate(body):
             if ends:                              # inside a heredoc every line is data, a backslash at its end included
                 logical.append(line.rstrip())
@@ -689,13 +735,18 @@ def _scan(text: str) -> list[tuple[str, list[str], list]]:
                 owners.append(None)
                 continue
             if pending:
-                pending = f"{pending} {_piece(lang, line)}"           # `$ tool \` then `> --flag`: the shell's secondary prompt is not the command's
+                pending = pending + (glue if not line[:1].isspace() else " ") + _piece(lang, line)      # `$ tool \` then `> --flag`: the shell's secondary prompt is not the command's
             else:
                 pending = line.rstrip()
             if _continues(lang, pending, line):
+                glue = _glue(lang, pending)
                 pending = pending[:-1].rstrip()
                 continue
             if _grammar_open(lang, pending, body[index + 1:]):         # `printf foo |` over `sed ...`, a quote split over lines
+                glue = " "
+                continue
+            if _dangling(lang, pending):                              # the shell would wait for more input: not a command the README gives
+                pending = ""
                 continue
             logical.append(pending)
             owners.append(None)
