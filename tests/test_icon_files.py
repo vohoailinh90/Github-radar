@@ -187,6 +187,23 @@ def test_a_draft_that_names_its_own_icons_keeps_them_whatever_the_file_says(tmp_
     assert {k: v for k, v in after.items() if not k.startswith("digests/") or "icons-" not in k} == drawn
 
 
+@pytest.mark.parametrize("error", [PermissionError("no access"), OSError("transient I/O error"), IsADirectoryError("is a directory")])
+def test_an_icon_file_that_cannot_be_read_stops_that_run_and_nothing_else(tmp_path, servers, monkeypatch, error):
+    old_run(tmp_path)
+    files = write_files(tmp_path)
+    before = snapshot(tmp_path)
+    real = Path.read_text
+
+    def read_text(self, *args, **kwargs):
+        if self.name == files[0].name and self.parent == files[0].parent:
+            raise error
+        return real(self, *args, **kwargs)
+    monkeypatch.setattr(Path, "read_text", read_text)
+    report = pipeline.rerender(cfg(langs=["vi", "en"]), tmp_path)
+    assert report["rerendered"] == [] and "icon file does not fit its draft" in report["skipped"]["2026-10-14"]
+    assert snapshot(tmp_path) == before
+
+
 @pytest.mark.parametrize("content", ["{ stale", "null", json.dumps({"components": [{"name": "A component the draft never had", "icon": "box"}]}),
                                      json.dumps({"components": [{"name": "x", "icon": "rocket-ship"}]})])
 def test_a_stale_or_broken_icon_file_beside_a_draft_that_names_its_own_icons_stops_nothing(tmp_path, servers, content):

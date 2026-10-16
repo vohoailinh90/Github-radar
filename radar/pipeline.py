@@ -163,7 +163,7 @@ def load_entries(root: Path, slug: str) -> list[dict]:
             if beside.is_file():
                 try:
                     icon_files[stored["lang"]] = json.loads(beside.read_text(encoding="utf-8"))
-                except (ValueError, RecursionError):                         # not JSON (or absurdly nested): `rerender` skips the run and says so
+                except (OSError, ValueError, RecursionError):                # unreadable, not JSON or absurdly nested: `rerender` skips the run and says so
                     icon_files[stored["lang"]] = None
         if drafts:
             entries.append({"facts": facts, "drafts": drafts, "position": position or 999, "note": note, "icon_files": icon_files})
