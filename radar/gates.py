@@ -316,35 +316,40 @@ def _command_variants(readme: str):
         yield from ((m.group(1), readmelib.SHELL_PROMPT) for m in re.finditer(r"`([^`\n]+)`", line))
 
 
-def command_map(readme: str) -> dict[str, str]:
-    """{comparable form: the README's own text of it}: a prompt is dropped where it is one (see readme.prompt_for) and the ends
-    trimmed; the spaces inside are kept. The first text found wins, and the code blocks come first."""
-    out: dict[str, str] = {}
+def command_texts(readme: str) -> dict[str, list[str]]:
+    """{comparable form: every distinct text of it in the README, in README order}. A prompt is dropped where it is one (see
+    readme.prompt_for) and the ends trimmed; the spaces inside are kept. Two commands that differ only in significant spaces share a
+    form and both are kept: the code blocks come first, and the comparable form is only a fallback."""
+    out: dict[str, list[str]] = {}
     for text, prompt in _command_variants(readme):
         key = _norm_cmd(text)
         if key:
-            out.setdefault(key, prompt.sub("", text.strip()).strip())
+            shown = prompt.sub("", text.strip()).strip()
+            if shown not in out.setdefault(key, []):
+                out[key].append(shown)
     return out
 
 
 def readme_commands(readme: str) -> set[str]:
     """Whole README lines and inline-code spans: what a reader could copy from it."""
-    return set(command_map(readme))
+    return set(command_texts(readme))
 
 
 def canonicalize(draft: dict, facts: dict) -> dict:
     """The draft with every command replaced by the README's own text of it. The gate compares commands with their spaces collapsed
     (a model may normalise them), but a guide must show the README's spaces: `sed 's/foo  bar/baz/'` is not `sed 's/foo bar/baz/'`.
-    A command the README does not hold is left as it is, for the gate to refuse."""
+    A command that is exactly one of the README's texts is left as it is, even if another text of the README normalises to the same
+    form; one that is not exactly any of them becomes the first text of its form (the best guess when several share it); a command
+    the README does not hold is left alone, for the gate to refuse."""
     out = copy.deepcopy(draft)
-    table = command_map(facts["readme"])
-    exact = set(table.values())
+    table = command_texts(facts["readme"])
+    exact = {text for texts in table.values() for text in texts}
 
     def fix(command):
         if not isinstance(command, str):
             return command
         stripped = readmelib.SHELL_PROMPT.sub("", command.strip()).strip()
-        return stripped if stripped in exact else table.get(_norm_cmd(command), command)
+        return stripped if stripped in exact else (table.get(_norm_cmd(command)) or [command])[0]
 
     guide = out.get("guide")
     for _, step in _dicts(guide.get("steps") if isinstance(guide, dict) else None):

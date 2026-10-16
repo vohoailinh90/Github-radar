@@ -454,3 +454,20 @@ def test_a_piece_of_a_command_the_readme_splits_over_lines_is_not_a_command():
         d = make_draft(facts, "vi")
         d["guide"]["steps"][0].update(commands=[command], evidence="README")
         assert (not any("steps[0].commands" in e for e in errs(d, facts))) is ok, command
+
+
+TWO_SEDS = README + "\n```bash\nsed 's/a  b/x/' f\nsed 's/a b/x/' f\n```\n"
+TWO_SEDS_FACTS = {**FACTS, "readme": TWO_SEDS, "links": readme.links(TWO_SEDS), "blocks": readme.blocks(TWO_SEDS)}
+
+
+def test_two_readme_commands_that_differ_only_in_significant_spaces_are_both_kept_verbatim():
+    first, second = "sed 's/a  b/x/' f", "sed 's/a b/x/' f"
+    for command in (first, second):
+        d = make_draft(TWO_SEDS_FACTS, "vi")
+        d["guide"]["steps"][0].update(commands=[command], evidence="README")
+        assert gates.canonicalize(d, TWO_SEDS_FACTS)["guide"]["steps"][0]["commands"] == [command]       # each is its own text, not rewritten
+    d = make_draft(TWO_SEDS_FACTS, "vi")
+    d["guide"]["steps"][0].update(commands=["sed  's/a b/x/'  f"], evidence="README")                        # neither text exactly: the first one
+    assert not any("commands" in e for e in errs(d, TWO_SEDS_FACTS))
+    assert gates.canonicalize(d, TWO_SEDS_FACTS)["guide"]["steps"][0]["commands"] == [first]
+    assert gates.command_texts(TWO_SEDS)["sed 's/a b/x/' f"] == [first, second]
