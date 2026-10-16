@@ -1016,3 +1016,15 @@ def test_a_command_in_a_quoted_fence_reaches_the_gate_whole_not_as_a_joined_quot
     assert not any("guide.steps[0].commands" in m for m in errs(used, facts=facts))
     wrong = mutate(lambda d: d["guide"]["steps"][0].update(commands=["docker run > --rm image"]), facts=facts)
     assert any("guide.steps[0].commands" in m and "not a line or code span" in m for m in errs(wrong, facts=facts))
+
+
+def test_code_spans_in_guide_prose_are_printed_as_the_draft_has_them():
+    g = digest._g
+    assert g("Run `sed 's/foo  bar/baz/'` now.") == "Run `sed 's/foo  bar/baz/'` now."                         # the two spaces are the command's
+    assert g("Run ``echo *`` and ``echo `date` <x>`` now.") == "Run ``echo *`` and ``echo `date` <x>`` now."          # a backslash or an entity inside a span would be printed
+    assert g("Size 1280*704, <tag>,   spaced\nline") == "Size 1280\\*704, &lt;tag>, spaced line"                    # the prose around a span is still plain text, on one line
+    assert g("* first") == "\\* first" and g("# h") == "\\# h" and g("1. x") == "\\1. x" and g("> q") == "\\> q"          # a field cannot become a list, a heading or a quote
+    assert g("  ``a  *  b``  ") == "``a  *  b``" and g("") == ""
+    detail = "Chạy ``echo *`` và `sed 's/a  b/c/'`, cỡ 1280*704."
+    md = "\n".join(digest.guide_markdown(FACTS, mutate(lambda d: d["guide"]["requirements"][0].update(detail=detail)), "vi", L["vi"]))
+    assert "Chạy ``echo *`` và `sed 's/a  b/c/'`, cỡ 1280\\*704." in md

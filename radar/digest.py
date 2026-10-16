@@ -28,9 +28,16 @@ OPTIONAL_META = ("links", "blocks", "shells")   # kept when a run found them: a 
 
 def _g(text) -> str:
     """`_md` for the guide's sentences, also making `*` and `<` plain text outside code spans: a README's `1280*704` must not turn
-    into emphasis and a stray `<tag>` must not reach the page as HTML."""
-    parts = re.split(r"(`[^`\n]*`)", _md(text))
-    return "".join(p if i % 2 else p.replace("*", "\\*").replace("<", "&lt;") for i, p in enumerate(parts))
+    into emphasis and a stray `<tag>` must not reach the page as HTML. The code spans are found first, as Markdown and the gate read them
+    (a run of backticks closed by a run of the same length), and kept exactly as the draft has them: a command's double space or `*` is
+    its own, and a backslash inside a span would be printed."""
+    raw, pieces, last = str(text), [], 0
+    for found in readmelib.CODE_SPAN.finditer(raw):
+        pieces += [(False, raw[last:found.start()]), (True, found.group(0))]
+        last = found.end()
+    pieces.append((False, raw[last:]))
+    line = "".join(p if code else re.sub(r"\s+", " ", p).replace("*", "\\*").replace("<", "&lt;") for code, p in pieces).strip()
+    return re.sub(r"^([#>+\-]|\d+[.)])", r"\\\1", line)               # a leading `*` was escaped above: the other block markers are defused here
 
 
 def _link(facts: dict, ref, t: dict) -> str:
