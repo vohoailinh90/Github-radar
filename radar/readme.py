@@ -570,9 +570,10 @@ def strip_trailing_comment(line: str) -> str:
 
 
 def _shell_state(text: str) -> tuple[str, int, bool, int]:
-    """(the quote or backquote still open at the end, the parentheses still open, whether a `# comment` starts, where the code ends: at the
-    comment or at the end of the line) for a POSIX shell command line."""
-    quote, depth, backquote, i = "", 0, False, 0
+    """(the quote or backquote still open at the end, the parentheses still open, whether a `# comment` starts in the last line, where the
+    code ends: at that comment or at the end of the text) for a POSIX shell command line, or the lines of a group joined by line breaks. A
+    comment runs to the end of its line and opens and closes nothing; what stands before it counts."""
+    quote, depth, backquote, i, comment = "", 0, False, 0, -1
     while i < len(text):
         ch = text[i]
         if quote:
@@ -581,10 +582,12 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
             i += 2 if ch == "\\" and quote == '"' else 1
             quote = "" if i <= len(text) and ch == quote else quote
             continue
-        if ch == "\\":
+        if ch == "\n":
+            comment = -1                          # the comment of the line before ended with it
+        elif ch == "\\":
             i += 2
             continue
-        if ch in "'\"":
+        elif ch in "'\"":
             quote = ch
         elif ch == "`":
             run = len(text[i:]) - len(text[i:].lstrip("`"))
@@ -593,22 +596,25 @@ def _shell_state(text: str) -> tuple[str, int, bool, int]:
                 continue
             backquote = not backquote             # `` `cmd` ``: a command substitution that may go on over several lines
         elif _comment_at(text, i):
-            return "", 0, True, i                 # the rest of the line is the comment's: it opens and closes nothing
+            comment = i
+            i = text.find("\n", i) if "\n" in text[i:] else len(text)          # the rest of the line is the comment's
+            continue
         elif ch == "(":
             depth += 1
         elif ch == ")":
             depth = max(0, depth - 1)
         i += 1
-    return quote or ("`" if backquote else ""), depth, False, len(text)
+    return quote or ("`" if backquote else ""), depth, comment >= 0, comment if comment >= 0 else len(text)
 
 
 def _incomplete(command: str) -> bool:
     """True when the shell would ask for more of this command (and show its secondary prompt): it ends in `|`, `|&`, `&&` or `||`, or a quote
-    or a parenthesis is still open; a comment opens and closes nothing. A command that is complete is followed by output, and `> ` there
-    (npm prints `> pkg@1.0.0 start`) is not a prompt."""
-    quote, depth, commented, _ = _shell_state(command)
-    code = command.rstrip()
-    return not commented and (bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||", "|&")) and not code.endswith(">|")))     # `>|` is a redirection
+    or a parenthesis is still open; a comment opens and closes nothing, so `producer | # note` still waits for the next command (the shell
+    reads the code before the comment). A command that is complete is followed by output, and `> ` there (npm prints `> pkg@1.0.0 start`)
+    is not a prompt."""
+    quote, depth, _, end = _shell_state(command)
+    code = command[:end].rstrip()
+    return bool(quote) or depth > 0 or (code.endswith(("|", "&&", "||", "|&")) and not code.endswith(">|"))     # `>|` is a redirection
 
 
 def _closes_placeholder(code: str) -> bool:
@@ -668,9 +674,9 @@ def _ps_state(text: str):
     stack, last, i = [], "", 0
     while i < len(text):
         ch = text[i]
-        if text.startswith("<#", i):
+        if text.startswith("<#", i) and _ps_token_start(text, i):
             return None
-        if ch == "#" and (i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"):          # a `#` that begins a token: `Write-Host hi;# note`
+        if ch == "#" and _ps_token_start(text, i):          # a `#` that begins a token: `Write-Host hi;# note`
             return stack, _ps_continues(text[:i], last), i, ""
         if ch == "@" and text[i + 1:i + 2] in ("'", '"') and not text[i + 2:].strip():
             return None
@@ -728,8 +734,15 @@ def _join(lang: str, text: str, line: str, glue) -> str:
             state = _ps_state(text)
             code = text[:state[2]].rstrip() if state else text         # the comment at the end of the line before is dropped: the rest would be in it
             return code + _ps_joiner(code, piece) + piece
-        return text + " " + piece
+        quote, _, commented, end = _shell_state(text)
+        return (text[:end].rstrip() if commented and not quote else text) + " " + piece      # `producer | # note` over `consumer`: the rest of the line was the comment's
     return text + (glue if not line[:1].isspace() else " ") + piece
+
+
+def _ps_token_start(text: str, i: int) -> bool:
+    """Whether a comment may begin at `text[i]` in PowerShell: it is the start of a token, after whitespace or one of `; | ( ) { } [ ] & ,`.
+    `Foo<#Bar#>` and `a#b` are one word each."""
+    return i == 0 or text[i - 1].isspace() or text[i - 1] in ";|(){}[]&,"
 
 
 def _strip_ps_block_comments(lines: list[str]) -> list[str]:
@@ -761,10 +774,10 @@ def _strip_ps_block_comments(lines: list[str]) -> list[str]:
                 quote = "" if ch == quote else quote
             elif ch in "'\"":
                 quote = ch
-            elif line.startswith("<#", i):
+            elif line.startswith("<#", i) and _ps_token_start(line, i):
                 inside, i = True, i + 2
                 continue
-            elif ch == "#" and (i == 0 or line[i - 1].isspace() or line[i - 1] in ";|(){}[]&,"):
+            elif ch == "#" and _ps_token_start(line, i):
                 kept, i = kept + line[i:], len(line)                           # a `#` comment: `<#` after it is part of it
                 continue
             kept, i = kept + ch, i + 1

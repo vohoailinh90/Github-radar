@@ -1081,3 +1081,17 @@ def test_a_powershell_try_catch_chain_and_a_do_while_are_one_command_and_a_long_
     assert lines("```powershell\ntry {\n  x\n}\n\ncatch {\n  y\n}\n```\n") == ["try { x }", "", "catch { y }"]          # a blank line ends it
     out = lines("```bash\nproducer |\n" + "tee x |\n" * 25 + "consumer\nls\n```\n")
     assert len(out) == 2 and out[0].startswith("producer | tee x |") and out[0].endswith("| consumer") and out[0].count("tee x") == 25 and out[1] == "ls"
+
+
+def test_a_comment_after_a_trailing_pipe_does_not_end_the_pipeline_and_a_powershell_marker_inside_a_word_is_not_a_comment():
+    def lines(text):
+        return [line for _, block in readme.code_blocks(text) for line in block]
+    assert lines("```bash\nproducer | # note\nconsumer\nls\n```\n") == ["producer | consumer", "ls"]          # the shell reads the code before the comment
+    assert lines("```bash\nproducer | # note\n# aside\nconsumer # last\n```\n") == ["producer | consumer # last"]
+    assert lines("```bash\nproducer &&   # then\nconsumer\n```\n") == ["producer && consumer"]
+    assert lines("```bash\nproducer | # note\n```\n") == []                          # a pipe that never gets its command is dangling, as without the comment
+    assert lines("```bash\necho hi # a |\necho two\n```\n") == ["echo hi # a |", "echo two"]          # a `|` inside the comment is text
+    assert lines("```bash\necho $( # note\ndate\n)\n```\n") == ["echo $( # note", "date", ")"]          # a parenthesis before a comment is open
+    assert lines("```powershell\nWrite-Output Foo<#Bar#>\nWrite-Output x <# c #> y\n```\n") == ["Write-Output Foo<#Bar#>", "Write-Output x  y"]
+    assert lines("```powershell\nWrite-Output Foo<#Bar\nGet-Date\n```\n") == ["Write-Output Foo<#Bar", "Get-Date"]          # no comment opens
+    assert lines("```powershell\ngci;<# c\n d #>\nGet-Date\n```\n") == ["gci;", "Get-Date"]          # after `;` a token begins: a comment
