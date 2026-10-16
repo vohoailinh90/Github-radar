@@ -521,6 +521,9 @@ def _continues(lang: str, line: str, physical: str | None = None) -> bool:
     space after it escapes the space and the line ends there."""
     physical = line if physical is None else physical
     if lang in POWERSHELL_LANGS or POWERSHELL_PROMPT.match(line):
+        state = _ps_state(line)
+        if state and state[3]:
+            return False                           # a string is open: its line break is part of it, and in 'single quotes' the backtick is a character of it
         return re.search(r"(?<!`)`$", physical) is not None and not _has_comment(physical)
     if lang in CMD_LANGS or re.match(CMD_PROMPT, line):
         return re.search(r"(?<!\^)\^$", physical) is not None

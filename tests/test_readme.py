@@ -1121,3 +1121,12 @@ def test_a_parameter_expansion_split_over_lines_is_one_group_and_every_powershel
     assert lines("```bash\necho ${value:-\n```\n") == []                                      # an expansion that never closes is not a command
     text = "```powershell\n$x = \"{0}\" -f\n  5\n$y = $a -ceq\n  $b\n$z = $a -ireplace\n  'x'\n$w = $a -clike\n  'b*'\nRemove-Item x -f\nls\n```\n"
     assert lines(text) == ['$x = "{0}" -f 5', "$y = $a -ceq $b", "$z = $a -ireplace 'x'", "$w = $a -clike 'b*'", "Remove-Item x -f", "ls"]          # `-f` after a command is `-Force`
+
+
+def test_a_backtick_at_the_end_of_a_line_inside_a_powershell_string_is_part_of_the_string():
+    def scanned(text):
+        return [(line, owner) for _, block, owners in readme._scan(text) for line, owner in zip(block, owners)]
+    assert scanned("```powershell\nWrite-Host 'hello`\nworld'\nGet-Date\n```\n") == [("Write-Host 'hello`", None), ("world'", 0), ("Get-Date", None)]          # literal in 'single quotes'
+    assert scanned("```powershell\nWrite-Host \"a`\nb\"\nGet-Date\n```\n") == [('Write-Host "a`', None), ('b"', 0), ("Get-Date", None)]          # the string keeps its own line break
+    assert scanned("```console\nPS C:\\> Write-Host 'hello`\n>> world'\nPS C:\\> Get-Date\n```\n") == [("PS C:\\> Write-Host 'hello`", None), (">> world'", 0), ("PS C:\\> Get-Date", None)]
+    assert scanned("```powershell\nWrite-Host 'a' `\n  -ForegroundColor Red\nGet-Date\n```\n") == [("Write-Host 'a' -ForegroundColor Red", None), ("Get-Date", None)]          # outside a string it still continues
