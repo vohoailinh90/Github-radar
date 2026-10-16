@@ -3,3 +3,6 @@
 .claude/skills/impeccable/** -text
 .claude/agents/impeccable-*.md -text
 docs/third-party/impeccable/** -text
+# The Lucide icons are hashed byte for byte (radar/icons/index.json): same rule.
+radar/icons/** -text
+docs/third-party/lucide/** -text

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from . import gates
+from . import gates, icons
 from .llm import AllModelsFailed, Gateway, family, parse_json
 
 LANG_NAME = {"vi": "Vietnamese (tiếng Việt)", "en": "English", "ja": "Japanese (日本語, polite です・ます)"}
@@ -26,6 +26,7 @@ Hard rules:
 - Never invent numbers, features, benchmarks, users, prices, versions or comparisons. If the facts do not say it, leave it out.
 - Teach the mechanism, not the slogan: the problem, how the pieces fit together, and what a reader can learn from the design.
 - Every how_it_works step and component cites `evidence`: "README" or a path that exists in the FACTS tree.
+- Every component has an `icon`: the ONE name from ICONS below that best matches what the component does (`box` if none fits). Never invent a name.
 - try_it.commands: copy commands VERBATIM from the README, or use [] when there are none.
 - No URLs, domains, or markdown links anywhere. No hype (best, #1, revolutionary, guaranteed, 100%).
 - Write in {language}. Keep widely used English technical terms.
@@ -36,14 +37,17 @@ Answer with ONE JSON object and nothing else, with exactly these keys:
  "one_liner": "what it is, <=200 chars", "problem": "who has which problem, 2-3 sentences",
  "analogy": "1-2 sentences",
  "how_it_works": {{"steps": [{{"title": "short", "text": "<=220 chars", "evidence": "README or path"}}],
-                   "components": [{{"name": "<=40 chars", "role": "<=160 chars", "evidence": "README or path"}}],
+                   "components": [{{"name": "<=40 chars", "role": "<=160 chars", "icon": "<a name from ICONS>", "evidence": "README or path"}}],
                    "flow": [[0, 1]]}},
  "who_for": ["2-4 items"], "learn": ["3-5 design lessons a reader keeps"],
  "try_it": {{"commands": [], "note": "one sentence"}},
  "caveats": ["1-4 honest limits: maturity, licence, cost, scope"],
  "glossary": [{{"term": "", "meaning": ""}}],
  "facebook": {{"caption": "first line <=125 chars, then 3-6 short lines", "hashtags": ["max5"]}}}}
-Counts: steps 3-6, components 2-6, flow = pairs of component indexes (arrows), glossary 0-4."""
+Counts: steps 3-6, components 2-6, flow = pairs of component indexes (arrows), glossary 0-4.
+
+ICONS (name = meaning):
+{icons}"""
 
 # A verdict is a few hundred tokens. Some tiers count max_tokens toward the per-minute budget, so do not reserve more than needed.
 CHECK_MAX_TOKENS = 900
@@ -87,7 +91,7 @@ def checker_pool(checker_models: list[str], writer: str) -> list[str]:
 def write_one(gw: Gateway, cfg: dict, facts: dict, lang: str) -> dict:
     """Returns {"draft", "status": "ok"|"held", "problems", "writer", "checker", "issues"}."""
     writer_models, checker_models = cfg["models"]["writer"], cfg["models"]["checker"]
-    system = SYSTEM.format(audience=AUDIENCE[lang], language=LANG_NAME[lang])
+    system = SYSTEM.format(audience=AUDIENCE[lang], language=LANG_NAME[lang], icons=icons.prompt_list())
     user = facts_block(facts) + f"\n\nWrite the JSON now, in {LANG_NAME[lang]}."
     draft, writer = _ask(gw, writer_models, system, user, max_tokens=4500)
     result = {"writer": writer, "checker": None, "issues": [], "fixed": False}

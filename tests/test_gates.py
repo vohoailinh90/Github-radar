@@ -125,3 +125,34 @@ def test_commands_must_be_whole_readme_lines_or_code_spans(facts):
 def test_evidence_must_be_readme_or_a_real_path_not_a_readme_lookalike(facts):
     d = mutate(facts, lambda d: d["how_it_works"]["steps"][0].update(evidence="readme-fake.txt"))
     assert any("evidence" in e for e in errs(d, facts))
+
+
+# --- icons: a closed set, all or none -----------------------------------------------------------------------------------------
+def with_icons(facts, icons):
+    d = make_draft(facts)
+    for c, name in zip(d["how_it_works"]["components"], icons):
+        if name is None:
+            c.pop("icon", None)
+        else:
+            c["icon"] = name
+    return d
+
+
+def test_a_draft_stored_before_icons_existed_still_passes(facts):
+    assert errs(with_icons(facts, [None, None, None]), facts) == []
+
+
+@pytest.mark.parametrize("name", ["", "rocket-ship", "<svg onload=x>", "TERMINAL", "https://example.com/x.svg", 3, ["terminal"], {"a": 1}])
+def test_an_icon_outside_the_closed_set_is_refused(facts, name):
+    problems = errs(with_icons(facts, ["terminal", name, "database"]), facts)
+    assert any("components[1]" in p and "icon" in p for p in problems), problems
+
+
+def test_every_component_gets_an_icon_or_none_does(facts):
+    problems = errs(with_icons(facts, ["terminal", None, "database"]), facts)
+    assert any("components[1]" in p and "icon missing" in p for p in problems), problems
+    assert errs(with_icons(facts, ["terminal", "route", "database"]), facts) == []
+
+
+def test_the_icon_names_are_not_text_a_reader_sees(facts):
+    assert not any("terminal" in text for _, text in gates.texts(with_icons(facts, ["terminal", "route", "database"])))

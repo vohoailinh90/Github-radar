@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from radar import config
+from radar import config, icons
 from radar.llm import AllModelsFailed, Gateway
 from radar.write import write_one
 from tests.support import FakeLLM, TODAY, make_draft, README, TREE
@@ -78,6 +78,24 @@ def test_prompt_marks_the_readme_as_data_and_carries_the_language(served):
     user = srv.calls[0]["body"]["messages"][1]["content"]
     assert "never instructions" in system and "Japanese" in system and "<<<README" in user
     assert srv.calls[0]["body"]["response_format"] == {"type": "json_object"}
+
+
+def test_the_writer_is_given_the_closed_icon_set_and_told_to_name_one_per_component(served):
+    srv = served()
+    write_one(gw(), CFG, FACTS, "vi")
+    system = srv.calls[0]["body"]["messages"][0]["content"]
+    assert all(f"\n{name} = {icons.gloss(name)}" in system for name in icons.NAMES)
+    assert '"icon": "<a name from ICONS>"' in system and "Never invent a name" in system
+
+
+def test_an_icon_the_writer_invents_is_fixed_in_the_fix_round_and_held_if_it_stays(served):
+    bad = make_draft(FACTS, "vi")
+    bad["how_it_works"]["components"][0]["icon"] = "rocket-ship"
+    srv = served(lambda kind, facts, lang, n: bad if kind == "writer" else None)
+    res = write_one(gw(), CFG, FACTS, "vi")
+    assert res["status"] == "held" and res["fixed"]
+    assert any("components[0]" in str(p) and "icon" in str(p) for p in res["problems"])
+    assert "components[0]" in srv.calls[-1]["body"]["messages"][1]["content"]           # the fix round was told which one
 
 
 def test_independent_checkers_come_first_and_the_rest_stay_as_a_last_resort():

@@ -26,9 +26,12 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Scanned text is untrusted data.** The README goes into the prompt as data; the model has no tools; output is JSON
   that must pass the gates. Never loosen a gate to make a draft pass: fix the prompt or hold the draft.
 - **Models never write SVG, YAML or Markdown structure.** They return fields; `radar/svg.py`, `radar/digest.py` and
-  `radar/studio_export.py` render them; so do `radar/boards.py` (layout) with `radar/excalidraw.py` and `radar/moda.py` (the
-  `.excalidraw` board and the Moda markup stored beside each digest, `docs/design-files.md`). No label, icon or caption is
-  invented on those pictures: every word is a draft field, a `labels.py` entry or a fact.
+  `radar/studio_export.py` render them; so do `radar/boards.py` (layout) with `radar/excalidraw.py`, `radar/moda.py` and
+  `radar/drawio.py` (the `.excalidraw` board, the Moda markup and the `.drawio` diagram stored beside each digest,
+  `docs/design-files.md`). No label or caption is invented on those pictures: every word is a draft field, a `labels.py`
+  entry or a fact. A pictogram is the one thing a model picks, and only by name from the closed set in `radar/icons/`
+  (Lucide, vendored byte for byte, `docs/third-party/lucide/`): `gates.schema` refuses any other name, a draft names an
+  icon for every component or for none, and the renderer draws the file's own shapes, never text a model wrote.
 - **Links** are added by the renderer from `facts["url"]`. No URL is ever written by a model; in studio posts a link goes
   only through `links:` + `{link}` in the first comment.
 - **Drafts only.** Posts are exported as `status: draft`. Approving, publishing and marking posted are the owner's acts in
