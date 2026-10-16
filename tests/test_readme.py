@@ -1243,3 +1243,12 @@ def test_a_powershell_comment_may_begin_right_after_the_quote_that_closes_a_stri
     assert readme._ps_state("Write-Output 'x'# note")[2] == len("Write-Output 'x'")
     lines = [line for _, block in readme.code_blocks("```powershell\nWrite-Output \"x\"# note `\nGet-Date\n```\n") for line in block]
     assert lines == ['Write-Output "x"# note `', "Get-Date"]                      # and the backtick in it is text
+
+
+def test_a_root_prompt_is_recognized_after_a_line_that_makes_the_shell_root_s():
+    text = "```console\n$ sudo -i\n# apt-get update\n# a note\n# apt-get install x\n$ exit\n# not a root prompt\n```\n"
+    assert readme.setup_commands(text) == ["sudo -i", "apt-get update", "apt-get install x", "exit"]          # a comment stays one, and `exit` ends it
+    assert readme.setup_commands("```console\n$ su -\n# systemctl restart x\n```\n") == ["su -", "systemctl restart x"]
+    assert readme.setup_commands("```console\n$ sudo su\n# make install\n```\n") == ["sudo su", "make install"]
+    assert readme.setup_commands("```console\n$ ls\n# apt-get update\n```\n") == ["ls"]                     # with no escalation `# ` after a `$` prompt is still a comment
+    assert readme.setup_commands("```console\n# apt-get update\n# apt-get install x\n```\n") == ["apt-get update", "apt-get install x"]

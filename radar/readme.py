@@ -1298,6 +1298,7 @@ def code_blocks(text: str) -> list[tuple[str, list[str]]]:
 
 
 NO_PROMPT = re.compile(r"(?!)")                 # matches nothing: a line with no prompt to drop
+ESCALATION = re.compile(r"^(?:sudo\s+(?:-[is]|su)(?:\s+-)?|su(?:\s+-)?(?:\s+root)?)$")      # a typed line after which the shell is root's: `sudo -i`, `su -`
 ROOT_PROMPT = re.compile(r"^#\s+")              # the prompt of root in a transcript: `# apt-get update`
 SECONDARY_PROMPT = re.compile(r"^>\s+")         # what a shell shows when a command goes on over several lines
 
@@ -1307,14 +1308,15 @@ def transcript_prompts(lines: list[str], roles: list[str]) -> list:
     `> ` is the prompt of a line typed in a transcript that has no other prompt; after a `$`-style prompt it is the shell's secondary
     prompt or output (npm prints `> pkg@1.0.0 start` after `$ npm start`), typed only inside a heredoc; the same after root's prompt.
     A bare `# ` is root's prompt when no `$`-style prompt came before and what follows is a command, otherwise a comment."""
-    seen, rooted, out = False, False, []        # a `$`-style prompt came before / a root prompt came before
+    seen, rooted, escalated, out = False, False, False, []        # a `$`-style prompt came before / a root prompt came before / the last typed line became root
     for line, role in zip(lines, roles):
         if SHELL_PROMPT.match(line):
             seen = True
+            escalated = bool(ESCALATION.match(SHELL_PROMPT.sub("", line, count=1).strip()))
             out.append(PROMPT)
         elif SECONDARY_PROMPT.match(line):
             out.append(None if (seen or rooted) and role != "body" else PROMPT)
-        elif not seen and ROOT_PROMPT.match(line) and is_command_line(ROOT_PROMPT.sub("", line, count=1)):
+        elif (not seen or escalated) and ROOT_PROMPT.match(line) and is_command_line(ROOT_PROMPT.sub("", line, count=1)):
             rooted = True
             out.append(ROOT_PROMPT)
         else:
