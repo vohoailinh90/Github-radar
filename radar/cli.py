@@ -111,9 +111,9 @@ def cmd_doctor(args, cfg) -> int:
         # Information only: a missing record never fails the doctor (the models above already did the pass or fail).
         for model in sorted({m for ids in models.values() for m in ids if m.startswith("google/") and _safe(has_key, m)}):
             try:
-                print(f"info  {model} -> {_describe(_model_record(model))}")
+                print(f"info  {model} record: {_describe(_model_record(model), split_model(model)[1])}")
             except HttpError as exc:
-                print(f"WARN  {model}: no model record from Google (HTTP {exc.status}); what a -latest alias points to cannot be read")
+                print(f"WARN  {model}: no model record from Google (HTTP {exc.status})")
     return 1 if bad else 0
 
 
@@ -130,8 +130,9 @@ def _one_line(value, limit: int) -> str:
     return " ".join(re.sub(r"[\x00-\x1f\x7f]", " ", str(value)).split())[:limit]
 
 
-def _describe(record: dict) -> str:
-    """The fields that say what a model is. A `-latest` alias record names (or describes) the version it points to."""
+def _describe(record: dict, requested: str) -> str:
+    """The fields of the record Google keeps for `requested`. For a `-latest` alias this can be the alias's own metadata
+    (same name, a generic description) and not the model behind it, so a record that carries the requested name says so."""
     parts = [f"{label}={_one_line(record[key], 60)}" for label, key in (("name", "name"), ("version", "version"), ("display", "displayName"))
              if record.get(key) not in (None, "")]
     if isinstance(record.get("thinking"), bool):
@@ -141,7 +142,10 @@ def _describe(record: dict) -> str:
         parts.append(f"tokens in/out={limits[0]}/{limits[1]}")
     text = " ".join(parts) or "the record has no name, version or limits"
     description = _one_line(record.get("description") or "", 200)
-    return f"{text} | {description}" if description else text
+    text = f"{text} | {description}" if description else text
+    if str(record.get("name") or "").removeprefix("models/") == requested:
+        text += "  [the record of the alias itself: it does not say which model the alias points to]"
+    return text
 
 
 def _safe(fn, *a):

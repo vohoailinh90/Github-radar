@@ -37,16 +37,20 @@ def test_models_that_are_all_offered_print_no_list(groq, capsys):
 
 # --- the model record: what a `-latest` alias points to ---------------------------------------------------------------
 
-ALIAS = {"name": "models/gemini-9-flash-001", "version": "001", "displayName": "Gemini 9 Flash", "thinking": True,
-         "inputTokenLimit": 1048576, "outputTokenLimit": 65536,
-         "description": "Alias that points to the most recent release of Gemini 9 Flash."}
+# A record that names another model than the one asked for, and the record of the alias itself (what Google may return for a
+# `-latest` alias: its own name and a generic description, not the model behind it).
+NAMES_A_MODEL = {"name": "models/gemini-9-flash-001", "version": "001", "displayName": "Gemini 9 Flash", "thinking": True,
+                 "inputTokenLimit": 1048576, "outputTokenLimit": 65536,
+                 "description": "Alias that points to the most recent release of Gemini 9 Flash."}
+ALIAS_ITSELF = {"name": "models/gemini-flash-latest", "version": "latest", "displayName": "Gemini Flash Latest", "thinking": True,
+                "inputTokenLimit": 1048576, "outputTokenLimit": 65536, "description": "Latest release."}
 
 
 @pytest.fixture
 def google(monkeypatch):
     """Two fake endpoints: the OpenAI-compatible model list (what doctor already read) and Google's native model record."""
     compat = _Server(lambda call: (200, {"data": [{"id": "models/gemini-flash-latest"}, {"id": "models/gemini-flash-lite-latest"}]}))
-    state = {"status": 200, "record": ALIAS}
+    state = {"status": 200, "record": NAMES_A_MODEL}
     native = _Server(lambda call: (state["status"], state["record"] if state["status"] == 200 else {"error": "x"}))
     monkeypatch.setenv("RADAR_BASE_GOOGLE", compat.url)
     monkeypatch.setenv("RADAR_NATIVE_GOOGLE", native.url)
@@ -56,16 +60,27 @@ def google(monkeypatch):
     native.close()
 
 
-def test_doctor_prints_what_the_google_alias_points_to_and_keeps_the_key_out_of_the_url_and_the_output(google, capsys):
+def test_doctor_prints_the_model_record_and_keeps_the_key_out_of_the_url_and_the_output(google, capsys):
     native, _ = google
     code, out = doctor(["google/gemini-flash-latest"], capsys)
     assert code == 0
-    assert ("info  google/gemini-flash-latest -> name=models/gemini-9-flash-001 version=001 display=Gemini 9 Flash thinking=True "
-            "tokens in/out=1048576/65536 | Alias that points to the most recent release of Gemini 9 Flash.") in out
+    assert ("info  google/gemini-flash-latest record: name=models/gemini-9-flash-001 version=001 display=Gemini 9 Flash thinking=True "
+            "tokens in/out=1048576/65536 | Alias that points to the most recent release of Gemini 9 Flash.\n") in out
+    assert "does not say which model" not in out                          # the record names another model: nothing to warn about
     call = native.calls[0]
     assert call["path"] == "/models/gemini-flash-latest" and "secret-g-key" not in call["path"]
     assert {k.lower(): v for k, v in call["headers"].items()}["x-goog-api-key"] == "secret-g-key"     # in a header only
     assert "secret-g-key" not in out
+
+
+def test_the_record_of_the_alias_itself_is_labelled_so_it_is_not_read_as_the_model_behind_it(google, capsys):
+    _, state = google
+    state["record"] = ALIAS_ITSELF
+    code, out = doctor(["google/gemini-flash-latest"], capsys)
+    line = next(l for l in out.splitlines() if l.startswith("info  google/gemini-flash-latest"))
+    assert code == 0 and "name=models/gemini-flash-latest version=latest display=Gemini Flash Latest thinking=True" in line
+    assert line.endswith("[the record of the alias itself: it does not say which model the alias points to]")
+    assert "points to" in line.split("|", 1)[1] and "is offered" in out        # still only information next to the pass/fail lines
 
 
 def test_a_missing_model_record_is_a_warning_and_never_fails_the_doctor(google, capsys):
