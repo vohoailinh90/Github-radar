@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-17",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 1,
+  "dropped": {},
+  "picks": [
+    {
+      "repo": "stablyai/orca",
+      "bucket": "ai",
+      "score": 17.202,
+      "stars": 94489,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 13246,
+      "velocity": "lifetime",
+      "flags": []
+    }
+  ],
+  "shortlist": [],
+  "history": {
+    "tracked": 1,
+    "measured": 0
+  },
+  "written": [
+    {
+      "repo": "stablyai/orca",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 2,
+        "used": 1
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "requested": {
+    "repo": "stablyai/orca",
+    "bucket": "ai",
+    "warnings": []
+  },
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 28.8,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.5,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 21.0,
+      "served": "gemini-flash-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-17"
+}
