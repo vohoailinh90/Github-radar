@@ -152,7 +152,10 @@ def _nlines(text, size: float, width: float, bold: bool = False) -> int:
 
 
 def _runs_nlines(runs, size: float, width: float, bold: bool = False) -> int:
-    return _count_lines([(ch, kind == "m", bold or kind == "b") for text, kind, _ in runs for ch in re.sub(r"\s+", " ", _clean(text))], size, width)
+    """Lines of a paragraph of runs. Whitespace collapses in the words around a code run, as PowerPoint wraps them, but a monospaced run is
+    written exactly as the draft has it (`_runs`), so its spaces are measured as they are."""
+    return _count_lines([(ch, kind == "m", bold or kind == "b") for text, kind, _ in runs
+                         for ch in (_clean(text) if kind == "m" else re.sub(r"\s+", " ", _clean(text)))], size, width)
 
 
 def _lines_h(n: int, size: float) -> float:

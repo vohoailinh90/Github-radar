@@ -358,6 +358,15 @@ def test_a_japanese_code_line_taller_than_a_slide_continues_on_the_next_slide():
     assert "".join(shown[:-1]) == line and shown[-1] == "echo ok"
 
 
+def test_the_spaces_inside_a_code_run_are_measured_as_they_are_written():
+    spaced = "a" + " " * 300 + "b"
+    assert slides._runs_nlines([(spaced, "m", None)], 22, slides.WIDTH) >= 4            # 300 spaces of 12.4 pt do not fit on one line
+    assert slides._runs_nlines([(spaced, "t", None)], 22, slides.WIDTH) == 1            # around the code the whitespace collapses as before
+    tall = slides.para([("Chạy: ", "t", None), ("x" + " " * 4000 + "y", "m", None)], size=22)
+    pieces = slides._fit(tall, slides.WIDTH, slides.BOTTOM - 100)
+    assert len(pieces) >= 2 and all(slides.measure(p, slides.WIDTH) <= slides.BOTTOM - 100 for p in pieces)
+
+
 def test_a_code_span_in_prose_counts_a_wide_glyph_as_an_em():
     assert slides._adv("日", True, 22, False) == 20 and slides._adv("x", True, 22, False) == 20 * slides.MONO_EM
     one = slides.para(slides.prose("`" + "日" * 60 + "`"), size=22)
