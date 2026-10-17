@@ -35,6 +35,7 @@ SW, SH = 960, 540                    # the slide in points: 13.333 x 7.5 in
 LEFT, WIDTH = 54, 852
 BOTTOM = 492                         # lowest point content may reach; the progress rail sits below
 GAP = 10                             # between two blocks
+COVER_TOP, COVER_BOTTOM = 116, 392   # where the copy of the cover may stand: under the badge, above the figures
 SANS, SERIF, MONO = "Calibri", "Cambria", "Consolas"
 EAST = {"ja": "Yu Gothic"}           # the East Asian font; Latin text keeps SANS
 LH = 1.28                            # line height as a multiple of the font size, for measuring (Calibri sets 1.22)
@@ -279,6 +280,69 @@ def _sentences(text: str) -> list[str]:
     return [s for s in out if s.strip()]
 
 
+def _break_points(text: str) -> list[str]:
+    """Pieces a text may be cut between: each word with the space before it, each East Asian character on its own; a backtick span stays
+    whole. Joined again they give the text back exactly."""
+    raw, out, last = str(text), [], 0
+    for found in readmelib.CODE_SPAN.finditer(raw):
+        out += _plain_break_points(raw[last:found.start()]) + [found.group(0)]
+        last = found.end()
+    return out + _plain_break_points(raw[last:])
+
+
+def _plain_break_points(text: str) -> list[str]:
+    pieces, cur = [], ""
+    for ch in text:
+        if svg._wide(ch):
+            if cur:
+                pieces.append(cur)
+                cur = ""
+            pieces.append(ch)
+        elif ch.isspace():
+            if cur.strip():
+                pieces.append(cur)
+                cur = ""
+            cur += ch
+        else:
+            cur += ch
+    return pieces + ([cur] if cur else [])
+
+
+def _split_card(b: dict, width: float, room: float) -> list[dict]:
+    """A card taller than a slide as several that fit: cut at sentence ends where there are any, between words or characters where a
+    sentence is itself too tall (a Japanese paragraph without a full stop), and between characters only for a single unbreakable word."""
+    def fits(text: str, first: bool) -> bool:
+        return measure({**b, "body": text, "head": b["head"] if first else None, "extra": None}, width) <= room - reserve
+
+    reserve = measure({**b, "body": "x"}, width) - measure({**b, "body": "x", "extra": None}, width) if b["extra"] else 0.0
+    units: list[str] = []
+    for i, sentence in enumerate(_sentences(b["body"])):
+        lead = " " if i else ""
+        if fits(sentence, False):
+            units.append(lead + sentence)
+            continue
+        for j, piece in enumerate(_break_points(sentence)):
+            while len(piece) > 1 and not fits(piece, False):               # one word too long for a slide: cut it between characters
+                cut = next(n for n in range(len(piece) - 1, 0, -1) if fits(piece[:n], False) or n == 1)
+                units.append((lead if not j else "") + piece[:cut])
+                lead, piece = "", piece[cut:]
+            units.append((lead if not j else "") + piece)
+            lead = ""
+    pieces: list[str] = []
+    cur = ""
+    for unit in units:
+        if cur and not fits(cur + unit, not pieces):
+            pieces.append(cur)
+            cur = unit.lstrip()
+        else:
+            cur += unit
+    pieces.append(cur)
+    if len(pieces) < 2:
+        return [b]
+    return [{**b, "body": text.strip(), "head": b["head"] if i == 0 else None, "marker": b["marker"] if i == 0 else "bar" if b["marker"] else None,
+             "extra": b["extra"] if i == len(pieces) - 1 else None} for i, text in enumerate(pieces)]
+
+
 def _fit(b: dict, width: float, room: float) -> list[dict]:
     """The block, or the pieces of it when it is taller than a whole slide (a long sample, a very long paragraph)."""
     if measure(b, width) <= room:
@@ -287,8 +351,12 @@ def _fit(b: dict, width: float, room: float) -> list[dict]:
     if k == "code":
         size, cpl = _code_size(b["lines"], width)
         per = max(1, int((room - 28 - (26 if b["label"] else 0)) / (size * 1.38)))
+        lines: list[str] = []
+        for line in b["lines"]:                                           # a single line taller than a slide continues on the next one
+            step = cpl * per
+            lines += [line[i:i + step] for i in range(0, len(line), step)] if len(line) > step else [line]
         pieces, cur, rows = [], [], 0
-        for line in b["lines"]:
+        for line in lines:
             need = max(1, math.ceil(len(line) / cpl))
             if cur and rows + need > per:
                 pieces.append(cur)
@@ -302,21 +370,9 @@ def _fit(b: dict, width: float, room: float) -> list[dict]:
         for size in (10, 8, 6, 4, 2, 1):
             if measure(grid(items[:size], size=b["size"]), width) <= room:
                 return [grid(items[i:i + size], size=b["size"]) for i in range(0, n, size)]
-    if k == "card":
-        sentences = _sentences(b["body"])
-        if len(sentences) > 1:
-            pieces, cur = [], []
-            for s in sentences:
-                trial = {**b, "body": " ".join(cur + [s]), "head": b["head"] if not pieces else None, "extra": None}
-                if cur and measure(trial, width) > room:
-                    pieces.append(" ".join(cur))
-                    cur = [s]
-                else:
-                    cur.append(s)
-            pieces.append(" ".join(cur))
-            return [{**b, "body": p, "head": b["head"] if i == 0 else None, "marker": b["marker"] if i == 0 else "bar" if b["marker"] else None,
-                     "extra": b["extra"] if i == len(pieces) - 1 else None} for i, p in enumerate(pieces)]
-    return [b]       # one unbreakable block: kept whole (it can only be a single absurdly long sentence)
+    if k == "card" and b["body"]:
+        return _split_card(b, width, room)
+    return [b]
 
 
 def paginate(blocks: list[dict], top: float, width: float = WIDTH) -> list[list[tuple[dict, float, float]]]:
@@ -619,8 +675,28 @@ class Book:
         top = 48 + th_h + 20
         self.pages.append({"theme": "light", "title": title, "kicker": "", "tsize": size, "top": top, "flow": (components, edges)})
 
+    def _cover_plan(self) -> dict:
+        """The type sizes of the cover and which of hook and one-liner it shows. Everything is tried at three sizes; if the copy still does
+        not fit, the title stays and the rest moves to the slide after the cover, so no field of the draft is ever left out."""
+        d = self.draft
+        for tsize, hsize, osize in ((48, 24, 22), (40, 22, 20), (34, 20, 18)):
+            title_h = _nlines(d["title"], tsize * 1.065, WIDTH, True) * tsize * 1.2
+            hook_h = _lines_h(_nlines(d["hook"], hsize, WIDTH), hsize)
+            line_h = _lines_h(_nlines(d["one_liner"], osize, WIDTH, True), osize)
+            if COVER_TOP + title_h + 18 + hook_h + 12 + line_h <= COVER_BOTTOM:
+                return {"title": tsize, "hook": hsize, "one_liner": osize, "shown": ("hook", "one_liner")}
+        title_h = _nlines(d["title"], 34 * 1.065, WIDTH, True) * 34 * 1.2
+        hook_h = _lines_h(_nlines(d["hook"], 20, WIDTH), 20)
+        fits_hook = COVER_TOP + title_h + 18 + hook_h <= COVER_BOTTOM
+        return {"title": 34, "hook": 20, "one_liner": 18, "shown": ("hook",) if fits_hook else ()}
+
     def cover(self) -> None:
-        self.pages.append({"theme": "dark", "cover": True, "title": self.draft["title"], "kicker": ""})
+        plan = self._cover_plan()
+        self.pages.append({"theme": "dark", "cover": True, "title": self.draft["title"], "kicker": "", "plan": plan})
+        rest = [card(None, self.draft[key], marker=None, tint="none", size=28 if key == "hook" else 24)
+                for key in ("hook", "one_liner") if key not in plan["shown"]]
+        if rest:                                     # the copy the cover had no room for, on the slide right after it
+            self.add(self.draft["title"], rest)
 
     # -- drawing
     def build(self) -> bytes:
@@ -677,15 +753,17 @@ class Book:
         _shape(slide, MSO_SHAPE.ROUNDED_RECTANGLE, LEFT, 56, svg.width(_chips[0], 20) + 40, 40, fill=th["accent"], radius=20, name="bucket")
         _text(slide, LEFT, 56, svg.width(_chips[0], 20) + 40, 40, [{"runs": [(_chips[0], "b", None)], "size": 20, "color": "12141B", "align": PP_ALIGN.CENTER}],
               th, self.lang, anchor="middle", name="bucket text")
-        size = 48 if len(svg.wrap(_plain(d["title"]), 48 * 1.12, WIDTH, 4)) <= 3 else 40
-        tl = len(svg.wrap(_plain(d["title"]), size * 1.12, WIDTH, 4))
-        _text(slide, LEFT, 116, WIDTH, tl * size * 1.2, [{"runs": prose(d["title"], bold=True), "size": size, "bold": True, "face": SERIF}], th, self.lang, name="title")
-        y = 116 + tl * size * 1.2 + 18
-        for text, sz, colour, bold in ((d["hook"], 24, th["muted"], False), (d["one_liner"], 22, th["ink"], True)):
-            h = _lines_h(_nlines(text, sz, WIDTH, bold), sz)
-            if y + h > 392:
-                break
-            _text(slide, LEFT, y, WIDTH, h, [{"runs": prose(text, bold=bold), "size": sz, "color": colour, "bold": bold}], th, self.lang, name="hook")
+        plan = pg["plan"]
+        size = plan["title"]
+        tl = _nlines(d["title"], size * 1.065, WIDTH, True)
+        _text(slide, LEFT, COVER_TOP, WIDTH, tl * size * 1.2, [{"runs": prose(d["title"], bold=True), "size": size, "bold": True, "face": SERIF}], th, self.lang, name="title")
+        y = COVER_TOP + tl * size * 1.2 + 18
+        for key, colour, bold in (("hook", th["muted"], False), ("one_liner", th["ink"], True)):
+            if key not in plan["shown"]:
+                continue
+            sz = plan[key]
+            h = _lines_h(_nlines(d[key], sz, WIDTH, bold), sz)
+            _text(slide, LEFT, y, WIDTH, h, [{"runs": prose(d[key], bold=bold), "size": sz, "color": colour, "bold": bold}], th, self.lang, name=key)
             y += h + 12
         sep = t["sep"]
         items = [f"{svg.fmt_int(f['stars'], sep)} {t['stars']}", f"{svg.fmt_int(f['forks'], sep)} {t['forks']}", f"{t['license']}: {f['license']}"]

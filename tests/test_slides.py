@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 from PIL import ImageFont
 from pptx import Presentation
+from pptx.util import Pt
 
 from radar import cli, config, slides
 from radar.labels import L
@@ -190,6 +191,56 @@ def test_roadmap_numbers_every_step_in_order():
     road = next(p for p in book.pages if p["title"].startswith(L["en"]["roadmap"]))
     items = [t for b, _, _ in road["placed"] for _, t in b["items"]]
     assert items == steps[:len(items)]
+
+
+# ---------------------------------------------------------------- text that has no natural place to break
+
+def placed_ok(pages) -> bool:
+    return all(y + h <= slides.BOTTOM + 0.5 for page in pages for _, y, h in page)
+
+
+def test_one_code_line_taller_than_a_slide_continues_on_the_next_slide():
+    line = "x" * 1790                                                 # a README sample may hold one line of up to SNIPPET_CHARS
+    pages = slides.paginate([slides.code([line, "echo ok"])], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [x for page in pages for b, _, _ in page for x in b["lines"]]
+    assert "".join(shown[:-1]) == line and shown[-1] == "echo ok"       # nothing lost, nothing added
+
+
+@pytest.mark.parametrize("text", ["これは句点のない長い文章です" * 38,
+                                  " ".join(f"word{i}" for i in range(110)),
+                                  "start " + "`keep this span whole` and " * 40 + "end"], ids=["japanese", "words", "code-spans"])
+def test_a_card_with_no_sentence_end_is_split_between_words_or_characters(text):
+    card = slides.card(None, text, marker=None, tint="none", size=26)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    bodies = [b["body"] for page in pages for b, _, _ in page]
+    assert "".join(bodies).replace(" ", "") == text.replace(" ", "")      # the same characters, in order
+    assert all(body.count("`") % 2 == 0 for body in bodies)               # a code span is never cut in two
+
+
+@pytest.mark.parametrize("lang", ["ja", "en", "vi"])
+def test_the_cover_never_drops_the_hook_or_the_one_liner(lang):
+    word = {"ja": "長い日本語", "en": "longword ", "vi": "rấtdài "}[lang]
+    draft = make_draft(FACTS, lang)
+    draft["title"] = (word * 30)[:70].strip()
+    draft["hook"] = (word * 40)[:110].strip()
+    draft["one_liner"] = (word * 60)[:200].strip()
+    blob = slides.deck(FACTS, draft, lang)
+    check_inside_the_slide(blob)
+    shown = "".join(t.replace(" ", "") for t in texts(blob))
+    assert draft["hook"].replace(" ", "") in shown and draft["one_liner"].replace(" ", "") in shown
+    cover = Presentation(io.BytesIO(blob)).slides[0]
+    for shape in cover.shapes:                                               # what stays on the cover stays above the figures
+        if shape.name in ("title", "hook", "one_liner"):
+            assert shape.top + shape.height <= Pt(slides.COVER_BOTTOM + 0.5), f"the cover's {shape.name} runs into the figures"
+
+
+def test_an_ordinary_cover_keeps_its_copy_and_gets_no_extra_slide():
+    draft = make_draft(FACTS, "en")
+    book = slides.guide_book(FACTS, draft, "en")
+    assert book.pages[0].get("cover") and book.pages[1]["title"] == L["en"]["outcome"]
+    assert draft["hook"] in " ".join(texts(book.build())[:8])
 
 
 # ---------------------------------------------------------------- the diagram
