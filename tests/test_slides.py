@@ -1,0 +1,716 @@
+"""The slide deck (`radar/slides.py`): drawn from the stored draft only, so every word is the draft's, a label's or a fact, every
+address is a fact, nothing runs off a slide, and drawing it again gives the same bytes."""
+
+import io
+import json
+import math
+import re
+import shutil
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+import pytest
+from PIL import ImageFont
+from pptx import Presentation
+from pptx.util import Pt
+
+from radar import cli, config, slides
+from radar.labels import L
+from tests.support import make_draft
+from tests.test_write import FACTS as BASE_FACTS
+
+ROOT = config.ROOT
+LINKS = [["Helpdesk docs", "https://helpdesk.example.org/docs"], ["bad", "javascript:alert(1)"], ["console", "http://localhost:8080"]]
+BLOCKS = [["toml", '[helpdesk]\nurl = "https://helpdesk.example.org"']]
+FACTS = {**BASE_FACTS, "bucket": "ai", "url": "https://github.com/example-org/sample-agent-kit", "links": LINKS, "blocks": BLOCKS}
+EAST = re.compile(r"[぀-ヿ㐀-鿿]")
+
+
+def stored_drafts() -> list[Path]:
+    return sorted((ROOT / "digests").glob("*/*/draft-*.json"))
+
+
+def texts(blob: bytes) -> list[str]:
+    out = []
+    for slide in Presentation(io.BytesIO(blob)).slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                out += [p.text for p in shape.text_frame.paragraphs if p.text]
+    return out
+
+
+def strings(value) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [s for v in value.values() for s in strings(v)]
+    if isinstance(value, (list, tuple)):
+        return [s for v in value for s in strings(v)]
+    return [str(value)] if isinstance(value, (int, float)) and not isinstance(value, bool) else []
+
+
+def words(text: str) -> set[str]:
+    return {w.lower() for w in re.findall(r"\w+", text)}
+
+
+def allowed_words(facts: dict, draft: dict, lang: str) -> set[str]:
+    return words(" ".join(strings(draft) + strings(L[lang]) + strings(facts)))
+
+
+def check_words(blob: bytes, facts: dict, draft: dict, lang: str) -> None:
+    allowed = allowed_words(facts, draft, lang)
+    for text in texts(blob):
+        stray = [w for w in words(text) if w not in allowed and not w.isdigit() and not EAST.search(w)]
+        assert not stray, f"{stray} on a slide ({text!r}) are neither the draft's, a label nor a fact"
+
+
+def addresses(blob: bytes) -> set[str]:
+    found = set()
+    with zipfile.ZipFile(io.BytesIO(blob)) as z:
+        for name in z.namelist():
+            if name.startswith("ppt/slides/_rels/"):
+                found |= set(re.findall(r'Target="([^"]+)"[^>]*TargetMode="External"', z.read(name).decode("utf-8")))
+    return found
+
+
+def check_inside_the_slide(blob: bytes) -> None:
+    prs = Presentation(io.BytesIO(blob))
+    w, h = prs.slide_width, prs.slide_height
+    for n, slide in enumerate(prs.slides, 1):
+        for shape in slide.shapes:
+            assert shape.left >= 0 and shape.top >= 0 and shape.left + shape.width <= w + 12700 and shape.top + shape.height <= h + 12700, \
+                f"slide {n}: {shape.name} leaves the slide"
+
+
+def check_pages_fit(book: slides.Book) -> None:
+    for n, page in enumerate(book.pages, 1):
+        placed = page.get("placed", [])
+        if placed:
+            b, y, h = placed[-1]
+            assert y + h <= slides.BOTTOM + 0.5 or len(placed) == 1, f"slide {n} runs past the content area"
+
+
+# ---------------------------------------------------------------- the stored digests of this repository
+
+@pytest.mark.parametrize("path", stored_drafts(), ids=lambda p: "/".join(p.parts[-3:]))
+def test_every_stored_draft_draws_a_deck_that_fits_and_says_only_what_the_draft_says(path):
+    stored = json.loads(path.read_text(encoding="utf-8"))
+    facts, draft, lang = stored["facts"], stored["draft"], stored["lang"]
+    book = slides.guide_book(facts, draft, lang) if draft.get("guide") else slides.concept_book(facts, draft, lang)
+    check_pages_fit(book)
+    blob = book.build()
+    check_inside_the_slide(blob)
+    check_words(blob, facts, draft, lang)
+    links = {facts["url"]} | {u for _, u in facts.get("links") or []}
+    assert addresses(blob) <= links
+    assert len(Presentation(io.BytesIO(blob)).slides) == len(book.pages) >= 5
+
+
+def test_a_deck_is_the_same_bytes_every_time():
+    draft = make_draft(FACTS, "vi")
+    assert slides.deck(FACTS, draft, "vi") == slides.deck(FACTS, draft, "vi")
+    with zipfile.ZipFile(io.BytesIO(slides.deck(FACTS, draft, "vi"))) as z:
+        assert {i.date_time for i in z.infolist()} == {(2020, 1, 1, 0, 0, 0)}
+
+
+# ---------------------------------------------------------------- what is on the slides
+
+@pytest.mark.parametrize("lang", ["vi", "en", "ja"])
+@pytest.mark.parametrize("legacy", [False, True])
+def test_a_deck_is_drawn_in_every_language_for_a_guide_and_for_an_older_draft(lang, legacy):
+    draft = make_draft(FACTS, lang, legacy=legacy)
+    blob = slides.deck(FACTS, draft, lang)
+    check_inside_the_slide(blob)
+    check_words(blob, FACTS, draft, lang)
+    assert draft["title"] in " ".join(texts(blob))
+
+
+def test_only_the_repository_and_the_readme_addresses_become_links():
+    draft = make_draft(FACTS, "en")
+    draft["guide"]["steps"][0]["link_ref"] = 1                     # javascript:, not a plain address: left out whatever the draft says
+    draft["guide"]["steps"][1]["link_ref"] = 0
+    draft["guide"]["steps"][3]["link_ref"] = 2                     # a local address is shown as code, never linked
+    blob = slides.deck(FACTS, draft, "en")
+    assert addresses(blob) == {FACTS["url"], "https://helpdesk.example.org/docs"}
+    assert "javascript" not in " ".join(texts(blob)) and "http://localhost:8080" in " ".join(texts(blob))
+
+
+def test_a_command_is_printed_as_the_draft_has_it_and_a_sample_as_the_readme_has_it():
+    draft = make_draft(FACTS, "en")
+    shown = texts(slides.deck(FACTS, draft, "en"))
+    assert "pip install sample-agent-kit" in shown and "sample-agent run --queue support" in shown
+    assert '[helpdesk]' in shown and 'url = "https://helpdesk.example.org"' in shown
+
+
+def test_hostile_text_cannot_break_the_file_or_add_an_element():
+    draft = make_draft(FACTS, "en", title="<script>alert(1)</script> \x00bad\x1b & \"quotes\"", hook="x" * 400)
+    draft["learn"] = ["<a href='http://evil.example'>click</a> " + "w" * 300]
+    draft["guide"]["steps"][0]["commands"] = ["echo \x1b[31mred\x00 \x0b"]            # a command goes into a code block by another path than prose
+    blob = slides.deck(FACTS, draft, "en")
+    assert Presentation(io.BytesIO(blob)).slides
+    assert any("<script>" in t for t in texts(blob))                      # shown as text, so a reader sees what the README said
+    with zipfile.ZipFile(io.BytesIO(blob)) as z:
+        xml = "".join(z.read(n).decode("utf-8") for n in z.namelist() if n.startswith("ppt/slides/slide"))
+    assert "<script>" not in xml and "evil.example" not in addresses(blob) and "\x00" not in xml
+    assert "_x00" not in xml and "_x001B_" not in xml                      # no escape sequence for a control character either: it is dropped
+    assert slides._clean("a\x00b\x1fc\x0bd") == "abcd"
+
+
+def test_a_long_paragraph_and_a_long_sample_continue_on_the_next_slide_instead_of_running_off():
+    sentence = "Mỗi câu của đoạn này khá dài để chứng minh rằng đoạn văn được chia theo câu chứ không bị cắt giữa chừng. "
+    draft = make_draft(FACTS, "vi", problem=sentence * 40)
+    draft["guide"]["steps"][0]["commands"] = [f"echo line {i} " + "x" * 30 for i in range(90)]
+    book = slides.guide_book(FACTS, draft, "vi")
+    check_pages_fit(book)
+    problem = [p for p in book.pages if p["title"].startswith(L["vi"]["problem"])]
+    assert len(problem) >= 2 and "(1/" in problem[0]["title"]
+    first_step = [p for p in book.pages if p["kicker"].startswith(L["vi"]["step"] + " 1")]
+    assert len(first_step) >= 2
+    check_inside_the_slide(book.build())
+
+
+def test_a_block_that_cannot_fit_is_split_not_dropped():
+    lines = [f"line {i}" for i in range(200)]
+    page = slides.paginate([slides.code(lines)], 100)
+    shown = [x for p in page for b, _, _ in p for x in b["lines"]]
+    assert shown == lines and all(y + h <= slides.BOTTOM + 0.5 for p in page for _, y, h in p)
+
+
+def test_a_link_never_starts_a_slide_alone_when_the_block_before_it_can_come_along():
+    filler = [slides.card(None, "x " * 40, marker=i) for i in range(1, 4)]
+    glued = slides.para([("Liên kết", "t", None)], glue=True)
+    for count in range(1, 4):
+        pages = slides.paginate(filler[:count] * 2 + [glued], 120)
+        assert len(pages[-1]) > 1 or len(pages) == 1
+
+
+@pytest.mark.parametrize("rows", range(1, 16))
+@pytest.mark.parametrize("link_words", [3, 30, 90])
+def test_a_glued_link_takes_the_block_before_it_only_when_both_fit_on_the_next_slide(rows, link_words):
+    intro = slides.para([("Vì sao: " + "bước này cần thiết " * 3, "t", None)])
+    sample = slides.code([f"command --flag {i}" for i in range(rows)])
+    link = slides.para([("Mở: ", "t", None), (" ".join(f"localhost{i}" for i in range(link_words)), "t", None)], glue=True)
+    pages = slides.paginate([intro, sample, link], 100)
+    assert placed_ok(pages), "the link or the block it came along with runs past the content area"
+    blocks = [b for page in pages for b, _, _ in page]
+    assert [k for i, k in enumerate(b["kind"] for b in blocks) if i == 0 or k != blocks[i - 1]["kind"]] == ["para", "code", "para"]
+    assert [x for b in blocks if b["kind"] == "code" for x in b["lines"]] == sample["lines"]                  # nothing lost, nothing repeated
+    assert " ".join("".join(r[0] for r in b["runs"]) for b in blocks[1 + sum(b["kind"] == "code" for b in blocks):]).split() == \
+        ["Mở:"] + [f"localhost{i}" for i in range(link_words)]
+
+
+@pytest.mark.parametrize("long_at", ["end", "start", "middle"])
+def test_a_roadmap_with_a_few_very_long_titles_fits_on_every_slide_it_is_cut_into(long_at):
+    short, long = [f"短い{i}" for i in range(6)], ["長い題" * 24 for _ in range(4)]
+    titles = {"end": short + long, "start": long + short, "middle": short[:3] + long + short[3:]}[long_at]
+    items = list(enumerate(titles, 1))
+    pages = slides.paginate([slides.grid(items, size=24)], 100)
+    assert placed_ok(pages), "a chunk of the roadmap runs past the content area"
+    assert [item for page in pages for b, _, _ in page for item in b["items"]] == items            # every step, once, in order
+
+
+def test_roadmap_numbers_every_step_in_order():
+    draft = make_draft(FACTS, "en")
+    steps = [s["title"] for s in draft["guide"]["steps"]]
+    book = slides.guide_book(FACTS, draft, "en")
+    road = next(p for p in book.pages if p["title"].startswith(L["en"]["roadmap"]))
+    items = [t for b, _, _ in road["placed"] for _, t in b["items"]]
+    assert items == steps[:len(items)]
+
+
+# ---------------------------------------------------------------- text that has no natural place to break
+
+def placed_ok(pages) -> bool:
+    return all(y + h <= slides.BOTTOM + 0.5 for page in pages for _, y, h in page)
+
+
+def test_one_code_line_taller_than_a_slide_continues_on_the_next_slide():
+    line = "x" * 1790                                                 # a README sample may hold one line of up to SNIPPET_CHARS
+    pages = slides.paginate([slides.code([line, "echo ok"])], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [x for page in pages for b, _, _ in page for x in b["lines"]]
+    assert "".join(shown[:-1]) == line and shown[-1] == "echo ok"       # nothing lost, nothing added
+
+
+@pytest.mark.parametrize("text", ["これは句点のない長い文章です" * 38,
+                                  " ".join(f"word{i}" for i in range(110)),
+                                  "start " + "`keep this span whole` and " * 40 + "end"], ids=["japanese", "words", "code-spans"])
+def test_a_card_with_no_sentence_end_is_split_between_words_or_characters(text):
+    card = slides.card(None, text, marker=None, tint="none", size=26)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    bodies = [b["body"] for page in pages for b, _, _ in page]
+    assert "".join(bodies).replace(" ", "") == text.replace(" ", "")      # the same characters, in order
+    assert all(body.count("`") % 2 == 0 for body in bodies)               # a code span is never cut in two
+
+
+def card_text(pages) -> str:
+    return "".join((b["head"] or "") + b["body"] for page in pages for b, _, _ in page)
+
+
+@pytest.mark.parametrize("head", ["用語" * 200, " ".join(f"term{i}" for i in range(150))], ids=["japanese", "words"])
+@pytest.mark.parametrize("body", ["", "short meaning", "意味" * 150], ids=["no-body", "short-body", "long-body"])
+def test_a_card_whose_heading_is_taller_than_a_slide_continues_on_the_next_slide(head, body):
+    glossary = slides.card(head, body, marker=None, size=24)
+    pages = slides.paginate([glossary], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    assert card_text(pages).replace(" ", "") == (head + body).replace(" ", "")      # the same characters, in order
+
+
+def test_a_heading_nearly_as_tall_as_a_slide_stands_alone_and_its_body_follows():
+    head = " ".join(f"term{i}" for i in range(75))
+    room = slides.BOTTOM - 100
+    assert 0.8 * room < slides.measure(slides.card(head, "", size=24), slides.WIDTH) <= room
+    pages = slides.paginate([slides.card(head, "a meaning " * 40, size=24)], 100)
+    assert placed_ok(pages) and len(pages) >= 2
+    assert card_text(pages).replace(" ", "") == (head + "a meaning " * 40).replace(" ", "")
+
+
+@pytest.mark.parametrize("length", [1, 2, 3, 7, 50, 333])
+def test_the_longest_prefix_that_fits_is_found_like_a_linear_scan_would(length):
+    text = "x" * length
+    for limit in range(0, length + 2):
+        fits = lambda t, limit=limit: len(t) <= limit                      # noqa: E731
+        by_scan = next((n for n in range(length - 1, 0, -1) if fits(text[:n])), 1)
+        assert slides._longest(text, fits) == (by_scan if length > 1 else 1)
+
+
+@pytest.mark.parametrize("where", ["head", "body"])
+def test_a_text_of_thousands_of_characters_without_a_break_is_cut_with_few_measurements(monkeypatch, where):
+    calls = []
+    real = slides.measure
+
+    def counting(block, width):
+        calls.append(1)
+        assert len(calls) < 4000, "cutting an unbreakable text measures it far too often"
+        return real(block, width)
+
+    monkeypatch.setattr(slides, "measure", counting)
+    word = "x" * 20000
+    card = slides.card(word, "short", size=24) if where == "head" else slides.card("Term", word, size=24)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 10 and placed_ok(pages)
+    assert card_text(pages) == (word + "short" if where == "head" else "Term" + word)
+
+
+@pytest.mark.parametrize("where", ["head", "body"])
+def test_an_inline_code_span_longer_than_a_slide_stays_code_on_every_slide(where):
+    inner = "path/to/" + "file" * 800
+    span = f"`{inner}`"
+    card = slides.card(span, "meaning", size=24) if where == "head" else slides.card("Term", span + " then more words", size=24)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 3 and placed_ok(pages)
+    texts_ = [t for page in pages for b, _, _ in page for t in (b["head"], b["body"]) if t]
+    for t in texts_:
+        assert t.count("`") % 2 == 0, f"an unpaired backtick would be printed as text: {t[:20]!r}"
+    code_parts = [s for t in texts_ for s, is_code in slides._spans(t) if is_code]
+    assert "".join(code_parts) == inner                                          # every fragment is still drawn as code, none lost or added
+
+
+def test_sentences_are_cut_outside_code_spans_like_a_plain_scan_would_cut_them():
+    import random
+    rng = random.Random(3)
+    for _ in range(200):
+        text = "".join(rng.choice(["Câu một. ", "`a. b` ", "ghi chú! ", "`x` ", "いち。 ", "word ", "`p.q.r`. "]) for _ in range(rng.randint(1, 40)))
+        spans = [(m.start(), m.end()) for m in slides.readmelib.CODE_SPAN.finditer(text)]
+        out, last = [], 0
+        for m in re.finditer(r"(?<=[.!?。])\s+", text):
+            if any(a <= m.start() < b for a, b in spans):
+                continue
+            out.append(text[last:m.start()])
+            last = m.end()
+        out.append(text[last:])
+        assert slides._sentences(text) == [x for x in out if x.strip()]
+
+
+def test_a_text_of_thousands_of_code_spans_is_split_into_sentences_in_linear_time():
+    import time
+    text = "Câu `x` ngắn. " * 12000
+    started = time.perf_counter()
+    assert len(slides._sentences(text)) == 12000
+    assert time.perf_counter() - started < 3, "splitting into sentences rescans every code span for every sentence end"
+
+
+def test_a_legacy_note_taller_than_a_slide_continues_on_the_next_slide_keeping_its_code_spans():
+    note = ("Một ghi chú rất dài có `npm run build` ở giữa " * 60).strip()
+    pages = slides.paginate([slides.code(["npm start"]), slides.para(slides.prose(note), size=22)], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [b["runs"] for page in pages for b, _, _ in page if b["kind"] == "para"]
+    assert " ".join("".join(r[0] for r in runs) for runs in shown).split() == note.replace("`", "").split()      # the same words, in order
+    assert all(r[0] == "npm run build" for runs in shown for r in runs if r[1] == "m")                              # a span is never cut in two
+
+
+def test_a_long_paragraph_keeps_the_link_of_every_run_it_is_cut_into():
+    runs = [("Mở ", "t", None), ("trang này " * 300, "a", "https://helpdesk.example.org/docs")]
+    pieces = slides._fit(slides.para(runs, glue=True), slides.WIDTH, slides.BOTTOM - 100)
+    assert len(pieces) >= 2 and [p["glue"] for p in pieces] == [True] + [False] * (len(pieces) - 1)
+    assert all(r[2] in (None, "https://helpdesk.example.org/docs") for p in pieces for r in p["runs"])
+    assert all(r[2] for p in pieces for r in p["runs"] if r[1] == "a")
+
+
+@pytest.mark.parametrize("lang", ["vi", "en", "ja"])
+@pytest.mark.parametrize("legacy", [False, True])
+def test_a_glossary_entry_and_a_legacy_note_of_any_length_stay_on_the_slides(lang, legacy):
+    draft = make_draft(FACTS, lang, legacy=legacy)
+    draft["glossary"] = [{"term": "用語 " * 500, "meaning": "short"}, {"term": "term", "meaning": "意味。" * 400}]
+    if legacy:
+        draft["try_it"]["note"] = "ghi chú rất dài " * 300
+    book = slides.deck(FACTS, draft, lang)
+    check_inside_the_slide(book)
+    shown = "".join(t.replace(" ", "") for t in texts(book))
+    assert all(shown.count(c) >= 500 for c in "用語") and all(shown.count(c) >= 400 for c in "意味。")      # nothing of the long entries is dropped
+    if legacy:
+        assert shown.count("ghi") >= 300 and shown.count("rấtdài") + shown.count("rất") >= 300
+
+
+def test_a_japanese_command_is_measured_by_its_wide_glyphs_not_as_narrow_code():
+    ascii_line, wide_line = "x" * 120, "日" * 120
+    assert slides._units(ascii_line) == 120 and slides._units(wide_line) > 1.5 * 120
+    wide = slides.code([wide_line])
+    assert slides.measure(wide, slides.WIDTH) > 1.5 * slides.measure(slides.code([ascii_line]), slides.WIDTH) - 40
+    size, cpl = slides._code_size([wide_line], slides.WIDTH)
+    assert slides._rows(wide_line, cpl) == math.ceil(120 / (cpl * slides.MONO_EM))              # one em per glyph, so cpl * 0.62 glyphs a row
+    assert slides._rows("日" * 180, slides._code_size(["日" * 180], slides.WIDTH)[1]) >= 4        # PowerPoint wraps 180 such glyphs to about four rows
+
+
+def test_a_japanese_code_line_taller_than_a_slide_continues_on_the_next_slide():
+    line = "日本語のコマンド" * 220
+    pages = slides.paginate([slides.code([line, "echo ok"])], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [x for page in pages for b, _, _ in page for x in b["lines"]]
+    assert "".join(shown[:-1]) == line and shown[-1] == "echo ok"
+
+
+def test_the_spaces_inside_a_code_run_are_measured_as_they_are_written():
+    spaced = "a" + " " * 300 + "b"
+    assert slides._runs_nlines([(spaced, "m", None)], 22, slides.WIDTH) >= 4            # 300 spaces of 12.4 pt do not fit on one line
+    assert slides._runs_nlines([(spaced, "t", None)], 22, slides.WIDTH) == 1            # around the code the whitespace collapses as before
+    tall = slides.para([("Chạy: ", "t", None), ("x" + " " * 4000 + "y", "m", None)], size=22)
+    pieces = slides._fit(tall, slides.WIDTH, slides.BOTTOM - 100)
+    assert len(pieces) >= 2 and all(slides.measure(p, slides.WIDTH) <= slides.BOTTOM - 100 for p in pieces)
+
+
+def test_a_code_span_in_prose_counts_a_wide_glyph_as_an_em():
+    assert slides._adv("日", True, 22, False) == 20 and slides._adv("x", True, 22, False) == 20 * slides.MONO_EM
+    one = slides.para(slides.prose("`" + "日" * 60 + "`"), size=22)
+    two = slides.para(slides.prose("`" + "x" * 60 + "`"), size=22)
+    assert slides.measure(one, slides.WIDTH) > slides.measure(two, slides.WIDTH)
+
+
+@pytest.mark.parametrize("lang", ["ja", "en", "vi"])
+def test_the_cover_never_drops_the_hook_or_the_one_liner(lang):
+    word = {"ja": "長い日本語", "en": "longword ", "vi": "rấtdài "}[lang]
+    draft = make_draft(FACTS, lang)
+    draft["title"] = (word * 30)[:70].strip()
+    draft["hook"] = (word * 40)[:110].strip()
+    draft["one_liner"] = (word * 60)[:200].strip()
+    blob = slides.deck(FACTS, draft, lang)
+    check_inside_the_slide(blob)
+    shown = "".join(t.replace(" ", "") for t in texts(blob))
+    assert draft["hook"].replace(" ", "") in shown and draft["one_liner"].replace(" ", "") in shown
+    cover = Presentation(io.BytesIO(blob)).slides[0]
+    for shape in cover.shapes:                                               # what stays on the cover stays above the figures
+        if shape.name in ("title", "hook", "one_liner"):
+            assert shape.top + shape.height <= Pt(slides.COVER_BOTTOM + 0.5), f"the cover's {shape.name} runs into the figures"
+
+
+def test_an_ordinary_cover_keeps_its_copy_and_gets_no_extra_slide():
+    draft = make_draft(FACTS, "en")
+    book = slides.guide_book(FACTS, draft, "en")
+    assert book.pages[0].get("cover") and book.pages[1]["title"] == L["en"]["outcome"]
+    assert draft["hook"] in " ".join(texts(book.build())[:8])
+
+
+# ---------------------------------------------------------------- the diagram
+
+HUB = [[0, i] for i in range(1, 6)]
+DIAGRAMS = [(5, [[0, 1], [1, 2], [2, 0]]), (5, []), (5, [[0, 2], [1, 3], [2, 4], [3, 4]]), (5, [[4, 0], [3, 0]]), (5, [[0, 1], [0, 2], [0, 3], [0, 4]]),
+            (6, HUB), (6, HUB + [[5, 0]]), (6, [[i, i] for i in range(6)]), (6, [[i, j] for i in range(6) for j in range(6) if i != j][:12]),
+            (2, [[0, 1]]), (3, [[0, 1], [1, 2], [2, 0]]), (6, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]])]
+
+
+@pytest.mark.parametrize("n, edges", DIAGRAMS)
+def test_the_diagram_never_overlaps_a_box_and_stays_inside_the_content_area(n, edges):
+    comps = [{"name": f"Component number {i}", "role": "does a thing"} for i in range(n)]
+    top = 110
+    geo = slides.flow_geometry(comps, edges, top, slides.BOTTOM)
+    boxes = [(x, y, x + geo["bw"], y + geo["heights"][i]) for i, (x, y) in geo["pos"].items()]
+    for i, a in enumerate(boxes):
+        assert a[0] >= 0 and a[2] <= slides.SW, "a box leaves the slide sideways"
+        assert a[1] >= top - 0.5 and a[3] <= slides.BOTTOM + 0.5, "a box leaves the content area (under the title or past the bottom)"
+        for b in boxes[i + 1:]:
+            assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], "two boxes overlap"
+    assert len(geo["routes"]) == len(edges)
+    for r in geo["routes"]:
+        assert all(0 <= x <= slides.SW and top - 0.5 <= y <= slides.BOTTOM + 0.5 for x, y in r["pts"])
+
+
+def inside(geo, top, n):
+    boxes = [(x, y, x + geo["bw"], y + geo["heights"][i]) for i, (x, y) in geo["pos"].items()]
+    for i, a in enumerate(boxes):
+        assert a[0] >= 0 and a[2] <= slides.SW and a[1] >= top - 0.5 and a[3] <= slides.BOTTOM + 0.5, f"box {i} leaves the content area"
+        for b in boxes[i + 1:]:
+            assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], "two boxes overlap"
+    for r in geo["routes"]:                                                         # the loop-back lanes under the boxes too
+        assert all(0 <= x <= slides.SW and top - 0.5 <= y <= slides.BOTTOM + 0.5 for x, y in r["pts"]), "an arrow leaves the content area"
+
+
+@pytest.mark.parametrize("name", ["名" * 40, "W" * 40, "Wide Component Name " * 2], ids=["japanese", "wide-latin", "words"])
+@pytest.mark.parametrize("top", [110, 153])
+def test_five_boxes_in_one_column_with_the_longest_names_stay_inside_the_content_area(name, top):
+    comps = [{"name": name, "role": "does a thing"} for _ in range(6)]
+    geo = slides.flow_geometry(comps, HUB, top, slides.BOTTOM)
+    inside(geo, top, 6)
+    assert len(set(round(y) for _, y in geo["pos"].values())) >= 5                  # the five spokes are still five rows
+    if top == 110 and name != "W" * 40:
+        assert geo["size"] >= 14, "the boxes should widen before the type shrinks below 14 pt"
+
+
+CROWDED = [(6, [[1, 4], [3, 4], [4, 1]], 153, "W" * 40), (6, [[0, 2], [0, 4], [1, 2], [1, 4], [2, 4]], 153, "テスト" * 13),
+           (6, [[1, 4], [3, 4], [4, 1]], 130, "名" * 40), (6, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]], 153, "名" * 40)]
+
+
+@pytest.mark.parametrize("n, edges, top, name", CROWDED, ids=["wide-latin", "japanese-words", "japanese-chain", "long-chain"])
+def test_a_crowded_diagram_shrinks_its_type_until_every_box_fits(n, edges, top, name):
+    comps = [{"name": name, "role": ""} for _ in range(n)]
+    inside(slides.flow_geometry(comps, edges, top, slides.BOTTOM), top, n)
+
+
+def test_any_diagram_of_six_components_with_the_longest_names_stays_inside_the_content_area():
+    import random
+    rng = random.Random(20261017)
+    for _ in range(400):
+        edges = [[a, b] for a in range(6) for b in range(6) if a != b and rng.random() < rng.choice([0.1, 0.2, 0.4])][:12]
+        n = rng.choice([4, 5, 6])
+        edges = [e for e in edges if e[0] < n and e[1] < n]
+        name = rng.choice(["名" * 40, "W" * 40, "x", "Component number 3", "テスト" * 13])
+        top = rng.choice([110, 130, 153])
+        comps = [{"name": name, "role": ""} for _ in range(n)]
+        inside(slides.flow_geometry(comps, edges, top, slides.BOTTOM), top, n)
+
+
+def box_of(geo, i):
+    x, y = geo["pos"][i]
+    return (x, y, x + geo["bw"], y + geo["heights"][i])
+
+
+def test_an_edge_that_skips_a_column_goes_round_the_box_between_instead_of_behind_it():
+    comps = [{"name": f"Part {i}", "role": ""} for i in range(3)]
+    geo = slides.flow_geometry(comps, [[0, 1], [1, 2], [0, 2]], 110, slides.BOTTOM)
+    skip = geo["routes"][2]["pts"]
+    assert not slides._hits(skip, [box_of(geo, 1)]), "the edge from the first to the last part runs behind the one between them"
+    assert skip[0][0] == box_of(geo, 0)[2] and skip[-1] == (box_of(geo, 2)[0], box_of(geo, 2)[1] + geo["heights"][2] / 2)
+    inside(geo, 110, 3)
+
+
+def test_no_edge_of_any_diagram_runs_behind_a_box():
+    import random
+    rng = random.Random(7)
+    for _ in range(400):
+        n = rng.choice([3, 4, 5, 6])
+        edges = [[a, b] for a in range(n) for b in range(n) if a != b and rng.random() < rng.choice([0.1, 0.25, 0.5])][:12]
+        comps = [{"name": rng.choice(["Part", "名" * 40, "Component number 3"]), "role": ""} for _ in range(n)]
+        top = rng.choice([110, 153])
+        geo = slides.flow_geometry(comps, edges, top, slides.BOTTOM)
+        inside(geo, top, n)
+        for (a, b), route in zip(edges, geo["routes"]):
+            others = [box_of(geo, i) for i in range(n) if i not in (a, b)]
+            assert not slides._hits(route["pts"], others), f"edge {a}->{b} runs behind a box"
+
+
+def test_a_loop_back_into_a_column_with_other_boxes_goes_through_the_gaps_not_behind_them():
+    comps = [{"name": f"Part {i}", "role": ""} for i in range(3)]
+    geo = slides.flow_geometry(comps, [[0, 2], [1, 2], [2, 0]], 110, slides.BOTTOM)
+    back = geo["routes"][2]["pts"]
+    assert geo["pos"][0][0] == geo["pos"][1][0] and geo["pos"][0][1] < geo["pos"][1][1]        # part 1 sits under part 0, the loop's target
+    assert not slides._hits(back, [box_of(geo, 1)]), "the return arrow climbs through the box under its target"
+    assert back[-1][0] == box_of(geo, 0)[2] and box_of(geo, 0)[1] < back[-1][1] < box_of(geo, 0)[3]      # it enters the target from its right side
+    inside(geo, 110, 3)
+
+
+def test_a_diagram_keeps_its_arrows_inside_the_content_area_when_edges_skip_columns():
+    comps = [{"name": "名" * 40, "role": ""} for _ in range(6)]
+    edges = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [0, 2], [0, 3], [1, 4], [2, 5], [0, 5]]
+    geo = slides.flow_geometry(comps, edges, 153, slides.BOTTOM)
+    inside(geo, 153, 6)
+
+
+def test_a_hub_and_spoke_deck_keeps_every_box_on_the_slide():
+    draft = make_draft(FACTS, "en")
+    draft["how_it_works"]["components"] = [{"name": f"Part {i}", "role": "does a thing", "icon": "brain", "evidence": "README"} for i in range(6)]
+    draft["how_it_works"]["flow"] = HUB
+    blob = slides.deck(FACTS, draft, "en")
+    check_inside_the_slide(blob)
+
+
+# ---------------------------------------------------------------- the metrics are the font's
+
+CARLITO = {False: Path("/usr/share/fonts/truetype/crosextra/Carlito-Regular.ttf"), True: Path("/usr/share/fonts/truetype/crosextra/Carlito-Bold.ttf")}
+needs_carlito = pytest.mark.skipif(not all(p.is_file() for p in CARLITO.values()), reason="Carlito (fonts-crosextra-carlito) is not installed")
+
+
+@needs_carlito
+def test_the_width_table_is_what_the_font_says():
+    font = ImageFont.truetype(str(CARLITO[False]), 2048)
+    for ch, units in slides._CALIBRI.items():
+        assert abs(font.getlength(ch) - units) <= 2, f"{ch!r}: table {units}, font {font.getlength(ch)}"
+    for ch in "ơưƠƯờứữ":                                           # the horn letters are wider than their base letter
+        assert abs(slides._adv(ch, False, 2048, False) - font.getlength(ch)) <= 2
+
+
+def real_lines(text: str, size: float, width: float, bold: bool) -> int:
+    """Lines a greedy wrap takes with the real font's advances (no margin)."""
+    font = ImageFont.truetype(str(CARLITO[bold]), 2048)
+    space, lines, used = font.getlength(" ") / 2048 * size, 1, 0.0
+    for word in text.split():
+        w = font.getlength(word) / 2048 * size
+        if used and used + space + w > width:
+            lines, used = lines + 1, w
+        else:
+            used += (space if used else 0) + w
+    return lines
+
+
+@needs_carlito
+@pytest.mark.parametrize("size, width, bold", [(22, 728, False), (24, 760, False), (24, 728, True), (36, 852, True)])
+def test_the_line_count_never_falls_short_of_the_real_one_and_is_never_more_than_a_line_over(size, width, bold):
+    sentences = []
+    for path in stored_drafts():
+        draft = json.loads(path.read_text(encoding="utf-8"))["draft"]
+        sentences += [s for s in strings(draft) if 30 < len(s) < 400 and "`" not in s and "\n" not in s]
+    assert len(sentences) > 100
+    for text in sentences:
+        real, ours = real_lines(text, size * (1.065 if size == 36 else 1), width, bold), slides._nlines(text, size, width, bold)
+        if size == 36:
+            continue
+        assert real <= ours <= real + 1, f"{text!r}: the font wraps it in {real} lines, the measure says {ours}"
+
+
+# ---------------------------------------------------------------- the file
+
+def test_the_document_dates_are_the_scan_date_not_the_day_it_was_drawn():
+    prs = Presentation(io.BytesIO(slides.deck(FACTS, make_draft(FACTS, "en"), "en")))
+    when = datetime.fromisoformat(FACTS["scanned"]).replace(tzinfo=timezone.utc).replace(tzinfo=None)
+    cp = prs.core_properties
+    assert cp.created == when and cp.modified == when and cp.author == "GitHub Radar"
+
+
+def test_every_committed_deck_says_what_its_draft_says():
+    for deck in sorted((ROOT / "digests").glob("*/*/slides-??.pptx")):          # none is required: a deck is drawn on request
+        lang = deck.stem.split("-")[1]
+        stored = json.loads((deck.parent / f"draft-{lang}.json").read_text(encoding="utf-8"))
+        assert texts(deck.read_bytes()) == texts(slides.deck(stored["facts"], stored["draft"], lang)), \
+            f"{deck.relative_to(ROOT)} is out of date: python3 radar.py slides {deck.parent.parent.name}/{deck.parent.name}"
+
+
+# ---------------------------------------------------------------- the command
+
+def one_digest(tmp_path: Path) -> Path:
+    src = ROOT / "digests" / "2026-10-17-2" / "agent-orchestrator"
+    dst = tmp_path / "digests" / "2026-10-17-2" / "agent-orchestrator"
+    dst.mkdir(parents=True)
+    shutil.copy(src / "draft-vi.json", dst)
+    (dst / "vi.md").write_text("# kept\n", encoding="utf-8")
+    return dst
+
+
+def tree(root: Path) -> dict[str, bytes]:
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+
+
+def test_the_command_writes_the_deck_beside_the_draft_and_touches_nothing_else(tmp_path, monkeypatch, capsys):
+    folder = one_digest(tmp_path)
+    before = tree(tmp_path)
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    assert cli.main(["slides", "2026-10-17-2/agent-orchestrator"]) == 0
+    after = tree(tmp_path)
+    assert set(after) - set(before) == {"digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"}
+    assert {k: v for k, v in after.items() if k in before} == before
+    assert (folder / "slides-vi.pptx").read_bytes()[:2] == b"PK" and '"written"' in capsys.readouterr().out
+
+
+def test_running_it_twice_changes_nothing(tmp_path):
+    one_digest(tmp_path)
+    slides.write(tmp_path, ["2026-10-17-2"])
+    first = tree(tmp_path)
+    slides.write(tmp_path, ["2026-10-17-2"])
+    assert tree(tmp_path) == first
+
+
+def test_it_needs_to_be_told_what_to_draw_and_refuses_what_it_cannot_find(tmp_path):
+    one_digest(tmp_path)
+    with pytest.raises(ValueError, match="name what to draw"):
+        slides.write(tmp_path, [])
+    for bad in ("nope", "2026-10-17-2/../../etc", "2026-10-17-2/x/y", "2026-01-01", "2026-10-17-2/missing"):
+        with pytest.raises(ValueError):
+            slides.write(tmp_path, [bad])
+    assert slides.write(tmp_path, everything=True)["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
+    assert slides.write(tmp_path, ["2026-10-17-2"], langs=["en"]) == {"written": [], "skipped": {}}
+
+
+def test_a_draft_that_no_longer_fits_the_schema_is_skipped_and_its_old_deck_stays(tmp_path):
+    folder = one_digest(tmp_path)
+    slides.write(tmp_path, ["2026-10-17-2"])
+    old = (folder / "slides-vi.pptx").read_bytes()
+    stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
+    del stored["draft"]["how_it_works"]
+    (folder / "draft-vi.json").write_text(json.dumps(stored), encoding="utf-8")
+    report = slides.write(tmp_path, ["2026-10-17-2"])
+    assert report["written"] == [] and "schema" in next(iter(report["skipped"].values()))
+    assert (folder / "slides-vi.pptx").read_bytes() == old
+    assert not list(folder.glob("*.tmp"))
+    (folder / "draft-vi.json").write_text("{not json", encoding="utf-8")
+    assert "not JSON" in next(iter(slides.write(tmp_path, ["2026-10-17-2"])["skipped"].values()))
+
+
+@pytest.mark.parametrize("name", ["draft-zz.json", "draft-aa.json", "draft-vi-copy.json", "draft-.json"])
+def test_a_draft_file_named_for_another_language_never_overwrites_the_deck_of_the_real_one(tmp_path, name):
+    folder = one_digest(tmp_path)
+    slides.write(tmp_path, ["2026-10-17-2"])
+    real = (folder / "slides-vi.pptx").read_bytes()
+    stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
+    stored["draft"]["title"] = "A different title"
+    (folder / name).write_text(json.dumps(stored), encoding="utf-8")
+    report = slides.write(tmp_path, ["2026-10-17-2"])
+    assert report["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
+    assert "the file name says" in report["skipped"][f"digests/2026-10-17-2/agent-orchestrator/{name}"]
+    assert (folder / "slides-vi.pptx").read_bytes() == real and not list(folder.glob("*.tmp"))
+
+
+def test_a_broken_file_of_a_language_nobody_asked_for_is_not_a_failure(tmp_path, monkeypatch, capsys):
+    folder = one_digest(tmp_path)
+    (folder / "draft-en.json").write_text("{not json", encoding="utf-8")
+    (folder / "draft-zz.json").write_bytes(b"\xff\xfe")
+    report = slides.write(tmp_path, ["2026-10-17-2"], langs=["vi"])
+    assert report == {"written": ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"], "skipped": {}}
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    assert cli.main(["slides", "2026-10-17-2", "--lang", "vi"]) == 0
+    assert cli.main(["slides", "2026-10-17-2"]) == 1                              # asked for every language, the broken one is reported
+    capsys.readouterr()
+
+
+def test_one_strange_file_does_not_stop_the_others_and_leaves_no_temporary_file(tmp_path, monkeypatch):
+    folder = one_digest(tmp_path)
+    (folder / "draft-en.json").write_text("[1, 2]", encoding="utf-8")
+    (folder / "draft-ja.json").write_text('{"lang": ["ja"], "draft": {}, "facts": {}}', encoding="utf-8")
+    (folder / "draft-fr.json").write_text('{"lang": "vi"}', encoding="utf-8")
+    odd = tmp_path / "digests" / "2026-10-17-2" / "aaa-odd-facts"                  # sorted first: a failure there must not stop the folder after it
+    odd.mkdir()
+    stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
+    stored["facts"]["scanned"] = None
+    (odd / "draft-vi.json").write_text(json.dumps(stored), encoding="utf-8")
+    report = slides.write(tmp_path, ["2026-10-17-2"])
+    assert report["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
+    assert set(report["skipped"]) == {"digests/2026-10-17-2/agent-orchestrator/draft-en.json", "digests/2026-10-17-2/agent-orchestrator/draft-fr.json",
+                                      "digests/2026-10-17-2/aaa-odd-facts/draft-vi.json"}
+    assert [p.name for p in odd.iterdir()] == ["draft-vi.json"]                      # nothing was written beside the odd draft
+    (folder / "slides-vi.pptx").unlink()
+
+    def refuse(self, target):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "replace", refuse)
+    report = slides.write(tmp_path, ["2026-10-17-2"], langs=["vi"])
+    assert report["written"] == [] and "disk full" in report["skipped"]["digests/2026-10-17-2/agent-orchestrator/draft-vi.json"]
+    assert not list(folder.glob("*.tmp")) and not (folder / "slides-vi.pptx").exists()

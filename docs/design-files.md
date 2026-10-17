@@ -64,3 +64,18 @@ Riêng 15 bài đã lưu có sẵn `drawio-vi.png` cạnh `drawio-vi.drawio`, đ
 ## Vẽ cho các bài cũ
 
 `python3 radar.py rerender` thêm ba tệp (`board-`, `moda-`, `drawio-`) vào mọi bài đã lưu `draft-*.json`; bản draw.io của bài cũ có icon khi bài có `icons-<ngôn ngữ>.json` (mục Icon ở trên). Nó cũng vẽ lại phần còn lại bằng bộ vẽ hiện tại; chạy trên 10 bài đầu (2026-10-12 đến 2026-10-16), kết quả chỉ là 30 tệp mới (3 mỗi bài), không tệp có sẵn nào đổi; thêm `icons-vi.json` cho một bài đã có bản draw.io thì chỉ tệp `drawio-` của bài đó đổi (có thêm icon). Vẫn nên xem `git status` trước khi commit, vì bộ vẽ có thể đã đổi từ lần đó.
+
+## Bộ slide PowerPoint: `slides-<ngôn ngữ>.pptx`
+
+Cùng một bài học, dựng thành bộ slide để xem trên màn hình hoặc trình chiếu. **Không qua Moda**, không qua model: `radar/slides.py` vẽ thẳng từ `draft-<ngôn ngữ>.json` bằng `python-pptx`.
+
+```bash
+python3 radar.py slides 2026-10-17-4/oh-my-claudecode 2026-10-17-6/orca   # đúng các bài đã chọn (hoặc cả lượt: 2026-10-17-4)
+python3 radar.py slides --all --lang vi                                    # mọi bài đã lưu, chỉ tiếng Việt
+```
+
+- Lệnh ghi `slides-<ngôn ngữ>.pptx` cạnh `draft-<ngôn ngữ>.json` và **không đụng tệp nào khác**; một bản nháp không còn khớp schema hoặc không đọc được thì bị bỏ qua và nói rõ (bộ slide cũ vẫn nguyên). Lệnh không chạy lúc quét và không nằm trong `rerender`: mỗi bộ khoảng 60-90 KB, chỉ vẽ cho bài bạn cần. Cùng bản nháp thì ra đúng cùng một dãy byte (ngày của tài liệu và của gói zip được cố định), nên vẽ lại rồi so sánh được.
+- **Chữ**: mọi chữ trên slide là một trường của draft, một nhãn trong `radar/labels.py` hoặc một dữ kiện; địa chỉ chỉ là repo gốc và địa chỉ README mà `link_ref` chỉ tới (địa chỉ cục bộ in như mã, không thành liên kết). Lệnh và mẫu cấu hình in nguyên văn như draft và README có. `tests/test_slides.py` kiểm từng từ trên slide của mọi bài đã lưu trong repo này.
+- **Bố cục** do script đo, không phải PowerPoint: chữ thường 22 pt trở lên, mã 20 pt (xuống 14 pt khi một dòng lệnh dài), font Calibri, Cambria và Consolas có sẵn cùng Office. Đoạn nào không vừa một slide thì chuyển sang slide kế ("(2/3)"), không bị cắt hay thu nhỏ; test kiểm không có hình nào lọt ra ngoài slide. Một dòng liên kết không đứng một mình ở đầu slide khi còn khối đứng trước để đi cùng.
+- **Chưa có**: icon của thành phần (sơ đồ chỉ có tên), ghi chú người nói.
+- Vì không đi qua Moda nên slide **không có huy hiệu moda.app** (huy hiệu đó là dấu của gói miễn phí Moda, có cả trong tệp PPTX xuất từ Moda).

@@ -76,6 +76,7 @@ python3 radar.py run                # chạy đầy đủ
 python3 radar.py run --repo owner/tên   # chỉ viết bài cho đúng repo này (hoặc link github.com), không tìm kiếm
 python3 radar.py check              # export/studio có hợp quy định của studio không
 python3 radar.py rerender           # vẽ lại bài học, sơ đồ và bản nháp studio từ bản nháp đã lưu (không gọi model, không gọi GitHub)
+python3 radar.py slides 2026-10-17-4/oh-my-claudecode   # vẽ slides-<ngôn ngữ>.pptx cạnh bản nháp của bài đã chọn (hoặc --all); không gọi model, GitHub hay Moda
 python3 radar.py handoff            # mở PR nháp vào tool-marketing-studio
 ```
 
