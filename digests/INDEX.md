@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-17-3](2026-10-17-3/README.md) — oh-my-claudecode
 - [2026-10-17-2](2026-10-17-2/README.md) — agent-orchestrator
 - [2026-10-17](2026-10-17/README.md) — orca
 - [2026-10-16-3](2026-10-16-3/README.md) — moneyprinterturbo, pyvideotrans, videolingo, vimax, wan2-2
