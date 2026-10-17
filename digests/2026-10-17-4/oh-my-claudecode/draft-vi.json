@@ -131,14 +131,14 @@
           "commands": [],
           "do": [
             "Mở `~/.claude/settings.json`.",
-            "Thêm khối bên dưới để đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` bằng 1.",
-            "Nếu file đã có khóa env, thêm biến vào đó thay vì chép cả khối. Giá trị 1 là giá trị thật, không phải chỗ giữ chỗ."
+            "Trong khóa `env`, thêm dòng `\"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS\": \"1\"`. Giá trị 1 là giá trị thật, giữ nguyên.",
+            "Nếu file đã có khóa env, thêm dòng đó vào khóa sẵn có thay vì thay cả file."
           ],
           "evidence": "README",
           "expect": "",
           "if_fails": "",
           "link_ref": null,
-          "snippet_ref": 5,
+          "snippet_ref": null,
           "title": "Bật đội agent native của Claude Code",
           "why": "Lệnh /team dùng đội native; không bật thì OMC cảnh báo và, khi có thể, lùi về chạy không theo đội."
         },
@@ -557,6 +557,6 @@
     "url": "https://github.com/Yeachan-Heo/oh-my-claudecode"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands), and the renderer's fixed caption under a settings sample is answered in the step text instead.",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands). The settings line is given in the step text, not printed as a sample: the renderer's fixed caption under a sample tells the reader to replace placeholders, and this value is the literal 1 (review of the pull request, P2).",
   "position": 1
 }

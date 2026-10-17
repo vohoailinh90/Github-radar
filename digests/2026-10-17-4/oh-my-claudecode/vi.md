@@ -99,18 +99,8 @@ _Gõ hoặc dán từng dòng, theo thứ tự._
 **Mục đích:** Lệnh /team dùng đội native; không bật thì OMC cảnh báo và, khi có thể, lùi về chạy không theo đội.
 
 1. Mở `~/.claude/settings.json`.
-2. Thêm khối bên dưới để đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` bằng 1.
-3. Nếu file đã có khóa env, thêm biến vào đó thay vì chép cả khối. Giá trị 1 là giá trị thật, không phải chỗ giữ chỗ.
-
-_Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị của bạn)_
-
-```json
-{
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  }
-}
-```
+2. Trong khóa `env`, thêm dòng `"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"`. Giá trị 1 là giá trị thật, giữ nguyên.
+3. Nếu file đã có khóa env, thêm dòng đó vào khóa sẵn có thay vì thay cả file.
 
 <sub>Căn cứ: `README`</sub>
 
