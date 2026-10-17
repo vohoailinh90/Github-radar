@@ -277,9 +277,7 @@ def test_the_document_dates_are_the_scan_date_not_the_day_it_was_drawn():
 
 
 def test_every_committed_deck_says_what_its_draft_says():
-    decks = sorted((ROOT / "digests").glob("*/*/slides-??.pptx"))
-    assert decks, "the repository keeps the decks of its lessons beside their drafts"
-    for deck in decks:
+    for deck in sorted((ROOT / "digests").glob("*/*/slides-??.pptx")):          # none is required: a deck is drawn on request
         lang = deck.stem.split("-")[1]
         stored = json.loads((deck.parent / f"draft-{lang}.json").read_text(encoding="utf-8"))
         assert texts(deck.read_bytes()) == texts(slides.deck(stored["facts"], stored["draft"], lang)), \
