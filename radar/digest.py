@@ -40,48 +40,71 @@ def _g(text) -> str:
     return re.sub(r"^([#>+\-]|\d+[.)])", r"\\\1", line)               # a leading `*` was escaped above: the other block markers are defused here
 
 
-def _link(facts: dict, ref, t: dict) -> str:
-    """The README address a `link_ref` names, printed by the renderer: a local address as code, any other as a link. An entry that
-    is not a plain http(s) address is left out, whatever the stored draft says."""
+def link_parts(facts: dict, ref) -> tuple[str, str, bool] | None:
+    """The README address a `link_ref` names as (label, url, is_local), or None. An entry that is not a plain http(s) address is
+    left out, whatever the stored draft says."""
     links = facts.get("links") or []
     if not isinstance(ref, int) or isinstance(ref, bool) or not 0 <= ref < len(links):
-        return ""
+        return None
     label, url = links[ref]
     if not readmelib.url_ok(url):
+        return None
+    return readmelib.clean_label(label, url), url, readmelib.is_local(url)
+
+
+def _link(facts: dict, ref, t: dict) -> str:
+    """The README address a `link_ref` names, printed by the renderer: a local address as code, any other as a link."""
+    found = link_parts(facts, ref)
+    if not found:
         return ""
-    if readmelib.is_local(url):
+    label, url, local = found
+    if local:
         return f"{t['open_addr']}: `{url}`"
-    return f"{t['get_link']}: [{_cell(readmelib.clean_label(label, url))}]({url})"
+    return f"{t['get_link']}: [{_cell(label)}]({url})"
 
 
-def _snippet(facts: dict, ref, t: dict) -> list[str]:
-    """A code block of the README (a config file, a sample) a `snippet_ref` names, exactly as the README has it."""
+def snippet_body(facts: dict, ref) -> tuple[str, str] | None:
+    """The code block of the README (a config file, a sample) a `snippet_ref` names as (language, text), exactly as the README has it."""
     blocks = facts.get("blocks") or []
     if not isinstance(ref, int) or isinstance(ref, bool) or not 0 <= ref < len(blocks):
-        return []
+        return None
     lang, body = blocks[ref]
     lang = lang if re.fullmatch(r"[a-z0-9+#.-]{1,16}", str(lang)) else ""
     body = str(body)
     if len(body.splitlines()) > readmelib.SNIPPET_LINES or len(body) > readmelib.SNIPPET_CHARS:
+        return None
+    return lang, body
+
+
+def _snippet(facts: dict, ref, t: dict) -> list[str]:
+    """A code block of the README a `snippet_ref` names, as Markdown."""
+    found = snippet_body(facts, ref)
+    if not found:
         return []
+    lang, body = found
     fence = "```"
     while fence in body:
         fence += "`"
     return ["", f"_{t['snippet']}_", "", fence + lang] + body.splitlines() + [fence]
 
 
+def command_lines(commands, shell: str = "bash") -> list[str]:
+    """The lines to type for `commands` of one shell, heredoc data as it is."""
+    return [str(c).rstrip() if data else _command(c) for c, data in zip(commands, readmelib.heredoc_data(commands, shell))]
+
+
 def _bash_block(commands, shell: str = "bash") -> list[str]:
     """The lines of a fenced block of `shell` (bash, powershell, bat) holding `commands`, the fence longer than any run of backticks in them."""
-    lines = [str(c).rstrip() if data else _command(c) for c, data in zip(commands, readmelib.heredoc_data(commands, shell))]       # heredoc data as it is
+    lines = command_lines(commands, shell)
     fence = "```"
     while any(fence in line for line in lines):
         fence += "`"
     return [fence + shell] + lines + [fence]
 
 
-def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
-    """The commands of a step as fenced blocks, one per run of lines for the same shell as the README writes them (FACTS.shells): a
-    PowerShell line is not fenced as bash. When a step has a shell other than bash, each block says which shell it is for."""
+def command_groups(facts: dict, commands) -> list[tuple[str, list]]:
+    """The commands of a step as runs of lines for the same shell as the README writes them (FACTS.shells): a PowerShell line is not
+    grouped with bash. Each group is (shell, commands); the shell is "bash", "powershell", "bat" or "fish"."""
     table = facts.get("shells") if isinstance(facts.get("shells"), dict) else {}
     groups: list[tuple[str, list]] = []
     for command, data in zip(commands, readmelib.heredoc_data(commands, table)):
@@ -91,6 +114,13 @@ def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
             groups[-1][1].append(command)
         else:
             groups.append((shell, [command]))
+    return groups
+
+
+def _command_blocks(facts: dict, commands, t: dict) -> list[str]:
+    """The commands of a step as fenced blocks, one per `command_groups` run. When a step has a shell other than bash, each block says
+    which shell it is for."""
+    groups = command_groups(facts, commands)
     named = any(shell != "bash" for shell, _ in groups)
     out: list[str] = []
     for i, (shell, group) in enumerate(groups):

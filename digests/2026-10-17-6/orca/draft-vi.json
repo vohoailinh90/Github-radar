@@ -1,0 +1,459 @@
+{
+  "draft": {
+    "analogy": "Giống một lớp có năm bàn riêng: mỗi bạn làm cùng một đề trên bàn của mình, cuối giờ thầy đặt các bài cạnh nhau và chọn bài tốt nhất.",
+    "caveats": [
+      "Dự án đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.",
+      "README không nói Orca kèm sẵn agent: mỗi CLI agent bạn dùng phải tự cài và chạy được trong terminal.",
+      "Có thu thập dữ liệu sử dụng ẩn danh; README dẫn tới trang nói rõ thu gì và cách tắt.",
+      "README không nói relay của app điện thoại chạy ở đâu; chỉ nói mã relay nằm trong cloud/."
+    ],
+    "facebook": {
+      "caption": "Orca: giao một prompt cho nhiều agent coding, mỗi agent một worktree riêng\n\n- Chạy Claude Code, Codex, OpenCode cạnh nhau, theo dõi ở một nơi\n- So kết quả rồi merge bản tốt nhất\n- Có app điện thoại để theo dõi\nBài hướng dẫn từng bước nói rõ chỗ README chưa ghi.",
+      "hashtags": [
+        "AIAgents",
+        "ClaudeCode",
+        "DevTools",
+        "OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Bản làm việc riêng của git cho một nhánh, nằm ở thư mục khác nhưng cùng một repo.",
+        "term": "Worktree"
+      },
+      {
+        "meaning": "Trợ lý lập trình AI chạy trong terminal, như Claude Code hay Codex.",
+        "term": "CLI agent"
+      },
+      {
+        "meaning": "Thành phần ghép app điện thoại với máy desktop; mã của nó nằm trong thư mục cloud/ của repo.",
+        "term": "Relay"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Xem changelog trong mục Releases: README nói danh sách tính năng luôn cũ hơn bản phát hành.",
+        "Đọc hướng dẫn đóng góp mà README nêu (tệp trong thư mục .github) nếu muốn chạy Orca từ mã nguồn.",
+        "Xem trang tài liệu quyền riêng tư và telemetry mà README dẫn tới để biết cách tắt."
+      ],
+      "outcome": "Orca đã cài và mở được trên máy, sẵn sàng chạy CLI agent trong từng worktree. README chỉ hướng dẫn cài; thao tác trong app nằm ở trang tài liệu của Orca.",
+      "requirements": [
+        {
+          "detail": "README có bản cài cho cả ba: macOS (Apple Silicon và Intel), Windows (.exe), Linux (AppImage).",
+          "evidence": "README",
+          "item": "Máy macOS, Windows hoặc Linux",
+          "link_ref": 0
+        },
+        {
+          "detail": "README: Orca chạy mọi CLI agent nếu nó chạy được trong terminal (Claude Code, Codex, OpenCode, Pi...).",
+          "evidence": "README",
+          "item": "Ít nhất một CLI agent đã cài",
+          "link_ref": null
+        },
+        {
+          "detail": "Chỉ cần nếu muốn cài bằng dòng lệnh thay vì tải bộ cài.",
+          "evidence": "README",
+          "item": "Homebrew (macOS) hoặc yay (Arch Linux)",
+          "link_ref": null
+        },
+        {
+          "detail": "Cho app điện thoại đi kèm, ghép với app Orca trên máy tính.",
+          "evidence": "README",
+          "item": "iPhone hoặc Android (tùy chọn)",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Muốn tải bộ cài: mở trang tải của Orca (liên kết bên dưới) hoặc chọn bản đúng hệ điều hành trong mục Releases.",
+            "Muốn cài bằng dòng lệnh: làm tiếp bước 2.",
+            "Bản dựng cho Windows ghi dùng chữ ký của SignPath Foundation."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 0,
+          "snippet_ref": null,
+          "title": "Chọn cách cài Orca",
+          "why": "README có hai đường: tải bộ cài trực tiếp, hoặc cài bằng trình quản lý gói."
+        },
+        {
+          "commands": [
+            "brew install --cask stablyai/orca/orca"
+          ],
+          "do": [
+            "Trên macOS, gõ lệnh dưới đây trong terminal.",
+            "Trên Arch Linux (AUR), dùng `yay -S stably-orca-bin`; README cũng nêu `stably-orca-git` nếu muốn dựng từ mã nguồn."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài bằng dòng lệnh (macOS hoặc Arch Linux)",
+          "why": "Cài Orca mà không cần tải tay bộ cài."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Chọn agent bạn muốn dùng trong danh sách README (Claude Code, Codex, OpenCode, Pi, Cursor, Goose, Cline...).",
+            "README gắn liên kết đến trang của từng agent; đó là nơi tìm cách cài agent bạn chọn."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chuẩn bị một CLI agent",
+          "why": "Orca điều phối agent chạy trong terminal; README không nói nó kèm sẵn agent nên bạn chuẩn bị agent riêng."
+        },
+        {
+          "commands": [],
+          "do": [
+            "README mô tả: gửi một prompt cho năm agent, mỗi agent một worktree, so kết quả rồi merge bản thắng.",
+            "README không ghi từng thao tác trong app; mục Parallel Worktrees của README có liên kết Docs đến trang hướng dẫn."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy nhiều agent song song bằng Parallel Worktrees",
+          "why": "Mỗi agent làm trong git worktree riêng nên không ghi đè mã của nhau."
+        },
+        {
+          "commands": [],
+          "do": [
+            "README: thả nhận xét lên bất kỳ dòng diff nào và gửi lại cho agent; xem, sửa và commit không rời Orca.",
+            "README cũng liệt kê xem PR, issue, bảng dự án GitHub và Linear trong app, mở worktree từ một task."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Xem diff và gửi nhận xét lại cho agent",
+          "why": "Bạn duyệt mã agent viết ngay trong Orca, không phải chuyển sang công cụ khác."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Cài app: iOS từ App Store, Android bằng tệp APK (README có trang hướng dẫn cài APK).",
+            "Ghép app với app Orca trên máy tính để theo dõi và điều khiển agent từ điện thoại; README nói app nhắc khi agent làm xong.",
+            "README không ghi cách ghép từng bước; mục Mobile Companion của README có liên kết Docs.",
+            "Mã relay dùng để ghép nằm trong thư mục `cloud/` của repo, có hướng dẫn riêng."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 6,
+          "snippet_ref": null,
+          "title": "Ghép app điện thoại (tùy chọn)",
+          "why": "Theo dõi agent và gửi tiếp yêu cầu từ điện thoại."
+        },
+        {
+          "commands": [],
+          "do": [
+            "README nêu các lệnh con `orca worktree create`, `snapshot`, `click` và `fill`.",
+            "README không ghi đối số của từng lệnh; xem trang tài liệu CLI mà liên kết bên dưới dẫn tới."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 7,
+          "snippet_ref": null,
+          "title": "Điều khiển Orca bằng dòng lệnh",
+          "why": "README nói agent cũng điều khiển được Orca, nên có thể viết kịch bản cho quy trình lặp lại."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "README không nêu cách kiểm tra sau khi cài. Orca mở được và agent bạn chọn chạy được trong terminal của nó là dấu hiệu cài thành công; README không mô tả đầu ra."
+    },
+    "hook": "Giao một prompt cho năm agent, mỗi agent một nhánh riêng, rồi so kết quả và chọn bản tốt nhất.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "Orca trên máy tính",
+          "role": "Ứng dụng desktop cho macOS, Windows, Linux: gom terminal, worktree, diff, GitHub và Linear."
+        },
+        {
+          "evidence": "README",
+          "icon": "git-branch",
+          "name": "Git worktree",
+          "role": "Mỗi agent làm trong một worktree riêng, không ghi đè mã của agent khác."
+        },
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "CLI agent",
+          "role": "Claude Code, Codex, OpenCode, Pi và nhiều agent khác chạy trong terminal của Orca."
+        },
+        {
+          "evidence": "README",
+          "icon": "terminal",
+          "name": "Lệnh orca",
+          "role": "Viết kịch bản cho Orca: orca worktree create, snapshot, click, fill."
+        },
+        {
+          "evidence": "README",
+          "icon": "smartphone",
+          "name": "App điện thoại",
+          "role": "Theo dõi agent và gửi tiếp yêu cầu từ iOS hoặc Android."
+        },
+        {
+          "evidence": "cloud/",
+          "icon": "cloud",
+          "name": "Relay",
+          "role": "Ghép app điện thoại với máy desktop; mã nằm trong thư mục cloud/ của repo."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Orca chia một prompt cho nhiều agent, mỗi agent một git worktree biệt lập, rồi so kết quả và merge bản tốt nhất.",
+          "title": "Mỗi agent một worktree"
+        },
+        {
+          "evidence": "README",
+          "text": "Agent chạy trong terminal chia ô: README gọi là terminal cùng đẳng cấp Ghostty (Ghostty-class), vẽ bằng WebGL, chia ô không giới hạn, scrollback còn sau khi mở lại.",
+          "title": "Terminal thật cho CLI agent"
+        },
+        {
+          "evidence": "README",
+          "text": "Orca báo khi agent xong, hiện PR, issue và bảng dự án GitHub, Linear, và cho nhận xét thẳng lên diff.",
+          "title": "Một nơi để theo dõi"
+        },
+        {
+          "evidence": "README",
+          "text": "README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch bản cho quy trình, với các lệnh con như worktree create, snapshot, click, fill.",
+          "title": "Agent cũng điều khiển Orca"
+        },
+        {
+          "evidence": "README",
+          "text": "README nói có thể chạy agent trên một máy từ xa mạnh, với sửa file, git và terminal đầy đủ, tự nối lại và chuyển cổng.",
+          "title": "SSH worktrees: agent chạy ở máy từ xa"
+        },
+        {
+          "evidence": "README",
+          "text": "App điện thoại được ghép với máy desktop qua một relay; README nói mã relay nằm trong thư mục cloud/ của repo.",
+          "title": "App điện thoại ghép qua relay"
+        }
+      ]
+    },
+    "learn": [
+      "Cách ly bằng git worktree: mỗi agent một bản làm việc, nên chạy song song mà không giẫm chân nhau.",
+      "Giao cùng một đề cho nhiều agent rồi so kết quả và chọn bản tốt nhất.",
+      "Để agent điều khiển công cụ quản lý chúng qua dòng lệnh, nên quy trình lặp lại viết thành kịch bản được.",
+      "Đặt phần ghép điện thoại thành một relay riêng trong cùng repo, có workspace và hướng dẫn cài riêng."
+    ],
+    "one_liner": "Ứng dụng desktop mã nguồn mở (MIT) chạy nhiều CLI agent như Claude Code, Codex, OpenCode cạnh nhau, mỗi agent một git worktree, có app điện thoại để theo dõi.",
+    "problem": "Chạy nhiều agent trên cùng một dự án cần mỗi agent một bản làm việc riêng và một chỗ để theo dõi tất cả. Orca cho mỗi agent một git worktree biệt lập và theo dõi chúng ở một nơi, để bạn so kết quả rồi merge bản tốt nhất.",
+    "title": "Orca: chạy nhiều agent coding song song, mỗi agent một worktree",
+    "who_for": [
+      "Người dùng nhiều CLI agent muốn so kết quả cùng một yêu cầu mà không đụng nhau.",
+      "Người muốn xem và nhận xét diff của agent ngay trong một app, kèm GitHub và Linear.",
+      "Người cần nhìn tiến độ agent từ điện thoại hoặc chạy agent trên máy từ xa."
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 6040,
+    "full_name": "stablyai/orca",
+    "language": "TypeScript",
+    "license": "MIT",
+    "links": [
+      [
+        "Download Orca",
+        "https://onorca.dev/download"
+      ],
+      [
+        "macOS Apple Silicon",
+        "https://github.com/stablyai/orca/releases/latest/download/orca-macos-arm64.dmg"
+      ],
+      [
+        "macOS Intel",
+        "https://github.com/stablyai/orca/releases/latest/download/orca-macos-x64.dmg"
+      ],
+      [
+        "Windows .exe",
+        "https://github.com/stablyai/orca/releases/latest/download/orca-windows-setup.exe"
+      ],
+      [
+        "Linux AppImage",
+        "https://github.com/stablyai/orca/releases/latest/download/orca-linux.AppImage"
+      ],
+      [
+        "All builds",
+        "https://github.com/stablyai/orca/releases/latest"
+      ],
+      [
+        "Install guide",
+        "https://www.onorca.dev/docs/android-apk"
+      ],
+      [
+        "Docs →",
+        "https://www.onorca.dev/docs/cli/overview"
+      ],
+      [
+        "Quick open",
+        "https://www.onorca.dev/docs/model/quick-open"
+      ],
+      [
+        "Account switcher &amp; usage tracking",
+        "https://www.onorca.dev/docs/agents/usage-tracking"
+      ],
+      [
+        "Rich repo previews",
+        "https://www.onorca.dev/docs/editing/markdown"
+      ],
+      [
+        "Computer Use",
+        "https://www.onorca.dev/docs/cli/computer-use"
+      ],
+      [
+        "Notifications and unread state",
+        "https://www.onorca.dev/docs/notifications"
+      ],
+      [
+        "Claude Code",
+        "https://docs.anthropic.com/claude/docs/claude-code"
+      ],
+      [
+        "Codex",
+        "https://github.com/openai/codex"
+      ],
+      [
+        "Grok",
+        "https://x.ai/cli"
+      ],
+      [
+        "Cursor",
+        "https://cursor.com/cli"
+      ],
+      [
+        "GitHub Copilot",
+        "https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli"
+      ],
+      [
+        "Muse",
+        "https://dev.meta.ai/docs/muse-code"
+      ],
+      [
+        "DeepSeek Harness",
+        "https://deepseek-harness.github.io/deepseek-harness/"
+      ],
+      [
+        "ZCode",
+        "https://zcode.z.ai/en/docs"
+      ],
+      [
+        "OpenCode",
+        "https://opencode.ai/docs/cli/"
+      ],
+      [
+        "MiMo Code",
+        "https://mimo.xiaomi.com/coder"
+      ],
+      [
+        "Amp",
+        "https://ampcode.com/manual#install"
+      ],
+      [
+        "OpenClaude",
+        "https://openclaude.gitlawb.com/"
+      ],
+      [
+        "Antigravity",
+        "https://antigravity.google/docs/cli-overview"
+      ],
+      [
+        "Pi",
+        "https://pi.dev"
+      ],
+      [
+        "oh-my-pi",
+        "https://omp.sh"
+      ],
+      [
+        "Hermes Agent",
+        "https://hermes-agent.nousresearch.com/docs/"
+      ],
+      [
+        "Devin",
+        "https://devin.ai/cli"
+      ],
+      [
+        "Goose",
+        "https://block.github.io/goose/docs/quickstart/"
+      ],
+      [
+        "Auggie",
+        "https://docs.augmentcode.com/cli/overview"
+      ],
+      [
+        "Autohand Code",
+        "https://github.com/autohandai/code-cli"
+      ],
+      [
+        "Charm",
+        "https://github.com/charmbracelet/crush"
+      ],
+      [
+        "Cline",
+        "https://docs.cline.bot/cline-cli/overview"
+      ],
+      [
+        "CodeBuddy",
+        "https://www.codebuddy.ai/cli"
+      ],
+      [
+        "Codebuff",
+        "https://www.codebuff.com/docs/help/quick-start"
+      ],
+      [
+        "Freebuff",
+        "https://freebuff.com"
+      ],
+      [
+        "Command Code",
+        "https://commandcode.ai/docs/quickstart"
+      ],
+      [
+        "Continue",
+        "https://docs.continue.dev/guides/cli"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 94489,
+    "url": "https://github.com/stablyai/orca"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17, which is kept (it called the terminal an integration of Ghostty where the README says Ghostty-class, ran the phone relay and the SSH worktrees together, and left out the yay line). Facts: README.md at commit 30e3119f of a shallow checkout (committed 2026-10-17), the whole cleaned README (11262 characters, which the pipeline's default of 12000 also kept in full); the repository file tree at that commit (top-level entries plus the children of docs and src, at most 120), which the draft's evidence paths may cite; stars (94489) and forks (6040) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation date and open issues from the GitHub search of the same day. The README gives features and install lines but no click-by-click steps for the app, so the guide says so and points to the documentation pages the README links instead of inventing steps. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no claim that the project is new, a problem paragraph that keeps to what the README says, the pairing steps the README does not give, the relay glossary entry, the SSH worktrees and the phone relay as separate items, no instruction to install an agent that the README does not give). The yay line stays in the step text and not in the command block, because the two install lines are alternatives.",
+  "position": 1
+}

@@ -1,0 +1,107 @@
+id: 01-orca
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-17-6
+link: 01-orca
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: 'Orca: chạy nhiều agent coding song song, mỗi agent một worktree'
+  subtitle: Ứng dụng desktop mã nguồn mở (MIT) chạy nhiều CLI agent như Claude Code, Codex, OpenCode cạnh
+    nhau, mỗi agent một git worktree, có app điện thoại để theo dõi.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '94.489'
+  label: sao trên GitHub
+  caption: MIT · TypeScript
+- layout: quote
+  text: Chạy nhiều agent trên cùng một dự án cần mỗi agent một bản làm việc riêng và một chỗ để theo dõi
+    tất cả. Orca cho mỗi agent một git worktree biệt lập và theo dõi chúng ở một nơi, để bạn so kết quả
+    rồi merge bản tốt nhất.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Mỗi agent một worktree: Orca chia một prompt cho nhiều agent, mỗi agent một git worktree biệt
+      lập, rồi so kết quả và merge bản tốt nhất.'
+  - text: 'Terminal thật cho CLI agent: Agent chạy trong terminal chia ô: README gọi là terminal cùng
+      đẳng cấp Ghostty (Ghostty-class), vẽ bằng WebGL, chia ô không giới hạn…'
+  - text: 'Một nơi để theo dõi: Orca báo khi agent xong, hiện PR, issue và bảng dự án GitHub, Linear,
+      và cho nhận xét thẳng lên diff.'
+  - text: 'Agent cũng điều khiển Orca: README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch
+      bản cho quy trình, với các lệnh con như worktree create, snapshot, click…'
+  - text: 'SSH worktrees: agent chạy ở máy từ xa: README nói có thể chạy agent trên một máy từ xa mạnh,
+      với sửa file, git và terminal đầy đủ, tự nối lại và chuyển cổng.'
+  - text: 'App điện thoại ghép qua relay: App điện thoại được ghép với máy desktop qua một relay; README
+      nói mã relay nằm trong thư mục cloud/ của repo.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Orca trên máy tính
+    text: 'Ứng dụng desktop cho macOS, Windows, Linux: gom terminal, worktree, diff, GitHub và Linear.'
+  - emoji: ⚙️
+    title: Git worktree
+    text: Mỗi agent làm trong một worktree riêng, không ghi đè mã của agent khác.
+  - emoji: 🔌
+    title: CLI agent
+    text: Claude Code, Codex, OpenCode, Pi và nhiều agent khác chạy trong terminal của Orca.
+  - emoji: 📦
+    title: Lệnh orca
+    text: 'Viết kịch bản cho Orca: orca worktree create, snapshot, click, fill.'
+  - emoji: 🧠
+    title: App điện thoại
+    text: Theo dõi agent và gửi tiếp yêu cầu từ iOS hoặc Android.
+  - emoji: 📡
+    title: Relay
+    text: Ghép app điện thoại với máy desktop; mã nằm trong thư mục cloud/ của repo.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - 'Cách ly bằng git worktree: mỗi agent một bản làm việc, nên chạy song song mà không giẫm chân nhau.'
+  - Giao cùng một đề cho nhiều agent rồi so kết quả và chọn bản tốt nhất.
+  - Để agent điều khiển công cụ quản lý chúng qua dòng lệnh, nên quy trình lặp lại viết thành kịch bản
+    được.
+  - Đặt phần ghép điện thoại thành một relay riêng trong cùng repo, có workspace và hướng dẫn cài riêng.
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: 'Dự án đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.'
+  - emoji: ⚠️
+    text: 'README không nói Orca kèm sẵn agent: mỗi CLI agent bạn dùng phải tự cài và chạy được trong
+      terminal.'
+  - emoji: ⚠️
+    text: Có thu thập dữ liệu sử dụng ẩn danh; README dẫn tới trang nói rõ thu gì và cách tắt.
+  - emoji: ⚠️
+    text: README không nói relay của app điện thoại chạy ở đâu; chỉ nói mã relay nằm trong cloud/.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Orca: giao một prompt cho nhiều agent coding, mỗi agent một worktree riêng
+
+
+      - Chạy Claude Code, Codex, OpenCode cạnh nhau, theo dõi ở một nơi
+
+      - So kết quả rồi merge bản tốt nhất
+
+      - Có app điện thoại để theo dõi
+
+      Bài hướng dẫn từng bước nói rõ chỗ README chưa ghi.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - AIAgents
+    - ClaudeCode
+    - DevTools
+    - OpenSource
