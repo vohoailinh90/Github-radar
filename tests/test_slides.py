@@ -219,6 +219,60 @@ def test_a_card_with_no_sentence_end_is_split_between_words_or_characters(text):
     assert all(body.count("`") % 2 == 0 for body in bodies)               # a code span is never cut in two
 
 
+def card_text(pages) -> str:
+    return "".join((b["head"] or "") + b["body"] for page in pages for b, _, _ in page)
+
+
+@pytest.mark.parametrize("head", ["用語" * 200, " ".join(f"term{i}" for i in range(150))], ids=["japanese", "words"])
+@pytest.mark.parametrize("body", ["", "short meaning", "意味" * 150], ids=["no-body", "short-body", "long-body"])
+def test_a_card_whose_heading_is_taller_than_a_slide_continues_on_the_next_slide(head, body):
+    glossary = slides.card(head, body, marker=None, size=24)
+    pages = slides.paginate([glossary], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    assert card_text(pages).replace(" ", "") == (head + body).replace(" ", "")      # the same characters, in order
+
+
+def test_a_heading_nearly_as_tall_as_a_slide_stands_alone_and_its_body_follows():
+    head = " ".join(f"term{i}" for i in range(75))
+    room = slides.BOTTOM - 100
+    assert 0.8 * room < slides.measure(slides.card(head, "", size=24), slides.WIDTH) <= room
+    pages = slides.paginate([slides.card(head, "a meaning " * 40, size=24)], 100)
+    assert placed_ok(pages) and len(pages) >= 2
+    assert card_text(pages).replace(" ", "") == (head + "a meaning " * 40).replace(" ", "")
+
+
+def test_a_legacy_note_taller_than_a_slide_continues_on_the_next_slide_keeping_its_code_spans():
+    note = ("Một ghi chú rất dài có `npm run build` ở giữa " * 60).strip()
+    pages = slides.paginate([slides.code(["npm start"]), slides.para(slides.prose(note), size=22)], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [b["runs"] for page in pages for b, _, _ in page if b["kind"] == "para"]
+    assert " ".join("".join(r[0] for r in runs) for runs in shown).split() == note.replace("`", "").split()      # the same words, in order
+    assert all(r[0] == "npm run build" for runs in shown for r in runs if r[1] == "m")                              # a span is never cut in two
+
+
+def test_a_long_paragraph_keeps_the_link_of_every_run_it_is_cut_into():
+    runs = [("Mở ", "t", None), ("trang này " * 300, "a", "https://helpdesk.example.org/docs")]
+    pieces = slides._fit(slides.para(runs, glue=True), slides.WIDTH, slides.BOTTOM - 100)
+    assert len(pieces) >= 2 and [p["glue"] for p in pieces] == [True] + [False] * (len(pieces) - 1)
+    assert all(r[2] in (None, "https://helpdesk.example.org/docs") for p in pieces for r in p["runs"])
+    assert all(r[2] for p in pieces for r in p["runs"] if r[1] == "a")
+
+
+@pytest.mark.parametrize("lang", ["vi", "en", "ja"])
+@pytest.mark.parametrize("legacy", [False, True])
+def test_a_glossary_entry_and_a_legacy_note_of_any_length_stay_on_the_slides(lang, legacy):
+    draft = make_draft(FACTS, lang, legacy=legacy)
+    draft["glossary"] = [{"term": "用語 " * 500, "meaning": "short"}, {"term": "term", "meaning": "意味。" * 400}]
+    if legacy:
+        draft["try_it"]["note"] = "ghi chú rất dài " * 300
+    book = slides.deck(FACTS, draft, lang)
+    check_inside_the_slide(book)
+    shown = "".join(t.replace(" ", "") for t in texts(book))
+    assert all(shown.count(c) >= 500 for c in "用語") and all(shown.count(c) >= 400 for c in "意味。")      # nothing of the long entries is dropped
+    if legacy:
+        assert shown.count("ghi") >= 300 and shown.count("rấtdài") + shown.count("rất") >= 300
+
+
 @pytest.mark.parametrize("lang", ["ja", "en", "vi"])
 def test_the_cover_never_drops_the_hook_or_the_one_liner(lang):
     word = {"ja": "長い日本語", "en": "longword ", "vi": "rấtdài "}[lang]
@@ -265,6 +319,50 @@ def test_the_diagram_never_overlaps_a_box_and_stays_inside_the_content_area(n, e
     assert len(geo["routes"]) == len(edges)
     for r in geo["routes"]:
         assert all(0 <= x <= slides.SW and top - 0.5 <= y <= slides.BOTTOM + 0.5 for x, y in r["pts"])
+
+
+def inside(geo, top, n):
+    boxes = [(x, y, x + geo["bw"], y + geo["heights"][i]) for i, (x, y) in geo["pos"].items()]
+    for i, a in enumerate(boxes):
+        assert a[0] >= 0 and a[2] <= slides.SW and a[1] >= top - 0.5 and a[3] <= slides.BOTTOM + 0.5, f"box {i} leaves the content area"
+        for b in boxes[i + 1:]:
+            assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], "two boxes overlap"
+    for r in geo["routes"]:                                                         # the loop-back lanes under the boxes too
+        assert all(0 <= x <= slides.SW and top - 0.5 <= y <= slides.BOTTOM + 0.5 for x, y in r["pts"]), "an arrow leaves the content area"
+
+
+@pytest.mark.parametrize("name", ["名" * 40, "W" * 40, "Wide Component Name " * 2], ids=["japanese", "wide-latin", "words"])
+@pytest.mark.parametrize("top", [110, 153])
+def test_five_boxes_in_one_column_with_the_longest_names_stay_inside_the_content_area(name, top):
+    comps = [{"name": name, "role": "does a thing"} for _ in range(6)]
+    geo = slides.flow_geometry(comps, HUB, top, slides.BOTTOM)
+    inside(geo, top, 6)
+    assert len(set(round(y) for _, y in geo["pos"].values())) >= 5                  # the five spokes are still five rows
+    if top == 110 and name != "W" * 40:
+        assert geo["size"] >= 14, "the boxes should widen before the type shrinks below 14 pt"
+
+
+CROWDED = [(6, [[1, 4], [3, 4], [4, 1]], 153, "W" * 40), (6, [[0, 2], [0, 4], [1, 2], [1, 4], [2, 4]], 153, "テスト" * 13),
+           (6, [[1, 4], [3, 4], [4, 1]], 130, "名" * 40), (6, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]], 153, "名" * 40)]
+
+
+@pytest.mark.parametrize("n, edges, top, name", CROWDED, ids=["wide-latin", "japanese-words", "japanese-chain", "long-chain"])
+def test_a_crowded_diagram_shrinks_its_type_until_every_box_fits(n, edges, top, name):
+    comps = [{"name": name, "role": ""} for _ in range(n)]
+    inside(slides.flow_geometry(comps, edges, top, slides.BOTTOM), top, n)
+
+
+def test_any_diagram_of_six_components_with_the_longest_names_stays_inside_the_content_area():
+    import random
+    rng = random.Random(20261017)
+    for _ in range(400):
+        edges = [[a, b] for a in range(6) for b in range(6) if a != b and rng.random() < rng.choice([0.1, 0.2, 0.4])][:12]
+        n = rng.choice([4, 5, 6])
+        edges = [e for e in edges if e[0] < n and e[1] < n]
+        name = rng.choice(["名" * 40, "W" * 40, "x", "Component number 3", "テスト" * 13])
+        top = rng.choice([110, 130, 153])
+        comps = [{"name": name, "role": ""} for _ in range(n)]
+        inside(slides.flow_geometry(comps, edges, top, slides.BOTTOM), top, n)
 
 
 def test_a_hub_and_spoke_deck_keeps_every_box_on_the_slide():

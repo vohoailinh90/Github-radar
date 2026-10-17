@@ -308,39 +308,94 @@ def _plain_break_points(text: str) -> list[str]:
     return pieces + ([cur] if cur else [])
 
 
-def _split_card(b: dict, width: float, room: float) -> list[dict]:
-    """A card taller than a slide as several that fit: cut at sentence ends where there are any, between words or characters where a
-    sentence is itself too tall (a Japanese paragraph without a full stop), and between characters only for a single unbreakable word."""
-    def fits(text: str, first: bool) -> bool:
-        return measure({**b, "body": text, "head": b["head"] if first else None, "extra": None}, width) <= room - reserve
+def _chars(piece: str, fits) -> list[str]:
+    """One word too long for a slide, cut between characters into pieces that each fit alone."""
+    out = []
+    while len(piece) > 1 and not fits(piece):
+        cut = next(n for n in range(len(piece) - 1, 0, -1) if fits(piece[:n]) or n == 1)
+        out.append(piece[:cut])
+        piece = piece[cut:]
+    return out + [piece]
 
-    reserve = measure({**b, "body": "x"}, width) - measure({**b, "body": "x", "extra": None}, width) if b["extra"] else 0.0
+
+def _cut(text: str, fits) -> list[str]:
+    """A text as pieces that each satisfy `fits(piece, first)`: cut at sentence ends where there are any, between words or characters where
+    a sentence is itself too tall (a Japanese paragraph without a full stop), and between characters only for a single unbreakable word.
+    A first piece whose opening unit does not fit under the card's heading is left empty, so the heading stands alone."""
     units: list[str] = []
-    for i, sentence in enumerate(_sentences(b["body"])):
+    for i, sentence in enumerate(_sentences(text)):
         lead = " " if i else ""
         if fits(sentence, False):
             units.append(lead + sentence)
             continue
-        for j, piece in enumerate(_break_points(sentence)):
-            while len(piece) > 1 and not fits(piece, False):               # one word too long for a slide: cut it between characters
-                cut = next(n for n in range(len(piece) - 1, 0, -1) if fits(piece[:n], False) or n == 1)
-                units.append((lead if not j else "") + piece[:cut])
-                lead, piece = "", piece[cut:]
-            units.append((lead if not j else "") + piece)
-            lead = ""
+        for piece in _break_points(sentence):
+            for part in _chars(piece, lambda t: fits(t, False)):
+                units.append(lead + part)
+                lead = ""
     pieces: list[str] = []
     cur = ""
     for unit in units:
+        if not pieces and not cur and not fits(unit.lstrip(), True):
+            pieces.append("")
         if cur and not fits(cur + unit, not pieces):
             pieces.append(cur)
             cur = unit.lstrip()
         else:
             cur += unit
-    pieces.append(cur)
+    return pieces + [cur]
+
+
+def _split_card(b: dict, width: float, room: float) -> list[dict]:
+    """A card taller than a slide as several that fit: a heading too long for one slide is cut first (each part a card of its own), then
+    the body, the first piece of it under the last part of the heading and the README link under the last piece."""
+    def alone(**kw) -> float:
+        return measure({**b, "body": "", "extra": None, **kw}, width)
+
+    reserve = measure({**b, "body": "x"}, width) - measure({**b, "body": "x", "extra": None}, width) if b["extra"] else 0.0
+    heads = [b["head"]]
+    if b["head"] and alone() > room:
+        heads = [h.strip() for h in _cut(b["head"], lambda t, first: alone(head=t) <= room)]
+    last = heads[-1]
+    bodies = [t.strip() for t in _cut(b["body"], lambda t, first: measure({**b, "body": t, "head": last if first else None, "extra": None}, width) <= room - reserve)] \
+        if b["body"] else [""]
+    follow = "bar" if b["marker"] else None
+    cards = [{**b, "head": h, "body": "", "extra": None, "marker": b["marker"] if i == 0 else follow} for i, h in enumerate(heads[:-1])]
+    cards += [{**b, "head": last if i == 0 else None, "body": text, "marker": b["marker"] if not cards and i == 0 else follow,
+               "extra": b["extra"] if i == len(bodies) - 1 else None} for i, text in enumerate(bodies)]
+    return cards if len(cards) > 1 else [b]
+
+
+def _split_para(b: dict, width: float, room: float) -> list[dict]:
+    """A paragraph taller than a slide as several that fit, cut between words (or characters) and never inside a code span; every run keeps
+    its kind and its link."""
+    def fits(atoms) -> bool:
+        return measure({**b, "runs": _merge(atoms)}, width) <= room
+
+    atoms: list[tuple[str, str, str | None]] = []
+    for text, kind, url in b["runs"]:
+        for piece in [text] if kind == "m" else _break_points(text):
+            atoms += [(part, kind, url) for part in _chars(piece, lambda t: fits([(t, kind, url)]))]
+    pieces: list[list] = [[]]
+    for atom in atoms:
+        if pieces[-1] and not fits(pieces[-1] + [atom]):
+            pieces.append([])
+        pieces[-1].append(atom)
     if len(pieces) < 2:
         return [b]
-    return [{**b, "body": text.strip(), "head": b["head"] if i == 0 else None, "marker": b["marker"] if i == 0 else "bar" if b["marker"] else None,
-             "extra": b["extra"] if i == len(pieces) - 1 else None} for i, text in enumerate(pieces)]
+    return [{**b, "runs": _merge(p), "glue": b["glue"] and i == 0} for i, p in enumerate(pieces)]
+
+
+def _merge(atoms) -> list[tuple[str, str, str | None]]:
+    """Atoms (text, kind, url) as runs: neighbours of one kind and link join; a piece never starts with the space it was cut at."""
+    runs: list[tuple[str, str, str | None]] = []
+    for text, kind, url in atoms:
+        if runs and runs[-1][1:] == (kind, url):
+            runs[-1] = (runs[-1][0] + text, kind, url)
+        else:
+            runs.append((text, kind, url))
+    if runs and runs[0][1] != "m":
+        runs[0] = (runs[0][0].lstrip(), *runs[0][1:])
+    return [r for r in runs if r[0]]
 
 
 def _fit(b: dict, width: float, room: float) -> list[dict]:
@@ -370,8 +425,10 @@ def _fit(b: dict, width: float, room: float) -> list[dict]:
         for size in (10, 8, 6, 4, 2, 1):
             if measure(grid(items[:size], size=b["size"]), width) <= room:
                 return [grid(items[i:i + size], size=b["size"]) for i in range(0, n, size)]
-    if k == "card" and b["body"]:
+    if k == "card":
         return _split_card(b, width, room)
+    if k == "para":
+        return _split_para(b, width, room)
     return [b]
 
 
@@ -595,12 +652,19 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
     area = bottom - top - lanes
     tallest = max(len(ids) for ids in order.values())
     # The largest type at which the tallest column fits: one height for every box (so boxes in the same row of two columns line up and
-    # their arrow is straight), the gap between boxes shrinking from 28 to 10 pt before the type does.
-    for size in (22, 18, 16, 14):
-        one = max(86.0 if size >= 18 else 48.0, max(_lines_h(_nlines(c["name"], size, bw - 28, True), size) + 24 for c in components))
-        vgap = min(28.0, (area - tallest * one) / (tallest - 1)) if tallest > 1 else 28.0
-        if vgap >= 10 or size == 14:
-            break
+    # their arrow is straight), the gap between boxes shrinking from 28 to 10 pt before the type does, and the boxes widening to the whole
+    # column before the type shrinks again (a long name then needs fewer lines).
+    wide = (WIDTH - (cols - 1) * gapx) / cols
+    for size in (22, 18, 16, 14, 12, 10):
+        for bw in dict.fromkeys((min(300.0, wide), wide)):
+            one = max(86.0 if size >= 18 else 48.0 if size >= 14 else 36.0, max(_lines_h(_nlines(c["name"], size, bw - 28, True), size) + 24 for c in components))
+            spare = area - tallest * one
+            vgap = min(28.0, spare / (tallest - 1)) if tallest > 1 else 28.0
+            if (vgap >= 10 and spare >= 0) or (size == 10 and bw == wide):
+                break
+        else:
+            continue
+        break
     vgap = max(vgap, 6.0)
     heights = [one] * n
     col_h = {c: sum(heights[i] for i in order[c]) + vgap * (len(order[c]) - 1) for c in order}
