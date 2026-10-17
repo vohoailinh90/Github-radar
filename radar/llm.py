@@ -34,6 +34,9 @@ BASE_URLS = {
     "deepseek": "https://api.deepseek.com",
     "nvidia": "https://integrate.api.nvidia.com/v1",
 }
+# A provider's own (non-OpenAI) model API, for what its OpenAI-compatible answers leave out: Google's echoes the alias that was
+# asked for, so only its native model record says what a `-latest` alias points to. Override with RADAR_NATIVE_<PROVIDER>.
+NATIVE_URLS = {"google": "https://generativelanguage.googleapis.com/v1beta"}
 # Model-name fragments -> vendor family. Order matters: a distilled model names two families, the base model decides.
 FAMILIES = (("deepseek", "deepseek"), ("gemini", "google"), ("gemma", "google"), ("llama", "meta"), ("mixtral", "mistral"),
             ("mistral", "mistral"), ("codestral", "mistral"), ("magistral", "mistral"), ("ministral", "mistral"),
@@ -67,6 +70,10 @@ def family(model: str) -> str:
 
 def base_url(provider: str) -> str:
     return os.environ.get(f"RADAR_BASE_{provider.upper()}") or BASE_URLS[provider]
+
+
+def native_base(provider: str) -> str:
+    return os.environ.get(f"RADAR_NATIVE_{provider.upper()}") or NATIVE_URLS[provider]
 
 
 def has_key(model: str, env: dict | None = None) -> bool:

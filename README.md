@@ -68,7 +68,7 @@ Bài vi phạm sau **một** vòng sửa sẽ bị giữ lại, không xuất. M
 
 ```bash
 pip install -r requirements.txt
-python3 radar.py doctor --ping      # key, model còn tồn tại không, họ model
+python3 radar.py doctor --ping      # key, model còn tồn tại không, họ model; với model Google còn in bản ghi metadata của model (với alias -latest đó có thể chỉ là bản ghi của chính alias)
 python3 radar.py models google      # liệt kê model của nhà cung cấp (--free cho OpenRouter)
 python3 radar.py scan               # xếp hạng ứng viên, không gọi model
 python3 radar.py run --dry-run      # chọn repo sẽ viết, không ghi gì
