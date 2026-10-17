@@ -6,9 +6,11 @@ import json
 import re
 import shutil
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+from PIL import ImageFont
 from pptx import Presentation
 
 from radar import cli, config, slides
@@ -142,12 +144,15 @@ def test_a_command_is_printed_as_the_draft_has_it_and_a_sample_as_the_readme_has
 def test_hostile_text_cannot_break_the_file_or_add_an_element():
     draft = make_draft(FACTS, "en", title="<script>alert(1)</script> \x00bad\x1b & \"quotes\"", hook="x" * 400)
     draft["learn"] = ["<a href='http://evil.example'>click</a> " + "w" * 300]
+    draft["guide"]["steps"][0]["commands"] = ["echo \x1b[31mred\x00 \x0b"]            # a command goes into a code block by another path than prose
     blob = slides.deck(FACTS, draft, "en")
     assert Presentation(io.BytesIO(blob)).slides
     assert any("<script>" in t for t in texts(blob))                      # shown as text, so a reader sees what the README said
     with zipfile.ZipFile(io.BytesIO(blob)) as z:
         xml = "".join(z.read(n).decode("utf-8") for n in z.namelist() if n.startswith("ppt/slides/slide"))
     assert "<script>" not in xml and "evil.example" not in addresses(blob) and "\x00" not in xml
+    assert "_x00" not in xml and "_x001B_" not in xml                      # no escape sequence for a control character either: it is dropped
+    assert slides._clean("a\x00b\x1fc\x0bd") == "abcd"
 
 
 def test_a_long_paragraph_and_a_long_sample_continue_on_the_next_slide_instead_of_running_off():
@@ -189,18 +194,96 @@ def test_roadmap_numbers_every_step_in_order():
 
 # ---------------------------------------------------------------- the diagram
 
-@pytest.mark.parametrize("edges", [[[0, 1], [1, 2], [2, 0]], [], [[0, 2], [1, 3], [2, 4], [3, 4]], [[4, 0], [3, 0]], [[0, 1], [0, 2], [0, 3], [0, 4]]])
-def test_the_diagram_never_overlaps_a_box_and_stays_on_the_slide(edges):
-    comps = [{"name": f"Component number {i}", "role": "does a thing"} for i in range(5)]
-    geo = slides.flow_geometry(comps, edges, 120, slides.BOTTOM)
+HUB = [[0, i] for i in range(1, 6)]
+DIAGRAMS = [(5, [[0, 1], [1, 2], [2, 0]]), (5, []), (5, [[0, 2], [1, 3], [2, 4], [3, 4]]), (5, [[4, 0], [3, 0]]), (5, [[0, 1], [0, 2], [0, 3], [0, 4]]),
+            (6, HUB), (6, HUB + [[5, 0]]), (6, [[i, i] for i in range(6)]), (6, [[i, j] for i in range(6) for j in range(6) if i != j][:12]),
+            (2, [[0, 1]]), (3, [[0, 1], [1, 2], [2, 0]]), (6, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]])]
+
+
+@pytest.mark.parametrize("n, edges", DIAGRAMS)
+def test_the_diagram_never_overlaps_a_box_and_stays_inside_the_content_area(n, edges):
+    comps = [{"name": f"Component number {i}", "role": "does a thing"} for i in range(n)]
+    top = 110
+    geo = slides.flow_geometry(comps, edges, top, slides.BOTTOM)
     boxes = [(x, y, x + geo["bw"], y + geo["heights"][i]) for i, (x, y) in geo["pos"].items()]
     for i, a in enumerate(boxes):
-        assert a[0] >= 0 and a[2] <= slides.SW and a[1] >= 0 and a[3] <= slides.SH
+        assert a[0] >= 0 and a[2] <= slides.SW, "a box leaves the slide sideways"
+        assert a[1] >= top - 0.5 and a[3] <= slides.BOTTOM + 0.5, "a box leaves the content area (under the title or past the bottom)"
         for b in boxes[i + 1:]:
             assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], "two boxes overlap"
     assert len(geo["routes"]) == len(edges)
     for r in geo["routes"]:
-        assert all(0 <= x <= slides.SW and 0 <= y <= slides.SH for x, y in r["pts"])
+        assert all(0 <= x <= slides.SW and top - 0.5 <= y <= slides.BOTTOM + 0.5 for x, y in r["pts"])
+
+
+def test_a_hub_and_spoke_deck_keeps_every_box_on_the_slide():
+    draft = make_draft(FACTS, "en")
+    draft["how_it_works"]["components"] = [{"name": f"Part {i}", "role": "does a thing", "icon": "brain", "evidence": "README"} for i in range(6)]
+    draft["how_it_works"]["flow"] = HUB
+    blob = slides.deck(FACTS, draft, "en")
+    check_inside_the_slide(blob)
+
+
+# ---------------------------------------------------------------- the metrics are the font's
+
+CARLITO = {False: Path("/usr/share/fonts/truetype/crosextra/Carlito-Regular.ttf"), True: Path("/usr/share/fonts/truetype/crosextra/Carlito-Bold.ttf")}
+needs_carlito = pytest.mark.skipif(not all(p.is_file() for p in CARLITO.values()), reason="Carlito (fonts-crosextra-carlito) is not installed")
+
+
+@needs_carlito
+def test_the_width_table_is_what_the_font_says():
+    font = ImageFont.truetype(str(CARLITO[False]), 2048)
+    for ch, units in slides._CALIBRI.items():
+        assert abs(font.getlength(ch) - units) <= 2, f"{ch!r}: table {units}, font {font.getlength(ch)}"
+    for ch in "ơưƠƯờứữ":                                           # the horn letters are wider than their base letter
+        assert abs(slides._adv(ch, False, 2048, False) - font.getlength(ch)) <= 2
+
+
+def real_lines(text: str, size: float, width: float, bold: bool) -> int:
+    """Lines a greedy wrap takes with the real font's advances (no margin)."""
+    font = ImageFont.truetype(str(CARLITO[bold]), 2048)
+    space, lines, used = font.getlength(" ") / 2048 * size, 1, 0.0
+    for word in text.split():
+        w = font.getlength(word) / 2048 * size
+        if used and used + space + w > width:
+            lines, used = lines + 1, w
+        else:
+            used += (space if used else 0) + w
+    return lines
+
+
+@needs_carlito
+@pytest.mark.parametrize("size, width, bold", [(22, 728, False), (24, 760, False), (24, 728, True), (36, 852, True)])
+def test_the_line_count_never_falls_short_of_the_real_one_and_is_never_more_than_a_line_over(size, width, bold):
+    sentences = []
+    for path in stored_drafts():
+        draft = json.loads(path.read_text(encoding="utf-8"))["draft"]
+        sentences += [s for s in strings(draft) if 30 < len(s) < 400 and "`" not in s and "\n" not in s]
+    assert len(sentences) > 100
+    for text in sentences:
+        real, ours = real_lines(text, size * (1.065 if size == 36 else 1), width, bold), slides._nlines(text, size, width, bold)
+        if size == 36:
+            continue
+        assert real <= ours <= real + 1, f"{text!r}: the font wraps it in {real} lines, the measure says {ours}"
+
+
+# ---------------------------------------------------------------- the file
+
+def test_the_document_dates_are_the_scan_date_not_the_day_it_was_drawn():
+    prs = Presentation(io.BytesIO(slides.deck(FACTS, make_draft(FACTS, "en"), "en")))
+    when = datetime.fromisoformat(FACTS["scanned"]).replace(tzinfo=timezone.utc).replace(tzinfo=None)
+    cp = prs.core_properties
+    assert cp.created == when and cp.modified == when and cp.author == "GitHub Radar"
+
+
+def test_every_committed_deck_says_what_its_draft_says():
+    decks = sorted((ROOT / "digests").glob("*/*/slides-??.pptx"))
+    assert decks, "the repository keeps the decks of its lessons beside their drafts"
+    for deck in decks:
+        lang = deck.stem.split("-")[1]
+        stored = json.loads((deck.parent / f"draft-{lang}.json").read_text(encoding="utf-8"))
+        assert texts(deck.read_bytes()) == texts(slides.deck(stored["facts"], stored["draft"], lang)), \
+            f"{deck.relative_to(ROOT)} is out of date: python3 radar.py slides {deck.parent.parent.name}/{deck.parent.name}"
 
 
 # ---------------------------------------------------------------- the command
@@ -261,3 +344,29 @@ def test_a_draft_that_no_longer_fits_the_schema_is_skipped_and_its_old_deck_stay
     assert not list(folder.glob("*.tmp"))
     (folder / "draft-vi.json").write_text("{not json", encoding="utf-8")
     assert "not JSON" in next(iter(slides.write(tmp_path, ["2026-10-17-2"])["skipped"].values()))
+
+
+def test_one_strange_file_does_not_stop_the_others_and_leaves_no_temporary_file(tmp_path, monkeypatch):
+    folder = one_digest(tmp_path)
+    (folder / "draft-en.json").write_text("[1, 2]", encoding="utf-8")
+    (folder / "draft-ja.json").write_text('{"lang": ["ja"], "draft": {}, "facts": {}}', encoding="utf-8")
+    (folder / "draft-fr.json").write_text('{"lang": "vi"}', encoding="utf-8")
+    odd = tmp_path / "digests" / "2026-10-17-2" / "aaa-odd-facts"                  # sorted first: a failure there must not stop the folder after it
+    odd.mkdir()
+    stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
+    stored["facts"]["scanned"] = None
+    (odd / "draft-vi.json").write_text(json.dumps(stored), encoding="utf-8")
+    report = slides.write(tmp_path, ["2026-10-17-2"])
+    assert report["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
+    assert set(report["skipped"]) == {"digests/2026-10-17-2/agent-orchestrator/draft-en.json", "digests/2026-10-17-2/agent-orchestrator/draft-fr.json",
+                                      "digests/2026-10-17-2/aaa-odd-facts/draft-vi.json"}
+    assert [p.name for p in odd.iterdir()] == ["draft-vi.json"]                      # nothing was written beside the odd draft
+    (folder / "slides-vi.pptx").unlink()
+
+    def refuse(self, target):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "replace", refuse)
+    report = slides.write(tmp_path, ["2026-10-17-2"], langs=["vi"])
+    assert report["written"] == [] and "disk full" in report["skipped"]["digests/2026-10-17-2/agent-orchestrator/draft-vi.json"]
+    assert not list(folder.glob("*.tmp")) and not (folder / "slides-vi.pptx").exists()

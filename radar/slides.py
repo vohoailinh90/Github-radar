@@ -40,16 +40,19 @@ EAST = {"ja": "Yu Gothic"}           # the East Asian font; Latin text keeps SAN
 LH = 1.28                            # line height as a multiple of the font size, for measuring (Calibri sets 1.22)
 MONO_EM = 0.62                       # width of a monospaced character as a multiple of the font size, for measuring
 FIT = 1.04                           # margin on every measured line: a line is taken as 4% longer than the metrics say
-BOLD = 1.05                          # Calibri Bold runs about 5% wider than Regular
-# Advance widths of Calibri in font units (2048 to the em), for the characters of Latin text; a letter with a diacritic (Vietnamese)
-# is as wide as its base letter. Carlito, which LibreOffice draws instead, has the same metrics. Anything not listed is 0.5 em.
+BOLD = 1.03                          # Calibri Bold runs about 2.5% wider than Regular (measured on a Vietnamese sentence)
+# Advance widths of Calibri in font units (2048 to the em), read from Carlito (the metric-compatible font LibreOffice draws instead) for
+# the characters of Latin text. A letter with a diacritic is as wide as its base letter, except the horn letters of Vietnamese (ơ ư),
+# which are listed. Anything not listed is 0.5 em. tests/test_slides.py checks the table against the font file when it is installed.
 _CALIBRI = dict(zip(
     " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz",
-    [463, 498, 821, 1020, 1038, 1464, 1397, 452, 621, 621, 1020, 1020, 511, 627, 517, 791] + [1038] * 10 +
-    [548, 548, 1020, 1020, 1020, 949, 1831, 1185, 1114, 1092, 1260, 1000, 941, 1292, 1276, 516, 653, 1064, 861, 1751, 1322, 1356, 1058,
-     1378, 1112, 941, 998, 1314, 1162, 1822, 1063, 998, 959, 621, 791, 621, 1020, 1020, 596, 981, 1076, 866, 1076, 1019, 625, 964,
-     1076, 470, 490, 931, 470, 1636, 1076, 1080, 1076, 1076, 714, 801, 686, 1076, 925, 1464, 887, 927, 809]))
-_CALIBRI.update({"·": 517, "–": 1020, "—": 1830, "…": 1536, "“": 821, "”": 821, "‘": 452, "’": 452, "đ": 1076, "Đ": 1260})
+    [463, 667, 821, 1020, 1038, 1464, 1397, 452, 621, 621, 1020, 1020, 511, 627, 517, 791,
+     1038, 1038, 1038, 1038, 1038, 1038, 1038, 1038, 1038, 1038, 548, 548, 1020, 1020, 1020, 949,
+     1831, 1185, 1114, 1092, 1260, 1000, 941, 1292, 1276, 516, 653, 1064, 861, 1751, 1322, 1356,
+     1058, 1378, 1112, 941, 998, 1314, 1162, 1822, 1063, 998, 959, 628, 791, 628, 1020, 1020,
+     596, 981, 1076, 866, 1076, 1019, 625, 964, 1076, 470, 490, 931, 470, 1636, 1076, 1080,
+     1076, 1076, 714, 801, 686, 1076, 925, 1464, 887, 927, 809]))
+_CALIBRI.update({"·": 517, "–": 1020, "—": 1854, "…": 1414, "“": 857, "”": 857, "‘": 511, "’": 511, "đ": 1130, "Đ": 1279, "ơ": 1184, "ư": 1234, "Ơ": 1428, "Ư": 1478})
 _XML_BAD = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f￾￿\ud800-\udfff]")
 RUN_SLUG = re.compile(r"\d{4}-\d{2}-\d{2}(-\d+)?")
 
@@ -98,8 +101,11 @@ def _adv(ch: str, code: bool, size: float, bold: bool) -> float:
         return (size - 2) * MONO_EM
     if svg._wide(ch):
         return size
-    units = _CALIBRI.get(unicodedata.normalize("NFD", ch)[0], 1024)
-    return size * units / 2048 * (BOLD if bold else 1.0)
+    decomposed = unicodedata.normalize("NFD", ch)
+    base = decomposed[0]
+    if "\u031b" in decomposed:                 # the horn of ơ and ư (with or without a tone mark) makes the letter wider
+        base = {"o": "ơ", "u": "ư", "O": "Ơ", "U": "Ư"}.get(base, base)
+    return size * _CALIBRI.get(base, 1024) / 2048 * (BOLD if bold else 1.0)
 
 
 def _count_lines(chars: list[tuple[str, bool, bool]], size: float, width: float) -> int:
@@ -520,9 +526,6 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
     cols = max(layer) + 1
     gapx = 72 if cols <= 3 else 44
     bw = min(300.0, (WIDTH - (cols - 1) * gapx) / cols)
-    size = 22 if bw >= 230 else 18
-    one = max(86.0, max(_lines_h(_nlines(c["name"], size, bw - 28, True), size) + 40 for c in components))
-    heights = [one] * n                    # one height for every box, so boxes in the same row of two columns line up and their arrow is straight
     order: dict[int, list[int]] = {}
     row_of: dict[int, float] = {}
     for col in range(cols):
@@ -532,13 +535,22 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
         for r, i in enumerate(ids):
             row_of[i] = r
     back = [(a, b) for a, b in edges if layer[b] <= layer[a]]
-    lanes = 0 if not back else 26 + 16 * len(back)
-    vgap = 28.0
-    col_h = {c: sum(heights[i] for i in order[c]) + vgap * (len(order[c]) - 1) for c in order}
+    lanes = 0 if not back else 26 + min(16 * len(back), 70)
     area = bottom - top - lanes
+    tallest = max(len(ids) for ids in order.values())
+    # The largest type at which the tallest column fits: one height for every box (so boxes in the same row of two columns line up and
+    # their arrow is straight), the gap between boxes shrinking from 28 to 10 pt before the type does.
+    for size in (22, 18, 16, 14):
+        one = max(86.0 if size >= 18 else 48.0, max(_lines_h(_nlines(c["name"], size, bw - 28, True), size) + 24 for c in components))
+        vgap = min(28.0, (area - tallest * one) / (tallest - 1)) if tallest > 1 else 28.0
+        if vgap >= 10 or size == 14:
+            break
+    vgap = max(vgap, 6.0)
+    heights = [one] * n
+    col_h = {c: sum(heights[i] for i in order[c]) + vgap * (len(order[c]) - 1) for c in order}
     pos = {}
     for col in range(cols):
-        y = top + (area - col_h[col]) / 2
+        y = max(top, top + (area - col_h[col]) / 2)
         for i in order[col]:
             pos[i] = (LEFT + col * (bw + gapx), y)
             y += heights[i] + vgap
@@ -558,7 +570,7 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
             else:
                 routes.append({"pts": [(xa + bw / 2, ya), (xb + bw / 2, yb + heights[b])], "dashed": True})
         else:                                           # a loop back: down under the boxes, across, and up into the target
-            ylane = low + 22 + 16 * lane
+            ylane = low + 22 + min(16, 70 / max(1, len(back))) * lane
             lane += 1
             routes.append({"pts": [(xa + bw / 2, ya + heights[a]), (xa + bw / 2, ylane), (xb + bw / 2, ylane), (xb + bw / 2, yb + heights[b])],
                            "dashed": True})
@@ -586,9 +598,9 @@ class Book:
         self.pages: list[dict] = []
 
     def _title_geom(self, title: str) -> tuple[int, int, float]:
-        """Size, lines and height of a slide title: Cambria Bold (about 6% wider than Calibri Bold), 36 pt down to 26 pt for a long one."""
+        """Size, lines and height of a slide title: Cambria Bold (about 6.5% wider than Calibri Bold), 36 pt down to 26 pt for a long one."""
         for size in (36, 30, 26):
-            lines = max(1, _nlines(title, size * 1.06, WIDTH, True))
+            lines = max(1, _nlines(title, size * 1.065, WIDTH, True))
             if lines <= 2 or size == 26:
                 return size, lines, lines * size * 1.18
         raise AssertionError("unreachable")
@@ -841,26 +853,31 @@ def write(root: Path, selectors: list[str] | None = None, *, everything: bool = 
     for folder in _folders(root, selectors or [], everything):
         for path in sorted(folder.glob("draft-*.json")):
             rel = path.relative_to(root).as_posix()
+            tmp = None
             try:
                 stored = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, ValueError, RecursionError):
-                report["skipped"][rel] = "unreadable or not JSON"
-                continue
-            lang = stored.get("lang")
-            if lang not in L or (langs and lang not in langs):
-                continue
-            problems = [str(p) for p in gates.schema(stored["draft"]) if p.level == "error"]
-            if problems:
-                report["skipped"][rel] = "the stored draft no longer fits the schema: " + "; ".join(problems[:2])
-                continue
-            try:
+                if not isinstance(stored, dict) or not isinstance(stored.get("draft"), dict) or not isinstance(stored.get("facts"), dict):
+                    report["skipped"][rel] = "not a stored draft (expected an object with lang, facts and draft)"
+                    continue
+                lang = stored.get("lang")
+                if not isinstance(lang, str) or lang not in L or (langs and lang not in langs):
+                    continue
+                problems = [str(p) for p in gates.schema(stored["draft"]) if p.level == "error"]
+                if problems:
+                    report["skipped"][rel] = "the stored draft no longer fits the schema: " + "; ".join(problems[:2])
+                    continue
                 blob = deck(stored["facts"], stored["draft"], lang)
-            except Exception as exc:  # noqa: BLE001 - nothing has been written yet
-                report["skipped"][rel] = f"failed while drawing: {type(exc).__name__}: {exc}"
-                continue
-            target = folder / f"slides-{lang}.pptx"
-            tmp = target.with_name(target.name + ".tmp")
-            tmp.write_bytes(blob)
-            tmp.replace(target)
-            report["written"].append(target.relative_to(root).as_posix())
+                target = folder / f"slides-{lang}.pptx"
+                tmp = target.with_name(target.name + ".tmp")
+                tmp.write_bytes(blob)
+                tmp.replace(target)
+                tmp = None
+                report["written"].append(target.relative_to(root).as_posix())
+            except json.JSONDecodeError:
+                report["skipped"][rel] = "not JSON"
+            except (OSError, ValueError, RecursionError, KeyError, TypeError, AttributeError) as exc:
+                report["skipped"][rel] = f"{type(exc).__name__}: {exc}"          # one strange file must not stop the rest, nor change anything
+            finally:
+                if tmp is not None:
+                    tmp.unlink(missing_ok=True)
     return report
