@@ -123,9 +123,9 @@ class Github:
         return [r["clean"] for r in self.requests if r["method"] == method]
 
 
-def new_page(browser, repos=(REPO,), width=1280, interval=0):
+def new_page(browser, repos=(REPO,), width=1280, interval=0, tz="Asia/Ho_Chi_Minh"):
     """A fresh context whose saved list holds `repos` (set once, so a reload keeps whatever the page saved since)."""
-    context = browser.new_context(viewport={"width": width, "height": 900}, timezone_id="Asia/Ho_Chi_Minh", locale="vi-VN")
+    context = browser.new_context(viewport={"width": width, "height": 900}, timezone_id=tz, locale="vi-VN")
     seed = json.dumps({"repos": list(repos), "interval": interval})
     context.add_init_script(f"if (!window.localStorage.getItem('{STORE_KEY}')) window.localStorage.setItem('{STORE_KEY}', {json.dumps(seed)});")
     gh = Github()
@@ -409,6 +409,83 @@ def test_an_office_snapshot_is_read_in_the_browser_and_kept_nowhere(ui, tmp_path
     notjson.write_text("not json", encoding="utf-8")
     ui.set_input_files("#office-file", str(notjson))
     wait(ui, "document.getElementById('office-msg').textContent.includes('không phải JSON')")
+
+
+def test_the_week_has_a_column_for_every_day_the_next_seven_days_touch(browser):
+    """Seven times 24 hours from Sunday midday end on the next Sunday: its 01:30 run needs a column of its own, not a silent drop."""
+    context, page = new_page(browser, tz="UTC")
+    page.clock.set_fixed_time(dt.datetime(2026, 10, 18, 12, 0, tzinfo=dt.timezone.utc))
+    page.goto(PAGE_URL)
+    page.click("#demo")
+    wait(page, "document.querySelectorAll('.task').length === 3")
+    assert page.locator("#week .day").count() == 8
+    last = page.locator("#week .day").nth(7).inner_text()
+    assert "25-10" in last and "Deploy docs" in last and "01:30" in last
+    assert "Hôm nay" in page.locator("#week .day").nth(0).inner_text()
+    context.close()
+
+
+def test_forgetting_the_token_also_clears_the_account_list_the_token_loaded(browser):
+    context, page = new_page(browser)
+    page.gh.routes = {**app_routes(), "/user/repos": (200, [{"full_name": "me/secret-private", "owner": {"login": "me"}, "private": True, "pushed_at": iso(60)}])}
+    page.goto(PAGE_URL)
+    page.fill("#token", TOKEN)
+    page.press("#token", "Tab")
+    page.click("#pick")
+    page.fill("#pick-owner", "me")
+    page.click("#pick-load")
+    wait(page, "document.querySelectorAll('#pick-list input').length === 1")
+    assert "secret-private" in text(page, "#pick-list")
+    page.click("details.io summary")
+    page.click("#export")
+    assert page.input_value("#io") != ""
+    page.click("#forget")
+    wait(page, "document.getElementById('connect-msg').textContent.includes('quên')")
+    assert page.locator("#pick-list li").count() == 0 and page.input_value("#io") == "" and "secret-private" not in text(page, "body")
+    context.close()
+
+
+def test_out_of_quota_the_page_stops_sending_until_the_reset(browser):
+    repos = [f"demo/r{i}" for i in range(6)]
+    context, page = new_page(browser, repos=repos)
+    page.gh.remaining = 0
+    page.gh.routes = {f"/repos/{r}": (403, {"message": "API rate limit exceeded"}) for r in repos}
+    page.goto(PAGE_URL)
+    wait(page, "document.querySelectorAll('.repo p.bad').length === 6")
+    assert len(page.gh.requests) == 12                                            # three repos at a time, four calls each; the other three were never sent
+    assert all("Hết hạn mức GitHub" in t for t in page.eval_on_selector_all(".repo p.bad", "els => els.map(e => e.textContent)"))
+    page.fill("#token", TOKEN)                                                   # a new token is a new quota: the page asks again
+    page.press("#token", "Tab")
+    wait(page, "document.getElementById('connect-msg').className.includes('ok')")
+    page.wait_for_timeout(300)
+    assert len(page.gh.requests) > 12
+    context.close()
+
+
+def test_auto_refresh_pauses_when_the_quota_runs_low_and_goes_on_when_it_recovers(browser):
+    context, page = new_page(browser, interval=30)
+    page.clock.install(time=dt.datetime.now(dt.timezone.utc))
+    page.gh.remaining = 100                                                      # of 5000: below the 5 % the page keeps back
+    page.goto(PAGE_URL)
+    page.fill("#token", TOKEN)
+    page.press("#token", "Tab")
+    wait(page, "document.querySelector('.repo h3 a') !== null")
+    wait(page, "document.getElementById('rate').textContent.includes('tạm dừng')")
+    seen = len(page.gh.requests)
+    page.clock.run_for(65_000)
+    page.wait_for_timeout(400)
+    assert len(page.gh.requests) == seen                                         # two timer ticks, nothing sent
+    page.gh.remaining = 4000
+    page.click("#refresh")                                                       # the person asks: this goes through and reads the new quota
+    wait(page, "document.getElementById('rate').textContent.includes('4.000')")
+    assert "tạm dừng" not in text(page, "#rate")
+    seen = len(page.gh.requests)
+    page.clock.run_for(31_000)
+    deadline = time.monotonic() + 6
+    while len(page.gh.requests) == seen and time.monotonic() < deadline:
+        page.wait_for_timeout(100)
+    assert len(page.gh.requests) > seen                                          # and the timer works again by itself
+    context.close()
 
 
 @pytest.mark.parametrize("width", [320, 390, 768])

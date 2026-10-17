@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-sqEmY2qOjYSogFRhPrpJPptMomezCVxU9dijGmrsFco='; style-src 'sha256-riAfUjZa0MmDTsJI3JopyUhaenIkmde6jOBJbpC6GIE='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-RjEkXqSHbUIcx0zfxbNXnxNxegR+wnvdVAWPYk4cX4g='; style-src 'sha256-C2Z5nTZOz4LuLDm28ztwyiLLw0kY9Ik+0OomSCnPBWI='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: bảng theo dõi repo</title>
 <style>
@@ -106,7 +106,7 @@ details.wf .slot { padding: 2px 0 10px; }
 .kind { display: inline-block; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; margin: 0 4px 2px 0; background: var(--soft); }
 .week { display: grid; grid-template-columns: 1fr; gap: 8px; }
 @media (min-width: 640px) { .week { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1000px) { .week { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .week { grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); } }
 .day { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--card); min-width: 0; }
 .day h3 { font-size: 13px; margin-bottom: 6px; }
 .day.today { border-color: var(--accent); }
@@ -202,7 +202,7 @@ details.wf .slot { padding: 2px 0 10px; }
 
   <section id="schedule" class="panel" aria-labelledby="h-schedule">
     <h2 id="h-schedule">Lịch chạy 7 ngày tới</h2>
-    <p class="muted small">Đọc từ mục <code>schedule</code> trong file workflow của nhánh mặc định. Giờ hiển thị theo máy bạn; cron của GitHub tính theo UTC và có thể trễ vài phút. Workflow theo lịch ở repo công khai bị GitHub tự tắt sau 60 ngày repo không có hoạt động.</p>
+    <p class="muted small">Đọc từ mục <code>schedule</code> trong file workflow của nhánh mặc định. Từ hôm nay đến hết ngày của thời điểm 7 × 24 giờ kể từ bây giờ (nên có 7 hoặc 8 cột). Giờ hiển thị theo máy bạn; cron của GitHub tính theo UTC và có thể trễ vài phút. Workflow theo lịch ở repo công khai bị GitHub tự tắt sau 60 ngày repo không có hoạt động.</p>
     <ul id="frequent" class="plainlist small" hidden></ul>
     <div id="week" class="week"></div>
   </section>
@@ -488,16 +488,16 @@ function parseCron(expr) {
   const f = String(expr == null ? "" : expr).trim().split(/\s+/);
   if (f.length !== 5) return null;
   const minute = parseField(f[0], 0, 59), hour = parseField(f[1], 0, 23), dom = parseField(f[2], 1, 31);
-  const month = parseField(f[3], 1, 12, MONTH_NAMES, 1), dow = parseField(f[4], 0, 6, DAY_NAMES, 0);
+  const month = parseField(f[3], 1, 12, MONTH_NAMES, 1), dowRaw = parseField(f[4], 0, 7, DAY_NAMES, 0);      // 7 is Sunday too, as in vixie cron
+  const dow = dowRaw ? [...new Set(dowRaw.map((v) => v % 7))].sort((a, b) => a - b) : null;
   if (!minute || !hour || !dom || !month || !dow) return null;
   return { minute, hour, dom, month, dow, domAny: f[2].startsWith("*"), dowAny: f[4].startsWith("*"), fields: f };
 }
+// Vixie cron: when either day field starts with `*` (`*/2` too) a day must be in BOTH sets (a plain `*` is every day, so it constrains nothing);
+// when both are restricted it is enough to be in one.
 function dayMatches(c, y, mo, d, wd) {
   if (!c.month.includes(mo + 1)) return false;
-  if (c.domAny && c.dowAny) return true;
-  if (c.domAny) return c.dow.includes(wd);
-  if (c.dowAny) return c.dom.includes(d);
-  return c.dom.includes(d) || c.dow.includes(wd);
+  return c.domAny || c.dowAny ? c.dom.includes(d) && c.dow.includes(wd) : c.dom.includes(d) || c.dow.includes(wd);
 }
 function occurrences(expr, fromMs, untilMs, limit) {
   const c = typeof expr === "string" ? parseCron(expr) : expr;
@@ -518,28 +518,31 @@ function occurrences(expr, fromMs, untilMs, limit) {
   return out;
 }
 function nextOccurrence(expr, fromMs) { return occurrences(expr, fromMs, fromMs + 1500 * 86400000, 1)[0] || null; }
+// Only the plain shapes get words; anything else (a step that does not divide the hour, a stepped day field, a month list) is shown as the expression itself.
 function describeCron(expr) {
   const c = parseCron(expr);
   if (!c) return String(expr);
-  const f = c.fields;
+  const f = c.fields, plain = (from) => f.slice(from).every((x) => x === "*");
   const every = /^\*\/(\d+)$/.exec(f[0]);
-  if (every && f.slice(1).every((x) => x === "*")) return "mỗi " + every[1] + " phút";
-  if (c.minute.length === 1 && f[1] === "*" && f.slice(2).every((x) => x === "*")) return "mỗi giờ, phút " + pad2(c.minute[0]);
-  if (c.minute.length === 1 && c.hour.length === 1 && c.month.length === 12) {
+  if (every && 60 % Number(every[1]) === 0 && plain(1)) return "mỗi " + every[1] + " phút";
+  if (/^\d+$/.test(f[0]) && f[1] === "*" && plain(2)) return "mỗi giờ, phút " + pad2(c.minute[0]);
+  if (/^\d+$/.test(f[0]) && /^\d+$/.test(f[1]) && f[3] === "*") {
     const at = pad2(c.hour[0]) + ":" + pad2(c.minute[0]) + " UTC";
-    if (c.domAny && c.dowAny) return "hằng ngày " + at;
-    if (c.domAny) return at + ", " + c.dow.map((d) => DOW_VN[d]).join(" ");
-    if (c.dowAny) return at + ", ngày " + c.dom.join(",") + " hằng tháng";
+    if (f[2] === "*" && f[4] === "*") return "hằng ngày " + at;
+    if (f[2] === "*" && !f[4].includes("*")) return at + ", " + c.dow.map((d) => DOW_VN[d]).join(" ");
+    if (f[4] === "*" && !f[2].includes("*")) return at + ", ngày " + c.dom.join(",") + " hằng tháng";
   }
   return String(expr);
 }
 function extractCrons(text) {
   const out = [];
-  let indent = -1;
+  let indent = -1, block = -1;
   for (const raw of String(text == null ? "" : text).split(/\r?\n/)) {
     const line = raw.replace(/\t/g, "    ");
     if (/^\s*(#.*)?$/.test(line)) continue;
     const lead = line.length - line.trimStart().length;
+    if (block >= 0) { if (lead > block) continue; block = -1; }                      // inside `run: |`: text, not YAML
+    if (/(?:^|[:-])\s+[|>][+-]?\d*\s*(?:#.*)?$/.test(line)) block = lead;
     if (indent >= 0 && (lead < indent || (lead === indent && !/^\s*-/.test(line)))) indent = -1;
     if (indent < 0) {
       const flow = /^\s*schedule\s*:\s*\[(.*)\]\s*(#.*)?$/.exec(line);
@@ -553,6 +556,13 @@ function extractCrons(text) {
   return out.filter((c) => parseCron(c));
 }
 function hasDispatch(text) { return String(text == null ? "" : text).split(/\r?\n/).some((l) => !/^\s*#/.test(l) && /\bworkflow_dispatch\b/.test(l)); }
+
+// ---- the quota: below this the page stops asking by itself ----
+// (a quota that has reset since it was last read is not low any more)
+function lowOnQuota(rate, nowMs) {
+  if (!rate || !(rate.limit > 0) || (rate.resetMs && nowMs >= rate.resetMs)) return false;
+  return rate.remaining < Math.max(50, rate.limit * 0.05);
+}
 
 // ---- words for time ----
 function span(sec) {
@@ -701,7 +711,7 @@ function demoOffice(spec, nowMs) {
 // ---- the page ----
 const $ = (id) => document.getElementById(id);
 const state = { repos: [], models: new Map(), demo: false, saved: null, office: null, realOffice: null, rate: null, interval: 60, open: new Set(), jobsCache: new Map(),
-                loadingJobs: new Set(), etags: new Map(), files: new Map(), epoch: new Map(), refreshing: false, again: false, timer: null, pickList: [] };
+                loadingJobs: new Set(), etags: new Map(), files: new Map(), epoch: new Map(), refreshing: false, again: false, timer: null, pickList: [], gen: 0 };
 const keyOf = (repo) => repo.toLowerCase();
 
 function h(tag, attrs, ...kids) {
@@ -750,7 +760,9 @@ async function call(path, opts) {
   const raw = !!(opts && opts.raw);
   const headers = { "Accept": raw ? "application/vnd.github.raw+json" : "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
   if (token()) headers.Authorization = "Bearer " + token();
-  const slot = (raw ? "raw:" : "") + path, known = state.etags.get(slot);
+  const slot = (raw ? "raw:" : "") + path, known = state.etags.get(slot), gen = state.gen, quota = state.rate;
+  // Out of quota with the reset still ahead: asking again only earns the same refusal, and a long list would send hundreds of them.
+  if (quota && quota.remaining === 0 && quota.resetMs && Date.now() < quota.resetMs) return { status: 403, data: { message: "API rate limit exceeded (request not sent)" } };
   if (known) headers["If-None-Match"] = known.etag;
   let res;
   try { res = await fetch(API + path, { method: "GET", headers, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }); }
@@ -760,14 +772,14 @@ async function call(path, opts) {
   let data = null;
   try { data = raw ? await res.text() : await res.json(); } catch (e) { data = null; }
   const etag = res.headers.get("etag");
-  if (res.status === 200 && etag) state.etags.set(slot, { etag, data });
+  if (res.status === 200 && etag && gen === state.gen) state.etags.set(slot, { etag, data });      // an answer to a question asked before the token changed is not kept
   return { status: res.status, data };
 }
 async function cached(name, ttlMs, fn) {
-  const hit = state.files.get(name);
+  const hit = state.files.get(name), gen = state.gen;
   if (hit && Date.now() - hit.at < ttlMs) return hit.value;
   const value = await fn();
-  if (value.status === 200 || value.status === 404) state.files.set(name, { at: Date.now(), value });
+  if ((value.status === 200 || value.status === 404) && gen === state.gen) state.files.set(name, { at: Date.now(), value });
   return value;
 }
 function explain(status, data) {
@@ -824,8 +836,9 @@ async function loadJobs(model, run) {
   const k = model.repo + "#" + run.id;
   if (jobsOf(model, run) !== undefined || state.loadingJobs.has(k) || state.demo) return;
   state.loadingJobs.add(k);
-  const res = await call("/repos/" + model.repo + "/actions/runs/" + run.id + "/jobs?per_page=100");
+  const gen = state.gen, res = await call("/repos/" + model.repo + "/actions/runs/" + run.id + "/jobs?per_page=100");
   state.loadingJobs.delete(k);
+  if (gen !== state.gen) return;
   state.jobsCache.set(k, { at: Date.now(), active: runState(run).active, jobs: res.status === 200 && res.data && Array.isArray(res.data.jobs) ? res.data.jobs.map(normJob).filter(Boolean) : null });
   render();
 }
@@ -844,7 +857,8 @@ function keepFocus(fn) {
 function models() { return state.repos.map((r) => state.models.get(keyOf(r))).filter(Boolean); }
 function renderRate() {
   const r = state.rate;
-  $("rate").textContent = r ? "Hạn mức GitHub còn " + r.remaining.toLocaleString("vi-VN") + "/" + r.limit.toLocaleString("vi-VN") + (r.resetMs ? " (đặt lại lúc " + new Date(r.resetMs).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + ")" : "") : "";
+  $("rate").textContent = r ? "Hạn mức GitHub còn " + r.remaining.toLocaleString("vi-VN") + "/" + r.limit.toLocaleString("vi-VN") + (r.resetMs ? " (đặt lại lúc " + new Date(r.resetMs).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + ")" : "")
+    + (lowOnQuota(r, Date.now()) && state.interval && token() ? ". Tự làm mới tạm dừng vì sắp hết hạn mức; bấm Làm mới khi cần." : "") : "";
 }
 function renderChips() {
   $("chips").replaceChildren(...state.repos.map((repo) => h("li", { class: "chip" }, h("span", { text: repo }),
@@ -961,7 +975,9 @@ function dayKey(d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDa
 function renderWeek(all) {
   const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), now.getDate()), plan = weekPlan(all, now.getTime(), 7), cols = [];
   const byDay = new Map();
-  for (let i = 0; i < 7; i++) { const d = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i); byDay.set(dayKey(d), []); cols.push(d); }
+  // 7 x 24 hours from now end on the 8th local day (unless it is midnight sharp): that day needs its column too, or the runs in it would silently go missing.
+  const end = new Date(now.getTime() + 7 * 86400000), days = Math.round((new Date(end.getFullYear(), end.getMonth(), end.getDate()) - first) / 86400000) + 1;
+  for (let i = 0; i < days; i++) { const d = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i); byDay.set(dayKey(d), []); cols.push(d); }
   for (const e of plan.items) { const list = byDay.get(dayKey(new Date(e.ms))); if (list) list.push(e); }
   const anyCron = plan.items.length > 0;
   $("frequent").replaceChildren(...plan.frequent.map((f) => h("li", { title: f.cron + " (UTC)" }, h("b", { text: f.repo.split("/")[1] + " · " + f.wf }), " chạy lặp " + describeCron(f.cron) + " (không liệt kê từng lần)")));
@@ -1057,13 +1073,22 @@ async function refreshAll() {
   try { await pool(state.repos, 3, loadOne); } finally { state.refreshing = false; $("refresh").disabled = false; }
   if (state.again) { state.again = false; await refreshAll(); }
 }
-function clearCaches() { state.etags.clear(); state.files.clear(); state.jobsCache.clear(); state.models.clear(); }
+// A new or forgotten token is a new reader: nothing fetched under the old one stays (cached answers, the models drawn from them, the picker's list,
+// the demo's saved copy), and answers still on their way are dropped when they arrive.
+function clearCaches() {
+  state.gen++;
+  state.etags.clear(); state.files.clear(); state.jobsCache.clear(); state.models.clear(); state.loadingJobs.clear();
+  for (const k of [...state.epoch.keys()]) state.epoch.set(k, state.epoch.get(k) + 1);
+  if (state.saved) state.saved.models = new Map();
+  state.pickList = []; $("pick-list").replaceChildren(); $("io").value = "";
+  state.rate = null; renderRate();
+}
 function schedule() {
   clearTimeout(state.timer);
   const seconds = state.interval;
   if (!seconds || state.demo) return;
   state.timer = setTimeout(async () => {
-    if (!document.hidden && token()) await refreshAll();
+    if (!document.hidden && token() && !lowOnQuota(state.rate, Date.now())) await refreshAll();
     schedule();
   }, seconds * 1000);
 }
@@ -1165,8 +1190,8 @@ function init() {
   $("refresh").addEventListener("click", () => { state.files.clear(); refreshAll(); });
   $("interval").addEventListener("change", () => { state.interval = Number($("interval").value); saveStore(); schedule(); });
   $("token").addEventListener("change", () => { clearCaches(); render(); refreshAll(); say("connect-msg", token() ? "Đã nhận token (chỉ nằm trong bộ nhớ trang này). Đang tải lại…" : "", token() ? "ok" : ""); });
-  $("forget").addEventListener("click", () => { $("token").value = ""; state.rate = null; renderRate(); clearCaches(); render(); refreshAll(); say("connect-msg", "Đã quên token và xóa dữ liệu đã tải bằng token.", "ok"); });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && state.interval && token() && !state.demo) refreshAll(); });
+  $("forget").addEventListener("click", () => { $("token").value = ""; clearCaches(); render(); refreshAll(); say("connect-msg", "Đã quên token và xóa dữ liệu đã tải bằng token.", "ok"); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && state.interval && token() && !state.demo && !lowOnQuota(state.rate, Date.now())) refreshAll(); });
   setInterval(tick, 1000);
   render();
   refreshAll();

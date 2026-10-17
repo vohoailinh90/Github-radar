@@ -30,7 +30,7 @@ def _demo() -> dict:
 
 FUNCTIONS = ("parseRepo, parseRepoList, sameRepo, safeWorkflowPath, clip, normInfo, normWorkflow, normRun, normJob, normPull, runState, stepState, stepCounts, "
              "runProgress, lastDone, isFailing, orderWorkflows, sparkHistory, repoHealth, agentKind, agentActivity, parseCron, occurrences, nextOccurrence, "
-             "describeCron, extractCrons, hasDispatch, ago, fmtDuration, weekPlan, countScheduled, summarize, readOffice, buildDemo, demoOffice")
+             "describeCron, extractCrons, hasDispatch, lowOnQuota, ago, fmtDuration, weekPlan, countScheduled, summarize, readOffice, buildDemo, demoOffice")
 
 
 def _node(cases: list) -> list:
@@ -284,15 +284,16 @@ def _py_field(text, lo, hi, names=(), base=0):
 
 
 def _py_occurrences(expr, start, end, limit):
-    """Every matching minute in (start, end), found by looking at each minute in turn (vixie semantics: day-of-month OR day-of-week when both are restricted)."""
+    """Every matching minute in (start, end), found by looking at each minute in turn (vixie cron: a day must match both day fields when either starts with `*`, either one when both are restricted)."""
     f = expr.split()
     if len(f) != 5:
         return []
     sets = [_py_field(f[0], 0, 59), _py_field(f[1], 0, 23), _py_field(f[2], 1, 31), _py_field(f[3], 1, 12, ("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), 1),
-            _py_field(f[4], 0, 6, ("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"), 0)]
+            _py_field(f[4], 0, 7, ("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"), 0)]
     if any(s is None for s in sets):
         return []
     minute, hour, dom, month, dow = sets
+    dow = {d % 7 for d in dow}                                                               # 7 is Sunday too
     dom_any, dow_any = f[2].startswith("*"), f[4].startswith("*")
     out, t = [], start + dt.timedelta(minutes=1)
     t = t.replace(second=0, microsecond=0)
@@ -300,7 +301,7 @@ def _py_occurrences(expr, start, end, limit):
         t += dt.timedelta(minutes=1)
     while t < end and len(out) < limit:
         wd = (t.weekday() + 1) % 7
-        day_ok = True if dom_any and dow_any else (wd in dow if dom_any else (t.day in dom if dow_any else (t.day in dom or wd in dow)))
+        day_ok = (t.day in dom and wd in dow) if (dom_any or dow_any) else (t.day in dom or wd in dow)       # `*` or `*/2` in either: both sets; two restricted: either
         if t.month in month and day_ok and t.hour in hour and t.minute in minute:
             out.append(int(t.timestamp() * 1000))
         t += dt.timedelta(minutes=1)
@@ -308,7 +309,8 @@ def _py_occurrences(expr, start, end, limit):
 
 
 CRONS = ["0 1 * * 3,6", "*/30 * * * *", "0 0 1 * *", "30 1 * * 0", "15 10,22 * * MON-FRI", "5 4 31 * *", "0 */6 * * *", "0 9 1,15 * 1", "59 23 31 DEC *",
-         "0 0 * JAN-MAR *", "10-20/5 * * * *", "0 0 29 2 *", "0 12 * * SAT,SUN", "7 * * * *", "0 0 * * *", "*/7 3 * * 1-5", "0 8 15 * *", "20 4 * * 2/2"]
+         "0 0 * JAN-MAR *", "10-20/5 * * * *", "0 0 29 2 *", "0 12 * * SAT,SUN", "7 * * * *", "0 0 * * *", "*/7 3 * * 1-5", "0 8 15 * *", "20 4 * * 2/2",
+         "0 2 */2 * *", "0 2 * * */2", "0 0 1 * */2", "0 2 */2 * 1", "0 0 */10 * 1-5", "0 0 * * 7", "0 0 * * 5-7", "30 6 * * 1-7", "*/90 * * * *", "*/7 * * * *"]
 STARTS = [dt.datetime(2026, 10, 16, 23, 17, tzinfo=UTC), dt.datetime(2026, 12, 31, 23, 59, tzinfo=UTC), dt.datetime(2028, 2, 20, 0, 0, tzinfo=UTC)]
 
 
@@ -331,9 +333,14 @@ def test_the_oracle_itself_finds_a_leap_day_and_the_or_rule():
     either = _py_occurrences("0 9 1,15 * 1", dt.datetime(2026, 10, 1, tzinfo=UTC), dt.datetime(2026, 11, 1, tzinfo=UTC), 50)
     days = sorted({dt.datetime.fromtimestamp(t / 1000, UTC).day for t in either})
     assert days == [1, 5, 12, 15, 19, 26]                                                    # the 1st and 15th, and every Monday
+    odd = _py_occurrences("0 2 */2 * *", dt.datetime(2026, 10, 1, tzinfo=UTC), dt.datetime(2026, 10, 12, tzinfo=UTC), 50)
+    assert [dt.datetime.fromtimestamp(t / 1000, UTC).day for t in odd] == [1, 3, 5, 7, 9, 11]       # a stepped `*` still ANDs: odd dates only, not every day
+    both = _py_occurrences("0 0 1 * */2", dt.datetime(2026, 7, 31, tzinfo=UTC), dt.datetime(2027, 4, 1, tzinfo=UTC), 50)
+    assert [dt.datetime.fromtimestamp(t / 1000, UTC).date().isoformat() for t in both] == ["2026-08-01", "2026-09-01", "2026-10-01", "2026-11-01", "2026-12-01"]
+    # the 1st only when it is a Sun/Tue/Thu/Sat: Fri 1 Jan, Mon 1 Feb and Mon 1 Mar 2027 are left out (a reader that ignores the weekday set would list them)
 
 
-@pytest.mark.parametrize("expr", ["0 0 * * 7", "61 * * * *", "* * *", "*/0 * * * *", "5-1 * * * *", "a b c d e", "", "0 24 * * *", "0 0 0 * *", "0 0 * 13 *", "0 0 * * * *", "1-2-3 * * * *", "0 0 * * FUNDAY"])
+@pytest.mark.parametrize("expr", ["0 0 * * 8", "61 * * * *", "* * *", "*/0 * * * *", "5-1 * * * *", "a b c d e", "", "0 24 * * *", "0 0 0 * *", "0 0 * 13 *", "0 0 * * * *", "1-2-3 * * * *", "0 0 * * FUNDAY"])
 def test_a_cron_github_would_refuse_is_not_a_schedule(expr):
     assert _one("parseCron", expr) is None and _one("occurrences", expr, 0, 10**13, 5) == []
 
@@ -344,6 +351,12 @@ def test_next_occurrence_and_the_words_for_a_cron():
     assert _one("nextOccurrence", "0 0 30 2 *", start) is None
     got = _node([["describeCron", [c]] for c in ["0 1 * * 3,6", "*/30 * * * *", "0 * * * *", "15 * * * *", "30 1 * * 0", "0 3 1 * *", "0 0 * * *", "5 4 * 6 *", "nonsense"]])
     assert got == ["01:00 UTC, T4 T7", "mỗi 30 phút", "mỗi giờ, phút 00", "mỗi giờ, phút 15", "01:30 UTC, CN", "03:00 UTC, ngày 1 hằng tháng", "hằng ngày 00:00 UTC", "5 4 * 6 *", "nonsense"]
+
+
+def test_only_plain_crons_get_words_and_the_rest_is_shown_as_written():
+    """A description that is wrong is worse than the expression: every one of these used to be put into words, and wrongly."""
+    got = _node([["describeCron", [c]] for c in ["0 2 */2 * *", "0 2 * * */2", "0 0 1 * */2", "0 2 */2 * 1", "*/90 * * * *", "*/7 * * * *", "*/15 * * * *", "*/20 * * * *", "0 0 * * 7", "0 0 1,15 * *", "0 0 * 1-6 *"]])
+    assert got == ["0 2 */2 * *", "0 2 * * */2", "0 0 1 * */2", "0 2 */2 * 1", "*/90 * * * *", "*/7 * * * *", "mỗi 15 phút", "mỗi 20 phút", "00:00 UTC, CN", "00:00 UTC, ngày 1,15 hằng tháng", "0 0 * 1-6 *"]
 
 
 WORKFLOW = """name: Radar scan
@@ -372,6 +385,41 @@ def test_crons_are_read_from_the_schedule_block_only():
     assert _one("extractCrons", "on:\n  schedule: [{cron: '1 2 * * *'}, {cron: \"3 4 * * *\"}]\n") == ["1 2 * * *", "3 4 * * *"]
     assert _one("extractCrons", "on:\r\n  schedule:\r\n    - cron: '9 9 * * *'\r\n") == ["9 9 * * *"] and _one("extractCrons", None) == []
     assert _node([["hasDispatch", [WORKFLOW]], ["hasDispatch", ["on:\n  # workflow_dispatch:\n  push:\n"]], ["hasDispatch", ["on: [push, workflow_dispatch]"]]]) == [True, False, True]
+
+
+def test_a_cron_written_inside_a_script_is_not_a_schedule():
+    doc = """name: x
+on:
+  schedule:
+    - cron: '5 5 * * *'
+  workflow_dispatch:
+jobs:
+  a:
+    steps:
+      - run: |
+          cat > other.yml <<EOF
+          on:
+            schedule:
+              - cron: '0 0 * * *'
+          EOF
+      - run: >-
+          schedule:
+            - cron: '1 1 * * *'
+      - name: next
+        run: echo ok
+"""
+    assert _one("extractCrons", doc) == ["5 5 * * *"]
+    after = "on:\n  push:\njobs:\n  a:\n    steps:\n      - run: |\n          echo hi\n  # and then the schedule\n"
+    assert _one("extractCrons", after + "x:\n") == []
+    assert _one("extractCrons", "on:\n  schedule:\n    - cron: '9 9 * * *'\njobs:\n  a:\n    steps:\n      - run: |\n          echo\n") == ["9 9 * * *"]
+
+
+def test_the_page_stops_asking_by_itself_when_the_quota_runs_low_and_resumes_after_the_reset():
+    reset = NOW + 600000
+    cases = [[{"limit": 5000, "remaining": 4000, "resetMs": reset}, NOW], [{"limit": 5000, "remaining": 250, "resetMs": reset}, NOW], [{"limit": 5000, "remaining": 249, "resetMs": reset}, NOW],
+             [{"limit": 5000, "remaining": 0, "resetMs": reset}, reset - 1], [{"limit": 5000, "remaining": 0, "resetMs": reset}, reset], [{"limit": 5000, "remaining": 1, "resetMs": None}, NOW],
+             [{"limit": 0, "remaining": 0, "resetMs": None}, NOW], [None, NOW]]
+    assert _node([["lowOnQuota", c] for c in cases]) == [False, False, True, True, False, True, False, False]
 
 
 def test_time_words():

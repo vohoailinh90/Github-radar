@@ -21,7 +21,7 @@ Repo công khai đọc được **không cần token**, nhưng hạn mức khi �
 
 GitHub → Settings → Developer settings → *Fine-grained tokens*, chọn **đúng các repo** bạn muốn theo dõi, quyền **Metadata, Actions, Pull requests, Contents: Read**, hạn ngắn. **Không** dùng chung với token của trang quét (cái đó có quyền Actions: Write): trang này không cần ghi, và mã của nó chỉ có đúng một chỗ gọi `fetch` với `method: "GET"` (test kiểm).
 
-Token nằm trong ô mật khẩu, mất khi đóng hoặc tải lại trang, không vào `localStorage`/cookie/URL, chỉ đi vào header `Authorization` tới `api.github.com`. *Quên token* xóa luôn mọi thứ đã tải bằng token đó (repo private biến mất khỏi trang). Trang **có** lưu một thứ trong `localStorage`: danh sách tên repo (và chu kỳ làm mới), dưới một khóa `radar-board.v1`; tên repo không phải bí mật.
+Token nằm trong ô mật khẩu, mất khi đóng hoặc tải lại trang, không vào `localStorage`/cookie/URL, chỉ đi vào header `Authorization` tới `api.github.com`. *Quên token* (hoặc đổi token) xóa luôn mọi thứ đã tải bằng token đó: dữ liệu đã tải, danh sách chọn từ tài khoản, ô xuất/nhập, và các câu trả lời đang trên đường về (repo private biến mất khỏi trang). Trang **có** lưu một thứ trong `localStorage`: danh sách tên repo (và chu kỳ làm mới), dưới một khóa `radar-board.v1`; tên repo không phải bí mật.
 
 ## Mỗi thứ trên trang lấy từ đâu
 
@@ -31,7 +31,7 @@ Token nằm trong ô mật khẩu, mất khi đóng hoặc tải lại trang, kh
 | Job và từng bước của task | `GET /repos/{r}/actions/runs/{id}/jobs` | Tiến độ = số bước đã xong ÷ số bước. Job chưa bắt đầu chưa liệt kê bước nào nên con số có thể nhảy: khi đó trang ghi "ước lượng" |
 | Quy trình từng repo | `GET /repos/{r}/actions/workflows` + các lượt chạy ở trên | 12 lượt gần nhất mỗi workflow (cột cao là lỗi). Workflow có ít hơn 3 lượt trong danh sách chung (bị workflow bận hơn chen mất, ví dụ quét chạy 2 lần/tuần cạnh CI) được đọc riêng qua `GET /actions/workflows/{id}/runs` |
 | "Có lỗi" của một repo | lượt **đã xong** gần nhất của từng workflow | Một lượt đang chạy không xóa lỗi của lượt trước nó cho đến khi nó xong |
-| Lịch chạy | mục `schedule` trong file workflow (`GET /contents/.github/workflows/*.yml`) | Cron tính theo **UTC**, hiển thị theo giờ máy bạn. Khi cả ngày và thứ đều bị giới hạn thì khớp một trong hai (như cron của GitHub). Cron chạy hơn 6 lần mỗi ngày (ví dụ `*/30 * * * *`) không liệt kê từng lần mà ghi một dòng "chạy lặp". GitHub có thể trễ lượt theo lịch vài phút, chỉ chạy lịch từ nhánh mặc định, và tự tắt lịch của repo công khai sau 60 ngày không hoạt động |
+| Lịch chạy | mục `schedule` trong file workflow (`GET /contents/.github/workflows/*.yml`); dòng `cron:` nằm trong khối `run: |` không tính | Cron tính theo **UTC**, hiển thị theo giờ máy bạn, theo luật của Vixie cron: khi cả ngày và thứ đều bị giới hạn thì khớp **một trong hai**; khi một trong hai bắt đầu bằng `*` (kể cả `*/2`) thì ngày phải khớp **cả hai** (`0 2 */2 * *` chỉ chạy ngày lẻ). Thứ `7` được coi là Chủ nhật. Chỉ biểu thức đơn giản được diễn đạt bằng lời (`*/90 * * * *` không phải "mỗi 90 phút"), còn lại hiện nguyên biểu thức. Cron chạy hơn 6 lần mỗi ngày (ví dụ `*/30 * * * *`) không liệt kê từng lần mà ghi một dòng "chạy lặp". GitHub có thể trễ lượt theo lịch vài phút, chỉ chạy lịch từ nhánh mặc định, và tự tắt lịch của repo công khai sau 60 ngày không hoạt động |
 | Agent thấy được trên GitHub | tên workflow, nhánh (`claude/`, `codex/`, `copilot/`, `gemini/`, `cursor/`, `devin/`, `jules/`), tác giả PR, và `.claude/agents/*.md` | **Suy đoán theo tên**, không phải trạng thái thật của phiên agent: một nhánh `claude/…` có thể do người tạo, một agent đổi tên nhánh thì không thấy. PR của dependabot/renovate chỉ hiện nhãn `bot`, không tính là agent |
 | Agent thật | file `snapshot.json` của **Văn phòng agent** | Xem dưới đây |
 
@@ -48,13 +48,14 @@ rồi chọn file ở mục *Agent → Phiên agent trên máy bạn*. Trang nh�
 
 ## Hạn mức và chi phí
 
-Một lượt xem của một repo là khoảng 8 đến 12 yêu cầu: repo, các lượt chạy, workflow, PR, job của mỗi task đang chạy, mỗi file workflow, `.claude/agents`, và lịch sử của workflow bị chen mất. Giảm chi phí bằng:
+Một lượt xem của một repo yên tĩnh là khoảng 8 đến 12 yêu cầu: repo, các lượt chạy, workflow, PR, job của mỗi task đang chạy, mỗi file workflow, `.claude/agents`, và lịch sử của workflow bị chen mất. **Trường hợp xấu nhất khoảng 27** (10 file workflow, 8 lịch sử riêng, 4 danh sách job). Với 30 repo đang bận và chu kỳ 30 giây, 5.000 yêu cầu/giờ có thể không đủ, nên trang tự bảo vệ (xem dưới). Giảm chi phí bằng:
 
 - **ETag**: mọi yêu cầu gửi `If-None-Match`; nếu không đổi GitHub trả 304 và trang dùng lại bản cũ. Đã đo với GitHub thật (CORS cho phép header này). **Không có token thì 304 vẫn tính vào hạn mức** (đo được 43 xuống 42), nên đừng bật tự làm mới khi không có token. Theo tài liệu của GitHub, có token thì 304 không tính; điều đó chưa đo ở đây.
 - File workflow và `.claude/agents` giữ 10 phút (bấm *Làm mới* để đọc lại, vẫn bằng yêu cầu có điều kiện).
-- Tự làm mới (30 giây, 1 phút, 5 phút) chỉ chạy khi **có token**, khi tab đang hiện, và gộp lại nếu lượt trước chưa xong. Tối đa 30 repo, đọc 3 repo cùng lúc.
+- Tự làm mới (30 giây, 1 phút, 5 phút) chỉ chạy khi **có token**, khi tab đang hiện, và gộp lại nếu lượt trước chưa xong. Khi hạn mức còn dưới 5% (hoặc 50 yêu cầu), nó **tạm dừng** và trang nói điều đó; nó chạy lại khi bạn bấm *Làm mới* hoặc khi hạn mức đã đặt lại. Tối đa 30 repo, đọc 3 repo cùng lúc.
+- Hết hạn mức (GitHub báo còn 0 và giờ đặt lại chưa tới): trang **ngừng gửi** thay vì gửi hàng trăm yêu cầu cùng nhận một lời từ chối; đổi token thì hỏi lại.
 
-Hết hạn mức thì thẻ repo nói rõ và có nút *Thử lại*.
+Hết hạn mức thì thẻ repo nói rõ (kể cả giới hạn thứ cấp của GitHub khi nhiều yêu cầu đến cùng lúc) và có nút *Thử lại*.
 
 ## Dữ liệu mẫu
 
@@ -69,7 +70,7 @@ Số sao đọc từ trang github.com (làm tròn); API công khai trả 403 qua
 | **Văn phòng agent** (`claude-agent-routing-template`, của bạn) | agent đang chạy, ngân sách, tiến độ | **Dùng**: trang đọc snapshot của nó |
 | **Automation-UI-Kit** (của bạn, MIT) | màu trạng thái, thanh lịch sử | **Dùng token và kiểu, không dùng code React**: trạng thái là chấm màu + chữ trung tính (màu chữ không bao giờ là chỗ duy nhất mang nghĩa), màu theo token đã kiểm tương phản, dải lịch sử kiểu tracker. Trang là HTML thuần để chạy từ một file, nên không nhập được component React |
 | [DashGit](https://github.com/javiertuya/dashgit) (MIT, 17★) | trang trình duyệt, nhiều repo, issue/PR | Tham khảo. Khác ở chỗ lưu token trong `localStorage` (trang này không), và không có job/bước hay cron |
-| cronstrue, cron-parser (MIT, ~1,5k★, số liệu từ trang tổng hợp) | mô tả và tính giờ cron | **Không nhúng**: cần phần rất nhỏ, và chính sách của trang cấm script từ nơi khác. Tự viết ~60 dòng, kiểm trên 54 tổ hợp với bộ so chuẩn tìm từng phút viết riêng bằng Python |
+| cronstrue, cron-parser (MIT, ~1,5k★, số liệu từ trang tổng hợp) | mô tả và tính giờ cron | **Không nhúng**: cần phần rất nhỏ, và chính sách của trang cấm script từ nơi khác. Tự viết ~60 dòng, kiểm trên 84 tổ hợp với bộ so chuẩn tìm từng phút viết riêng bằng Python |
 | claude-view (MIT, 114★), Claude-Code-Agent-Monitor (MIT, 1,1k★) | phiên Claude Code thật, nhiều dự án | Chưa dùng: cần server cục bộ và hook; Office đã làm việc đó cho team của bạn |
 | Mission Control (MIT, 6,4k★), GitActionBoard (Apache-2.0, 163★) | agent + task + cron / trạng thái Actions | Chưa dùng: server riêng và mô hình dữ liệu riêng, không đọc workflow của repo bạn như trang này |
 | flowdive (chưa thấy giấy phép), Dagu (GPL-3.0), Vibe Kanban (đang ngừng phát triển) | | Loại |
@@ -87,7 +88,7 @@ Gitdeck hiện trong một lượt tìm với ~390 sao nhưng chưa kiểm đư�
 
 Đã kiểm bằng máy:
 
-- `tests/test_board.py` (luôn chạy, cần Node): CSP băm đúng; không API cấm; chỉ đọc; phần tính thuần của trang (tên repo, trạng thái run/step, tiến độ, cron, kế hoạch tuần, đoán agent, đọc snapshot, dữ liệu mẫu) chạy dưới Node. Cron được so với bộ so chuẩn từng phút. Đã thử đột biến (đổi OR thành AND ở luật ngày/thứ, bỏ màu đỏ của lỗi, bỏ ranh giới từ khi đoán agent, ghi token vào kho, đổi GET thành POST): mỗi đột biến bị test bắt.
+- `tests/test_board.py` (luôn chạy, cần Node): CSP băm đúng; không API cấm; chỉ đọc; phần tính thuần của trang (tên repo, trạng thái run/step, tiến độ, cron, kế hoạch tuần, đoán agent, đọc snapshot, dữ liệu mẫu) chạy dưới Node. Cron được so với bộ so chuẩn từng phút (28 biểu thức × 3 mốc = 84 tổ hợp, gồm bước `*/n` ở trường ngày/thứ và thứ `7`). Đã thử 12 đột biến cố ý (đảo luật ngày/thứ, bỏ màu đỏ của lỗi, bỏ ranh giới từ khi đoán agent, ghi token vào kho, đổi GET thành POST, bỏ lượt đọc lịch sử riêng, bỏ cột thứ 8, không xóa danh sách chọn khi quên token, không dừng khi hết hạn mức, tự làm mới bỏ qua hạn mức, mô tả `*/90`, đọc cron trong khối `run: |`): mỗi đột biến bị test bắt.
 - `tests/test_board_browser.py` (cần Playwright và Chromium, nếu không thì bỏ qua) với `api.github.com` do test trả lời: nội dung hiển thị, token chỉ ở một header và không nằm ở đâu khác, chữ lạ chỉ là chữ, ETag, từng kiểu lỗi, thêm/bỏ/lưu repo, dữ liệu mẫu không gọi mạng, nạp snapshot, không tràn ngang ở 320/390/768 px, không chạy trong khung nhúng, bàn phím.
 - Với **GitHub thật** (đọc repo công khai `vohoailinh90/Github-radar`, không token): CORS cho phép các header của trang, 304 trả đúng cho JS, lịch `0 1 * * 3,6` hiện "01:00 UTC, T4 T7, kế tiếp 08:00 Th 7", và phát hiện lỗi "workflow bị chen mất" đã sửa.
 
