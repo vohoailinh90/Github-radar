@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-17",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "source": "interactive session: oh-my-claudecode written again by hand (the pipeline's 2026-10-17-3 lesson never saw the Team Mode section)",
+  "picks": [
+    {
+      "repo": "Yeachan-Heo/oh-my-claudecode",
+      "bucket": "ai",
+      "stars": 39976
+    }
+  ],
+  "written": [
+    {
+      "repo": "Yeachan-Heo/oh-my-claudecode",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 59,
+        "used": 10
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "campaign": "radar-2026-10-17-4",
+  "ok": true,
+  "warnings": [
+    "no checker model: this draft was written and gated in one interactive session",
+    "replaces the lesson written by the pipeline in 2026-10-17-3 for the same repository; that one is kept"
+  ]
+}
