@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-okUDyi7Hzo3qSyvVN5V1j6AcRdgvxiRZwDB5dz5j24A='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-TC0je4fXLPypxjeTlrCfgZSIIGMdW60RsravO4fXY2Y='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -417,7 +417,7 @@ function quoteArg(shell, text) {
   const s = String(text);
   if (shell === "cmd") {
     if (/^[A-Za-z0-9._\/-]+$/.test(s)) return s;
-    return /^[A-Za-z0-9._\/\-:,{}\[\]" ]*$/.test(s) ? "\"" + s.replace(/"/g, "\\\"") + "\"" : null;      // the C runtime reads \" as a quote; & | < > ^ % ! ( ) and \ are refused
+    return /^[A-Za-z0-9._\/\-:,={}\[\]" ]*$/.test(s) ? "\"" + s.replace(/"/g, "\\\"") + "\"" : null;      // the C runtime reads \" as a quote; & | < > ^ % ! ( ) and \ are refused
   }
   return /^[A-Za-z0-9_@%+=:,.\/-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\"'\"'") + "'";           // what Python's shlex.quote writes
 }
@@ -427,7 +427,7 @@ function cliCommand(v, presetName, dry, single, bucket, shell) {
   const changed = delta(v, resolve(presetName));
   if (Object.keys(changed).length) args.push("--conditions", JSON.stringify(canon(changed)));
   if (single) {
-    args.push("--repo", single);
+    if (single.startsWith("-")) args.push("--repo=" + single); else args.push("--repo", single);      // argparse reads a separate value that starts with "-" as an option
     if (bucket) args.push("--bucket", bucket);
     if (dry) args.push("--dry-run");
   }
@@ -573,7 +573,7 @@ function refreshLocal(v, valid, singleText, dry) {
   $("cli-note").textContent = !command ? "Sửa các lỗi ở mục 2 để có lệnh." :
     (dry ? (singleText ? "Quét thử một repo: kiểm tra repo, không gọi model, không ghi gì. " : "Quét thử: chỉ xếp hạng ứng viên, không gọi model, không ghi file. ") :
            "Quét thật trên máy: gọi model (cần khóa model trong biến môi trường, xem README), ghi bài vào digests/, export/ và state/ của bản clone này, không mở PR. ") +
-    "Nên đặt biến GITHUB_TOKEN trước (" + (shell === "cmd" ? "set GITHUB_TOKEN=..." : "export GITHUB_TOKEN=...") + "; một token không cần quyền nào): không có thì GitHub giới hạn tìm kiếm rất thấp và lượt quét dễ dừng giữa chừng.";
+    "Nên đặt biến GITHUB_TOKEN trước (" + (shell === "cmd" ? "set GITHUB_TOKEN=..." : "export GITHUB_TOKEN=...") + "; một token không cần quyền nào): không có thì GitHub giới hạn tìm kiếm rất thấp và lượt quét dễ dừng giữa chừng. Biến RADAR_* đã đặt sẵn trong cửa sổ lệnh (RADAR_PICKS, RADAR_LANGS, RADAR_REPO...) có thể đổi kết quả: hãy bỏ chúng nếu có.";
 }
 
 function refresh() {

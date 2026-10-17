@@ -440,6 +440,7 @@ def test_sh_quoting_is_what_shlex_quote_writes_and_cmd_refuses_what_it_could_rea
     assert _node([["quoteArg", ["sh", t]] for t in texts]) == [shlex.quote(t) for t in texts]
     refused = ["a&b", "50%", "a|b", "a<b", "a>b", "a^b", "a!b", "(a)", "a\\b", "a\nb", "ü", "$(id)"]
     assert _node([["quoteArg", ["cmd", t]] for t in refused]) == [None] * len(refused)
+    assert _node([["quoteArg", ["cmd", "--repo=-x/y"]]]) == ['"--repo=-x/y"']
     assert _node([["quoteArg", ["cmd", t]] for t in ["--preset", "owner/name", '{"a":[1,"b"]}']]) == ["--preset", "owner/name", '"{\\"a\\":[1,\\"b\\"]}"']
 
 
@@ -453,8 +454,9 @@ def _form_cases() -> list[tuple]:
                  {"buckets": {kept: ["llm", "rag-2"]}}, {"rising": {**base["rising"], "enabled": False, "created_within_days": 45}}]
         for edit in edits:
             v = {**base, **edit}
-            for dry, one in itertools.product((True, False), ("", "owner/some.repo-1")):
-                cases.append((v, name, dry, one, kept if one else ""))
+            for dry, one in itertools.product((True, False), ("", "owner/some.repo-1", "-x/y")):
+                for bucket in ((kept, "") if one else ("",)):                       # a single repository with and without a chosen bucket
+                    cases.append((v, name, dry, one, bucket))
     return cases
 
 
@@ -478,6 +480,7 @@ def test_the_command_runs_the_same_scan_as_the_form_in_both_shells(monkeypatch):
         assert getattr(seen["args"], "preset") == (name or None)
         if one:
             assert (seen["args"].repo, seen["args"].bucket or "", seen["args"].dry_run) == (one, bucket, dry)
+            assert (seen["args"].bucket is None) == (bucket == "") and ("--bucket" in argv) == (bucket != "")      # no bucket chosen: the runner guesses it
         elif seen["cmd"] == "run":
             assert (seen["args"].repo, seen["args"].dry_run) == (None, False)
 
