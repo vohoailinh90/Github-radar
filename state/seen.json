@@ -68,5 +68,10 @@
     "bucket": "solutions",
     "covered": "2026-10-13",
     "stars": 97646
+  },
+  "stablyai/orca": {
+    "bucket": "ai",
+    "covered": "2026-10-17",
+    "stars": 94489
   }
 }
