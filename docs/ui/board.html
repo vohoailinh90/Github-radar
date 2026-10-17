@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Ctokmhic87eya8EcwC5JO0WxzR21qQKUsfuy3B3uhMY='; style-src 'sha256-tHAViINb2TcxcJZfVDGvuSxypJQ1v1lCJ2Tvm4W3hck='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Hu7nSiuNq8qQTVRxXDp0RKoZp+X0y+eKHPDb6g/zmLs='; style-src 'sha256-hWdEADeE1TjiOO5MIHeTHo76DCXM/DSUEYWQIwWoMFE='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: bảng theo dõi repo</title>
 <style>
 /* Four looks (Neon, Classic, Aurora, Candy) x light or dark. The page sets data-theme and data-eff (the mode in force) on <html>; everything below reads variables only. */
 :root { --radius: 12px; --crit: #facc15; --bad: #ef4444; --on-accent: #04141b;
   --s-needs: #f59e0b; --s-running: #3b82f6; --s-review: #d946ef; --s-under: #818cf8; --s-ready: #22c55e; --s-blocked: #64748b; --s-done: #94a3b8; }
-html[data-eff="dark"] { color-scheme: dark; --bg: #060a10; --bg2: #0a1220; --card: #0d141d; --card2: #121c28; --ink: #e8f1f8; --muted: #93a6b8; --line: rgba(255,255,255,.11); --line2: rgba(255,255,255,.26); }
-html[data-eff="light"] { color-scheme: light; --bg: #f3f5f9; --bg2: #e8edf5; --card: #ffffff; --card2: #f5f7fb; --ink: #0f1724; --muted: #546174; --line: rgba(15,23,36,.14); --line2: rgba(15,23,36,.34); --on-accent: #ffffff; --s-blocked: #6b7a8d; --s-done: #5f6f83; --crit: #b45309; }
+html[data-eff="dark"] { color-scheme: dark; --chip-mix: 70%; --bg: #060a10; --bg2: #0a1220; --card: #0d141d; --card2: #121c28; --ink: #e8f1f8; --muted: #93a6b8; --line: rgba(255,255,255,.11); --line2: rgba(255,255,255,.26); }
+html[data-eff="light"] { color-scheme: light; --chip-mix: 50%; --bg: #f3f5f9; --bg2: #e8edf5; --card: #ffffff; --card2: #f5f7fb; --ink: #0f1724; --muted: #546174; --line: rgba(15,23,36,.14); --line2: rgba(15,23,36,.34); --on-accent: #ffffff; --s-blocked: #6b7a8d; --s-done: #5f6f83; --crit: #b45309; }
 html[data-theme="neon"] { --accent: #22d3ee; --accent2: #e879f9; --glow: rgba(34,211,238,.17); --radius: 12px; }
 html[data-theme="neon"][data-eff="light"] { --accent: #0e7490; --accent2: #a21caf; --glow: rgba(14,116,144,.09); }
 html[data-theme="classic"] { --accent: #7c9cf8; --accent2: #a78bfa; --glow: transparent; --radius: 8px; }
@@ -135,7 +135,7 @@ details.io { margin-top: 10px; } details.io summary { cursor: pointer; font-size
 .flow, .fbox, .rows li, .oa { position: relative; }       /* the screen-reader text is absolutely placed: without a box of its own to sit in it escapes the scroll area and widens the page */
 .fbox { flex: none; min-width: 124px; max-width: 200px; border: 1.5px solid var(--tone); background: color-mix(in oklab, var(--tone) 13%, var(--card)); border-radius: 12px; padding: 8px 12px; }
 .fbox .t { font-weight: 700; display: flex; gap: 6px; align-items: baseline; overflow-wrap: anywhere; }
-.fbox .t .g { color: var(--tone); }
+.fbox .t .g { color: color-mix(in oklab, var(--tone) var(--chip-mix), var(--ink)); }
 .fbox .l { color: var(--muted); font-size: 13px; line-height: 1.35; }
 .fbox.st-queued, .fbox.st-skipped { border-style: dashed; background: transparent; }
 .fbox.st-running .g { animation: pulse 1.3s ease-in-out infinite; }
@@ -146,7 +146,7 @@ details.io { margin-top: 10px; } details.io summary { cursor: pointer; font-size
 .rows summary b { font-weight: 700; } .rows .stat { color: var(--muted); font-size: 14px; }
 .rows ol { list-style: none; margin: 0 0 8px; padding: 0 0 0 14px; display: grid; gap: 2px; }
 .rows li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted); }
-.rows li .glyph { color: var(--tone); font-weight: 700; margin-right: 6px; }
+.rows li .glyph { color: color-mix(in oklab, var(--tone) var(--chip-mix), var(--ink)); font-weight: 700; margin-right: 6px; }
 .rows .total { display: flex; justify-content: space-between; padding: 8px 2px; font-weight: 700; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13.5px; color: var(--muted); margin-top: 6px; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; }
@@ -166,10 +166,10 @@ details.io { margin-top: 10px; } details.io summary { cursor: pointer; font-size
 .node .top1 { display: flex; align-items: baseline; gap: 8px; }
 .node .code { font: 700 13.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .node .sub1 { color: var(--muted); font-size: 12.5px; }
-.node .chipst { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font: 700 11.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .05em; text-transform: uppercase; color: var(--tone); white-space: nowrap; }
+.node .chipst { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font: 700 11.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .05em; text-transform: uppercase; color: color-mix(in oklab, var(--tone) var(--chip-mix), var(--ink)); white-space: nowrap; }
 .node .title { overflow-wrap: anywhere; font-size: 14.5px; }
 .node .sub2 { color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
-.node.compact { padding: 4px 10px 4px 12px; opacity: .6; } .node.compact .title, .node.compact .sub2 { display: none; }
+.node.compact { padding: 4px 10px 4px 12px; opacity: .9; } .node.compact .title, .node.compact .sub2 { display: none; }
 .node.dim { opacity: .28; }
 .node.focus { border: 2px solid var(--ink); border-left: 4px solid var(--tone); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 30%, transparent); }
 .node.chain { border-style: dashed; border-color: var(--line2); }
@@ -297,7 +297,7 @@ progress::-webkit-progress-bar { background: var(--card2); } progress::-webkit-p
       <div id="waves" class="waves"><div id="wavegrid" class="wavegrid"></div></div>
       <p id="board-detail" class="small detail" role="status"></p>
     </div>
-    <p class="muted small">Đường nối chỉ vẽ khi dữ liệu có thật: kích hoạt (cron, chạy tay, sự kiện) → workflow → lượt chạy → PR cùng nhánh. Bấm một thẻ để sáng cả chuỗi của nó.</p>
+    <p class="muted small">Đường nối chỉ vẽ khi dữ liệu có thật: kích hoạt → workflow → lượt chạy → PR cùng nhánh. Cron lấy từ file workflow; kích hoạt theo sự kiện chỉ là sự kiện đã thấy ở các lượt chạy gần đây, chưa phải mọi sự kiện file khai báo. Bấm một thẻ để sáng cả chuỗi của nó.</p>
   </section>
 
   <section id="view-repos" role="tabpanel" aria-labelledby="tab-repos" hidden>
@@ -540,7 +540,7 @@ function normWorkflow(w) {
 }
 function normRun(r) {
   if (!r || !Number.isInteger(r.id)) return null;
-  return { id: r.id, wfId: Number.isInteger(r.workflow_id) ? r.workflow_id : null, number: whole(r.run_number), attempt: whole(r.run_attempt), status: clip(r.status, 30),
+  return { id: r.id, wfId: Number.isInteger(r.workflow_id) ? r.workflow_id : null, number: whole(r.run_number), attempt: whole(r.run_attempt), headRepo: clip(r.head_repository && r.head_repository.full_name, 140), status: clip(r.status, 30),
            conclusion: r.conclusion == null ? null : clip(r.conclusion, 30), event: clip(r.event, 30), branch: clip(r.head_branch, 80),
            actor: clip(r.actor && r.actor.login, 60), createdAt: r.created_at || null, startedAt: r.run_started_at || r.created_at || null, updatedAt: r.updated_at || null };
 }
@@ -556,7 +556,7 @@ function normJob(j) {
 function normPull(p) {
   if (!p || !Number.isInteger(p.number)) return null;
   return { number: p.number, title: clip(p.title, 140), draft: !!p.draft, user: clip(p.user && p.user.login, 60), userType: p.user && p.user.type === "Bot" ? "Bot" : "User",
-           branch: clip(p.head && p.head.ref, 80), updatedAt: p.updated_at || null, createdAt: p.created_at || null };
+           branch: clip(p.head && p.head.ref, 80), headRepo: clip(p.head && p.head.repo && p.head.repo.full_name, 140), updatedAt: p.updated_at || null, createdAt: p.created_at || null };
 }
 
 // ---- states: every one has a word and a glyph as well as a colour ----
@@ -597,9 +597,18 @@ function runProgress(jobs) {
   return { jobs: list.length, jobsDone, stepsTotal, stepsDone, value, max, partial };
 }
 function lastDone(runs) { return (runs || []).find((r) => r.status === "completed") || null; }
-function isFailing(wf) { const r = lastDone(wf.runs); return !!r && runState(r).tone === "failed"; }
-function orderWorkflows(workflows) {
-  const rank = (w) => ((w.runs || []).some((r) => runState(r).active) ? 0 : isFailing(w) ? 1 : 2);
+const STALE_FAILURE_MS = 14 * 86400000;
+// A failure that nothing has followed for two weeks is not urgent any more: a repository that went quiet would otherwise look on fire for ever.
+// No clock given (or no time on the run) means the failure is taken as fresh.
+function isStale(run, nowMs) {
+  if (nowMs === undefined || nowMs === null) return false;
+  const t = isoMs(run && (run.updatedAt || run.startedAt));
+  return t !== null && nowMs - t > STALE_FAILURE_MS;
+}
+function isFailing(wf, nowMs) { const r = lastDone(wf.runs); return !!r && runState(r).tone === "failed" && !isStale(r, nowMs); }
+function isStaleFailing(wf, nowMs) { const r = lastDone(wf.runs); return !!r && runState(r).tone === "failed" && isStale(r, nowMs); }
+function orderWorkflows(workflows, nowMs) {
+  const rank = (w) => ((w.runs || []).some((r) => runState(r).active) ? 0 : isFailing(w, nowMs) ? 1 : 2);
   return workflows.slice().sort((a, b) => rank(a) - rank(b) || String(a.name).localeCompare(String(b.name)));
 }
 function sparkHistory(runs, n) {
@@ -609,10 +618,11 @@ function sparkHistory(runs, n) {
   const text = cells.length ? cells.length + " lượt gần nhất: " + [...counts].map(([label, k]) => k + " " + label.toLowerCase()).join(", ") : "Chưa có lượt chạy";
   return { cells, text };
 }
-function repoHealth(m) {
+function repoHealth(m, nowMs) {
   if (!m || !m.ok) return { tone: "neutral", label: "Không đọc được" };
   const wfs = m.workflows || [];
-  if (wfs.some(isFailing)) return { tone: "failed", label: "Có lỗi" };
+  if (wfs.some((w) => isFailing(w, nowMs))) return { tone: "failed", label: "Có lỗi" };
+  if (wfs.some((w) => isStaleFailing(w, nowMs))) return { tone: "neutral", label: "Lỗi cũ" };
   if (wfs.some((w) => lastDone(w.runs))) return { tone: "success", label: "Ổn" };
   return { tone: "neutral", label: wfs.length ? "Chưa có lượt chạy" : "Chưa có workflow" };
 }
@@ -805,7 +815,7 @@ function summarize(models, nowMs) {
     let failing = false;
     for (const wf of m.workflows || []) {
       for (const r of wf.runs || []) { const st = runState(r); if (st.key === "running") out.running++; else if (st.active) out.queued++; }
-      if (isFailing(wf)) failing = true;
+      if (isFailing(wf, nowMs)) failing = true;
     }
     if (failing) out.failing++;
     out.prs += (m.pulls || []).length;
@@ -855,21 +865,29 @@ const WAVE_NAMES = ["Kích hoạt", "Workflow", "Lượt chạy", "PR / nhánh"]
 const EVENT_WORD = { push: "Push", pull_request: "Pull request", pull_request_target: "Pull request", schedule: "Lịch (cron)", workflow_dispatch: "Chạy tay", workflow_run: "Workflow khác",
                      release: "Release", issues: "Issue", issue_comment: "Bình luận", repository_dispatch: "API", merge_group: "Hàng đợi merge", create: "Tạo nhánh", delete: "Xóa nhánh" };
 
-function runStatus(x) {
+function runStatus(x, nowMs) {
   switch (runState(x).key) {
     case "running": return "running";
     case "queued": return "under";
-    case "waiting": case "action_required": case "failure": case "timed_out": case "startup_failure": return "needs";
+    case "waiting": case "action_required": return "needs";
+    case "failure": case "timed_out": case "startup_failure": return isStale(x, nowMs) ? "blocked" : "needs";
     case "success": case "skipped": case "neutral": return "done";
     default: return "blocked";                                           // cancelled, stale, or a state this page does not know
   }
 }
-function workflowStatus(wf) {
+function workflowStatus(wf, nowMs) {
   if (wf.state && wf.state !== "active") return "blocked";
-  const runs = wf.runs || [], live = runs.filter((r) => runState(r).active).map(runStatus);
+  const runs = wf.runs || [], live = runs.filter((r) => runState(r).active).map((r) => runStatus(r, nowMs));
   for (const s of ["needs", "running", "under"]) if (live.includes(s)) return s;
   const done = lastDone(runs);
-  return done ? runStatus(done) : "ready";
+  return done ? runStatus(done, nowMs) : "ready";
+}
+function eventWord(ev) { return Object.prototype.hasOwnProperty.call(EVENT_WORD, ev) ? EVENT_WORD[ev] : String(ev); }
+// The open pull request whose branch this run is on, in the same repository: a fork's branch that happens to have the same name is another thing.
+function linkedPull(m, run) {
+  if (!run || !run.branch || (m.info && run.branch === m.info.defaultBranch)) return null;
+  const where = run.headRepo || m.repo;
+  return (m.pulls || []).find((p) => p.branch === run.branch && p.headRepo && sameRepo(p.headRepo, where)) || null;
 }
 function prStatus(pr) { return pr.draft ? "under" : "review"; }
 function codeOf(path) { const m = /([^/]+?)\.ya?ml$/i.exec(String(path == null ? "" : path)); return clip(m ? m[1].toUpperCase() : "WF", 14); }
@@ -883,7 +901,7 @@ function boardModel(models, nowMs) {
   const link = (a, b) => { const k = a.id + ">" + b.id; if (!seen.has(k)) { seen.add(k); edges.push({ from: a.id, to: b.id, crit: false }); } };
   for (const m of models) {
     if (!m || !m.ok) continue;
-    const short = clip(String(m.repo).split("/")[1], 16), branchOfDefault = m.info ? m.info.defaultBranch : "";
+    const short = clip(String(m.repo).split("/")[1], 16);
     const prNodes = [];
     for (const pr of (m.pulls || []).slice(0, 12)) {
       const agent = agentKind(pr.branch) || agentKind(pr.user) || (pr.userType === "Bot" ? "bot" : null);
@@ -892,7 +910,7 @@ function boardModel(models, nowMs) {
     }
     for (const wf of m.workflows || []) {
       const off = !!wf.state && wf.state !== "active", crons = wf.crons || [];
-      const status = workflowStatus(wf);
+      const status = workflowStatus(wf, nowMs);
       const wfNode = add({ id: "w|" + m.repo + "|" + wf.id, wave: 1, kind: "workflow", repo: m.repo, short, code: codeOf(wf.path), title: wf.name, sub: off ? "đang tắt" : "", status, chip: STATUS_WORD[status],
                            ref: { path: wf.path } });
       const trig = (id, kind, title, sub, extra) => link(add(Object.assign({ id: "t|" + m.repo + "|" + id, wave: 0, kind, repo: m.repo, short, code: kind === "cron" ? "CRON" : kind === "manual" ? "TAY" : "SỰ KIỆN", title, sub,
@@ -902,14 +920,15 @@ function boardModel(models, nowMs) {
       if (wf.dispatch || events.has("workflow_dispatch")) trig("manual", "manual", "Chạy tay", "workflow_dispatch");
       for (const ev of events) {
         if (ev === "workflow_dispatch" || (ev === "schedule" && crons.length)) continue;
-        trig("event|" + ev, "event", EVENT_WORD[ev] || ev, ev);
+        trig("event|" + ev, "event", eventWord(ev), ev);
       }
       for (const run of runsWorthANode(wf)) {
-        const st = runState(run), rs = runStatus(run);
+        const st = runState(run), rs = runStatus(run, nowMs);
         const rn = add({ id: "r|" + m.repo + "|" + run.id, wave: 2, kind: "run", repo: m.repo, short, code: "#" + run.number, title: wf.name, sub: [run.branch, run.actor].filter(Boolean).join(" · "),
-                         status: rs, chip: st.label, branch: run.branch, when: isoMs(run.updatedAt || run.startedAt), attempt: run.attempt, ref: { run: run.id } });
+                         status: rs, chip: rs === "blocked" && st.tone === "failed" ? st.label + " (cũ)" : st.label, branch: run.branch, when: isoMs(run.updatedAt || run.startedAt), attempt: run.attempt, ref: { run: run.id } });
         link(wfNode, rn);
-        if (run.branch && run.branch !== branchOfDefault) for (const p of prNodes) if (p.branch === run.branch) link(rn, p);
+        const pr = linkedPull(m, run), prNode = pr ? prNodes.find((n) => n.ref.pr === pr.number) : null;
+        if (prNode) link(rn, prNode);
       }
     }
   }
@@ -964,12 +983,13 @@ function seconds(a, b) { const x = isoMs(a), y = isoMs(b); return x !== null && 
 // A job that starts while the jobs of the current stage are still running, or before all of them have ended, belongs to that stage; one that starts after
 // they all ended begins the next. Jobs with no start time yet wait in a last stage. This is read from the clock, not from `needs`.
 function inferStages(jobs) {
+  const unstarted = (j) => isoMs(j.startedAt) === null || ["queued", "pending", "requested"].includes(j.status);     // whatever its start time says, it is not running yet
   const list = (Array.isArray(jobs) ? jobs : []).slice().sort((a, b) => (isoMs(a.startedAt) === null) - (isoMs(b.startedAt) === null) || (isoMs(a.startedAt) || 0) - (isoMs(b.startedAt) || 0) || a.id - b.id);
   const stages = [], waiting = [];
   let end = -Infinity;
   for (const j of list) {
     const s = isoMs(j.startedAt);
-    if (s === null) { waiting.push(j); continue; }
+    if (unstarted(j)) { waiting.push(j); continue; }
     const e = isoMs(j.completedAt);
     if (!stages.length || s >= end) { stages.push([j]); end = e === null ? Infinity : e; }
     else { stages[stages.length - 1].push(j); end = e === null || end === Infinity ? Infinity : Math.max(end, e); }
@@ -989,7 +1009,7 @@ function jobLines(job, nowMs) {
 }
 function flowOf(run, jobs, pr, nowMs) {
   const rs = boxState(run), cols = [];
-  const start = { title: "Bắt đầu", state: "done", glyph: BOX_GLYPH.done, lines: [EVENT_WORD[run.event] || run.event || "", run.branch, run.actor].filter(Boolean) };
+  const start = { title: "Bắt đầu", state: "done", glyph: BOX_GLYPH.done, lines: [run.event ? eventWord(run.event) : "", run.branch, run.actor].filter(Boolean) };
   cols.push({ boxes: [start] });
   const stages = inferStages(jobs);
   let gate = false;
@@ -999,7 +1019,7 @@ function flowOf(run, jobs, pr, nowMs) {
   }
   const finished = !runState(run).active;
   const endState = finished ? rs : "queued";
-  cols.push({ boxes: [pr ? { title: "PR #" + pr.number, state: endState, glyph: BOX_GLYPH[endState], lines: [pr.draft ? "nháp" : "chờ soát", clip(pr.title, 28)] }
+  cols.push({ boxes: [pr ? { title: "PR #" + pr.number, state: endState, glyph: BOX_GLYPH[endState], lines: [pr.draft ? "nháp" : "chờ soát", clip(pr.title, 28), ...(finished ? ["lượt chạy: " + runState(run).label.toLowerCase()] : [])] }
                          : { title: "Kết quả", state: endState, glyph: BOX_GLYPH[endState], lines: [finished ? runState(run).label : "chưa xong"] }] });
   const list = Array.isArray(jobs) ? jobs : [];
   const p = runProgress(list);
@@ -1011,7 +1031,7 @@ function jobRows(job) {
 }
 
 // ---- what needs the person, and what is ready to start ----
-function inboxItems(models) {
+function inboxItems(models, nowMs) {
   const out = [];
   for (const m of models) {
     if (!m) continue;
@@ -1020,7 +1040,7 @@ function inboxItems(models) {
       if (wf.state && wf.state !== "active") continue;
       for (const r of wf.runs || []) if (runState(r).key === "waiting") out.push({ type: "approval", repo: m.repo, title: wf.name + " #" + r.number, why: "Chờ bạn duyệt", when: isoMs(r.updatedAt || r.startedAt), status: "needs", ref: { run: r.id } });
       const done = lastDone(wf.runs);
-      if (done && runStatus(done) === "needs") {
+      if (done && runStatus(done, nowMs) === "needs") {
         const st = runState(done);
         out.push({ type: st.key === "action_required" ? "action" : "failed", repo: m.repo, title: wf.name + " #" + done.number, why: st.key === "action_required" ? "Cần xử lý" : "Lượt chạy gần nhất: " + st.label.toLowerCase(),
                    when: isoMs(done.updatedAt || done.startedAt), status: "needs", ref: { run: done.id } });
@@ -1066,7 +1086,7 @@ function buildDemo(spec, nowMs) {
       const runs = [];
       const make = (n, status, conclusion, event, branch, actor, agoSec, dur, attempt) => {
         const id = w.id * 1000 + n;
-        runs.push({ id, wfId: w.id, number: n, status, conclusion, event, branch, actor, attempt: attempt || 1, createdAt: iso(agoSec), startedAt: iso(agoSec), updatedAt: iso(agoSec - (dur || 0)) });
+        runs.push({ id, wfId: w.id, number: n, status, conclusion, event, branch, actor, attempt: attempt || 1, headRepo: r.repo, createdAt: iso(agoSec), startedAt: iso(agoSec), updatedAt: iso(agoSec - (dur || 0)) });
         return id;
       };
       for (const e of w.runs) {
@@ -1094,7 +1114,7 @@ function buildDemo(spec, nowMs) {
       repo: r.repo, ok: true, loadedAt: nowMs, warnings: [],
       info: { description: r.info.description, stars: r.info.stars, private: r.info.private, archived: false, pushedAt: iso(r.info.pushedAgo), openIssues: r.info.openIssues, defaultBranch: "main" },
       workflows, active, jobs: jobsByRun,
-      pulls: r.pulls.map((p) => ({ number: p.n, title: p.title, draft: p.draft, user: p.user, userType: p.type, branch: p.branch, updatedAt: iso(p.ago), createdAt: iso(p.ago) })),
+      pulls: r.pulls.map((p) => ({ number: p.n, title: p.title, draft: p.draft, user: p.user, userType: p.type, branch: p.branch, headRepo: r.repo, updatedAt: iso(p.ago), createdAt: iso(p.ago) })),
       agentFiles: r.agentFiles,
     });
   }
@@ -1142,8 +1162,8 @@ function loadStore() {
   return { repos: DEFAULT_REPOS.slice(), interval: 60, theme: "neon", mode: "auto" };
 }
 function saveStore() {
-  if (state.demo) return;
-  try { window.localStorage.setItem(STORE_KEY, JSON.stringify({ repos: state.repos, interval: state.interval, theme: state.theme, mode: state.mode })); }
+  const repos = state.demo ? (state.saved ? state.saved.repos : []) : state.repos;          // the made-up names of the demo are never stored
+  try { window.localStorage.setItem(STORE_KEY, JSON.stringify({ repos, interval: state.interval, theme: state.theme, mode: state.mode })); }
   catch (e) { say("link-msg", "Trình duyệt không cho lưu danh sách: nó chỉ giữ đến khi bạn đóng trang.", "warn"); }
 }
 
@@ -1324,12 +1344,11 @@ function legendView() {
   return h("div", { class: "legend" }, [["st-done", "xong"], ["st-running", "đang chạy"], ["st-waiting", "chờ bạn"], ["st-failed", "dừng vì lỗi"], ["st-queued", "chưa bắt đầu"]]
     .map(([cls, word]) => h("span", { class: cls }, h("i", { class: "dot" + (cls === "st-queued" ? " ring" : ""), "aria-hidden": "true" }), word)));
 }
-function prFor(model, run) { return (model.pulls || []).find((p) => p.branch && p.branch === run.branch && run.branch !== model.info.defaultBranch) || null; }
 function pipelineBody(model, run) {
   const jobs = jobsOf(model, run);
   if (jobs === undefined) return [h("p", { class: "muted small", text: "Đang đọc các bước…" })];
   if (jobs === null) return [h("p", { class: "muted small", text: "Chưa đọc được các bước (GitHub không trả lời hoặc token thiếu quyền Actions)." })];
-  const flow = flowOf(run, jobs, prFor(model, run), Date.now()), p = runProgress(jobs);
+  const flow = flowOf(run, jobs, linkedPull(model, run), Date.now()), p = runProgress(jobs);
   return [
     p.max && runState(run).active ? h("div", { class: "prog" }, h("progress", { value: p.value, max: p.max, "aria-label": "Tiến độ " + model.repo + " lượt " + run.number }),
       h("span", { class: "small", text: (p.stepsTotal ? p.stepsDone + "/" + p.stepsTotal + " bước · " : "") + p.jobsDone + "/" + p.jobs + " job" + (p.partial ? " (ước lượng: có job chưa bắt đầu)" : "") })) : null,
@@ -1358,10 +1377,10 @@ function renderHome(all) {
   const body = items.length ? items.map(({ m, a }) => pipelinePanel(m, a.wf, a.run)) : [h("p", { class: "empty", text: state.repos.length ? (all.length ? "Không có task nào đang chạy hoặc đang chờ." : "Đang tải…") : "Chưa liên kết repo nào. Thêm một repo ở Cài đặt." })];
   if (extra > 0) body.push(h("p", { class: "muted small", text: "Còn " + extra + " task nữa không hiện ở đây (mỗi repo hiện tối đa 4)." }));
   $("home-runs").replaceChildren(...body);
-  const ready = readyNow(all), plan = weekPlan(all, Date.now(), 1).items.slice(0, 3), need = inboxItems(all);
+  const ready = readyNow(all), plan = weekPlan(all, Date.now(), 1).items.slice(0, 3), need = inboxItems(all, Date.now());
   $("ready-count").textContent = String(ready.length);
   $("ready-now").replaceChildren(...(ready.length || plan.length ? [
-    ...ready.slice(0, 6).map((r) => h("li", null, h("b", { class: "mono", text: r.code }), extLink(workflowUrl(r.repo, r.path), r.title), h("small", { text: r.repo + " · chạy tay được" }))),
+    ...ready.slice(0, 6).map((r) => h("li", null, h("b", { class: "mono", text: r.code }), extLink(workflowUrl(r.repo, r.path), r.title), h("small", { text: r.repo + " · khai báo chạy tay (quyền chưa kiểm)" }))),
     ...plan.map((p) => h("li", null, h("b", { class: "mono", text: clockText(p.ms) }), p.wf, h("small", { text: p.repo + " · theo lịch " + ago((Date.now() - p.ms) / 1000) })))] : [h("li", { class: "muted small", text: "Chưa có workflow nào sẵn sàng." })]));
   $("needs-count").textContent = String(need.length);
   $("needs-you").replaceChildren(...(need.length ? need.slice(0, 6).map(inboxLine) : [h("li", { class: "muted small", text: "Không có gì chờ bạn." })]));
@@ -1399,7 +1418,7 @@ function renderBoard(all) {
   const columns = state.group === "flow" ? WAVE_NAMES.map((name, i) => ({ name, nodes: view.nodes.filter((n) => n.wave === i), progress: waveProgress(view.nodes, i) }))
     : [...new Set(view.nodes.map((n) => n.repo))].map((repo) => { const list = view.nodes.filter((n) => n.repo === repo); return { name: repo, nodes: list, progress: { total: list.length, done: list.filter((n) => n.status === "done").length } }; });
   $("wavegrid").replaceChildren(...(columns.length ? columns.map((c, i) => h("section", { class: "wave", "aria-label": c.name },
-    h("h3", null, state.group === "flow" ? "Wave " + i + " · " + c.name : c.name, h("span", { text: c.progress.done + "/" + c.progress.total })),
+    h("h3", null, state.group === "flow" ? "Wave " + i + " · " + c.name : c.name, h("span", { text: state.group === "flow" && i === 0 ? String(c.progress.total) : c.progress.done + "/" + c.progress.total })),
     c.nodes.map((n) => nodeButton(n, focus, state.chain, f.rest === "collapse" && (n.status === "done" || n.status === "blocked"))))) : [h("p", { class: "empty", text: "Không có mục nào khớp bộ lọc." })]));
   for (const b of $("wavegrid").querySelectorAll("button.node")) b.addEventListener("click", () => { state.focus = state.focus === b.dataset.id ? null : b.dataset.id; render(); });
   const picked = focus ? view.nodes.find((n) => n.id === focus) : null;
@@ -1472,8 +1491,8 @@ function repoCard(repo) {
     card = h("article", { class: "panel repo" }, h("header", null, h("h3", { text: repo }), h("span", { class: "sp" }), remove), h("p", { class: "bad", role: "alert", text: m.error }),
       state.demo ? null : h("button", { type: "button", "data-retry": repo, text: "Thử lại" }));
   } else {
-    const health = repoHealth(m), running = m.workflows.reduce((n, w) => n + w.runs.filter((r) => runState(r).key === "running").length, 0);
-    const issues = Math.max(0, m.info.openIssues - m.pulls.length), wfs = orderWorkflows(m.workflows);
+    const now = Date.now(), health = repoHealth(m, now), running = m.workflows.reduce((n, w) => n + w.runs.filter((r) => runState(r).key === "running").length, 0);
+    const issues = Math.max(0, m.info.openIssues - m.pulls.length), wfs = orderWorkflows(m.workflows, now);
     card = h("article", { class: "panel repo" },
       h("header", null, h("h3", null, extLink(gh(repo, ""), repo)), m.info.private ? h("span", { class: "kind", text: "private" }) : null, m.info.archived ? h("span", { class: "kind", text: "archived" }) : null,
         h("span", { class: "sp" }), remove),
@@ -1497,7 +1516,7 @@ function renderRepos() {
 
 // ---- Inbox and Health ----
 function renderInbox(all) {
-  const items = inboxItems(all);
+  const items = inboxItems(all, Date.now());
   $("inbox-list").replaceChildren(...(items.length ? items.map((it) => h("li", { class: "s-" + it.status }, h("span", { class: "badge s-" + it.status }, h("i", { class: "dot", "aria-hidden": "true" }),
     { error: "Không đọc được", approval: "Chờ duyệt", action: "Cần xử lý", failed: "Lỗi", review: "Chờ soát" }[it.type]),
     h("b", null, it.ref && it.ref.run ? extLink(gh(it.repo, "/actions/runs/" + it.ref.run), it.title) : it.ref && it.ref.pr ? extLink(gh(it.repo, "/pull/" + it.ref.pr), it.title) : h("span", { text: it.title })),
@@ -1509,7 +1528,7 @@ function renderHealth(all) {
     const m = state.models.get(keyOf(repo));
     if (!m) return h("div", { class: "healthrow" }, h("b", { text: repo }), h("span", { class: "muted", text: "Đang tải…" }));
     if (!m.ok) return h("div", { class: "healthrow" }, h("b", { text: repo }), badge({ tone: "neutral", label: "Không đọc được", key: "" }), h("span", { class: "bad small", text: m.error }));
-    const health = repoHealth(m), failing = m.workflows.filter(isFailing).length;
+    const now = Date.now(), health = repoHealth(m, now), failing = m.workflows.filter((w) => isFailing(w, now)).length;
     return h("div", { class: "healthrow" }, h("b", { text: repo }), badge({ tone: health.tone, label: health.label, key: "" }),
       h("span", { text: m.workflows.length + " workflow" + (failing ? ", " + failing + " lỗi" : "") }), h("span", { class: "muted small", text: "đọc lúc " + clockText(m.loadedAt) + (m.warnings && m.warnings.length ? " · " + m.warnings.length + " cảnh báo" : "") }));
   }) : [h("p", { class: "empty", text: "Chưa liên kết repo nào." })]));
@@ -1534,7 +1553,7 @@ function toggleThemePanel(open) {
 }
 function render() {
   keepFocus(() => {
-    const all = models(), inbox = inboxItems(all).length;
+    const all = models(), inbox = inboxItems(all, Date.now()).length;
     renderChips(); renderLive();
     $("inbox-count").textContent = String(inbox); $("inbox-count").hidden = inbox === 0;
     switch (state.view) {

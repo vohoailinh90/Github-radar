@@ -31,7 +31,8 @@ def _demo() -> dict:
 FUNCTIONS = ("parseRepo, parseRepoList, sameRepo, safeWorkflowPath, clip, normInfo, normWorkflow, normRun, normJob, normPull, runState, stepState, stepCounts, "
              "runProgress, lastDone, isFailing, orderWorkflows, sparkHistory, repoHealth, agentKind, agentActivity, parseCron, occurrences, nextOccurrence, "
              "describeCron, extractCrons, hasDispatch, lowOnQuota, ago, fmtDuration, weekPlan, countScheduled, summarize, readOffice, buildDemo, demoOffice, "
-             "runStatus, workflowStatus, prStatus, codeOf, runsWorthANode, boardModel, filterBoard, chainOf, waveProgress, boxState, seconds, inferStages, flowOf, jobRows, inboxItems, readyNow, demoSteps")
+             "runStatus, workflowStatus, prStatus, codeOf, runsWorthANode, boardModel, filterBoard, chainOf, waveProgress, boxState, seconds, inferStages, flowOf, jobRows, inboxItems, readyNow, demoSteps, "
+             "isStale, isStaleFailing, linkedPull, eventWord")
 
 
 def _node(cases: list) -> list:
@@ -112,7 +113,8 @@ def test_only_the_list_of_names_is_stored_never_the_token():
     script = re.search(r"<script>(.*?)</script>", HTML, re.S).group(1)
     assert script.count("localStorage") == 2 and script.count('"radar-board.v1"') == 1
     save = script.split("function saveStore()", 1)[1].split("\n}", 1)[0]
-    assert "token" not in save and "JSON.stringify({ repos: state.repos, interval: state.interval, theme: state.theme, mode: state.mode })" in save
+    assert "token" not in save and "JSON.stringify({ repos, interval: state.interval, theme: state.theme, mode: state.mode })" in save
+    assert "const repos = state.demo ? (state.saved ? state.saved.repos : []) : state.repos;" in save          # the demo's made-up names never replace the real list
 
 
 def test_every_link_is_built_from_a_checked_name_and_a_whole_number():
@@ -721,3 +723,63 @@ def test_ready_now_is_what_can_be_started_by_hand_and_is_not_already_going():
     ready = _one("readyNow", _one("buildDemo", _demo(), NOW))
     assert [(r["repo"], r["title"]) for r in ready] == [("demo/docs-site", "Deploy docs"), ("demo/web-app", "Nightly E2E")]       # CI, Train model and Deploy production are already going
     assert all(r["code"] and r["path"] for r in ready) and _one("readyNow", [None, {"ok": False}]) == []
+
+
+# ---- forks, old failures and queued jobs: what an independent review found ---------------------------------------------------------
+
+def test_a_run_belongs_to_a_pull_request_only_when_both_come_from_the_same_repository():
+    pr = lambda head, branch="fix": {"number": 7, "title": "t", "branch": branch, "headRepo": head, "user": "u", "userType": "User", "draft": False}      # noqa: E731
+    run = lambda branch="fix", head="o/r": {"id": 1, "branch": branch, "headRepo": head}                                                                    # noqa: E731
+    m = lambda *pulls: _model(repo="o/r", info={"defaultBranch": "main"}, pulls=list(pulls))                                                                # noqa: E731
+    got = _node([["linkedPull", [m(pr("o/r")), run()]],                         # same repository, same branch: linked
+                 ["linkedPull", [m(pr("someone/r")), run()]],                   # a fork's branch that happens to be called "fix" is another thing
+                 ["linkedPull", [m(pr("someone/r")), run(head="someone/r")]],   # a run of the fork itself belongs to the fork's pull request
+                 ["linkedPull", [m(pr("O/R")), run()]],                         # names are not case sensitive on GitHub
+                 ["linkedPull", [m(pr("o/r", "main")), run("main")]],           # the default branch is nobody's pull request
+                 ["linkedPull", [m(pr(None)), run()]],                          # a pull request that does not say where it comes from is not guessed
+                 ["linkedPull", [m(pr("o/r")), {"id": 2, "branch": "fix"}]],    # a run that does not say is taken as the repository's own
+                 ["linkedPull", [m(pr("o/r")), None]], ["linkedPull", [m(pr("o/r")), run("")]]])
+    assert [g and g["number"] for g in got] == [7, None, 7, 7, None, None, 7, None, None]
+    board = _board([_model(repo="o/r", info={"defaultBranch": "main"}, pulls=[pr("someone/r")],
+                           workflows=[{"id": 1, "name": "CI", "path": ".github/workflows/ci.yml", "state": "active", "crons": [], "dispatch": False,
+                                       "runs": [{"id": 5, "number": 1, "status": "completed", "conclusion": "success", "event": "push", "branch": "fix", "headRepo": "o/r", "actor": "u", "startedAt": None, "updatedAt": None}]}])])
+    assert [n for n in board["nodes"] if n["kind"] == "pr"] and not [e for e in board["edges"] if e["to"].startswith("p|")]                               # no line to a pull request of a fork
+
+
+def test_the_head_repository_of_a_run_and_of_a_pull_request_is_read_from_the_answer():
+    run = {"id": 1, "workflow_id": 2, "head_branch": "fix", "head_repository": {"full_name": "someone/r"}}
+    pull = {"number": 3, "title": "t", "head": {"ref": "fix", "repo": {"full_name": "someone/r"}}, "user": {"login": "u", "type": "User"}}
+    got = _node([["normRun", [run]], ["normRun", [{"id": 1, "head_repository": None}]], ["normPull", [pull]], ["normPull", [{**pull, "head": {"ref": "fix", "repo": None}}]]])
+    assert got[0]["headRepo"] == "someone/r" and got[1]["headRepo"] == "" and got[2]["headRepo"] == "someone/r" and got[3]["headRepo"] == ""
+
+
+def test_the_words_for_an_event_are_looked_up_not_inherited():
+    assert _node([["eventWord", [e]] for e in ("push", "schedule", "workflow_dispatch", "constructor", "toString", "__proto__", "something_new")]) == [
+        "Push", "Lịch (cron)", "Chạy tay", "constructor", "toString", "__proto__", "something_new"]
+
+
+def test_a_failure_nothing_has_followed_for_two_weeks_is_old_news_and_not_a_call_for_the_person():
+    day = 86400000
+    at = lambda days_ago: dt.datetime.fromtimestamp((NOW - days_ago * day) / 1000, UTC).isoformat()          # noqa: E731
+    failed = lambda days_ago: {"id": 3, "number": 3, "status": "completed", "conclusion": "failure", "updatedAt": at(days_ago), "startedAt": at(days_ago)}        # noqa: E731
+    fresh, old, edge, over = ({"runs": [failed(d)]} for d in (1, 15, 14, 14.01))
+    assert _node([["isFailing", [w, NOW]] for w in (fresh, old, edge, over)]) == [True, False, True, False]                        # exactly two weeks is still fresh
+    assert _node([["isStaleFailing", [w, NOW]] for w in (fresh, old, over)]) == [False, True, True]
+    assert _node([["isFailing", [old]], ["isStaleFailing", [old]]]) == [True, False]                                              # no clock: taken as fresh
+    assert _node([["runStatus", [failed(1), NOW]], ["runStatus", [failed(15), NOW]], ["workflowStatus", [old, NOW]], ["workflowStatus", [fresh, NOW]]]) == ["needs", "blocked", "blocked", "needs"]
+    health = lambda *wfs: {"ok": True, "workflows": list(wfs)}                                                                     # noqa: E731
+    assert [h["label"] for h in _node([["repoHealth", [health(fresh, old), NOW]], ["repoHealth", [health(old), NOW]], ["repoHealth", [health(old, {"runs": [{"status": "completed", "conclusion": "success", "updatedAt": at(1)}]}), NOW]]])] == ["Có lỗi", "Lỗi cũ", "Lỗi cũ"]
+    ordered = _one("orderWorkflows", [{"name": "b", "runs": [{"status": "completed", "conclusion": "success"}]}, {"name": "a", "runs": [failed(15)]}], NOW)
+    assert [w["name"] for w in ordered] == ["a", "b"] and [w["name"] for w in _one("orderWorkflows", [{"name": "b", "runs": [{"status": "completed", "conclusion": "success"}]}, {"name": "a", "runs": [failed(1)]}], NOW)] == ["a", "b"]
+    got = _one("inboxItems", [_model(workflows=[{"id": 1, "name": "Old", "path": "x", "state": "active", "runs": [failed(15)]}, {"id": 2, "name": "New", "path": "y", "state": "active", "runs": [failed(2)]}])], NOW)
+    assert [i["title"] for i in got] == ["New #3"]                                                                                   # the old one is not in the inbox
+    summary = _one("summarize", [_model(workflows=[{"id": 1, "name": "Old", "path": "x", "state": "active", "runs": [failed(15)]}])], NOW)
+    assert not summary["failing"]
+
+
+def test_a_job_that_is_still_queued_never_opens_a_stage_even_when_github_gave_it_a_start_time():
+    queued = _job("deploy", 5, None, "queued")              # GitHub fills started_at of a queued job with the time it was created
+    jobs = [queued, _job("build", 0, 90), _job("test", 100, None, "in_progress")]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", jobs)] == [["build"], ["test"], ["deploy"]]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", [{**queued, "status": "pending"}, _job("build", 0, 10)])] == [["build"], ["deploy"]]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", [{**queued, "status": "requested"}])] == [["deploy"]]

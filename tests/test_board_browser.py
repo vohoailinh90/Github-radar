@@ -45,8 +45,8 @@ def browser():
         b.close()
 
 
-def run_of(run_id, wf, number, status, conclusion, ago, event="push", branch="main"):
-    return {"id": run_id, "workflow_id": wf, "run_number": number, "status": status, "conclusion": conclusion, "event": event, "head_branch": branch, "actor": {"login": "me"},
+def run_of(run_id, wf, number, status, conclusion, ago, event="push", branch="main", head=REPO):
+    return {"head_repository": {"full_name": head}, "id": run_id, "workflow_id": wf, "run_number": number, "status": status, "conclusion": conclusion, "event": event, "head_branch": branch, "actor": {"login": "me"},
             "created_at": iso(ago), "run_started_at": iso(ago), "updated_at": iso(ago - 100)}
 
 
@@ -54,19 +54,20 @@ def app_routes(repo: str = REPO) -> dict:
     """The answers of a small repository: CI with a run in progress (one job, three steps) on a branch that has an agent pull request, a nightly that failed, a weekly
     workflow whose only run is older than the 40 newest of the repository (so it is missing from the repository's own list), a schedule, and .claude/agents."""
     base = f"/repos/{repo}"
+    run_of_here = lambda *a, **k: run_of(*a, head=repo, **k)          # noqa: E731  (the runs and the pull request come from this repository, not from a fork)
     return {
-        f"{base}/actions/workflows/1/runs": (200, {"workflow_runs": [run_of(101, 1, 8, "in_progress", None, 120, branch="claude/fix-x"), run_of(100, 1, 7, "completed", "success", 4000)]}),
-        f"{base}/actions/workflows/2/runs": (200, {"workflow_runs": [run_of(90, 2, 3, "completed", "failure", 90000, "schedule"), run_of(80, 2, 2, "completed", "success", 180000, "schedule")]}),
-        f"{base}/actions/workflows/3/runs": (200, {"workflow_runs": [run_of(70, 3, 1, "completed", "success", 500000)]}),
+        f"{base}/actions/workflows/1/runs": (200, {"workflow_runs": [run_of_here(101, 1, 8, "in_progress", None, 120, branch="claude/fix-x"), run_of_here(100, 1, 7, "completed", "success", 4000)]}),
+        f"{base}/actions/workflows/2/runs": (200, {"workflow_runs": [run_of_here(90, 2, 3, "completed", "failure", 90000, "schedule"), run_of_here(80, 2, 2, "completed", "success", 180000, "schedule")]}),
+        f"{base}/actions/workflows/3/runs": (200, {"workflow_runs": [run_of_here(70, 3, 1, "completed", "success", 500000)]}),
         f"{base}/contents/.github/workflows/weekly.yml": (200, "on:\n  schedule:\n    - cron: '0 3 * * 1'\n"),
         base: (200, {"full_name": repo, "description": "An app", "stargazers_count": 7, "private": False, "archived": False, "pushed_at": iso(300), "open_issues_count": 3, "default_branch": "main"}),
         f"{base}/actions/runs": (200, {"workflow_runs": [
-            run_of(101, 1, 8, "in_progress", None, 120, branch="claude/fix-x"), run_of(100, 1, 7, "completed", "success", 4000), run_of(90, 2, 3, "completed", "failure", 90000, "schedule")]}),
+            run_of_here(101, 1, 8, "in_progress", None, 120, branch="claude/fix-x"), run_of_here(100, 1, 7, "completed", "success", 4000), run_of_here(90, 2, 3, "completed", "failure", 90000, "schedule")]}),
         f"{base}/actions/workflows": (200, {"workflows": [
             {"id": 1, "name": EVIL + "CI", "path": ".github/workflows/ci.yml", "state": "active"},
             {"id": 2, "name": "Nightly", "path": ".github/workflows/nightly.yml", "state": "active"},
             {"id": 3, "name": "Weekly scan", "path": ".github/workflows/weekly.yml", "state": "active"}]}),
-        f"{base}/pulls": (200, [{"number": 5, "title": "Fix <b>x</b>", "head": {"ref": "claude/fix-x"}, "user": {"login": "me", "type": "User"}, "draft": False, "updated_at": iso(60), "created_at": iso(60)}]),
+        f"{base}/pulls": (200, [{"number": 5, "title": "Fix <b>x</b>", "head": {"ref": "claude/fix-x", "repo": {"full_name": repo}}, "user": {"login": "me", "type": "User"}, "draft": False, "updated_at": iso(60), "created_at": iso(60)}]),
         f"{base}/contents/.github/workflows/ci.yml": (200, "on:\n  push:\n  workflow_dispatch:\n"),
         f"{base}/contents/.github/workflows/nightly.yml": (200, "on:\n  schedule:\n    - cron: '0 18 * * *'\n"),
         f"{base}/contents/.claude/agents": (200, [{"name": "architect.md", "type": "file"}, {"name": "README.txt", "type": "file"}, {"name": "sub", "type": "dir"}]),
@@ -253,7 +254,7 @@ def test_the_board_has_four_waves_with_cards_and_lines_where_the_data_relates_th
     board(ui)
     assert ui.locator("#wavegrid .wave").count() == 4 and text(ui, "#f-count") == "12 / 12"
     heads = ui.eval_on_selector_all("#wavegrid .wave > h3", "els => els.map(e => e.innerText.replace(/\\s+/g, ' '))")
-    assert heads == ["Wave 0 · Kích hoạt 4/4", "Wave 1 · Workflow 1/3", "Wave 2 · Lượt chạy 2/4", "Wave 3 · PR / nhánh 0/1"]
+    assert heads == ["Wave 0 · Kích hoạt 4", "Wave 1 · Workflow 1/3", "Wave 2 · Lượt chạy 2/4", "Wave 3 · PR / nhánh 0/1"]
     assert ui.locator("#edges path").count() == 10                                    # 5 trigger->workflow, 4 workflow->run, 1 run->pull request of the same branch
     assert ui.locator("#edges path.crit").count() == 2                                # upstream of the failed nightly
     d = ui.eval_on_selector_all("#edges path", "els => els.map(e => e.getAttribute('d'))")
@@ -281,6 +282,35 @@ def test_cards_work_from_the_keyboard(ui):
     ui.keyboard.press("Enter")
     assert ui.get_attribute("button.node.focus", "data-id") == "w|demo/app|2"
     assert ui.evaluate("document.activeElement.dataset.id") == "w|demo/app|2"        # a redraw does not take the focus away
+
+
+def test_a_pull_request_from_a_fork_with_the_same_branch_name_is_not_joined_to_the_run(browser):
+    context, page = new_page(browser)
+    pulls = page.gh.routes[f"/repos/{REPO}/pulls"][1]
+    pulls[0]["head"]["repo"]["full_name"] = "someone/app"                                 # the same branch name, but in a fork
+    page.goto(PAGE_URL)
+    loaded(page)
+    assert page.eval_on_selector_all("#home-runs .pipe .fbox .t", "els => els.map(e => e.lastElementChild.textContent)") == ["Bắt đầu", "build", "Kết quả"]
+    board(page)
+    assert page.locator("button.node[data-kind='pr']").count() == 1 and page.locator("#edges path").count() == 9          # still on the board, with no line from the run
+    context.close()
+
+
+def test_a_failure_older_than_two_weeks_is_marked_old_and_no_longer_calls_for_the_person(browser):
+    context, page = new_page(browser)
+    old = run_of(90, 2, 3, "completed", "failure", 20 * 86400, "schedule", head=REPO)
+    page.gh.routes[f"/repos/{REPO}/actions/workflows/2/runs"] = (200, {"workflow_runs": [old]})
+    page.gh.routes[f"/repos/{REPO}/actions/runs"][1]["workflow_runs"] = [r for r in page.gh.routes[f"/repos/{REPO}/actions/runs"][1]["workflow_runs"] if r["id"] != 90] + [old]
+    page.goto(PAGE_URL)
+    loaded(page)
+    chips = counts(page, "home-chips")
+    assert chips["needs"] == 0 and chips["blocked"] == 2                                                  # the nightly and its run: nothing asks for the person
+    assert text(page, "#inbox-count") == "1" and "Nightly" not in text(page, "#needs-you")               # only the agent's pull request is left
+    open_tab(page, "repos")
+    assert "Lỗi cũ" in text(page, "#repo-grid") and "Có lỗi" not in text(page, "#repo-grid")
+    board(page)
+    assert "(cũ)" in page.locator("button.node[data-id='r|demo/app|90']").inner_text().lower()          # the chip is set in capitals
+    context.close()
 
 
 def test_the_filters_narrow_the_board_and_reset_brings_it_back(ui):
@@ -767,6 +797,57 @@ def test_every_look_keeps_the_text_readable(browser):
             context.close()
 
 
+def test_the_status_words_and_glyphs_are_readable_in_every_look_and_on_a_folded_card(browser):
+    """A status word is drawn in its colour mixed toward the text colour: the raw amber of "needs you" on a white card is about 2:1."""
+    def lum(rgb):
+        c = [x / 255 for x in rgb[:3]]
+        c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+    def ratio(a, b):
+        la, lb = sorted((lum(a), lum(b)), reverse=True)
+        return (la + 0.05) / (lb + 0.05)
+
+    def over(top, base, alpha):
+        return [top[i] * alpha + base[i] * (1 - alpha) for i in range(3)]
+
+    probe = """() => {
+      const px = (el, prop) => { const c = document.createElement('canvas').getContext('2d'); c.fillStyle = getComputedStyle(el)[prop]; c.clearRect(0, 0, 1, 1); c.fillRect(0, 0, 1, 1); return Array.from(c.getImageData(0, 0, 1, 1).data); };
+      const out = { cards: [], boxes: [], rows: [] }, grid = document.getElementById('wavegrid'), home = document.getElementById('view-home');
+      for (const folded of [false, true]) for (const s of ['needs', 'running', 'review', 'under', 'ready', 'blocked', 'done']) {
+        const b = document.createElement('button'); b.className = 'node s-' + s + (folded ? ' compact' : '');
+        const c = document.createElement('span'); c.className = 'chipst'; c.textContent = 'x'; b.append(c); grid.append(b);
+        out.cards.push({ s, folded, fg: px(c, 'color'), bg: px(b, 'backgroundColor'), opacity: Number(getComputedStyle(b).opacity) }); b.remove();
+      }
+      const panel = document.createElement('div'); panel.className = 'panel'; home.append(panel);
+      out.panel = px(panel, 'backgroundColor');
+      const rows = document.createElement('div'); rows.className = 'rows'; panel.append(rows);
+      for (const s of ['done', 'running', 'waiting', 'failed', 'queued', 'skipped', 'cancelled']) {
+        const f = document.createElement('div'); f.className = 'fbox st-' + s; const t = document.createElement('div'); t.className = 't'; const g = document.createElement('span'); g.className = 'g'; g.textContent = 'x'; t.append(g); f.append(t); panel.append(f);
+        out.boxes.push({ s, fg: px(g, 'color'), bg: px(f, 'backgroundColor') });
+        const li = document.createElement('li'); li.className = 'st-' + s; const w = document.createElement('span'); w.className = 'glyph'; w.textContent = 'x'; li.append(w); rows.append(li);
+        out.rows.push({ s, fg: px(w, 'color'), bg: px(li, 'backgroundColor') });
+      }
+      panel.remove();
+      return out;
+    }"""
+    for theme in ("neon", "classic", "aurora", "candy"):
+        for mode in ("dark", "light"):
+            context, page = new_page(browser, theme=theme, mode=mode)
+            page.goto(PAGE_URL)
+            open_tab(page, "board")
+            got = page.evaluate(probe)
+            card = got["panel"][:3]
+            for c in got["cards"]:
+                text_on_card = over(c["fg"], card, c["opacity"])                       # a folded card is drawn at reduced opacity over the board's panel
+                assert ratio(text_on_card, over(c["bg"], card, c["opacity"])) >= 4.5, (theme, mode, c)
+            for kind in ("boxes", "rows"):
+                for g in got[kind]:
+                    behind = over(g["bg"], card, g["bg"][3] / 255)                     # an unstarted box has no fill: the panel shows through
+                    assert ratio(g["fg"], behind) >= 4.5, (theme, mode, kind, g)
+            context.close()
+
+
 def test_the_demo_contacts_nobody_shows_every_screen_and_leaving_it_brings_the_list_back(ui):
     open_tab(ui, "settings")
     seen = len(ui.seen)
@@ -787,6 +868,20 @@ def test_the_demo_contacts_nobody_shows_every_screen_and_leaving_it_brings_the_l
     wait(ui, "document.getElementById('banner').hidden")
     assert ui.locator(".chip").count() == 1 and text(ui, ".chip").startswith("demo/app") and ui.is_enabled("#add")
     assert ui.evaluate(f"() => JSON.parse(window.localStorage.getItem('{STORE_KEY}')).repos") == ["demo/app"]      # the demo never overwrote the saved list
+
+
+def test_a_look_chosen_while_the_demo_is_on_is_remembered_and_the_demo_names_are_not(ui):
+    open_tab(ui, "settings")
+    ui.click("#demo")
+    open_tab(ui, "home")
+    ui.click("#theme-btn")
+    ui.click("[data-pick-theme=aurora]")
+    ui.click("[data-pick-mode=light]")
+    ui.keyboard.press("Escape")
+    saved = ui.evaluate(f"() => JSON.parse(window.localStorage.getItem('{STORE_KEY}'))")
+    assert saved["theme"] == "aurora" and saved["mode"] == "light" and saved["repos"] == ["demo/app"]          # the real list, not demo/web-app and the others
+    ui.reload()
+    assert ui.evaluate("() => [document.documentElement.dataset.theme, document.documentElement.dataset.eff]") == ["aurora", "light"]
 
 
 @pytest.mark.parametrize("width", [320, 390, 768])
