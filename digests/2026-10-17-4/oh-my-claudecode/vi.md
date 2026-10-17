@@ -160,19 +160,17 @@ brew install tmux
 
 <sub>Căn cứ: `README`</sub>
 
-### Bước 9 · Mở worker CLI, xem trạng thái và tắt
+### Bước 9 · Mở worker CLI bằng omc team
 
 **Mục đích:** Nhờ Codex (hay Gemini, Cursor) làm một phần việc như một worker riêng; worker tự tắt khi xong.
 
 1. Làm trong một phiên tmux đang hoạt động: README yêu cầu điều này nhưng không ghi cách mở phiên.
 2. Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.
-3. Chạy lệnh đầu để mở hai worker Codex xem xét module xác thực.
-4. Hai lệnh sau dùng tên auth-review như ví dụ của README; README không nói tên đội lấy từ đâu, nên đổi nếu tên đội của bạn khác.
+3. Chạy lệnh dưới đây (một ví dụ trong bảng của README) để mở hai worker Codex xem xét luồng xác thực.
+4. `omc team status` và `omc team shutdown` cần tên đội đã mở; README không nói cách lấy tên. Xem `docs/REFERENCE.md`: việc review auth flow có tên đội review-auth-flow.
 
 ```bash
-omc team 2:codex "review auth module for security issues"
-omc team status auth-review
-omc team shutdown auth-review
+omc team 2:codex "review auth flow"
 ```
 
 <sub>Căn cứ: `README`</sub>

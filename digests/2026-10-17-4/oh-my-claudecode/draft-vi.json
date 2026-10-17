@@ -210,22 +210,20 @@
         },
         {
           "commands": [
-            "omc team 2:codex \"review auth module for security issues\"",
-            "omc team status auth-review",
-            "omc team shutdown auth-review"
+            "omc team 2:codex \"review auth flow\""
           ],
           "do": [
             "Làm trong một phiên tmux đang hoạt động: README yêu cầu điều này nhưng không ghi cách mở phiên.",
             "Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.",
-            "Chạy lệnh đầu để mở hai worker Codex xem xét module xác thực.",
-            "Hai lệnh sau dùng tên auth-review như ví dụ của README; README không nói tên đội lấy từ đâu, nên đổi nếu tên đội của bạn khác."
+            "Chạy lệnh dưới đây (một ví dụ trong bảng của README) để mở hai worker Codex xem xét luồng xác thực.",
+            "`omc team status` và `omc team shutdown` cần tên đội đã mở; README không nói cách lấy tên. Xem `docs/REFERENCE.md`: việc review auth flow có tên đội review-auth-flow."
           ],
           "evidence": "README",
           "expect": "",
           "if_fails": "",
           "link_ref": null,
           "snippet_ref": null,
-          "title": "Mở worker CLI, xem trạng thái và tắt",
+          "title": "Mở worker CLI bằng omc team",
           "why": "Nhờ Codex (hay Gemini, Cursor) làm một phần việc như một worker riêng; worker tự tắt khi xong."
         }
       ],
@@ -557,6 +555,6 @@
     "url": "https://github.com/Yeachan-Heo/oh-my-claudecode"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands). The settings line is given in the step text, not printed as a sample: the renderer's fixed caption under a sample tells the reader to replace placeholders, and this value is the literal 1 (review of the pull request, P2).",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands). The settings line is given in the step text, not printed as a sample: the renderer's fixed caption under a sample tells the reader to replace placeholders, and this value is the literal 1 (review of the pull request, P2). One pointer in the last step comes from docs/REFERENCE.md at the same commit, not from the README: the example there pairs `omc team 2:codex \"review auth flow\"` with the team name review-auth-flow for status and shutdown, while the README's own code block launches a task about an auth module and then uses the unrelated name auth-review, so the lesson shows only the launch command and tells the reader where the name is explained (review of the pull request, P2).",
   "position": 1
 }
