@@ -10,7 +10,7 @@ Quét ngày **16/10/2026**; số sao đọc từ trang repo hôm đó và làm t
 |---|---|---:|---|---|---|
 | Cho agent AI **tự điều khiển trình duyệt**: mở trang, bấm, gõ, điền form, đọc nội dung | Playwright MCP | 38.200 | Apache-2.0 | Node.js 18 trở lên, một MCP client | [Xem bài](../digests/2026-10-16-4/playwright-mcp/vi.md) |
 | Cho AI **vẽ giao diện có chủ đích**, rồi rà soát, đánh giá, chỉnh lần cuối và dò lỗi thiết kế | Impeccable | 82.000 | Apache-2.0 | Một công cụ AI được hỗ trợ; Node.js nếu dùng `npx` | [Xem bài](../digests/2026-10-16-4/impeccable/vi.md) |
-| Cho AI một **kho tri thức thiết kế** để sinh hệ thống thiết kế (kiểu trang, màu, phông) theo loại sản phẩm | UI UX Pro Max | 136.600 | MIT | Node.js và npm, Python 3, một công cụ AI được hỗ trợ | [Xem bài](../digests/2026-10-16-4/ui-ux-pro-max-skill/vi.md) |
+| Cho AI một **kho tri thức thiết kế** để sinh hệ thống thiết kế (kiểu trang, màu, phông) theo loại sản phẩm | UI UX Pro Max | 136.600 | MIT | Python 3, một công cụ AI được hỗ trợ; Node.js và npm nếu cài bằng `uipro` | [Xem bài](../digests/2026-10-16-4/ui-ux-pro-max-skill/vi.md) |
 
 Mục lục của lần quét: [`digests/2026-10-16-4/README.md`](../digests/2026-10-16-4/README.md).
 
@@ -21,7 +21,7 @@ Mục lục của lần quét: [`digests/2026-10-16-4/README.md`](../digests/202
 | **Là gì** | Máy chủ MCP: bộ công cụ cho agent gọi | Skill: một lệnh `/impeccable` với 24 lệnh con, kèm CLI dò lỗi | Skill kèm kho dữ liệu và script tìm kiếm bằng Python |
 | **Chạy ở đâu** | Trong MCP client (VS Code, Cursor, Claude Desktop...), khởi chạy bằng `npx`, HTTP hoặc Docker | Trong công cụ AI (Claude Code, Cursor, Codex, Gemini CLI...); CLI chạy riêng bằng `npx impeccable` | Trong công cụ AI; script chạy được riêng bằng `python3` |
 | **Đầu ra** | Hành động trên trình duyệt và cấu trúc của trang (accessibility snapshot) | Lệnh thiết kế, `PRODUCT.md`, báo cáo phát hiện lỗi | Bảng hệ thống thiết kế; có thể lưu thành file để dùng lại |
-| **Cần mạng / khóa API** | README không nói cần khóa API | CLI dò lỗi không cần LLM và không cần khóa API; engine tải về một lần ở lần chạy đầu | Script chỉ dùng thư viện chuẩn và không gọi mạng |
+| **Cần mạng / khóa API** | README không nói cần khóa API | CLI dò lỗi không cần LLM và không cần khóa API; engine nằm cạnh launcher hoặc được tải một lần vào `~/.impeccable/bin/`; có yêu cầu roll tới API khi bắt đầu thiết kế mới (telemetry tắt được) | Script chỉ dùng thư viện chuẩn và không gọi mạng |
 
 Cách nhìn của bài này (không phải của README): Playwright MCP cho agent **khả năng làm** (thao tác trình duyệt), còn Impeccable và UI UX Pro Max cho agent **tri thức và quy trình thiết kế**.
 README của hai skill thiết kế không nói gì về việc dùng chung với nhau; nếu thử cả hai trong một dự án, hãy xem từng skill kích hoạt khi nào.
@@ -36,8 +36,8 @@ README của hai skill thiết kế không nói gì về việc dùng chung vớ
 
 ### Impeccable
 
-- **Ưu điểm:** 24 lệnh làm từ vựng chung với AI; 59 quy tắc dò lỗi chạy không cần LLM, có mã thoát cho CI; hỗ trợ nhiều công cụ AI qua một trình cài; có hook thiết kế và chế độ live.
-- **Nhược điểm và lưu ý:** có telemetry ẩn danh khi bắt đầu thiết kế mới (tắt được); hook trên Claude Code chạy độc lập với việc duyệt công cụ và có thể tải engine ngay lần sửa file đầu; chế độ live chỉ dùng cho checkout cục bộ; lần quét sạch của detector chỉ là bằng chứng, không chứng minh chất lượng.
+- **Ưu điểm:** 24 lệnh làm từ vựng chung với AI; 59 quy tắc dò lỗi chạy không cần LLM, có đầu ra JSON thân thiện với CI và mã thoát rõ ràng; hỗ trợ nhiều công cụ AI qua một trình cài; có hook thiết kế và chế độ live.
+- **Nhược điểm và lưu ý:** có telemetry ẩn danh khi bắt đầu thiết kế mới (tắt được); hook trên Claude Code chạy độc lập với việc duyệt công cụ và có thể tải engine ngay lần sửa file đầu; chế độ live chỉ dùng cho checkout cục bộ, và áp dụng chỉnh sửa chữ có thể chạy script `impeccable:manual-edit-validate` trong package.json dưới quyền của bạn; lần quét sạch của detector chỉ là bằng chứng, không chứng minh chất lượng.
 - **Phạm vi:** thiết kế giao diện frontend do AI sinh ra. README không nói tới việc backend.
 
 ### UI UX Pro Max
@@ -49,7 +49,7 @@ README của hai skill thiết kế không nói gì về việc dùng chung vớ
 ## Điều cần biết trước khi tin các bài này
 
 - **Chưa ai chạy thử từng bước trên máy thật.** Bài được viết bằng cách đọc README, không cài và chạy từng repo. Máy kiểm từng lệnh có nằm **nguyên văn** trong README hay không, nhưng một lệnh đúng trong README vẫn có thể lỗi trên máy bạn (phiên bản, hệ điều hành).
-- Bài do **Claude viết trong một phiên tương tác**, không phải do các model miễn phí của bộ quét (phiên này không có khóa của chúng). Không có model **họ khác** soát lại: thay vào đó một Claude khác, chỉ đọc, đã đối chiếu từng bài với README; các điểm đúng đã được sửa, mỗi bản nháp (`draft-vi.json`) ghi điều này trong khóa `note`. Máy vẫn kiểm: số liệu phải có trong README hoặc dữ kiện repo, mỗi lệnh phải là một dòng hoặc đoạn mã nội dòng của README, chữ nằm giữa dấu backtick phải có trong README hoặc là đường dẫn có thật, không có URL do model viết, không có lời quảng cáo.
+- Bài do **Claude viết trong một phiên tương tác**, không phải do các model miễn phí của bộ quét (phiên này không có khóa của chúng). Không có model **họ khác** soát lại: thay vào đó một Claude khác, chỉ đọc, đã đối chiếu từng bài với README; các điểm đúng đã được sửa, mỗi bản nháp (`draft-vi.json`) ghi điều này trong khóa `note`. Máy vẫn kiểm: số liệu phải có trong README hoặc dữ kiện repo, mỗi lệnh phải là một dòng hoặc đoạn mã nội dòng của README, chữ nằm giữa dấu backtick phải có trong README hoặc là đường dẫn có thật, không có URL do model viết, không có lời quảng cáo (kiểm bằng một danh sách từ khóa).
 - **README là nguồn duy nhất.** Chỗ README không nói (màn hình xác nhận cài đặt, thông báo lỗi), bài cũng nói là README không nêu. README của Playwright MCP dài 61.190 ký tự sau khi làm sạch; bộ quét mặc định cắt ở 12.000 và sẽ bỏ mất mục *Tools*, nên bài này dùng nguyên văn README (`note` ghi số ký tự).
 - Điều trang repo không cho thấy (số issue đang mở của Playwright MCP, ngôn ngữ chính, ngày tạo) được để trống, không đoán.
 - **Ghi chú ngoài README** (từ việc mở bản clone, không có trong bài): trong repo `microsoft/playwright-mcp`, thư mục `src/` chỉ có một file README trỏ về kho Playwright chính; mã máy chủ không nằm ở đây. Hãy hiểu repo này là phần đóng gói, tài liệu và kiểm thử của máy chủ.
