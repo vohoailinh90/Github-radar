@@ -200,6 +200,16 @@ def test_a_glued_link_takes_the_block_before_it_only_when_both_fit_on_the_next_s
         ["Mở:"] + [f"localhost{i}" for i in range(link_words)]
 
 
+@pytest.mark.parametrize("long_at", ["end", "start", "middle"])
+def test_a_roadmap_with_a_few_very_long_titles_fits_on_every_slide_it_is_cut_into(long_at):
+    short, long = [f"短い{i}" for i in range(6)], ["長い題" * 24 for _ in range(4)]
+    titles = {"end": short + long, "start": long + short, "middle": short[:3] + long + short[3:]}[long_at]
+    items = list(enumerate(titles, 1))
+    pages = slides.paginate([slides.grid(items, size=24)], 100)
+    assert placed_ok(pages), "a chunk of the roadmap runs past the content area"
+    assert [item for page in pages for b, _, _ in page for item in b["items"]] == items            # every step, once, in order
+
+
 def test_roadmap_numbers_every_step_in_order():
     draft = make_draft(FACTS, "en")
     steps = [s["title"] for s in draft["guide"]["steps"]]

@@ -471,9 +471,10 @@ def _fit(b: dict, width: float, room: float) -> list[dict]:
         return [code(p, b["label"] if i == 0 else None) for i, p in enumerate(pieces)]
     if k == "grid":
         items, n = b["items"], len(b["items"])
-        for size in (10, 8, 6, 4, 2, 1):
-            if measure(grid(items[:size], size=b["size"]), width) <= room:
-                return [grid(items[i:i + size], size=b["size"]) for i in range(0, n, size)]
+        for size in (10, 8, 6, 4, 2, 1):                              # the largest chunk size at which EVERY chunk fits (a short chunk is one column)
+            chunks = [grid(items[i:i + size], size=b["size"]) for i in range(0, n, size)]
+            if size == 1 or all(measure(c, width) <= room for c in chunks):
+                return chunks
     if k == "card":
         return _split_card(b, width, room)
     if k == "para":
