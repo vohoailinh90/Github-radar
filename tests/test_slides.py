@@ -185,6 +185,21 @@ def test_a_link_never_starts_a_slide_alone_when_the_block_before_it_can_come_alo
         assert len(pages[-1]) > 1 or len(pages) == 1
 
 
+@pytest.mark.parametrize("rows", range(1, 16))
+@pytest.mark.parametrize("link_words", [3, 30, 90])
+def test_a_glued_link_takes_the_block_before_it_only_when_both_fit_on_the_next_slide(rows, link_words):
+    intro = slides.para([("Vì sao: " + "bước này cần thiết " * 3, "t", None)])
+    sample = slides.code([f"command --flag {i}" for i in range(rows)])
+    link = slides.para([("Mở: ", "t", None), (" ".join(f"localhost{i}" for i in range(link_words)), "t", None)], glue=True)
+    pages = slides.paginate([intro, sample, link], 100)
+    assert placed_ok(pages), "the link or the block it came along with runs past the content area"
+    blocks = [b for page in pages for b, _, _ in page]
+    assert [k for i, k in enumerate(b["kind"] for b in blocks) if i == 0 or k != blocks[i - 1]["kind"]] == ["para", "code", "para"]
+    assert [x for b in blocks if b["kind"] == "code" for x in b["lines"]] == sample["lines"]                  # nothing lost, nothing repeated
+    assert " ".join("".join(r[0] for r in b["runs"]) for b in blocks[1 + sum(b["kind"] == "code" for b in blocks):]).split() == \
+        ["Mở:"] + [f"localhost{i}" for i in range(link_words)]
+
+
 def test_roadmap_numbers_every_step_in_order():
     draft = make_draft(FACTS, "en")
     steps = [s["title"] for s in draft["guide"]["steps"]]

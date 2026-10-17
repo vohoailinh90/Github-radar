@@ -491,7 +491,8 @@ def paginate(blocks: list[dict], top: float, width: float = WIDTH) -> list[list[
         for piece in _fit(b, width, BOTTOM - top):
             h = measure(piece, width)
             if cur and y + h > BOTTOM:
-                carry = [cur.pop()] if piece.get("glue") and len(cur) > 1 else []
+                # a glued piece takes the block before it to the next slide, but only when the two fit there together
+                carry = [cur.pop()] if piece.get("glue") and len(cur) > 1 and top + measure(cur[-1], width) + GAP + h <= BOTTOM else []
                 pages.append(cur)
                 cur = carry
                 y = top + sum(measure(p, width) + GAP for p in carry)
