@@ -110,8 +110,9 @@
             "/impeccable init"
           ],
           "do": [
-            "Gõ lệnh dưới đây ngay trong công cụ AI, không gõ trong terminal. Codex dùng skill chứ không dùng lệnh /prompts: mở `/skills` hoặc gõ `$impeccable`.",
-            "`init` xem dự án, chỉ hỏi những chỗ thiếu về sự thật bền của sản phẩm rồi ghi PRODUCT.md."
+            "Gõ lệnh dưới đây ngay trong công cụ AI, không gõ trong terminal.",
+            "`init` xem dự án, chỉ hỏi những chỗ thiếu về sự thật bền của sản phẩm rồi ghi PRODUCT.md.",
+            "Codex: README ghi Codex dùng skill, không dùng lệnh /prompts:, và gọi bằng `$impeccable` hoặc mở `/skills`. README không nêu cú pháp từng lệnh con; hãy đặt tên lệnh con sau `$impeccable`, như init."
           ],
           "evidence": "README",
           "expect": "File PRODUCT.md ghi đối tượng, mục đích, bối cảnh sử dụng, ràng buộc, giọng điệu và bằng chứng của sản phẩm.",
@@ -140,7 +141,7 @@
             "/impeccable audit"
           ],
           "do": [
-            "Gõ lệnh trong công cụ AI. Thêm tên vùng cần xem để thu hẹp phạm vi, như mẫu bên dưới.",
+            "Gõ lệnh trong công cụ AI (Codex: dùng `$impeccable` thay cho `/impeccable`, xem bước 3). Thêm tên vùng cần xem để thu hẹp phạm vi, như mẫu bên dưới.",
             "Gõ `/impeccable` một mình để xem toàn bộ danh sách lệnh."
           ],
           "evidence": "README",
@@ -157,7 +158,7 @@
             "/impeccable polish"
           ],
           "do": [
-            "Gõ hai lệnh dưới đây trong công cụ AI, lần lượt.",
+            "Gõ hai lệnh dưới đây trong công cụ AI, lần lượt; Codex dùng `$impeccable` thay cho `/impeccable` (xem bước 3).",
             "`critique` là bản đánh giá UX: thứ bậc, độ rõ ràng, cảm xúc.",
             "`polish` là lượt chỉnh cuối, đồng bộ hệ thiết kế và sẵn sàng phát hành.",
             "Lệnh hay dùng có thể ghim thành lệnh riêng, ví dụ `/impeccable pin audit` tạo lệnh `/audit`."
@@ -228,7 +229,7 @@
           "problem": "Hermes chưa nạp skill cài theo dự án"
         }
       ],
-      "verify": "Gõ `/impeccable` một mình trong công cụ AI: README nói nó hiện đủ danh sách lệnh; chưa thấy skill thì khởi động lại công cụ. Với CLI, xem mã thoát theo bước 7."
+      "verify": "Gõ `/impeccable` một mình trong công cụ AI: README nói nó hiện đủ danh sách lệnh; chưa thấy skill thì khởi động lại. Codex: mở `/skills` hoặc gõ `$impeccable`. CLI: xem mã thoát ở bước 7."
     },
     "hook": "24 lệnh giúp AI vẽ giao diện bớt giống nhau, từ lập kế hoạch đến kiểm tra và chỉnh lần cuối",
     "how_it_works": {

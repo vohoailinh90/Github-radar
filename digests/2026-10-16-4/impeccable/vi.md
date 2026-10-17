@@ -83,8 +83,9 @@ npx impeccable install
 
 **Mục đích:** Các lệnh sau biết đối tượng, mục đích và ràng buộc của sản phẩm.
 
-1. Gõ lệnh dưới đây ngay trong công cụ AI, không gõ trong terminal. Codex dùng skill chứ không dùng lệnh /prompts: mở `/skills` hoặc gõ `$impeccable`.
+1. Gõ lệnh dưới đây ngay trong công cụ AI, không gõ trong terminal.
 2. `init` xem dự án, chỉ hỏi những chỗ thiếu về sự thật bền của sản phẩm rồi ghi PRODUCT.md.
+3. Codex: README ghi Codex dùng skill, không dùng lệnh /prompts:, và gọi bằng `$impeccable` hoặc mở `/skills`. README không nêu cú pháp từng lệnh con; hãy đặt tên lệnh con sau `$impeccable`, như init.
 
 ```bash
 /impeccable init
@@ -137,7 +138,7 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 
 **Mục đích:** README mô tả audit là kiểm tra chất lượng kỹ thuật: truy cập, hiệu năng, responsive.
 
-1. Gõ lệnh trong công cụ AI. Thêm tên vùng cần xem để thu hẹp phạm vi, như mẫu bên dưới.
+1. Gõ lệnh trong công cụ AI (Codex: dùng `$impeccable` thay cho `/impeccable`, xem bước 3). Thêm tên vùng cần xem để thu hẹp phạm vi, như mẫu bên dưới.
 2. Gõ `/impeccable` một mình để xem toàn bộ danh sách lệnh.
 
 ```bash
@@ -157,7 +158,7 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 
 **Mục đích:** Tách đánh giá trải nghiệm khỏi bước hoàn thiện trước khi ra mắt.
 
-1. Gõ hai lệnh dưới đây trong công cụ AI, lần lượt.
+1. Gõ hai lệnh dưới đây trong công cụ AI, lần lượt; Codex dùng `$impeccable` thay cho `/impeccable` (xem bước 3).
 2. `critique` là bản đánh giá UX: thứ bậc, độ rõ ràng, cảm xúc.
 3. `polish` là lượt chỉnh cuối, đồng bộ hệ thiết kế và sẵn sàng phát hành.
 4. Lệnh hay dùng có thể ghim thành lệnh riêng, ví dụ `/impeccable pin audit` tạo lệnh `/audit`.
@@ -204,7 +205,7 @@ npx impeccable telemetry off
 
 ## ✔️ Kiểm tra kết quả
 
-Gõ `/impeccable` một mình trong công cụ AI: README nói nó hiện đủ danh sách lệnh; chưa thấy skill thì khởi động lại công cụ. Với CLI, xem mã thoát theo bước 7.
+Gõ `/impeccable` một mình trong công cụ AI: README nói nó hiện đủ danh sách lệnh; chưa thấy skill thì khởi động lại. Codex: mở `/skills` hoặc gõ `$impeccable`. CLI: xem mã thoát ở bước 7.
 
 ## 🩹 Lỗi thường gặp
 
