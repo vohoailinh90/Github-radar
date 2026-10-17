@@ -99,7 +99,7 @@ def _plain(text) -> str:
 def _adv(ch: str, code: bool, size: float, bold: bool) -> float:
     """The advance of one character in points: a monospaced run is drawn 2 pt smaller than the text around it."""
     if code:
-        return (size - 2) * MONO_EM
+        return (size - 2) * (1.0 if svg._wide(ch) else MONO_EM)         # an East Asian glyph in a monospaced run is still about one em wide
     if svg._wide(ch):
         return size
     decomposed = unicodedata.normalize("NFD", ch)
@@ -204,12 +204,34 @@ def _runs_plain(runs) -> str:
     return "".join(r[0] for r in runs)
 
 
+def _units(line: str) -> float:
+    """The length of a code line in monospaced columns: an East Asian glyph is drawn about one em wide, which is 1 / MONO_EM columns."""
+    return sum(1 / MONO_EM if svg._wide(ch) else 1.0 for ch in line)
+
+
+def _rows(line: str, cpl: int) -> int:
+    return max(1, math.ceil(_units(line) / cpl))
+
+
+def _chunks(line: str, step: float) -> list[str]:
+    """A code line as pieces of at most `step` columns each (at least one character)."""
+    out, cur, used = [], "", 0.0
+    for ch in line:
+        w = 1 / MONO_EM if svg._wide(ch) else 1.0
+        if cur and used + w > step:
+            out.append(cur)
+            cur, used = "", 0.0
+        cur += ch
+        used += w
+    return out + [cur]
+
+
 def _code_size(lines, width: float) -> tuple[int, int]:
-    """The largest size (20 down to 14) at which no line wraps, else 14; and the characters that fit a line at it."""
+    """The largest size (20 down to 14) at which no line wraps, else 14; and the columns that fit a line at it."""
     inner = width - 2 * PADX
     for size in (20, 18, 16, 14):
         cpl = int(inner / (size * MONO_EM))
-        if all(len(x) <= cpl for x in lines) or size == 14:
+        if all(_units(x) <= cpl for x in lines) or size == 14:
             return size, max(cpl, 1)
     raise AssertionError("unreachable")
 
@@ -232,7 +254,7 @@ def measure(b: dict, width: float) -> float:
         return _lines_h(_runs_nlines(b["runs"], b["size"], width, b["bold"]), b["size"]) + 4
     if k == "code":
         size, cpl = _code_size(b["lines"], width)
-        rows = sum(max(1, math.ceil(len(x) / cpl)) for x in b["lines"])
+        rows = sum(_rows(x, cpl) for x in b["lines"])
         return (26 if b["label"] else 0) + 2 * 14 + rows * size * 1.38
     if k == "grid":
         return max((sum(h for _, _, h in col) for col in _grid_cols(b, width)), default=0.0)
@@ -409,10 +431,10 @@ def _fit(b: dict, width: float, room: float) -> list[dict]:
         lines: list[str] = []
         for line in b["lines"]:                                           # a single line taller than a slide continues on the next one
             step = cpl * per
-            lines += [line[i:i + step] for i in range(0, len(line), step)] if len(line) > step else [line]
+            lines += _chunks(line, step) if _units(line) > step else [line]
         pieces, cur, rows = [], [], 0
         for line in lines:
-            need = max(1, math.ceil(len(line) / cpl))
+            need = _rows(line, cpl)
             if cur and rows + need > per:
                 pieces.append(cur)
                 cur, rows = [], 0
@@ -631,6 +653,15 @@ def _polyline(slide, pts, color, dashed=False, width=2.5, name="arrow"):
     return shp
 
 
+def _hits(pts, boxes) -> bool:
+    """Whether a polyline of horizontal and vertical segments passes through the inside of any of the boxes (x0, y0, x1, y1)."""
+    for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+        for x0, y0, x1, y1 in boxes:
+            if min(xa, xb) < x1 and max(xa, xb) > x0 and min(ya, yb) < y1 and max(ya, yb) > y0:
+                return True
+    return False
+
+
 def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bottom: float) -> dict:
     """Box positions and edge routes of the how-it-works diagram: columns by dependency depth (as in `svg.flow`), rows ordered by the
     boxes that feed them, loop-backs routed under the boxes. Pure numbers, so a test can check nothing overlaps."""
@@ -648,7 +679,9 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
         for r, i in enumerate(ids):
             row_of[i] = r
     back = [(a, b) for a, b in edges if layer[b] <= layer[a]]
-    lanes = 0 if not back else 26 + min(16 * len(back), 70)
+    skips = [(a, b) for a, b in edges if layer[b] - layer[a] >= 2]         # these may have to go round the boxes between their columns
+    nlane = len(back) + len(skips)
+    lanes = 0 if not nlane else 26 + min(16 * nlane, 70)
     area = bottom - top - lanes
     tallest = max(len(ids) for ids in order.values())
     # The largest type at which the tallest column fits: one height for every box (so boxes in the same row of two columns line up and
@@ -677,12 +710,22 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
     low = max(pos[i][1] + heights[i] for i in range(n))
     routes = []
     lane = 0
+
+    def next_lane() -> float:
+        nonlocal lane
+        lane += 1
+        return low + 22 + min(16, 70 / max(1, nlane)) * (lane - 1)
+
     for a, b in edges:
         (xa, ya), (xb, yb) = pos[a], pos[b]
+        others = [(x, y, x + bw, y + heights[i]) for i, (x, y) in pos.items() if i not in (a, b)]
         if layer[b] > layer[a]:
             y1, y2, x1, x2 = ya + heights[a] / 2, yb + heights[b] / 2, xa + bw, xb
             mid = (x1 + x2) / 2
             pts = [(x1, y1), (x2, y2)] if abs(y1 - y2) < 1 else [(x1, y1), (mid, y1), (mid, y2), (x2, y2)]
+            if layer[b] - layer[a] >= 2 and _hits(pts, others):          # it would run behind a box in a column between: go round, under them
+                ylane = next_lane()
+                pts = [(x1, y1), (x1 + gapx / 2, y1), (x1 + gapx / 2, ylane), (x2 - gapx / 2, ylane), (x2 - gapx / 2, y2), (x2, y2)]
             routes.append({"pts": pts, "dashed": False})
         elif layer[b] == layer[a] and abs((xa + bw / 2) - (xb + bw / 2)) < 1:      # one under the other: a straight line between them
             if yb > ya:
@@ -690,8 +733,7 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
             else:
                 routes.append({"pts": [(xa + bw / 2, ya), (xb + bw / 2, yb + heights[b])], "dashed": True})
         else:                                           # a loop back: down under the boxes, across, and up into the target
-            ylane = low + 22 + min(16, 70 / max(1, len(back))) * lane
-            lane += 1
+            ylane = next_lane()
             routes.append({"pts": [(xa + bw / 2, ya + heights[a]), (xa + bw / 2, ylane), (xb + bw / 2, ylane), (xb + bw / 2, yb + heights[b])],
                            "dashed": True})
     return {"layer": layer, "pos": pos, "heights": heights, "bw": bw, "size": size, "routes": routes}

@@ -3,6 +3,7 @@ address is a fact, nothing runs off a slide, and drawing it again gives the same
 
 import io
 import json
+import math
 import re
 import shutil
 import zipfile
@@ -273,6 +274,31 @@ def test_a_glossary_entry_and_a_legacy_note_of_any_length_stay_on_the_slides(lan
         assert shown.count("ghi") >= 300 and shown.count("rấtdài") + shown.count("rất") >= 300
 
 
+def test_a_japanese_command_is_measured_by_its_wide_glyphs_not_as_narrow_code():
+    ascii_line, wide_line = "x" * 120, "日" * 120
+    assert slides._units(ascii_line) == 120 and slides._units(wide_line) > 1.5 * 120
+    wide = slides.code([wide_line])
+    assert slides.measure(wide, slides.WIDTH) > 1.5 * slides.measure(slides.code([ascii_line]), slides.WIDTH) - 40
+    size, cpl = slides._code_size([wide_line], slides.WIDTH)
+    assert slides._rows(wide_line, cpl) == math.ceil(120 / (cpl * slides.MONO_EM))              # one em per glyph, so cpl * 0.62 glyphs a row
+    assert slides._rows("日" * 180, slides._code_size(["日" * 180], slides.WIDTH)[1]) >= 4        # PowerPoint wraps 180 such glyphs to about four rows
+
+
+def test_a_japanese_code_line_taller_than_a_slide_continues_on_the_next_slide():
+    line = "日本語のコマンド" * 220
+    pages = slides.paginate([slides.code([line, "echo ok"])], 100)
+    assert len(pages) >= 2 and placed_ok(pages)
+    shown = [x for page in pages for b, _, _ in page for x in b["lines"]]
+    assert "".join(shown[:-1]) == line and shown[-1] == "echo ok"
+
+
+def test_a_code_span_in_prose_counts_a_wide_glyph_as_an_em():
+    assert slides._adv("日", True, 22, False) == 20 and slides._adv("x", True, 22, False) == 20 * slides.MONO_EM
+    one = slides.para(slides.prose("`" + "日" * 60 + "`"), size=22)
+    two = slides.para(slides.prose("`" + "x" * 60 + "`"), size=22)
+    assert slides.measure(one, slides.WIDTH) > slides.measure(two, slides.WIDTH)
+
+
 @pytest.mark.parametrize("lang", ["ja", "en", "vi"])
 def test_the_cover_never_drops_the_hook_or_the_one_liner(lang):
     word = {"ja": "長い日本語", "en": "longword ", "vi": "rấtdài "}[lang]
@@ -363,6 +389,42 @@ def test_any_diagram_of_six_components_with_the_longest_names_stays_inside_the_c
         top = rng.choice([110, 130, 153])
         comps = [{"name": name, "role": ""} for _ in range(n)]
         inside(slides.flow_geometry(comps, edges, top, slides.BOTTOM), top, n)
+
+
+def box_of(geo, i):
+    x, y = geo["pos"][i]
+    return (x, y, x + geo["bw"], y + geo["heights"][i])
+
+
+def test_an_edge_that_skips_a_column_goes_round_the_box_between_instead_of_behind_it():
+    comps = [{"name": f"Part {i}", "role": ""} for i in range(3)]
+    geo = slides.flow_geometry(comps, [[0, 1], [1, 2], [0, 2]], 110, slides.BOTTOM)
+    skip = geo["routes"][2]["pts"]
+    assert not slides._hits(skip, [box_of(geo, 1)]), "the edge from the first to the last part runs behind the one between them"
+    assert skip[0][0] == box_of(geo, 0)[2] and skip[-1] == (box_of(geo, 2)[0], box_of(geo, 2)[1] + geo["heights"][2] / 2)
+    inside(geo, 110, 3)
+
+
+def test_no_forward_edge_of_any_diagram_runs_behind_a_box():
+    import random
+    rng = random.Random(7)
+    for _ in range(400):
+        n = rng.choice([3, 4, 5, 6])
+        edges = [[a, b] for a in range(n) for b in range(n) if a < b and rng.random() < rng.choice([0.2, 0.4, 0.7])][:12]
+        comps = [{"name": rng.choice(["Part", "名" * 40, "Component number 3"]), "role": ""} for _ in range(n)]
+        top = rng.choice([110, 153])
+        geo = slides.flow_geometry(comps, edges, top, slides.BOTTOM)
+        inside(geo, top, n)
+        for (a, b), route in zip(edges, geo["routes"]):
+            others = [box_of(geo, i) for i in range(n) if i not in (a, b)]
+            assert not slides._hits(route["pts"], others), f"edge {a}->{b} runs behind a box"
+
+
+def test_a_diagram_keeps_its_arrows_inside_the_content_area_when_edges_skip_columns():
+    comps = [{"name": "名" * 40, "role": ""} for _ in range(6)]
+    edges = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [0, 2], [0, 3], [1, 4], [2, 5], [0, 5]]
+    geo = slides.flow_geometry(comps, edges, 153, slides.BOTTOM)
+    inside(geo, 153, 6)
 
 
 def test_a_hub_and_spoke_deck_keeps_every_box_on_the_slide():
