@@ -1,0 +1,81 @@
+<!-- radar: Moda canvas 1200x2235; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">oh-my-claudecode: cả đội agent chạy ngay trong Claude Code</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Một lệnh /team để Claude Code chia việc, kiểm tra và sửa lỗi theo vòng, thay vì một agent làm hết.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Plugin trong Claude Code</text>
+<text x="80" y="632" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đưa các skill /team, /autopilot, /ralph vào phiên Claude Code qua marketplace của plugin.</text>
+<rectangle x="460" y="545" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lệnh omc (gói npm)</text>
+<text x="480" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lệnh terminal: omc setup, omc team, omc ask. Cài bằng gói npm oh-my-claude-sisyphus.</text>
+<rectangle x="860" y="545" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Đội native (/team)</text>
+<text x="880" y="605" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các agent Claude phối hợp trên một danh sách việc chung; cần bật cờ đội native trong settings.json (bước 4).</text>
+<rectangle x="60" y="812" width="280" height="187" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="834" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Worker tmux</text>
+<text x="80" y="872" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Pane tmux chạy CLI thật (claude, codex, gemini, antigravity, grok, cursor-agent); sinh khi cần, tắt khi xong.</text>
+<rectangle x="460" y="812" width="280" height="187" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="834" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Thư mục .omc/</text>
+<text x="480" y="872" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nơi OMC giữ trạng thái chạy, dữ liệu phiên, kế hoạch và log của dự án.</text>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="600" y1="738" x2="600" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="600" y1="775" x2="200" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="775" x2="200" y2="812" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="738" x2="1000" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="775" x2="600" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="600" y1="775" x2="600" y2="812" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="340" y1="905.5" x2="460" y2="905.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="1081" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1147" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1169" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1169" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Hai lối vào, hai runtime</text>
+<text x="154" y="1205" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lệnh /team trong phiên Claude Code chạy đội native; omc team ở terminal mở worker CLI thật trong tmux. README nói rõ đây là hai runtime khác nhau.</text>
+<line x1="584" y1="1232" x2="616" y2="1232" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1147" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1169" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1169" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chuỗi giai đoạn có vòng sửa</text>
+<text x="714" y="1205" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Team chạy team-plan → team-prd → team-exec → team-verify → team-fix (loop): kiểm tra là một giai đoạn riêng, và lỗi được sửa lặp lại.</text>
+<rectangle x="60" y="1341" width="520" height="175" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1363" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1363" width="404" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Worker sinh khi cần, tắt khi xong</text>
+<text x="154" y="1426" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Worker của omc team được sinh theo yêu cầu và chết khi xong việc, nên README nói không tốn tài nguyên lúc nhàn rỗi.</text>
+<line x1="584" y1="1428.5" x2="616" y2="1428.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1341" width="520" height="175" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1363" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1363" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mỗi phiên một người cầm vòng lặp</text>
+<text x="714" y="1399" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">README dặn dùng một quyền điều khiển vòng lặp chính mỗi phiên: Team cho việc song song theo giai đoạn, Execute cho một agent làm tới nơi, Verify cho vòng kiểm tra lặp.</text>
+<rectangle x="60" y="1540" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1562" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1562" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Trạng thái nằm trong .omc/</text>
+<text x="154" y="1598" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">OMC ghi trạng thái, phiên, kế hoạch vào thư mục .omc/. Trong worktree liên kết, thư mục này nằm trong worktree nên xóa worktree là mất; đặt OMC_STATE_DIR để giữ.</text>
+<text x="60" y="1792" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1858" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1898.8" x2="97.6" y2="1906" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1906" x2="110" y2="1890.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1878" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách hai runtime: đội chạy trong phiên và worker chạy ngoài phiên, mỗi bên hợp một loại việc.</text>
+<rectangle x="430" y="1858" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1898.8" x2="467.6" y2="1906" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1906" x2="480" y2="1890.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1878" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đặt kiểm tra thành giai đoạn riêng và cho nó vòng sửa lỗi, thay vì kiểm tra một lần ở cuối.</text>
+<rectangle x="800" y="1858" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1898.8" x2="837.6" y2="1906" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1906" x2="850" y2="1890.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1878" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.</text>
+<rectangle x="60" y="2012" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="2052.8" x2="97.6" y2="2060" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="2060" x2="110" y2="2044.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="2032" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Worker sinh khi cần và tắt khi xong: trả tài nguyên ngay sau mỗi việc.</text>
+<rectangle x="430" y="2012" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="2052.8" x2="467.6" y2="2060" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="2060" x2="480" y2="2044.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="2032" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Giữ trạng thái cục bộ cạnh dự án và nói rõ nó sống hay chết theo worktree.</text>
+<text x="60" y="2172" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Yeachan-Heo/oh-my-claudecode · Giấy phép: MIT · 39.976 sao · Quét ngày 2026-10-17</text>
+</content>

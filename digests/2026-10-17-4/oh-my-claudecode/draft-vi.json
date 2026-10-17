@@ -1,0 +1,560 @@
+{
+  "draft": {
+    "analogy": "Giống một tổ trưởng công trình: bạn nói cần sửa gì, tổ trưởng chia cho từng thợ, có người nghiệm thu, chỗ nào chưa đạt thì quay lại làm tiếp.",
+    "caveats": [
+      "Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic. Với omc team, mỗi CLI (codex, gemini, agy, grok, cursor-agent) tự cài và đăng nhập riêng.",
+      "Đội native cần đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`; nếu tắt, OMC cảnh báo và lùi về chạy không theo đội khi có thể.",
+      "Lệnh slash như /team, /autopilot cần phiên Claude Code đang chạy nên không dùng trong CI; omc team cần tmux.",
+      "Jev (lớp phán đoán tùy chọn, bật bằng biến môi trường) cần khóa riêng. README cũng gợi ý gajae-code cho ai thấy OMC hơi quá tay."
+    ],
+    "facebook": {
+      "caption": "oh-my-claudecode: một lệnh /team để Claude Code chia việc cho cả đội agent\n\n- /team: lập kế hoạch, thực thi, kiểm tra, rồi sửa lỗi theo vòng\n- omc team: mở worker Codex, Gemini, Cursor trong tmux\n- Cần Claude Code và gói Max/Pro hoặc khóa API Anthropic\nBài hướng dẫn từng bước có cả cách bật đội native và các lưu ý.",
+      "hashtags": [
+        "ClaudeCode",
+        "MultiAgent",
+        "AIAgents",
+        "DevTools"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Công cụ chia một cửa sổ terminal thành nhiều pane chạy song song; omc team dùng nó cho worker.",
+        "term": "tmux"
+      },
+      {
+        "meaning": "Một tiến trình agent do omc team mở để làm một phần việc, tự tắt khi xong.",
+        "term": "Worker"
+      },
+      {
+        "meaning": "Lệnh slash do plugin cung cấp trong Claude Code, như /team hay /autopilot.",
+        "term": "Skill"
+      },
+      {
+        "meaning": "Bản làm việc riêng của git cho một nhánh; .omc/ của OMC nằm trong worktree liên kết.",
+        "term": "Worktree"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Làm rõ yêu cầu mơ hồ trước khi chia việc: `/deep-interview \"I want to build a task management app\"`.",
+        "Hỏi một nhà cung cấp khác xem xét giúp: `/ask codex \"Review this PR — architecture\"`.",
+        "Chạy OMC trong worktree? Đặt `OMC_STATE_DIR` để trạng thái `.omc/` không mất khi xóa worktree."
+      ],
+      "outcome": "OMC cài trong Claude Code, đội native được bật, và bạn chạy được `/team 3:executor \"fix all TypeScript errors\"` để cả đội xử lý một việc theo chuỗi giai đoạn.",
+      "requirements": [
+        {
+          "detail": "OMC chạy bên trong phiên Claude Code; README đặt nó làm điều kiện đầu tiên.",
+          "evidence": "README",
+          "item": "Claude Code CLI",
+          "link_ref": 2
+        },
+        {
+          "detail": "README ghi cần một trong hai để dùng Claude Code.",
+          "evidence": "README",
+          "item": "Gói Claude Max/Pro hoặc khóa API Anthropic",
+          "link_ref": null
+        },
+        {
+          "detail": "README cài lệnh omc ở terminal bằng gói npm; các lệnh slash trong Claude Code không cần bước này.",
+          "evidence": "README",
+          "item": "npm (chỉ khi cài lệnh omc)",
+          "link_ref": null
+        },
+        {
+          "detail": "Windows: psmux, bản tmux chạy thẳng; WSL2: tmux cài bên trong WSL.",
+          "evidence": "README",
+          "item": "tmux (chỉ cho omc team)",
+          "link_ref": 3
+        },
+        {
+          "detail": "codex, gemini, agy, grok, cursor-agent: mỗi cái cài và đăng nhập riêng. OMC chạy đủ khi không có chúng.",
+          "evidence": "README",
+          "item": "CLI của agent khác (tùy chọn)",
+          "link_ref": null
+        },
+        {
+          "detail": "README ước tính ba gói Pro (Claude, Antigravity/Gemini, ChatGPT) khoảng 60 USD mỗi tháng; các hãng ngoài Claude không bắt buộc.",
+          "evidence": "README",
+          "item": "Chi phí nếu dùng đủ ba hãng (tùy chọn)",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode"
+          ],
+          "do": [
+            "Mở một phiên Claude Code và gõ lệnh dưới đây.",
+            "README dặn nhập từng lệnh một; dán cả hai lệnh cùng lúc sẽ lỗi."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Thêm marketplace của plugin vào Claude Code",
+          "why": "Cho Claude Code biết nơi lấy plugin oh-my-claudecode."
+        },
+        {
+          "commands": [
+            "/plugin install oh-my-claudecode"
+          ],
+          "do": [
+            "Gõ lệnh dưới đây trong cùng phiên, sau khi lệnh trước chạy xong."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài plugin",
+          "why": "Đưa các skill của OMC (/team, /autopilot, /ralph) vào Claude Code."
+        },
+        {
+          "commands": [
+            "/omc-setup"
+          ],
+          "do": [
+            "Gõ lệnh dưới đây trong phiên Claude Code.",
+            "Ở terminal, lệnh tương đương là `omc setup` (cần cài lệnh omc ở bước 7)."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy thiết lập ban đầu",
+          "why": "Hoàn tất cấu hình OMC sau khi cài plugin."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở `~/.claude/settings.json`.",
+            "Trong khóa `env`, thêm dòng `\"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS\": \"1\"`. Giá trị 1 là giá trị thật, giữ nguyên.",
+            "Nếu file đã có khóa env, thêm dòng đó vào khóa sẵn có thay vì thay cả file."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Bật đội agent native của Claude Code",
+          "why": "Lệnh /team dùng đội native; không bật thì OMC cảnh báo và, khi có thể, lùi về chạy không theo đội."
+        },
+        {
+          "commands": [
+            "/team 3:executor \"fix all TypeScript errors\""
+          ],
+          "do": [
+            "Mở một dự án có lỗi TypeScript và gõ lệnh dưới đây trong phiên Claude Code.",
+            "Số đứng trước dấu hai chấm có dạng N:loại-agent; README dùng 3:executor cho /team và 2:codex cho omc team.",
+            "Đội đi theo chuỗi `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Giao một việc cho cả đội bằng /team",
+          "why": "Team là cách điều phối README đề nghị: các agent Claude phối hợp trên một danh sách việc chung."
+        },
+        {
+          "commands": [
+            "/autopilot \"build a REST API for managing tasks\""
+          ],
+          "do": [
+            "Gõ lệnh dưới đây trong phiên Claude Code để xây một tính năng từ mô tả.",
+            "README dặn mỗi phiên chỉ dùng một cơ chế cầm vòng lặp chính (/goal, Execute, Team hoặc Verify). Autopilot cũng có thể được cấu hình để chạy giai đoạn thực thi qua team."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Dùng autopilot khi chỉ cần một agent chính",
+          "why": "README mô tả autopilot là thực thi tự động bằng một agent chính, hợp việc làm trọn một tính năng với ít thủ tục."
+        },
+        {
+          "commands": [
+            "npm i -g oh-my-claude-sisyphus@latest"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong terminal, không phải trong phiên Claude Code.",
+            "Tên gói npm khác tên repo; nó cài cả `oh-my-claudecode` lẫn lệnh ngắn `omc`.",
+            "README đưa đường npm như lựa chọn thay cho marketplace, nhưng bảng CLI và skill trong phiên liệt kê cả hai bề mặt; bước này chỉ thêm lệnh omc."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài lệnh omc ở terminal (cho omc team)",
+          "why": "README đưa lệnh omc (omc team, omc ask) vào bề mặt terminal, cài bằng đường npm."
+        },
+        {
+          "commands": [
+            "brew install tmux"
+          ],
+          "do": [
+            "Lệnh dưới đây dành cho macOS (Homebrew).",
+            "Ubuntu/Debian: `sudo apt install tmux`. Fedora: `sudo dnf install tmux`. Arch: `sudo pacman -S tmux`. Windows: `winget install psmux`; WSL2 dùng tmux trong WSL."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 3,
+          "snippet_ref": null,
+          "title": "Cài tmux",
+          "why": "Worker của omc team là các pane tmux; README yêu cầu một phiên tmux đang hoạt động."
+        },
+        {
+          "commands": [
+            "omc team 2:codex \"review auth flow\""
+          ],
+          "do": [
+            "Làm trong một phiên tmux đang hoạt động: README yêu cầu điều này nhưng không ghi cách mở phiên.",
+            "Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.",
+            "Chạy lệnh dưới đây (một ví dụ trong bảng của README) để mở hai worker Codex xem xét luồng xác thực.",
+            "`omc team status` và `omc team shutdown` cần tên đội đã mở; README không nói cách lấy tên. Xem `docs/REFERENCE.md`: việc review auth flow có tên đội review-auth-flow."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Mở worker CLI bằng omc team",
+          "why": "Nhờ Codex (hay Gemini, Cursor) làm một phần việc như một worker riêng; worker tự tắt khi xong."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "README nói cảnh báo đến từ phụ thuộc `better-sqlite3` và không có nghĩa là cài thất bại.",
+          "problem": "npm cảnh báo deprecated prebuild-install@7.1.3 khi cài CLI"
+        },
+        {
+          "evidence": "README",
+          "fix": "Nhập từng lệnh một và đợi lệnh trước chạy xong, như README dặn.",
+          "problem": "Dán hai lệnh /plugin cùng lúc thì lỗi"
+        },
+        {
+          "evidence": "README",
+          "fix": "OMC cảnh báo và lùi về chạy không theo đội khi có thể. Đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` ở bước 4.",
+          "problem": "Chạy /team khi chưa bật đội native"
+        },
+        {
+          "evidence": "README",
+          "fix": "Cập nhật bằng `/plugin marketplace update omc` rồi `/omc-setup`; nếu vẫn lỗi, README bảo xóa cache plugin cũ bằng `/omc-doctor`.",
+          "problem": "Gặp lỗi sau khi cập nhật plugin"
+        },
+        {
+          "evidence": "README",
+          "fix": "README: các lệnh slash cần phiên Claude Code đang chạy; trong CI dùng lệnh terminal xác định như `omc setup`.",
+          "problem": "Chạy /team hay /autopilot trong CI không có người ngồi"
+        }
+      ],
+      "verify": "Trong Claude Code, /team bắt đầu chuỗi giai đoạn của Team. Ở terminal, omc team status với tên đội cho biết trạng thái; README không mô tả chi tiết đầu ra."
+    },
+    "hook": "Một lệnh /team để Claude Code chia việc, kiểm tra và sửa lỗi theo vòng, thay vì một agent làm hết.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "puzzle",
+          "name": "Plugin trong Claude Code",
+          "role": "Đưa các skill /team, /autopilot, /ralph vào phiên Claude Code qua marketplace của plugin."
+        },
+        {
+          "evidence": "README",
+          "icon": "terminal",
+          "name": "Lệnh omc (gói npm)",
+          "role": "Lệnh terminal: omc setup, omc team, omc ask. Cài bằng gói npm oh-my-claude-sisyphus."
+        },
+        {
+          "evidence": "README",
+          "icon": "users",
+          "name": "Đội native (/team)",
+          "role": "Các agent Claude phối hợp trên một danh sách việc chung; cần bật cờ đội native trong settings.json (bước 4)."
+        },
+        {
+          "evidence": "README",
+          "icon": "layers",
+          "name": "Worker tmux",
+          "role": "Pane tmux chạy CLI thật (claude, codex, gemini, antigravity, grok, cursor-agent); sinh khi cần, tắt khi xong."
+        },
+        {
+          "evidence": "README",
+          "icon": "folder",
+          "name": "Thư mục .omc/",
+          "role": "Nơi OMC giữ trạng thái chạy, dữ liệu phiên, kế hoạch và log của dự án."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Lệnh /team trong phiên Claude Code chạy đội native; omc team ở terminal mở worker CLI thật trong tmux. README nói rõ đây là hai runtime khác nhau.",
+          "title": "Hai lối vào, hai runtime"
+        },
+        {
+          "evidence": "README",
+          "text": "Team chạy team-plan → team-prd → team-exec → team-verify → team-fix (loop): kiểm tra là một giai đoạn riêng, và lỗi được sửa lặp lại.",
+          "title": "Chuỗi giai đoạn có vòng sửa"
+        },
+        {
+          "evidence": "README",
+          "text": "Worker của omc team được sinh theo yêu cầu và chết khi xong việc, nên README nói không tốn tài nguyên lúc nhàn rỗi.",
+          "title": "Worker sinh khi cần, tắt khi xong"
+        },
+        {
+          "evidence": "README",
+          "text": "README dặn dùng một quyền điều khiển vòng lặp chính mỗi phiên: Team cho việc song song theo giai đoạn, Execute cho một agent làm tới nơi, Verify cho vòng kiểm tra lặp.",
+          "title": "Mỗi phiên một người cầm vòng lặp"
+        },
+        {
+          "evidence": "README",
+          "text": "OMC ghi trạng thái, phiên, kế hoạch vào thư mục .omc/. Trong worktree liên kết, thư mục này nằm trong worktree nên xóa worktree là mất; đặt OMC_STATE_DIR để giữ.",
+          "title": "Trạng thái nằm trong .omc/"
+        }
+      ]
+    },
+    "learn": [
+      "Tách hai runtime: đội chạy trong phiên và worker chạy ngoài phiên, mỗi bên hợp một loại việc.",
+      "Đặt kiểm tra thành giai đoạn riêng và cho nó vòng sửa lỗi, thay vì kiểm tra một lần ở cuối.",
+      "Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.",
+      "Worker sinh khi cần và tắt khi xong: trả tài nguyên ngay sau mỗi việc.",
+      "Giữ trạng thái cục bộ cạnh dự án và nói rõ nó sống hay chết theo worktree."
+    ],
+    "one_liner": "Plugin cho Claude Code: lệnh /team chạy chuỗi lập kế hoạch, thực thi, kiểm tra, sửa lỗi; lệnh omc team mở thêm worker Codex, Gemini, Cursor trong tmux.",
+    "problem": "Một agent AI làm từ kế hoạch đến kiểm tra thì bạn phải tự chia việc và canh từng bước. oh-my-claudecode (OMC) đặt thêm một lớp điều phối lên Claude Code: Team chạy các agent theo chuỗi giai đoạn có vòng sửa lỗi, còn omc team mở worker CLI thật trong tmux khi bạn muốn nhờ Codex hay Gemini.",
+    "title": "oh-my-claudecode: cả đội agent chạy ngay trong Claude Code",
+    "who_for": [
+      "Người dùng Claude Code muốn chia một việc lớn cho nhiều agent mà vẫn có bước kiểm tra riêng.",
+      "Người đã có thuê bao Codex, Gemini hoặc Cursor và muốn gọi chúng làm worker cho cùng một việc.",
+      "Người cần làm rõ yêu cầu mơ hồ trước khi viết mã (lệnh /deep-interview)."
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "text",
+        "/autopilot --workflow plan-build-qa \"build a REST API for managing tasks\""
+      ],
+      [
+        "jsonc",
+        "{\n  \"autopilot\": {\n    \"workflows\": {\n      \"plan-build-qa\": {\n        \"version\": 1,\n        \"stages\": [\"ralplan\", \"execution\", \"qa\"]\n      }\n    }\n  }\n}"
+      ],
+      [
+        "",
+        "/deep-interview \"I want to build a task management app\""
+      ],
+      [
+        "jsonc",
+        "{\n  \"autopilot\": {\n    \"execution\": \"team\",\n    \"team\": { \"agentTypes\": [\"cursor\"] }\n  }\n}"
+      ],
+      [
+        "yaml",
+        "# .omc/skills/fix-proxy-crash.md\n---\nname: Fix Proxy Crash\ndescription: aiohttp proxy crashes on ClientDisconnectedError\ntriggers: [\"proxy\", \"aiohttp\", \"disconnected\"]\nsource: extracted\n---\nWrap handler at server.py:42 in try/except ClientDisconnectedError..."
+      ],
+      [
+        "json",
+        "{\n  \"env\": {\n    \"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS\": \"1\"\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"enabled\": true,\n  \"gateways\": {\n    \"my-gateway\": {\n      \"url\": \"https://your-gateway.example.com/wake\",\n      \"headers\": { \"Authorization\": \"Bearer YOUR_TOKEN\" },\n      \"method\": \"POST\",\n      \"timeout\": 10000\n    }\n  },\n  \"hooks\": {\n    \"session-start\": {\n      \"gateway\": \"my-gateway\",\n      \"instruction\": \"Session started for {{projectName}}\",\n      \"enabled\": true\n    },\n    \"stop\": {\n      \"gateway\": \"my-gateway\",\n      \"instruction\": \"Session stopping for {{projectName}}\",\n      \"enabled\": true\n    }\n  }\n}"
+      ]
+    ],
+    "bucket": "ai",
+    "forks": 3586,
+    "full_name": "Yeachan-Heo/oh-my-claudecode",
+    "language": "TypeScript",
+    "license": "MIT",
+    "links": [
+      [
+        "github.com",
+        "https://github.com/Yeachan-Heo/oh-my-claudecode"
+      ],
+      [
+        "#2913",
+        "https://github.com/Yeachan-Heo/oh-my-claudecode/issues/2913"
+      ],
+      [
+        "Claude Code",
+        "https://docs.anthropic.com/claude-code"
+      ],
+      [
+        "tmux",
+        "https://github.com/tmux/tmux"
+      ],
+      [
+        "psmux",
+        "https://github.com/marlocarlo/psmux"
+      ],
+      [
+        "Antigravity CLI",
+        "https://antigravity.google"
+      ],
+      [
+        "Gemini CLI",
+        "https://github.com/google-gemini/gemini-cli"
+      ],
+      [
+        "Codex CLI",
+        "https://github.com/openai/codex"
+      ],
+      [
+        "Grok Build",
+        "https://build.grok.com"
+      ],
+      [
+        "Claude Code /goal docs",
+        "https://code.claude.com/docs/en/goal"
+      ],
+      [
+        "Anthropic Claude Code changelog",
+        "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md"
+      ],
+      [
+        "Learn more →",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#execution-modes"
+      ],
+      [
+        "www.npmjs.com",
+        "https://www.npmjs.com/package/oh-my-claude-sisyphus"
+      ],
+      [
+        "github.com",
+        "https://github.com/Yeachan-Heo/oh-my-claudecode/stargazers"
+      ],
+      [
+        "opensource.org",
+        "https://opensource.org/licenses/MIT"
+      ],
+      [
+        "github.com",
+        "https://github.com/sponsors/Yeachan-Heo"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/wSyUQYfhAw"
+      ],
+      [
+        "oh-my-codex",
+        "https://github.com/Yeachan-Heo/oh-my-codex"
+      ],
+      [
+        "gajae-code",
+        "https://github.com/Yeachan-Heo/gajae-code"
+      ],
+      [
+        "Documentation",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website"
+      ],
+      [
+        "CLI Reference",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#cli-reference"
+      ],
+      [
+        "Workflows",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#workflows"
+      ],
+      [
+        "@Yeachan-Heo",
+        "https://github.com/Yeachan-Heo"
+      ],
+      [
+        "@sigridjineth",
+        "https://github.com/sigridjineth"
+      ],
+      [
+        "@devswha",
+        "https://github.com/devswha"
+      ],
+      [
+        "@shaun0927",
+        "https://github.com/shaun0927"
+      ],
+      [
+        "@riftzen-bit",
+        "https://github.com/riftzen-bit"
+      ],
+      [
+        "@Nathan-Song",
+        "https://github.com/Nathan-Song"
+      ],
+      [
+        "@blue-int",
+        "https://github.com/blue-int"
+      ],
+      [
+        "@junhoyeo",
+        "https://github.com/junhoyeo"
+      ],
+      [
+        "OpenClaw",
+        "https://openclaw.ai/"
+      ],
+      [
+        "your-gateway.example.com",
+        "https://your-gateway.example.com/wake"
+      ],
+      [
+        "Notifications Guide",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#notifications"
+      ],
+      [
+        "Release Notes",
+        "https://yeachan-heo.github.io/oh-my-claudecode-website/docs/#release-notes"
+      ],
+      [
+        "geobench",
+        "https://github.com/NomaDamas/geobench"
+      ],
+      [
+        "oh-my-opencode",
+        "https://github.com/code-yeongyu/oh-my-opencode"
+      ],
+      [
+        "claude-hud",
+        "https://github.com/ryanjoachim/claude-hud"
+      ],
+      [
+        "Superpowers",
+        "https://github.com/obra/superpowers"
+      ],
+      [
+        "everything-claude-code",
+        "https://github.com/affaan-m/everything-claude-code"
+      ],
+      [
+        "Ouroboros",
+        "https://github.com/Q00/ouroboros"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 39976,
+    "url": "https://github.com/Yeachan-Heo/oh-my-claudecode"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands). The settings line is given in the step text, not printed as a sample: the renderer's fixed caption under a sample tells the reader to replace placeholders, and this value is the literal 1 (review of the pull request, P2). One pointer in the last step comes from docs/REFERENCE.md at the same commit, not from the README: the example there pairs `omc team 2:codex \"review auth flow\"` with the team name review-auth-flow for status and shutdown, while the README's own code block launches a task about an auth module and then uses the unrelated name auth-review, so the lesson shows only the launch command and tells the reader where the name is explained (review of the pull request, P2).",
+  "position": 1
+}

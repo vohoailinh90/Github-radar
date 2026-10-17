@@ -1,0 +1,103 @@
+id: 01-oh-my-claudecode
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-17-4
+link: 01-oh-my-claudecode
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: 'oh-my-claudecode: cả đội agent chạy ngay trong Claude Code'
+  subtitle: 'Plugin cho Claude Code: lệnh /team chạy chuỗi lập kế hoạch, thực thi, kiểm tra, sửa lỗi;
+    lệnh omc team mở thêm worker Codex, Gemini, Cursor trong tmux.'
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '39.976'
+  label: sao trên GitHub
+  caption: MIT · TypeScript
+- layout: quote
+  text: Một agent AI làm từ kế hoạch đến kiểm tra thì bạn phải tự chia việc và canh từng bước.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Hai lối vào, hai runtime: Lệnh /team trong phiên Claude Code chạy đội native; omc team ở terminal
+      mở worker CLI thật trong tmux.'
+  - text: 'Chuỗi giai đoạn có vòng sửa: Team chạy team-plan → team-prd → team-exec → team-verify → team-fix
+      (loop): kiểm tra là một giai đoạn riêng, và lỗi được sửa lặp lại.'
+  - text: 'Worker sinh khi cần, tắt khi xong: Worker của omc team được sinh theo yêu cầu và chết khi xong
+      việc, nên README nói không tốn tài nguyên lúc nhàn rỗi.'
+  - text: 'Mỗi phiên một người cầm vòng lặp: README dặn dùng một quyền điều khiển vòng lặp chính mỗi phiên:
+      Team cho việc song song theo giai đoạn, Execute cho một agent làm tới…'
+  - text: 'Trạng thái nằm trong .omc/: OMC ghi trạng thái, phiên, kế hoạch vào thư mục .omc/.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Plugin trong Claude Code
+    text: Đưa các skill /team, /autopilot, /ralph vào phiên Claude Code qua marketplace của plugin.
+  - emoji: ⚙️
+    title: Lệnh omc (gói npm)
+    text: 'Lệnh terminal: omc setup, omc team, omc ask. Cài bằng gói npm oh-my-claude-sisyphus.'
+  - emoji: 🔌
+    title: Đội native (/team)
+    text: Các agent Claude phối hợp trên một danh sách việc chung; cần bật cờ đội native trong settings.json
+      (bước 4).
+  - emoji: 📦
+    title: Worker tmux
+    text: Pane tmux chạy CLI thật (claude, codex, gemini, antigravity, grok, cursor-agent); sinh khi cần,
+      tắt khi xong.
+  - emoji: 🧠
+    title: Thư mục .omc/
+    text: Nơi OMC giữ trạng thái chạy, dữ liệu phiên, kế hoạch và log của dự án.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - 'Tách hai runtime: đội chạy trong phiên và worker chạy ngoài phiên, mỗi bên hợp một loại việc.'
+  - Đặt kiểm tra thành giai đoạn riêng và cho nó vòng sửa lỗi, thay vì kiểm tra một lần ở cuối.
+  - Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.
+  - 'Worker sinh khi cần và tắt khi xong: trả tài nguyên ngay sau mỗi việc.'
+  - Giữ trạng thái cục bộ cạnh dự án và nói rõ nó sống hay chết theo worktree.
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic.
+  - emoji: ⚠️
+    text: Đội native cần đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`; nếu tắt, OMC cảnh báo và lùi về chạy
+      không theo đội khi có thể.
+  - emoji: ⚠️
+    text: Lệnh slash như /team, /autopilot cần phiên Claude Code đang chạy nên không dùng trong CI; omc
+      team cần tmux.
+  - emoji: ⚠️
+    text: Jev (lớp phán đoán tùy chọn, bật bằng biến môi trường) cần khóa riêng. README cũng gợi ý gajae-code
+      cho ai thấy OMC hơi quá tay.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'oh-my-claudecode: một lệnh /team để Claude Code chia việc cho cả đội agent
+
+
+      - /team: lập kế hoạch, thực thi, kiểm tra, rồi sửa lỗi theo vòng
+
+      - omc team: mở worker Codex, Gemini, Cursor trong tmux
+
+      - Cần Claude Code và gói Max/Pro hoặc khóa API Anthropic
+
+      Bài hướng dẫn từng bước có cả cách bật đội native và các lưu ý.
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - ClaudeCode
+    - MultiAgent
+    - AIAgents
+    - DevTools
