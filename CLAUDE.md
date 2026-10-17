@@ -29,8 +29,9 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 - **Models never write SVG, YAML or Markdown structure.** They return fields; `radar/svg.py`, `radar/digest.py` and
   `radar/studio_export.py` render them; so do `radar/boards.py` (layout) with `radar/excalidraw.py`, `radar/moda.py` and
   `radar/drawio.py` (the `.excalidraw` board, the Moda markup and the `.drawio` diagram stored beside each digest,
-  `docs/design-files.md`). No label or caption is invented on those pictures: every word is a draft field, a `labels.py`
-  entry or a fact. A pictogram is the one thing a model picks, and only by name from the closed set in `radar/icons/`
+  `docs/design-files.md`), and `radar/slides.py` (the `slides-<lang>.pptx` deck, drawn on request by `python3 radar.py slides`,
+  never by a model and never through Moda, so it carries no Moda badge). No label or caption is invented on those pictures
+  or slides: every word is a draft field, a `labels.py` entry or a fact (`tests/test_slides.py` checks it word by word). A pictogram is the one thing a model picks, and only by name from the closed set in `radar/icons/`
   (Lucide, vendored byte for byte, `docs/third-party/lucide/`): `gates.schema` refuses any other name, a draft names an
   icon for every component or for none, and the renderer draws the file's own shapes, never text a model wrote. A draft stored
   before icons existed is never edited to add them: its icons live in `icons-<lang>.json` beside it (`gates.icon_file`).
@@ -74,6 +75,7 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
 python3 -m pytest -q                                   # pipeline against fake GitHub + fake LLM servers, gates, SVG, export, handoff
 python3 radar.py check                                 # export/studio satisfies the vendored studio contract
 python3 radar.py rerender                              # redraw digests, diagrams and studio posts from the stored drafts (no model, no GitHub)
+python3 radar.py slides <run>/<repo> [...]             # draw slides-<lang>.pptx beside the stored drafts of those digests (or --all)
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
