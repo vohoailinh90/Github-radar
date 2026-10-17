@@ -1,0 +1,241 @@
+{
+  "date": "2026-10-17",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 298,
+  "dropped": {
+    "licence noassertion is not on the free list": 55,
+    "already covered": 14,
+    "licence none is not on the free list": 16,
+    "licence cc-by-4.0 is not on the free list": 1,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "totec448-spec/chat-on-steroids",
+      "bucket": "solutions",
+      "score": 13.4587,
+      "stars": 4982,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 2669,
+      "velocity": "lifetime",
+      "flags": []
+    },
+    {
+      "repo": "roboflow/supervision",
+      "bucket": "solutions",
+      "score": 15.3381,
+      "stars": 51222,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 1083,
+      "velocity": "lifetime",
+      "flags": []
+    },
+    {
+      "repo": "morluto/rea",
+      "bucket": "ai",
+      "score": 18.9741,
+      "stars": 293881,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 47400,
+      "velocity": "lifetime",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "affaan-m/ECC",
+      "bucket": "ai",
+      "score": 18.7204,
+      "stars": 281661,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "NousResearch/hermes-agent",
+      "bucket": "ai",
+      "score": 18.3142,
+      "stars": 254472,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "DietrichGebert/ponytail",
+      "bucket": "ai",
+      "score": 18.302,
+      "stars": 165323,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Graphify-Labs/graphify",
+      "bucket": "ai",
+      "score": 17.6906,
+      "stars": 127309,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.5411,
+      "stars": 192259,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 301,
+    "measured": 0
+  },
+  "written": [
+    {
+      "repo": "totec448-spec/chat-on-steroids",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 0,
+        "used": 0
+      }
+    },
+    {
+      "repo": "roboflow/supervision",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 2,
+        "used": 1
+      }
+    },
+    {
+      "repo": "morluto/rea",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 9,
+        "used": 4
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 44.4,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.2,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 47.5,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.8,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 15.9,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 38.2,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.1,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 15.4,
+      "served": "gemini-flash-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-17-5"
+}

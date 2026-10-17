@@ -1,0 +1,286 @@
+{
+  "draft": {
+    "analogy": "Tương tự như việc cấp thẻ ra vào và bàn làm việc trực tiếp tại công ty cho một trợ lý từ xa, thay vì chỉ trao đổi qua tin nhắn điện thoại.",
+    "caveats": [
+      "Bản beta độc lập, chưa được ký số trên Windows và chưa notarize trên macOS.",
+      "Không giúp vượt qua hạn mức sử dụng (quota) hay giới hạn truy cập mô hình của OpenAI.",
+      "Lệnh shell chạy với toàn bộ quyền của tài khoản người dùng hiện tại trên máy tính."
+    ],
+    "facebook": {
+      "caption": "Biến ChatGPT trên trình duyệt thành trợ lý lập trình cục bộ mạnh mẽ với MCP và đa agent.\n\nCoS (Chat On Steroids) kết nối ChatGPT với máy tính của bạn.\nCho phép đọc sửa tệp, mở terminal và điều khiển desktop an toàn.\nPhân chia công việc cho nhiều worker độc lập không lo mất ngữ cảnh.\nThiết lập nhanh chóng qua 7 bước hướng dẫn trực quan.",
+      "hashtags": [
+        "#ChatGPT",
+        "#MCP",
+        "#OpenSource",
+        "#DevTools",
+        "#Automation"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Model Context Protocol, giao thức kết nối công cụ và tài nguyên bên ngoài với mô hình AI.",
+        "term": "MCP"
+      },
+      {
+        "meaning": "Tính năng nén và chuyển tiếp phiên làm việc cùng lịch sử worker sang cuộc trò chuyện mới.",
+        "term": "Compact & Resume"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử nghiệm chia việc độc lập cho các workers để xử lý song song.",
+        "Sử dụng tính năng Compact & Resume để chuyển lịch sử phiên làm việc sang cửa sổ chat mới."
+      ],
+      "outcome": "ChatGPT được kết nối qua MCP cục bộ để đọc sửa tệp, mở terminal và phối hợp agent ngay trên máy tính của bạn.",
+      "requirements": [
+        {
+          "detail": "Windows 10/11, macOS 13 Ventura trở lên, hoặc bản Linux desktop hiện tại.",
+          "evidence": "README",
+          "item": "Hệ điều hành tương thích",
+          "link_ref": null
+        },
+        {
+          "detail": "Chrome phiên bản 125 trở lên, hoặc Edge / Brave bản hiện tại.",
+          "evidence": "README",
+          "item": "Trình duyệt web",
+          "link_ref": null
+        },
+        {
+          "detail": "Tài khoản hoặc workspace có quyền tạo custom MCP apps.",
+          "evidence": "README",
+          "item": "Tài khoản ChatGPT hỗ trợ MCP",
+          "link_ref": 0
+        },
+        {
+          "detail": "Bộ cài đặt tải về phù hợp với hệ điều hành của bạn.",
+          "evidence": "README",
+          "item": "Gói cài đặt CoS",
+          "link_ref": 8
+        },
+        {
+          "detail": "Yêu cầu bắt buộc nếu bạn cài đặt trên Linux.",
+          "evidence": "README",
+          "item": "Secret Service keyring cho Linux",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Cài đặt ứng dụng CoS trên máy tính của bạn.",
+            "Mở mục Settings → Setup trong ứng dụng."
+          ],
+          "evidence": "README",
+          "expect": "Giao diện hiển thị 7 bước hướng dẫn kèm hình ảnh minh họa vị trí thao tác.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt CoS và mở trình hướng dẫn",
+          "why": "Khởi động ứng dụng và bắt đầu quy trình cấu hình 7 bước trực quan."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở trang quản lý extensions trên Chrome, Edge hoặc Brave và bật Developer mode.",
+            "Bấm Load unpacked và chọn thư mục được chỉ định bởi nút Open extension folder."
+          ],
+          "evidence": "README",
+          "expect": "Trình duyệt và ứng dụng CoS tự động ghép nối thành công.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kết nối tiện ích mở rộng trình duyệt",
+          "why": "Cho phép ứng dụng giao tiếp với giao diện web của ChatGPT."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Ở các bước 2–3 của Setup, chọn thư mục dự án mà ChatGPT được phép can thiệp.",
+            "Thiết lập quyền truy cập cho phép ChatGPT thực hiện trong thư mục đó."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chia sẻ thư mục dự án và phân quyền",
+          "why": "Chỉ định thư mục làm việc và giới hạn quyền thao tác cho ChatGPT."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Tạo tunnel và restricted API key tại OpenAI theo hướng dẫn.",
+            "Bấm Connect trong CoS.",
+            "Trong ChatGPT, thêm ứng dụng tại Plugins → Add → Add custom MCP server."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kết nối Core với ChatGPT qua MCP",
+          "why": "Liên kết server MCP cục bộ với tài khoản ChatGPT của bạn."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Chọn mô hình mong muốn trong ChatGPT.",
+            "Nhập mô tả công việc cần xử lý và nhấn gửi."
+          ],
+          "evidence": "README",
+          "expect": "ChatGPT đọc, sửa tệp và trả về kết quả công cụ trực tiếp theo thời gian thực.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chọn mô hình và bắt đầu giao việc",
+          "why": "Thực hiện tác vụ đầu tiên với các công cụ cục bộ."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Chọn Always Allow khi macOS hỏi quyền truy cập chat-on-steroids Safe Storage để ứng dụng đọc khóa bảo mật.",
+          "problem": "macOS yêu cầu mật khẩu đăng nhập sau khi cập nhật phiên bản mới"
+        },
+        {
+          "evidence": "README",
+          "fix": "Khởi chạy AppImage với cờ --no-sandbox hoặc chuyển sang sử dụng gói cài đặt DEB.",
+          "problem": "Bản Linux AppImage gặp lỗi unprivileged user namespaces bị tắt"
+        }
+      ],
+      "verify": "ChatGPT trong trình duyệt nhận diện được custom MCP app, thực hiện thao tác trên tệp và trả về kết quả công cụ trực tiếp."
+    },
+    "hook": "Biến ChatGPT trên trình duyệt thành trợ lý lập trình cục bộ với MCP và quy trình đa agent.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "CoS Desktop App",
+          "role": "Ứng dụng máy tính quản lý phân quyền, cấu hình thư mục và điều phối quy trình."
+        },
+        {
+          "evidence": "README",
+          "icon": "puzzle",
+          "name": "Browser Extension",
+          "role": "Tiện ích kết nối giao diện ChatGPT trên Chrome, Edge hoặc Brave với CoS."
+        },
+        {
+          "evidence": "README",
+          "icon": "server",
+          "name": "Core MCP Server",
+          "role": "Cung cấp khả năng truy cập tệp cục bộ, terminal và công cụ máy tính cho ChatGPT."
+        },
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "Workers",
+          "role": "Các agent con nhận tác vụ độc lập và lưu giữ ngữ cảnh riêng biệt."
+        }
+      ],
+      "flow": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "CoS hoạt động như máy chủ MCP cục bộ, cho phép ChatGPT đọc sửa tệp, mở terminal và tương tác desktop.",
+          "title": "Cung cấp công cụ MCP cục bộ"
+        },
+        {
+          "evidence": "README",
+          "text": "Tiện ích mở rộng trình duyệt kết nối với giao diện web của ChatGPT, theo dõi và tự động hóa thao tác.",
+          "title": "Đồng bộ qua extension"
+        },
+        {
+          "evidence": "README",
+          "text": "Chia nhỏ công việc độc lập cho các workers xử lý riêng biệt, sau đó tổng hợp kết quả mà vẫn giữ ngữ cảnh.",
+          "title": "Điều phối đa worker"
+        },
+        {
+          "evidence": "README",
+          "text": "Goal theo dõi việc dở dang, Loop duy trì chỉ dẫn và Compact & Resume chuyển phiên sang chat mới khi đầy.",
+          "title": "Kiểm soát phiên dài"
+        }
+      ]
+    },
+    "learn": [
+      "Cách mở rộng khả năng của mô hình AI web bằng giao thức Model Context Protocol (MCP).",
+      "Kỹ thuật chia nhỏ tác vụ cho các worker độc lập mà vẫn bảo toàn ngữ cảnh làm việc.",
+      "Giải pháp Compact & Resume để quản lý giới hạn ngữ cảnh trong các phiên làm việc dài."
+    ],
+    "one_liner": "Không gian làm việc mã nguồn mở mang MCP cục bộ lên ChatGPT với tích hợp Chrome, chia việc đa agent và duy trì phiên làm việc.",
+    "problem": "ChatGPT trên web không thể thao tác trực tiếp với tệp tin trên máy, giữ terminal mở hay điều khiển màn hình cục bộ. Người dùng cũng gặp khó khăn khi duy trì ngữ cảnh cho các dự án lập trình dài và phức tạp.",
+    "title": "Chat On Steroids: Kết nối MCP và công cụ cục bộ cho ChatGPT",
+    "who_for": [
+      "Lập trình viên muốn ChatGPT đọc sửa mã nguồn và chạy terminal trực tiếp trên máy.",
+      "Người dùng cần tự động hóa các tác vụ dài hạn và phối hợp nhiều agent cùng lúc."
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 651,
+    "full_name": "totec448-spec/chat-on-steroids",
+    "language": "TypeScript",
+    "license": "MIT",
+    "links": [
+      [
+        "Check account availability",
+        "https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt"
+      ],
+      [
+        "Terms of Use",
+        "https://openai.com/policies/terms-of-use/"
+      ],
+      [
+        "Europe Terms",
+        "https://openai.com/policies/eu-terms-of-use/"
+      ],
+      [
+        "Usage Policies",
+        "https://openai.com/policies/usage-policies/"
+      ],
+      [
+        "Service Terms",
+        "https://openai.com/policies/service-terms/"
+      ],
+      [
+        "github.com",
+        "https://github.com/totec448-spec/chat-on-steroids/releases/latest/download/Chat-On-Steroids-Setup-x64.exe"
+      ],
+      [
+        "github.com",
+        "https://github.com/totec448-spec/chat-on-steroids/releases/latest/download/Chat-On-Steroids-macOS-arm64.dmg"
+      ],
+      [
+        "github.com",
+        "https://github.com/totec448-spec/chat-on-steroids/releases/latest/download/Chat-On-Steroids-Linux-x64.deb"
+      ],
+      [
+        "All downloads",
+        "https://github.com/totec448-spec/chat-on-steroids/releases/latest"
+      ],
+      [
+        "OpenAI usage details →",
+        "https://learn.chatgpt.com/docs/pricing"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 4982,
+    "url": "https://github.com/totec448-spec/chat-on-steroids"
+  },
+  "lang": "vi",
+  "position": 1
+}

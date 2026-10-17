@@ -1,0 +1,60 @@
+<!-- radar: Moda canvas 1200x1722; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Làm chủ Supervision: Bộ công cụ thị giác máy tính toàn diện</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Xử lý và trực quan hóa kết quả Computer Vision cực nhanh chỉ với vài dòng code Python</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Model Connectors</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bộ kết nối chuẩn hóa dữ liệu đầu ra từ các framework mô hình khác nhau.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">sv.Detections</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cấu trúc dữ liệu trung tâm lưu trữ thông tin phát hiện, phân đoạn và phân loại.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Annotators</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tập hợp các công cụ vẽ và tùy biến trực quan hóa đối tượng trên ảnh hoặc video.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">DetectionDataset</text>
+<text x="680" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Công cụ quản lý, tải, chia tách và chuyển đổi định dạng tập dữ liệu thị giác.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Kết nối mô hình</text>
+<text x="154" y="1045" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Supervision cung cấp các đầu nối connectors tích hợp với nhiều thư viện như Ultralytics, Transformers để trích xuất kết quả dự đoán.</text>
+<line x1="584" y1="1072" x2="616" y2="1072" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chuẩn hóa dữ liệu</text>
+<text x="714" y="1045" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Kết quả dự đoán được chuẩn hóa vào lớp dữ liệu sv.Detections, giúp tách biệt hoàn toàn mô hình khỏi phần xử lý sau.</text>
+<rectangle x="60" y="1181" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1203" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1203" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Trực quan hóa</text>
+<text x="154" y="1239" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các module annotator sử dụng sv.Detections để vẽ nhãn, mặt nạ, và khung viền lên hình ảnh một cách linh hoạt.</text>
+<line x1="584" y1="1255" x2="616" y2="1255" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1181" width="520" height="148" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1203" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1203" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Quản lý tập dữ liệu</text>
+<text x="714" y="1239" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cung cấp các tiện ích nạp, gộp, chia tách và chuyển đổi dữ liệu qua lại giữa các định dạng COCO, YOLO và Pascal VOC.</text>
+<text x="60" y="1411" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1477" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1517.8" x2="97.6" y2="1525" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1525" x2="110" y2="1509.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1497" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách rời logic hiển thị hình ảnh khỏi framework mô hình học sâu cụ thể.</text>
+<rectangle x="430" y="1477" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1517.8" x2="467.6" y2="1525" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1525" x2="480" y2="1509.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1497" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chuẩn hóa dữ liệu trung gian giúp dễ dàng hoán đổi mô hình dự đoán mà không sửa đổi ứng dụng.</text>
+<rectangle x="800" y="1477" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1517.8" x2="837.6" y2="1525" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1525" x2="850" y2="1509.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1497" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tổ chức quy trình xử lý dữ liệu ảnh và tập dữ liệu thị giác máy tính một cách có cấu trúc.</text>
+<text x="60" y="1659" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: roboflow/supervision · Giấy phép: MIT · 51.222 sao · Quét ngày 2026-10-17</text>
+</content>

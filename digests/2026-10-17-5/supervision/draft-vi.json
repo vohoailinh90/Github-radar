@@ -1,0 +1,382 @@
+{
+  "draft": {
+    "analogy": "Supervision giống như bộ đầu chuyển adapter đa năng kết hợp cọ vẽ chuyên dụng, giúp bạn cắm bất kỳ mô hình AI nào vào và vẽ ngay kết quả lên màn hình mà không cần chế dây nối phức tạp.",
+    "caveats": [
+      "Yêu cầu môi trường chạy Python tối thiểu từ phiên bản 3.10 trở lên.",
+      "Chỉ đóng vai trò là bộ công cụ hỗ trợ và trực quan hóa, không tự đảm nhận việc huấn luyện mô hình.",
+      "Một số mô hình cụ thể đòi hỏi cài đặt thêm gói phụ trợ như pillow hoặc rfdetr."
+    ],
+    "facebook": {
+      "caption": "Bộ công cụ tái sử dụng cho Computer Vision với Supervision từ Roboflow!\n- Tự động chuẩn hóa đầu ra từ YOLO, Transformers và MMDetection\n- Trực quan hóa kết quả phát hiện đối tượng dễ dàng với BoxAnnotator\n- Quản lý và chuyển đổi định dạng tập dữ liệu COCO, YOLO, Pascal VOC\n- Cài đặt nhanh chóng chỉ với một dòng lệnh pip",
+      "hashtags": [
+        "#Supervision",
+        "#ComputerVision",
+        "#Roboflow",
+        "#Python",
+        "#AI"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Cấu trúc dữ liệu chuẩn hóa của Supervision dùng để lưu trữ kết quả phát hiện vật thể.",
+        "term": "sv.Detections"
+      },
+      {
+        "meaning": "Lớp tiện ích trực quan hóa dùng để vẽ bounding box, nhãn hoặc mặt nạ lên hình ảnh.",
+        "term": "Annotator"
+      },
+      {
+        "meaning": "Khả năng hoạt động độc lập và tương thích với nhiều kiến trúc mô hình AI khác nhau.",
+        "term": "Model Agnostic"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Tìm hiểu thêm các annotators khác tại tài liệu hướng dẫn của Supervision.",
+        "Thử nghiệm kết nối với các thư viện mô hình như Ultralytics, Transformers hoặc MMDetection.",
+        "Áp dụng theo dõi đối tượng và đếm số lượng người hoặc phương tiện trong vùng quan sát."
+      ],
+      "outcome": "Cài đặt thành công Supervision, tải kết quả nhận diện vào cấu trúc sv.Detections và hiển thị bounding box lên hình ảnh bằng BoxAnnotator.",
+      "requirements": [
+        {
+          "detail": "Môi trường thực thi Python phiên bản từ 3.10 trở lên.",
+          "evidence": "README",
+          "item": "Python>=3.10",
+          "link_ref": 0
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "pip install supervision"
+          ],
+          "do": [
+            "Mở terminal trên máy tính của bạn.",
+            "Chạy lệnh pip install để tải và cài đặt gói supervision."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt supervision",
+          "why": "Cài đặt gói supervision vào môi trường Python để sẵn sàng sử dụng các công cụ thị giác máy tính."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở trình soạn thảo mã nguồn hoặc notebook.",
+            "Khởi tạo mô hình và gọi hàm dự đoán trên ảnh để thu về đối tượng detections."
+          ],
+          "evidence": "README",
+          "expect": "Thu được đối tượng Detections với số lượng nhận diện có thể kiểm tra qua len(detections).",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy mô hình và nạp dữ liệu vào sv.Detections",
+          "why": "Lấy kết quả phát hiện từ mô hình thị giác và chuẩn hóa về đối tượng Detections thống nhất."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Đọc ảnh đầu vào bằng OpenCV.",
+            "Khởi tạo sv.BoxAnnotator và truyền ảnh cùng đối tượng detections vào hàm annotate."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Vẽ bounding box lên ảnh với BoxAnnotator",
+          "why": "Trực quan hóa các hộp giới hạn của đối tượng phát hiện được lên khung hình gốc."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Sử dụng sv.DetectionDataset để nạp dữ liệu từ định dạng hỗ trợ.",
+            "Gọi hàm split để phân chia tập dữ liệu thành các tập train và test."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 3,
+          "title": "Tải và phân chia tập dữ liệu phát hiện",
+          "why": "Thực hiện nạp và chia tách tập dữ liệu sang định dạng huấn luyện và kiểm thử."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Kiểm tra số lượng phát hiện được qua len(detections) trả về kết quả số nguyên và ảnh sau khi gọi hàm annotate có hiển thị khung bounding box."
+    },
+    "hook": "Xử lý và trực quan hóa kết quả Computer Vision cực nhanh chỉ với vài dòng code Python",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "plug",
+          "name": "Model Connectors",
+          "role": "Bộ kết nối chuẩn hóa dữ liệu đầu ra từ các framework mô hình khác nhau."
+        },
+        {
+          "evidence": "README",
+          "icon": "box",
+          "name": "sv.Detections",
+          "role": "Cấu trúc dữ liệu trung tâm lưu trữ thông tin phát hiện, phân đoạn và phân loại."
+        },
+        {
+          "evidence": "README",
+          "icon": "sparkles",
+          "name": "Annotators",
+          "role": "Tập hợp các công cụ vẽ và tùy biến trực quan hóa đối tượng trên ảnh hoặc video."
+        },
+        {
+          "evidence": "README",
+          "icon": "database",
+          "name": "DetectionDataset",
+          "role": "Công cụ quản lý, tải, chia tách và chuyển đổi định dạng tập dữ liệu thị giác."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Supervision cung cấp các đầu nối connectors tích hợp với nhiều thư viện như Ultralytics, Transformers để trích xuất kết quả dự đoán.",
+          "title": "Kết nối mô hình"
+        },
+        {
+          "evidence": "README",
+          "text": "Kết quả dự đoán được chuẩn hóa vào lớp dữ liệu sv.Detections, giúp tách biệt hoàn toàn mô hình khỏi phần xử lý sau.",
+          "title": "Chuẩn hóa dữ liệu"
+        },
+        {
+          "evidence": "README",
+          "text": "Các module annotator sử dụng sv.Detections để vẽ nhãn, mặt nạ, và khung viền lên hình ảnh một cách linh hoạt.",
+          "title": "Trực quan hóa"
+        },
+        {
+          "evidence": "README",
+          "text": "Cung cấp các tiện ích nạp, gộp, chia tách và chuyển đổi dữ liệu qua lại giữa các định dạng COCO, YOLO và Pascal VOC.",
+          "title": "Quản lý tập dữ liệu"
+        }
+      ]
+    },
+    "learn": [
+      "Tách rời logic hiển thị hình ảnh khỏi framework mô hình học sâu cụ thể.",
+      "Chuẩn hóa dữ liệu trung gian giúp dễ dàng hoán đổi mô hình dự đoán mà không sửa đổi ứng dụng.",
+      "Tổ chức quy trình xử lý dữ liệu ảnh và tập dữ liệu thị giác máy tính một cách có cấu trúc."
+    ],
+    "one_liner": "Supervision là thư viện Python mã nguồn mở cung cấp các khối xây dựng tái sử dụng cho ứng dụng thị giác máy tính từ Roboflow.",
+    "problem": "Lập trình viên thị giác máy tính thường mất nhiều thời gian viết lại mã để vẽ bounding box, theo dõi vật thể và chuyển đổi định dạng dữ liệu giữa các mô hình. Mỗi mô hình lại trả về cấu trúc kết quả khác nhau gây phức tạp khi tích hợp vào ứng dụng.",
+    "title": "Làm chủ Supervision: Bộ công cụ thị giác máy tính toàn diện",
+    "who_for": [
+      "Kỹ sư Computer Vision muốn tái sử dụng mã nguồn hậu xử lý và vẽ nhãn mà không cần viết lại từ đầu.",
+      "Nhà phát triển Python xây dựng ứng dụng đếm người, phân tích giao thông hoặc đo tốc độ vật thể.",
+      "Người làm dữ liệu cần chuyển đổi và chia tách tập dữ liệu giữa COCO, YOLO và Pascal VOC."
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "python",
+        "import cv2\nimport supervision as sv\n\nimage = cv2.imread(\"path/to/image.jpg\")\n# Assuming detections are obtained from a model\ndetections = sv.Detections(...)\n\nbox_annotator = sv.BoxAnnotator()\nannotated_frame = box_annotator.annotate(scene=image.copy(), detections=detections)"
+      ],
+      [
+        "python",
+        "import supervision as sv\nfrom roboflow import Roboflow\n\nproject = Roboflow().workspace(\"WORKSPACE_ID\").project(\"PROJECT_ID\")\ndataset = project.version(\"PROJECT_VERSION\").download(\"coco\")\n\nds = sv.DetectionDataset.from_coco(\n    images_directory_path=f\"{dataset.location}/train\",\n    annotations_path=f\"{dataset.location}/train/_annotations.coco.json\",\n)\n\npath, image, annotation = ds[0]\n# loads image on demand\n\nfor path, image, annotation in ds:\n    # loads image on demand\n    pass"
+      ],
+      [
+        "python",
+        "dataset = sv.DetectionDataset.from_yolo(\n    images_directory_path=...,\n    annotations_directory_path=...,\n    data_yaml_path=...,\n)\n\ndataset = sv.DetectionDataset.from_pascal_voc(\n    images_directory_path=...,\n    annotations_directory_path=...,\n)\n\ndataset = sv.DetectionDataset.from_coco(\n    images_directory_path=...,\n    annotations_path=...,\n)"
+      ],
+      [
+        "python",
+        "train_dataset, test_dataset = dataset.split(split_ratio=0.7)\ntest_dataset, valid_dataset = test_dataset.split(split_ratio=0.5)\n\nlen(train_dataset), len(test_dataset), len(valid_dataset)\n# (700, 150, 150)"
+      ],
+      [
+        "python",
+        "ds_1 = sv.DetectionDataset(...)\nlen(ds_1)\n# 100\nds_1.classes\n# ['dog', 'person']\n\nds_2 = sv.DetectionDataset(...)\nlen(ds_2)\n# 200\nds_2.classes\n# ['cat']\n\nds_merged = sv.DetectionDataset.merge([ds_1, ds_2])\nlen(ds_merged)\n# 300\nds_merged.classes\n# ['cat', 'dog', 'person']"
+      ],
+      [
+        "python",
+        "dataset.as_yolo(\n    images_directory_path=...,\n    annotations_directory_path=...,\n    data_yaml_path=...,\n)\n\ndataset.as_pascal_voc(\n    images_directory_path=...,\n    annotations_directory_path=...,\n)\n\ndataset.as_coco(\n    images_directory_path=...,\n    annotations_path=...,\n)"
+      ],
+      [
+        "python",
+        "sv.DetectionDataset.from_yolo(\n    images_directory_path=...,\n    annotations_directory_path=...,\n    data_yaml_path=...,\n).as_pascal_voc(\n    images_directory_path=...,\n    annotations_directory_path=...,\n)"
+      ],
+      [
+        "python",
+        "import supervision as sv\nfrom PIL import Image\nfrom rfdetr import RFDETRSmall\n\nimage = Image.open(\"path/to/image.jpg\")\nmodel = RFDETRSmall()\ndetections = model.predict(image, threshold=0.5)\n\nlen(detections)\n# 5"
+      ],
+      [
+        "python",
+        "import supervision as sv\nfrom PIL import Image\nfrom inference import get_model\n\nimage = Image.open(\"path/to/image.jpg\")\nmodel = get_model(model_id=\"rfdetr-small\", api_key=\"ROBOFLOW_API_KEY\")\nresult = model.infer(image)[0]\ndetections = sv.Detections.from_inference(result)\n\nlen(detections)\n# 5"
+      ]
+    ],
+    "bucket": "solutions",
+    "forks": 4884,
+    "full_name": "roboflow/supervision",
+    "language": "Python",
+    "license": "MIT",
+    "links": [
+      [
+        "Python=3.10",
+        "https://www.python.org/"
+      ],
+      [
+        "guide",
+        "https://supervision.roboflow.com/"
+      ],
+      [
+        "annotators",
+        "https://supervision.roboflow.com/latest/detection/annotators/"
+      ],
+      [
+        "github.com",
+        "https://github.com/roboflow/supervision/assets/26109316/691e219c-0565-4403-9218-ab5644f39bce"
+      ],
+      [
+        "utils",
+        "https://supervision.roboflow.com/latest/datasets/core/"
+      ],
+      [
+        "connectors",
+        "https://supervision.roboflow.com/latest/detection/core/#detections"
+      ],
+      [
+        "Roboflow API KEY",
+        "https://docs.roboflow.com/api-reference/authentication#retrieve-an-api-key"
+      ],
+      [
+        "how-to guides",
+        "https://supervision.roboflow.com/develop/how_to/detect_and_annotate/"
+      ],
+      [
+        "cheatsheet",
+        "https://roboflow.github.io/cheatsheet-supervision/"
+      ],
+      [
+        "cookbooks",
+        "https://supervision.roboflow.com/develop/cookbooks/"
+      ],
+      [
+        "youtu.be",
+        "https://youtu.be/hAWpsIuem10"
+      ],
+      [
+        "youtu.be",
+        "https://youtu.be/uWP6UjDeZvY"
+      ],
+      [
+        "supervision.roboflow.com",
+        "https://supervision.roboflow.com"
+      ],
+      [
+        "notebooks",
+        "https://github.com/roboflow/notebooks"
+      ],
+      [
+        "inference",
+        "https://github.com/roboflow/inference"
+      ],
+      [
+        "autodistill",
+        "https://github.com/autodistill/autodistill"
+      ],
+      [
+        "maestro",
+        "https://github.com/roboflow/multimodal-maestro"
+      ],
+      [
+        "badge.fury.io",
+        "https://badge.fury.io/py/supervision"
+      ],
+      [
+        "pypistats.org",
+        "https://pypistats.org/packages/supervision"
+      ],
+      [
+        "codecov.io",
+        "https://codecov.io/gh/roboflow/supervision"
+      ],
+      [
+        "security.snyk.io",
+        "https://security.snyk.io/package/pip/supervision"
+      ],
+      [
+        "colab.research.google.com",
+        "https://colab.research.google.com/github/roboflow/supervision/blob/main/demo.ipynb"
+      ],
+      [
+        "huggingface.co",
+        "https://huggingface.co/spaces/Roboflow/Annotators"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/GbfgXGJ8Bk"
+      ],
+      [
+        "trendshift.io",
+        "https://trendshift.io/repositories/124"
+      ],
+      [
+        "Let us know!",
+        "https://github.com/roboflow/supervision/discussions/categories/built-with-supervision"
+      ],
+      [
+        "user-images.githubusercontent.com",
+        "https://user-images.githubusercontent.com/26109316/207858600-ee862b22-0353-440b-ad85-caa0c4777904.mp4"
+      ],
+      [
+        "github.com",
+        "https://github.com/roboflow/supervision/assets/26109316/c9436828-9fbf-4c25-ae8c-60e9c81b3900"
+      ],
+      [
+        "github.com",
+        "https://github.com/roboflow/supervision/assets/26109316/3ac6982f-4943-4108-9b7f-51787ef1a69f"
+      ],
+      [
+        "github.com",
+        "https://github.com/roboflow/supervision/graphs/contributors"
+      ],
+      [
+        "youtube.com",
+        "https://youtube.com/roboflow"
+      ],
+      [
+        "roboflow.com",
+        "https://roboflow.com"
+      ],
+      [
+        "www.linkedin.com",
+        "https://www.linkedin.com/company/roboflow-ai/"
+      ],
+      [
+        "docs.roboflow.com",
+        "https://docs.roboflow.com"
+      ],
+      [
+        "discuss.roboflow.com",
+        "https://discuss.roboflow.com"
+      ],
+      [
+        "blog.roboflow.com",
+        "https://blog.roboflow.com"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 51222,
+    "url": "https://github.com/roboflow/supervision"
+  },
+  "lang": "vi",
+  "position": 2
+}

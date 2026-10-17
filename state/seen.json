@@ -79,6 +79,11 @@
     "covered": "2026-10-16",
     "stars": 38200
   },
+  "morluto/rea": {
+    "bucket": "ai",
+    "covered": "2026-10-17",
+    "stars": 293881
+  },
   "nextlevelbuilder/ui-ux-pro-max-skill": {
     "bucket": "software",
     "covered": "2026-10-16",
@@ -89,9 +94,19 @@
     "covered": "2026-10-16",
     "stars": 82000
   },
+  "roboflow/supervision": {
+    "bucket": "solutions",
+    "covered": "2026-10-17",
+    "stars": 51222
+  },
   "stablyai/orca": {
     "bucket": "ai",
     "covered": "2026-10-17",
     "stars": 94489
+  },
+  "totec448-spec/chat-on-steroids": {
+    "bucket": "solutions",
+    "covered": "2026-10-17",
+    "stars": 4982
   }
 }
