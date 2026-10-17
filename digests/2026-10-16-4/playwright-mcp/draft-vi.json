@@ -98,13 +98,13 @@
         },
         {
           "commands": [
-            "claude mcp add playwright npx @playwright/mcp@latest",
-            "codex mcp add playwright npx \"@playwright/mcp@latest\"",
-            "code --add-mcp '{\"name\":\"playwright\",\"command\":\"npx\",\"args\":[\"@playwright/mcp@latest\"]}'"
+            "claude mcp add playwright npx @playwright/mcp@latest"
           ],
           "do": [
-            "Chọn MỘT dòng đúng với công cụ bạn dùng, đừng chạy cả ba: Claude Code dùng `claude mcp add`, Codex dùng `codex mcp add`, VS Code dùng `code --add-mcp`.",
-            "Ứng dụng khác (Amp, Factory, Grok...) cũng có lệnh riêng trong README."
+            "Chọn MỘT cách đúng với công cụ bạn dùng, đừng chạy nhiều cách; Amp, Factory, Grok... cũng có lệnh riêng trong README.",
+            "Claude Code: chạy lệnh trong khối bên dưới.",
+            "Codex: chạy thay bằng `codex mcp add playwright npx \"@playwright/mcp@latest\"`.",
+            "VS Code: chạy thay bằng `code --add-mcp '{\"name\":\"playwright\",\"command\":\"npx\",\"args\":[\"@playwright/mcp@latest\"]}'`."
           ],
           "evidence": "README",
           "expect": "Với VS Code, README nói máy chủ sau đó dùng được với agent GitHub Copilot.",

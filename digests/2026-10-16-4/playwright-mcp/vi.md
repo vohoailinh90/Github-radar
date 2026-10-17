@@ -88,15 +88,15 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 
 **Mục đích:** Một lệnh thay cho việc sửa file cấu hình bằng tay, nếu client của bạn có lệnh thêm máy chủ MCP.
 
-1. Chọn MỘT dòng đúng với công cụ bạn dùng, đừng chạy cả ba: Claude Code dùng `claude mcp add`, Codex dùng `codex mcp add`, VS Code dùng `code --add-mcp`.
-2. Ứng dụng khác (Amp, Factory, Grok...) cũng có lệnh riêng trong README.
+1. Chọn MỘT cách đúng với công cụ bạn dùng, đừng chạy nhiều cách; Amp, Factory, Grok... cũng có lệnh riêng trong README.
+2. Claude Code: chạy lệnh trong khối bên dưới.
+3. Codex: chạy thay bằng `codex mcp add playwright npx "@playwright/mcp@latest"`.
+4. VS Code: chạy thay bằng `code --add-mcp '{"name":"playwright","command":"npx","args":["@playwright/mcp@latest"]}'`.
 
 _Gõ hoặc dán từng dòng, theo thứ tự._
 
 ```bash
 claude mcp add playwright npx @playwright/mcp@latest
-codex mcp add playwright npx "@playwright/mcp@latest"
-code --add-mcp '{"name":"playwright","command":"npx","args":["@playwright/mcp@latest"]}'
 ```
 
 ✅ **Bạn sẽ thấy:** Với VS Code, README nói máy chủ sau đó dùng được với agent GitHub Copilot.
