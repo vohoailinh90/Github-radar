@@ -30,7 +30,8 @@ def _demo() -> dict:
 
 FUNCTIONS = ("parseRepo, parseRepoList, sameRepo, safeWorkflowPath, clip, normInfo, normWorkflow, normRun, normJob, normPull, runState, stepState, stepCounts, "
              "runProgress, lastDone, isFailing, orderWorkflows, sparkHistory, repoHealth, agentKind, agentActivity, parseCron, occurrences, nextOccurrence, "
-             "describeCron, extractCrons, hasDispatch, lowOnQuota, ago, fmtDuration, weekPlan, countScheduled, summarize, readOffice, buildDemo, demoOffice")
+             "describeCron, extractCrons, hasDispatch, lowOnQuota, ago, fmtDuration, weekPlan, countScheduled, summarize, readOffice, buildDemo, demoOffice, "
+             "runStatus, workflowStatus, prStatus, codeOf, runsWorthANode, boardModel, filterBoard, chainOf, waveProgress, boxState, seconds, inferStages, flowOf, jobRows, inboxItems, readyNow, demoSteps")
 
 
 def _node(cases: list) -> list:
@@ -40,7 +41,7 @@ def _node(cases: list) -> list:
     program = f"""{_logic()}
 const fns = {{ {FUNCTIONS} }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
-process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
+process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args)), (key, value) => (value instanceof Set ? [...value] : value)));
 """
     out = subprocess.run([NODE, "-e", program], input=json.dumps(cases), capture_output=True, text=True, timeout=120)
     assert out.returncode == 0, out.stderr
@@ -103,20 +104,22 @@ def test_the_page_only_ever_reads():
     assert re.findall(r'method: "(\w+)"', script) == ["GET"]
     assert not re.search(r"\b(POST|PUT|PATCH|DELETE)\b", script)
     assert script.count("Authorization") == 1 and script.count("Bearer") == 1                 # the token goes into one header, built in one place
-    assert set(re.findall(r"https?://[A-Za-z0-9.-]+", script)) == {"https://api.github.com", "https://github.com"}     # where it reads, and where its links point
+    assert set(re.findall(r"https?://[A-Za-z0-9.-]+", script)) == {"https://api.github.com", "https://github.com", "http://www.w3.org"}     # where it reads, where its links point, the SVG namespace
+    assert script.count("http://www.w3.org") == 1 and 'const SVG_NS = "http://www.w3.org/2000/svg";' in script                                    # a name for XML, never fetched
 
 
 def test_only_the_list_of_names_is_stored_never_the_token():
     script = re.search(r"<script>(.*?)</script>", HTML, re.S).group(1)
     assert script.count("localStorage") == 2 and script.count('"radar-board.v1"') == 1
     save = script.split("function saveStore()", 1)[1].split("\n}", 1)[0]
-    assert "token" not in save and "JSON.stringify({ repos: state.repos, interval: state.interval })" in save
+    assert "token" not in save and "JSON.stringify({ repos: state.repos, interval: state.interval, theme: state.theme, mode: state.mode })" in save
 
 
 def test_every_link_is_built_from_a_checked_name_and_a_whole_number():
     script = re.search(r"<script>(.*?)</script>", HTML, re.S).group(1)
     hrefs = re.findall(r"(?<!function )extLink\(([^;]*?), ", script)
-    assert len(hrefs) >= 6 and all(h.strip().startswith("gh(") for h in hrefs)                # never a URL that came from GitHub
+    assert len(hrefs) >= 6 and all(h.strip().startswith(("gh(", "workflowUrl(")) for h in hrefs)       # never a URL that came from GitHub
+    assert "function workflowUrl(repo, path) { return safeWorkflowPath(path) ? gh(repo," in script          # the one helper besides gh() builds from gh() and a checked path
     assert "html_url" not in script and "url:" not in script.replace("function", "")
 
 
@@ -517,7 +520,7 @@ def test_the_demo_builds_the_models_the_page_draws():
     assert [m["repo"] for m in models] == ["demo/web-app", "demo/ml-pipeline", "demo/docs-site", "demo/private-repo"]
     assert models[3]["ok"] is False and all(m["ok"] for m in models[:3])
     web = models[0]
-    assert [a["wf"]["name"] for a in web["active"]] == ["CI", "Claude Code Review"]
+    assert [a["wf"]["name"] for a in web["active"]] == ["CI", "Claude Code Review", "Deploy production"]
     for m in models[:3]:
         for a in m["active"]:
             assert str(a["run"]["id"]) in m["jobs"]                                                # every task has its job list (possibly empty: queued); JSON keys are text
@@ -528,12 +531,193 @@ def test_the_demo_builds_the_models_the_page_draws():
                 assert str(wf["runs"][0]["id"]) in m["jobs"]                                       # a row can be opened to see its steps
     ci = web["workflows"][0]
     assert ci["runs"][0]["number"] == 212 and ci["runs"][1]["number"] == 211 and ci["runs"][2]["number"] == 210
-    steps = web["jobs"][str(ci["runs"][0]["id"])][1]["steps"]
+    steps = web["jobs"][str(ci["runs"][0]["id"])][2]["steps"]                                  # lint, build, then test
     assert [s["status"] for s in steps] == ["completed", "completed", "in_progress", "queued", "queued"]
     totals = _one("summarize", models, NOW)
-    assert totals["running"] == 2 and totals["queued"] == 1 and totals["failing"] == 1 and totals["unreadable"] == 1 and totals["prs"] == 4 and totals["agentPrs"] == 2
+    assert totals["running"] == 2 and totals["queued"] == 2 and totals["failing"] == 1 and totals["unreadable"] == 1 and totals["prs"] == 4 and totals["agentPrs"] == 2
 
 
 def test_the_demo_snapshot_goes_through_the_same_reader():
     view = _one("demoOffice", _demo(), NOW)
     assert view["ok"] and view["atMs"] == NOW and {a["id"] for a in view["agents"]} == {"architect", "code-reviewer"} and view["log"][0]["t"] == NOW - 20000
+
+
+# ---- the board: one graph of what triggers what ------------------------------------------------------------------------------
+
+def _board(models=None):
+    models = _one("buildDemo", _demo(), NOW) if models is None else models
+    return _one("boardModel", models, NOW)
+
+
+@pytest.mark.parametrize("status,conclusion,expected", [
+    ("in_progress", None, "running"), ("queued", None, "under"), ("waiting", None, "needs"), ("completed", "failure", "needs"), ("completed", "timed_out", "needs"),
+    ("completed", "startup_failure", "needs"), ("completed", "action_required", "needs"), ("completed", "success", "done"), ("completed", "skipped", "done"),
+    ("completed", "neutral", "done"), ("completed", "cancelled", "blocked"), ("completed", "stale", "blocked"), ("completed", "brand_new", "blocked"), (None, None, "blocked")])
+def test_a_run_is_in_one_of_the_seven_statuses(status, conclusion, expected):
+    assert _one("runStatus", {"status": status, "conclusion": conclusion}) == expected
+
+
+def test_a_workflow_takes_the_status_that_needs_the_person_most():
+    done = lambda c: {"status": "completed", "conclusion": c, "id": 1}      # noqa: E731
+    cases = [{"runs": []}, {"state": "disabled_manually", "runs": [done("success")]}, {"runs": [done("success")]}, {"runs": [done("failure"), done("success")]},
+             {"runs": [{"status": "in_progress"}, {"status": "waiting"}, done("success")]}, {"runs": [{"status": "queued"}, done("failure")]}, {"runs": [{"status": "in_progress"}, done("failure")]}]
+    assert _node([["workflowStatus", [c]] for c in cases]) == ["ready", "blocked", "done", "needs", "needs", "under", "running"]
+    assert _node([["prStatus", [{"draft": True}]], ["prStatus", [{"draft": False}]]]) == ["under", "review"]
+
+
+@pytest.mark.parametrize("path,code", [(".github/workflows/ci.yml", "CI"), (".github/workflows/radar-scan.yaml", "RADAR-SCAN"), ("dynamic/pages", "WF"), (None, "WF"), (".github/workflows/" + "x" * 40 + ".yml", "X" * 13 + "…")])
+def test_the_short_code_of_a_workflow_is_its_file_name(path, code):
+    assert _one("codeOf", path) == code
+
+
+def test_the_demo_makes_a_board_of_four_waves_with_the_counts_the_reference_shows():
+    board = _board()
+    nodes = board["nodes"]
+    assert [sum(1 for n in nodes if n["wave"] == w) for w in range(4)] == [12, 9, 13, 4]
+    assert len({n["id"] for n in nodes}) == len(nodes)                                           # ids are unique
+    counts = _one("filterBoard", board, {})["counts"]
+    assert counts == {"needs": 3, "running": 4, "review": 3, "under": 3, "ready": 12, "blocked": 0, "done": 13}
+    waves = [n["wave"] for n in nodes]
+    assert waves == sorted(waves)                                                               # laid out wave by wave
+    needs_first = [n["status"] for n in nodes if n["wave"] == 2]
+    assert needs_first == sorted(needs_first, key=["needs", "running", "review", "under", "ready", "blocked", "done"].index)    # the ones to look at first
+
+
+def test_edges_exist_only_where_the_data_has_a_relation_and_the_path_to_a_need_is_critical():
+    board = _board()
+    edges = {(e["from"], e["to"]): e["crit"] for e in board["edges"]}
+    assert ("w|demo/web-app|13", "r|demo/web-app|13058") in edges                                  # workflow -> its run
+    assert ("r|demo/web-app|13058", "p|demo/web-app|41") in edges                                  # run -> the pull request of the same branch
+    assert ("r|demo/web-app|11212", "p|demo/web-app|39") in edges and ("r|demo/ml-pipeline|23003", "p|demo/ml-pipeline|12") in edges
+    assert not [e for e in edges if e[1] == "p|demo/web-app|40"]                                  # a dependabot branch no run has touched: no line
+    assert ("t|demo/web-app|manual", "w|demo/web-app|14") in edges and ("t|demo/ml-pipeline|cron|0 2 * * 1,4", "w|demo/ml-pipeline|21") in edges
+    assert edges[("w|demo/web-app|14", "r|demo/web-app|14009")] is True and edges[("t|demo/web-app|manual", "w|demo/web-app|14")] is True        # upstream of the approval that waits
+    assert edges[("w|demo/web-app|11", "r|demo/web-app|11212")] is False and edges[("w|demo/web-app|13", "r|demo/web-app|13058")] is False
+    ends = {e["to"] for e in board["edges"]}
+    assert all(n["id"] in ends for n in board["nodes"] if n["wave"] in (1, 2))                     # every workflow has a trigger, every run has its workflow
+    assert {n["id"] for n in board["nodes"] if n["wave"] == 3 and n["id"] not in ends} == {"p|demo/web-app|40"}      # the pull request nothing ran for stands alone
+    assert {n["id"]: n["crit"] for n in board["nodes"]}["r|demo/ml-pipeline|21033"] is True      # the failed run
+
+
+def test_filters_narrow_the_board_and_the_counts_follow_all_but_the_status():
+    board = _board()
+    everything = _one("filterBoard", board, {})
+    assert len(everything["nodes"]) == 38 and everything["total"] == 38
+    only_web = _one("filterBoard", board, {"repo": "DEMO/web-app"})
+    assert {n["repo"] for n in only_web["nodes"]} == {"demo/web-app"} and sum(only_web["counts"].values()) == len(only_web["nodes"])
+    needs = _one("filterBoard", board, {"status": "needs"})
+    assert {n["status"] for n in needs["nodes"]} == {"needs"} and needs["counts"]["done"] == 13                         # the counts still show the other statuses
+    nightly = _one("filterBoard", board, {"q": " nightly "})["nodes"]
+    assert sorted(n["kind"] for n in nightly) == ["run", "workflow"] and {n["title"] for n in nightly} == {"Nightly E2E"}
+    q = _one("filterBoard", board, {"q": "claude"})
+    assert {n["id"] for n in q["nodes"]} >= {"w|demo/web-app|13", "r|demo/web-app|13058", "p|demo/web-app|41"}
+    hidden = _one("filterBoard", board, {"rest": "hide"})
+    assert not [n for n in hidden["nodes"] if n["status"] in ("done", "blocked")] and len(hidden["nodes"]) == 38 - 13
+    shown = _one("filterBoard", board, {"rest": "hide", "status": "done"})
+    assert len(shown["nodes"]) == 13                                                                            # asking for "done" outranks hiding it
+    assert all(e["from"] in {n["id"] for n in hidden["nodes"]} and e["to"] in {n["id"] for n in hidden["nodes"]} for e in hidden["edges"])
+
+
+def test_the_chain_of_a_card_is_everything_upstream_and_downstream_of_it_and_nothing_beside_it():
+    board = _board()
+    chain = _one("chainOf", board["edges"], "r|demo/web-app|13058")
+    assert set(chain["nodes"]) == {"r|demo/web-app|13058", "w|demo/web-app|13", "t|demo/web-app|event|pull_request", "p|demo/web-app|41"}
+    assert set(chain["edges"]) == {"w|demo/web-app|13>r|demo/web-app|13058", "t|demo/web-app|event|pull_request>w|demo/web-app|13", "r|demo/web-app|13058>p|demo/web-app|41"}
+    assert set(_one("chainOf", board["edges"], "nope")["nodes"]) == {"nope"} and _one("chainOf", [], "x")["edges"] == []
+    wave = _one("waveProgress", board["nodes"], 2)
+    assert wave == {"total": 13, "done": 8} and _one("waveProgress", board["nodes"], 0) == {"total": 12, "done": 12} and _one("waveProgress", [], 1) == {"total": 0, "done": 0}
+
+
+def test_a_board_is_built_from_what_is_there_and_ignores_what_is_not():
+    assert _board([]) == {"nodes": [], "edges": []} and _board([{"ok": False, "repo": "o/x"}, None]) == {"nodes": [], "edges": []}
+    off = _model(repo="o/r", info={"defaultBranch": "main"}, workflows=[{"id": 1, "name": "Off", "path": ".github/workflows/off.yml", "state": "disabled_manually", "crons": ["0 1 * * *"], "dispatch": True, "runs": []}])
+    nodes = _board([off])["nodes"]
+    assert {n["kind"]: n["status"] for n in nodes} == {"cron": "blocked", "manual": "blocked", "workflow": "blocked"}                # a switched-off workflow arms nothing
+    main = _model(repo="o/r", info={"defaultBranch": "main"}, pulls=[{"number": 1, "title": "t", "branch": "main", "user": "u", "userType": "User", "draft": False}],
+                  workflows=[{"id": 1, "name": "CI", "path": ".github/workflows/ci.yml", "state": "active", "crons": [], "dispatch": False,
+                              "runs": [{"id": 5, "number": 1, "status": "completed", "conclusion": "success", "event": "push", "branch": "main", "actor": "u", "startedAt": None, "updatedAt": None}]}])
+    assert _board([main])["edges"] and not [e for e in _board([main])["edges"] if e["to"].startswith("p|")]                          # a run on the default branch is not "the" run of a PR to it
+
+
+# ---- a run as a pipeline ------------------------------------------------------------------------------------------------------
+
+def _job(name, start, end, status="completed", conclusion="success", steps=None):
+    iso = lambda s: None if s is None else dt.datetime.fromtimestamp(NOW / 1000 + s, UTC).isoformat()          # noqa: E731
+    return {"id": ["build", "lint", "test", "deploy", "late", "a", "b", "c", "d"].index(name) + 1, "name": name, "status": status, "conclusion": conclusion if status == "completed" else None, "startedAt": iso(start), "completedAt": iso(end), "steps": steps or []}
+
+
+def test_jobs_that_run_together_are_one_stage_and_the_next_starts_when_they_have_all_ended():
+    jobs = [_job("deploy", None, None, "queued"), _job("test", 100, None, "in_progress"), _job("build", 0, 90), _job("lint", 0, 40), _job("late", 150, None, "in_progress")]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", jobs)] == [["build", "lint"], ["test", "late"], ["deploy"]]       # sorted by time; unstarted ones wait at the end
+    chain = [_job("a", 0, 10), _job("b", 10, 20), _job("c", 25, 30)]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", chain)] == [["a"], ["b"], ["c"]]                                  # starting at the moment the last ended is a new stage
+    overlap = [_job("a", 0, 50), _job("b", 10, 20), _job("c", 30, 40), _job("d", 49, 60)]
+    assert [[j["name"] for j in stage] for stage in _one("inferStages", overlap)] == [["a", "b", "c", "d"]]                                # all inside what ran
+    assert _node([["inferStages", [None]], ["inferStages", [[]]]]) == [[], []]
+
+
+def test_the_demo_pipeline_reads_like_the_reference_start_then_stages_then_the_pull_request():
+    models = _one("buildDemo", _demo(), NOW)
+    web = models[0]
+    run = next(a["run"] for a in web["active"] if a["run"]["number"] == 212)
+    pr = next(p for p in web["pulls"] if p["number"] == 39)
+    flow = _one("flowOf", run, web["jobs"][str(run["id"])], pr, NOW)
+    titles = [[b["title"] for b in col["boxes"]] for col in flow["columns"]]
+    assert titles == [["Bắt đầu"], ["lint", "build"], ["test"], ["deploy-preview"], ["PR #39"]]
+    assert [col.get("group", False) for col in flow["columns"]] == [False, True, False, False, False]
+    states = [[b["state"] for b in col["boxes"]] for col in flow["columns"]]
+    assert states == [["done"], ["done", "done"], ["running"], ["queued"], ["queued"]]
+    assert flow["columns"][0]["boxes"][0]["lines"] == ["Pull request", "feat/settings", "demo-dev"]
+    assert flow["columns"][2]["boxes"][0]["lines"][0] == "2/5 bước" and flow["columns"][1]["boxes"][1]["lines"] == ["5/5 bước", "1 phút 35 giây"]
+    assert flow["totals"]["jobs"] == 4 and flow["totals"]["steps"] == 14 and flow["attempt"] == 0
+
+
+def test_a_job_waiting_for_the_person_puts_the_person_in_the_flow_and_a_retry_is_counted():
+    models = _one("buildDemo", _demo(), NOW)
+    web, ml = models[0], models[1]
+    deploy = next(a["run"] for a in web["active"] if a["run"]["number"] == 9)
+    flow = _one("flowOf", deploy, web["jobs"][str(deploy["id"])], None, NOW)
+    assert [[b["title"] for b in col["boxes"]] for col in flow["columns"]] == [["Bắt đầu"], ["Bạn"], ["approval gate"], ["deploy"], ["Kết quả"]]
+    assert flow["columns"][1]["boxes"][0]["state"] == "waiting" and flow["columns"][2]["boxes"][0]["lines"][-1] == "chờ bạn duyệt"
+    train = next(a["run"] for a in ml["active"] if a["run"]["number"] == 34)
+    assert _one("flowOf", train, ml["jobs"][str(train["id"])], None, NOW)["attempt"] == 2
+
+
+def test_a_finished_run_ends_in_its_result_and_a_run_with_no_jobs_still_has_a_start_and_an_end():
+    base = {"id": 1, "number": 3, "status": "completed", "conclusion": "failure", "event": "push", "branch": "x", "actor": "me", "startedAt": "2026-10-16T10:00:00Z", "updatedAt": "2026-10-16T10:05:00Z", "attempt": 1}
+    flow = _one("flowOf", base, [_job("a", 0, 10, "completed", "failure")], None, NOW)
+    assert flow["columns"][-1]["boxes"][0] == {"title": "Kết quả", "state": "failed", "glyph": "✕", "lines": ["Lỗi"]} and flow["totals"]["seconds"] == 300
+    for jobs in (None, []):
+        bare = _one("flowOf", {**base, "status": "queued", "conclusion": None}, jobs, None, NOW)
+        assert [col["boxes"][0]["title"] for col in bare["columns"]] == ["Bắt đầu", "Kết quả"] and bare["columns"][-1]["boxes"][0]["state"] == "queued"
+
+
+def test_box_states_and_step_rows():
+    assert _node([["boxState", [{"status": s, "conclusion": c}]] for s, c in [("in_progress", None), ("queued", None), ("waiting", None), ("completed", "success"), ("completed", "failure"),
+                                                                              ("completed", "timed_out"), ("completed", "cancelled"), ("completed", "skipped"), ("completed", "action_required"), ("x", None)]]) == [
+        "running", "queued", "waiting", "done", "failed", "failed", "cancelled", "skipped", "waiting", "skipped"]
+    steps = _one("demoSteps", "ok:A:3|run:B|wait:C", NOW)
+    assert [s["status"] for s in steps] == ["completed", "in_progress", "queued"] and steps[0]["completedAt"] == steps[1]["startedAt"] and steps[2]["startedAt"] is None
+    rows = _one("jobRows", {"steps": steps})
+    assert [(r["name"], r["state"], r["seconds"]) for r in rows] == [("A", "done", 3), ("B", "running", None), ("C", "queued", None)] and _one("jobRows", {"steps": None}) == []
+    assert _node([["seconds", ["2026-10-16T10:00:00Z", "2026-10-16T10:01:30Z"]], ["seconds", [None, "x"]], ["seconds", ["2026-10-16T10:01:30Z", "2026-10-16T10:00:00Z"]]]) == [90, None, None]
+
+
+# ---- what needs the person, and what is ready ----------------------------------------------------------------------------------
+
+def test_the_inbox_lists_what_needs_the_person_newest_first_and_nothing_else():
+    items = _one("inboxItems", _one("buildDemo", _demo(), NOW))
+    got = [(i["type"], i["title"]) for i in items]
+    assert ("approval", "Deploy production #9") in got and ("failed", "Train model #33") in got and ("error", "Không đọc được repo") in got
+    assert ("review", "#41 Sửa chuyển hướng sau khi đăng nhập") in got and ("review", "#12 Giảm batch size cho GPU nhỏ") in got
+    assert not [i for i in items if "#40" in i["title"] or "#39" in i["title"]]                       # dependabot and a draft are not waiting for anyone
+    assert len(items) == 5 and items[-1]["when"] is None                                              # an unreadable repo has no time: last
+    assert [i["when"] for i in items[:-1]] == sorted((i["when"] for i in items[:-1]), reverse=True)
+    off = _model(workflows=[{"id": 1, "name": "Old", "path": "x", "state": "disabled_inactivity", "runs": [{"id": 1, "status": "completed", "conclusion": "failure", "number": 1}]}])
+    assert _one("inboxItems", [off, None]) == []
+
+
+def test_ready_now_is_what_can_be_started_by_hand_and_is_not_already_going():
+    ready = _one("readyNow", _one("buildDemo", _demo(), NOW))
+    assert [(r["repo"], r["title"]) for r in ready] == [("demo/docs-site", "Deploy docs"), ("demo/web-app", "Nightly E2E")]       # CI, Train model and Deploy production are already going
+    assert all(r["code"] and r["path"] for r in ready) and _one("readyNow", [None, {"ok": False}]) == []

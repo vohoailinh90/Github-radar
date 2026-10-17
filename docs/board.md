@@ -1,6 +1,8 @@
 # Bảng theo dõi repo (`docs/ui/board.html`)
 
-Một trang HTML duy nhất, **chỉ đọc**, để thấy trên một màn hình: những repo bạn liên kết, task nào đang chạy và gồm những bước nào, quy trình (workflow) của từng repo, lịch chạy theo cron trong 7 ngày tới, và agent. Trang không gửi lệnh, không ghi gì, không chạy hay hủy được workflow: việc đó vẫn ở [`ui.md`](ui.md) (trang quét) hoặc trên GitHub.
+Một trang HTML duy nhất, **chỉ đọc**, để thấy: những repo bạn liên kết, task nào đang chạy và gồm những bước nào, quy trình (workflow) của từng repo, lịch chạy theo cron trong 7 ngày tới, và agent. Trang không gửi lệnh, không ghi gì, không chạy hay hủy được workflow: việc đó vẫn ở [`ui.md`](ui.md) (trang quét) hoặc trên GitHub.
+
+Giao diện làm theo ba ảnh chụp bạn đưa ra làm mẫu: nền tối kiểu neon, thanh điều hướng có tab và huy hiệu Inbox, chip đếm theo trạng thái, **bảng Wave** có đường nối cong, khối **pipeline** kiểu AUTOPILOT, ô chọn giao diện. Không có mã nào được chép từ nguồn khác: mọi thứ được viết lại cho dữ liệu của GitHub.
 
 ```text
 api.github.com (GET) ─► board.html ◄─ snapshot.json (tùy chọn, nạp bằng tay)
@@ -8,6 +10,25 @@ api.github.com (GET) ─► board.html ◄─ snapshot.json (tùy chọn, nạp 
   workflow files, PR,                   └─ python3 scripts/office/snapshot.py   (Văn phòng agent, repo claude-agent-routing-template)
   .claude/agents
 ```
+
+## Các màn hình
+
+| Tab | Có gì |
+|---|---|
+| **Home** | Chip đếm theo bảy trạng thái (bấm một chip để sang Board đã lọc); mỗi task đang chạy là một khối **pipeline** (xem dưới); bên phải hai ô **Sẵn sàng** (workflow chạy tay được và chưa chạy, cùng lần chạy theo lịch trong 24 giờ) và **Cần bạn** |
+| **Board** | Bảng Wave: kích hoạt → workflow → lượt chạy → PR cùng nhánh, có đường nối, bộ lọc (repo, trạng thái, tìm chữ), nhóm theo quy trình hoặc theo repo, thu gọn hoặc ẩn mục đã xong |
+| **Repo** | Mỗi repo một thẻ: các workflow, 12 lượt gần nhất, lịch kế tiếp; bấm một dòng để xem pipeline của lượt gần nhất |
+| **Lịch** | Tuần tới theo từng ngày |
+| **Inbox** | Lượt chạy lỗi hoặc chờ duyệt, PR của agent chờ bạn soát, repo không đọc được (số trên tab là số mục) |
+| **Agent** | Snapshot của Văn phòng agent (nạp file) và hoạt động agent đoán được từ GitHub |
+| **Health** | Hạn mức GitHub còn lại, số yêu cầu đã gửi, tình trạng đọc từng repo |
+| **Cài đặt** | Token, chu kỳ tự làm mới, liên kết repo, xuất/nhập danh sách, dữ liệu mẫu |
+
+Chỉ báo cạnh tên trang cho biết trang đang làm mới thế nào: **live** (tự làm mới), **thủ công**, **tạm dừng** (sắp hết hạn mức), **mẫu** (dữ liệu mẫu). Tab chuyển được bằng phím mũi tên, Home, End.
+
+## Giao diện
+
+Bốn kiểu, mỗi kiểu có sáng và tối: **Neon** (phát sáng trên nền đen), **Classic**, **Aurora** (chàm và lục lam), **Candy** (mềm và tròn), cùng ba chế độ **Tự động** (theo hệ thống), **Sáng**, **Tối**. Chọn ở nút góc trên bên phải; lựa chọn được nhớ trong `localStorage` cùng danh sách repo (không có gì bí mật trong đó). Màu trạng thái là một chấm kèm chữ và ký hiệu, nên không ai phải phân biệt chỉ bằng màu. Hiệu ứng nhấp nháy tắt khi hệ thống chọn giảm chuyển động.
 
 ## Mở trang
 
@@ -27,13 +48,29 @@ Token nằm trong ô mật khẩu, mất khi đóng hoặc tải lại trang, kh
 
 | Trên trang | Lấy từ | Ghi chú |
 |---|---|---|
-| Task đang chạy | `GET /repos/{r}/actions/runs?per_page=40` | Lượt chạy có trạng thái `in_progress`, `queued`, `waiting`, `pending` trong **40 lượt mới nhất** của repo. Mỗi repo hiện tối đa 4 task kèm chi tiết, phần còn lại được đếm |
-| Job và từng bước của task | `GET /repos/{r}/actions/runs/{id}/jobs` | Tiến độ = số bước đã xong ÷ số bước. Job chưa bắt đầu chưa liệt kê bước nào nên con số có thể nhảy: khi đó trang ghi "ước lượng" |
+| Task đang chạy (Home) | `GET /repos/{r}/actions/runs?per_page=40` | Lượt chạy có trạng thái `in_progress`, `queued`, `waiting`, `pending` trong **40 lượt mới nhất** của repo. Mỗi repo hiện tối đa 4 task kèm chi tiết, phần còn lại được đếm |
+| Job, từng bước, thời gian | `GET /repos/{r}/actions/runs/{id}/jobs` | Tiến độ = số bước đã xong ÷ số bước. Job chưa bắt đầu chưa liệt kê bước nào nên con số có thể nhảy: khi đó trang ghi "ước lượng". Thời gian của job và bước lấy từ `started_at`, `completed_at`; "lần thử thứ N" từ `run_attempt` |
+| Giai đoạn của pipeline | giờ bắt đầu và kết thúc của job | **Suy ra, không đọc từ `needs`**: job bắt đầu khi các job của giai đoạn hiện tại còn đang chạy thì thuộc cùng giai đoạn; bắt đầu sau khi tất cả đã xong thì mở giai đoạn mới; job chưa có giờ bắt đầu chờ ở giai đoạn cuối. Hai job chạy song song thì nằm chung một khung |
+| Ô "Bạn" trong pipeline | job ở trạng thái `waiting` | GitHub dùng nó khi một môi trường chờ người duyệt |
+| Hộp cuối pipeline | PR mở cùng nhánh với lượt chạy | Chỉ khi nhánh khớp và không phải nhánh mặc định; không thì là hộp "Kết quả" |
 | Quy trình từng repo | `GET /repos/{r}/actions/workflows` + các lượt chạy ở trên | 12 lượt gần nhất mỗi workflow (cột cao là lỗi). Workflow có ít hơn 3 lượt trong danh sách chung (bị workflow bận hơn chen mất, ví dụ quét chạy 2 lần/tuần cạnh CI) được đọc riêng qua `GET /actions/workflows/{id}/runs` |
 | "Có lỗi" của một repo | lượt **đã xong** gần nhất của từng workflow | Một lượt đang chạy không xóa lỗi của lượt trước nó cho đến khi nó xong |
 | Lịch chạy | mục `schedule` trong file workflow (`GET /contents/.github/workflows/*.yml`); dòng `cron:` nằm trong khối `run: |` không tính | Cron tính theo **UTC**, hiển thị theo giờ máy bạn, theo luật của Vixie cron: khi cả ngày và thứ đều bị giới hạn thì khớp **một trong hai**; khi một trong hai bắt đầu bằng `*` (kể cả `*/2`) thì ngày phải khớp **cả hai** (`0 2 */2 * *` chỉ chạy ngày lẻ). Thứ `7` được coi là Chủ nhật. Chỉ biểu thức đơn giản được diễn đạt bằng lời (`*/90 * * * *` không phải "mỗi 90 phút"), còn lại hiện nguyên biểu thức. Cron chạy hơn 6 lần mỗi ngày (ví dụ `*/30 * * * *`) không liệt kê từng lần mà ghi một dòng "chạy lặp". GitHub có thể trễ lượt theo lịch vài phút, chỉ chạy lịch từ nhánh mặc định, và tự tắt lịch của repo công khai sau 60 ngày không hoạt động |
 | Agent thấy được trên GitHub | tên workflow, nhánh (`claude/`, `codex/`, `copilot/`, `gemini/`, `cursor/`, `devin/`, `jules/`), tác giả PR, và `.claude/agents/*.md` | **Suy đoán theo tên**, không phải trạng thái thật của phiên agent: một nhánh `claude/…` có thể do người tạo, một agent đổi tên nhánh thì không thấy. PR của dependabot/renovate chỉ hiện nhãn `bot`, không tính là agent |
 | Agent thật | file `snapshot.json` của **Văn phòng agent** | Xem dưới đây |
+
+### Bảng Wave: mỗi đường nối là một quan hệ có thật
+
+| Cột | Thẻ | Nối tới | Quan hệ lấy từ |
+|---|---|---|---|
+| Wave 0 · Kích hoạt | một cron, "Chạy tay", hoặc một sự kiện (push, pull request…) | workflow dùng nó | `schedule` và `workflow_dispatch` trong file workflow; sự kiện thấy trong các lượt chạy gần đây của workflow đó |
+| Wave 1 · Workflow | một workflow | lượt chạy của nó | `workflow_id` của lượt chạy |
+| Wave 2 · Lượt chạy | các lượt còn đang chạy (tối đa 3) và lượt đã xong gần nhất của mỗi workflow | PR cùng nhánh | `head_branch` của lượt chạy bằng `head.ref` của PR, nhánh khác nhánh mặc định |
+| Wave 3 · PR / nhánh | một PR mở | | |
+
+Một PR mà chưa lượt chạy nào đụng tới nhánh của nó đứng một mình, không có đường nối. **Hạn chế:** khớp theo tên nhánh, nên một nhánh dùng lại cho PR khác sẽ nối nhầm; và chỉ thấy lượt chạy trong 40 lượt gần nhất.
+
+Bảy trạng thái giống bảng mẫu: **cần bạn** (lượt lỗi, quá giờ, không khởi động được, chờ duyệt, cần xử lý), **đang chạy**, **đang soát** (PR đã mở để soát), **đang chờ** (lượt chờ runner, PR nháp), **sẵn sàng** (kích hoạt đang bật, workflow chưa chạy lần nào), **bị chặn** (workflow bị tắt, lượt bị hủy) và **xong**. Một workflow lấy trạng thái cần bạn nhất trong các lượt của nó. **Đường vàng** đi ngược từ mọi thẻ "cần bạn" về kích hoạt: đó là chuỗi dẫn tới việc đang chờ bạn. Bấm một thẻ thì chuỗi của nó (mọi thẻ phía trước và phía sau nó) sáng lên bằng đường cyan, các thẻ khác mờ đi; bấm lần nữa để bỏ chọn.
 
 ### Agent thật: nối với Văn phòng agent
 
@@ -59,7 +96,7 @@ Hết hạn mức thì thẻ repo nói rõ (kể cả giới hạn thứ cấp c
 
 ## Dữ liệu mẫu
 
-*Xem dữ liệu mẫu* dựng ba repo giả (`demo/…`) và một snapshot Office giả bằng **đúng mã** dùng cho dữ liệu thật, không gọi mạng, để xem trang trước khi có token. Mọi tên và số trong đó đều giả; trang có biểu ngữ nói điều đó và danh sách repo của bạn không bị ghi đè.
+*Xem dữ liệu mẫu* (ở Cài đặt) dựng ba repo giả (`demo/…`, một repo thứ tư báo lỗi không đọc được) và một snapshot Office giả bằng **đúng mã** dùng cho dữ liệu thật, không gọi mạng, để xem trang trước khi có token. Mẫu có đủ những thứ để xem: hai job chạy song song rồi nối tiếp nhau, một lượt chờ người duyệt, một lượt chạy lại lần 2, PR nối với lượt chạy cùng nhánh, một workflow lỗi. Mọi tên và số trong đó đều giả; trang có biểu ngữ nói điều đó và danh sách repo của bạn không bị ghi đè.
 
 ## Cái gì được tận dụng, cái gì không (kiểm ngày 16/10/2026)
 
@@ -79,7 +116,8 @@ Gitdeck hiện trong một lượt tìm với ~390 sao nhưng chưa kiểm đư�
 
 ## An toàn
 
-- Chỉ `GET`. Test chỉ chấp nhận đúng một chỗ gọi `fetch`, đúng một header `Authorization`, và chỉ hai host trong mã (`api.github.com` để đọc, `github.com` cho đường link).
+- Chỉ `GET`. Test chỉ chấp nhận đúng một chỗ gọi `fetch`, đúng một header `Authorization`, và đúng ba chuỗi địa chỉ trong mã: `api.github.com` (để đọc), `github.com` (đường link) và `http://www.w3.org/2000/svg` (tên miền XML của hình vẽ, không bao giờ được tải).
+- Các đường nối của bảng Wave là SVG dựng bằng mã (không có thẻ `<svg` trong trang); thuộc tính `d` chỉ chứa số, test kiểm.
 - Mọi chữ từ GitHub hoặc từ snapshot vào trang bằng `textContent`; không `innerHTML`, `eval`, `document.write`. Test trong Chromium cho một tên workflow chứa `<img onerror=…>`, một tiêu đề PR chứa `<b>` và một snapshot chứa thẻ: tất cả chỉ hiện thành chữ.
 - Đường link chỉ ghép từ tên repo đã kiểm (`chủ/tên`) và số nguyên; không bao giờ dùng URL do GitHub trả về. `rel="noopener noreferrer"`. Yêu cầu gửi `credentials: omit`, `referrerPolicy: no-referrer`.
 - Giới hạn còn lại, không tránh được: ai chạy được JavaScript trên máy bạn, hay trình duyệt đã cài tiện ích độc, đọc được ô mật khẩu. Vì vậy token chỉ đọc, chỉ các repo cần, hết hạn sớm.
@@ -88,11 +126,14 @@ Gitdeck hiện trong một lượt tìm với ~390 sao nhưng chưa kiểm đư�
 
 Đã kiểm bằng máy:
 
-- `tests/test_board.py` (luôn chạy, cần Node): CSP băm đúng; không API cấm; chỉ đọc; phần tính thuần của trang (tên repo, trạng thái run/step, tiến độ, cron, kế hoạch tuần, đoán agent, đọc snapshot, dữ liệu mẫu) chạy dưới Node. Cron được so với bộ so chuẩn từng phút (28 biểu thức × 3 mốc = 84 tổ hợp, gồm bước `*/n` ở trường ngày/thứ và thứ `7`). Đã thử 12 đột biến cố ý (đảo luật ngày/thứ, bỏ màu đỏ của lỗi, bỏ ranh giới từ khi đoán agent, ghi token vào kho, đổi GET thành POST, bỏ lượt đọc lịch sử riêng, bỏ cột thứ 8, không xóa danh sách chọn khi quên token, không dừng khi hết hạn mức, tự làm mới bỏ qua hạn mức, mô tả `*/90`, đọc cron trong khối `run: |`): mỗi đột biến bị test bắt.
-- `tests/test_board_browser.py` (cần Playwright và Chromium, nếu không thì bỏ qua) với `api.github.com` do test trả lời: nội dung hiển thị, token chỉ ở một header và không nằm ở đâu khác, chữ lạ chỉ là chữ, ETag, từng kiểu lỗi, thêm/bỏ/lưu repo, dữ liệu mẫu không gọi mạng, nạp snapshot, không tràn ngang ở 320/390/768 px, không chạy trong khung nhúng, bàn phím.
-- Với **GitHub thật** (đọc repo công khai `vohoailinh90/Github-radar`, không token): CORS cho phép các header của trang, 304 trả đúng cho JS, lịch `0 1 * * 3,6` hiện "01:00 UTC, T4 T7, kế tiếp 08:00 Th 7", và phát hiện lỗi "workflow bị chen mất" đã sửa.
+- `tests/test_board.py` (luôn chạy, cần Node): CSP băm đúng; không API cấm; chỉ đọc; phần tính thuần của trang chạy dưới Node: tên repo, trạng thái run/step, tiến độ, cron, kế hoạch tuần, đoán agent, đọc snapshot, dữ liệu mẫu, **đồ thị của bảng Wave** (nút, cạnh, đường vàng, chuỗi của một thẻ, bộ lọc), **suy giai đoạn của pipeline**, hộp pipeline, inbox, ô "sẵn sàng". Cron được so với bộ so chuẩn từng phút (28 biểu thức × 3 mốc = 84 tổ hợp, gồm bước `*/n` ở trường ngày/thứ và thứ `7`).
+- `tests/test_board_browser.py` (cần Playwright và Chromium, nếu không thì bỏ qua) với `api.github.com` do test trả lời, trang được phục vụ qua một địa chỉ `https://` giả như khi chạy bằng `http.server`: nội dung từng màn hình, pipeline của một task, đường nối và chuỗi sáng lên khi chọn thẻ, bộ lọc và chip trạng thái, token chỉ ở một header và không nằm ở đâu khác, chữ lạ chỉ là chữ ở mọi chỗ nó được vẽ, ETag, từng kiểu lỗi, thêm/bỏ/lưu repo, bốn giao diện và ba chế độ (được nhớ qua tải lại), dữ liệu mẫu không gọi mạng, nạp snapshot, tab bằng bàn phím, chỉ báo live, **không tràn ngang ở 320/390/768 px trên cả tám màn hình**, không chạy trong khung nhúng. Độ tương phản của chữ thường, chữ mờ, màu nhấn và nhãn nút chính được đo ở cả **8 tổ hợp** giao diện × chế độ (chữ thường ≥ 7:1, còn lại ≥ 4,5:1).
+- Đột biến: 12 (cho bản đầu) rồi 10 (cho giao diện mới: đảo trạng thái lỗi, nối PR ở nhánh mặc định, bỏ đường vàng, đổi luật nối giai đoạn, bỏ đường sáng của chuỗi, không xóa danh sách chọn khi quên token, bỏ khung chứa chữ đọc màn hình, bỏ qua chế độ sáng/tối, phím Home, bấm chip ở Home không sang Board). 9 trong 10 bị bắt ngay; đột biến phím Home lọt vì test chưa bấm Home, nay đã thêm và bắt được.
+- Với **GitHub thật** (đọc repo công khai `vohoailinh90/Github-radar`, không token, ở bản đầu): CORS cho phép các header của trang, 304 trả đúng cho JS, lịch `0 1 * * 3,6` hiện "01:00 UTC, T4 T7, kế tiếp 08:00 Th 7", và phát hiện lỗi "workflow bị chen mất" đã sửa. **Bản giao diện mới chưa chạy lại với GitHub thật**, chỉ với GitHub giả; phần đọc dữ liệu không đổi.
+- Xem bằng mắt (ảnh chụp Chromium): Neon tối và sáng, Aurora tối, Candy tối, Classic sáng, và màn hình điện thoại. Các tổ hợp còn lại chỉ được kiểm bằng độ tương phản, **chưa xem tận mắt**.
+- Hai lỗi bố cục chỉ lộ ra nhờ test tràn ngang: lưới không co lại theo ô (`min-width`), và chữ dành cho trình đọc màn hình (`position: absolute`) thoát khỏi vùng cuộn của dải pipeline rồi kéo giãn cả trang. Cả hai đã sửa.
 
-**Chưa kiểm:** token thật (fine-grained, repo private; tên các quyền ở trên là theo tài liệu GitHub, chưa thử), việc 304 miễn phí khi có token, nút *Chọn từ tài khoản* với `/user/repos` thật, một snapshot do hook thật sinh ra (đã thử với snapshot mẫu do chính mã của Office tạo: đặt `OFFICE_TEMPLATE` rồi chạy `tests/test_board.py`), và trình duyệt khác ngoài Chromium.
+**Chưa kiểm:** token thật (fine-grained, repo private; tên các quyền ở trên là theo tài liệu GitHub, chưa thử), việc 304 miễn phí khi có token, nút *Chọn từ tài khoản* với `/user/repos` thật, một snapshot do hook thật sinh ra (đã thử với snapshot mẫu do chính mã của Office tạo: đặt `OFFICE_TEMPLATE` rồi chạy `tests/test_board.py`), trình duyệt khác ngoài Chromium, trình đọc màn hình thật (mới kiểm vai trò, nhãn và phím), và độ giống với ảnh mẫu theo từng điểm ảnh (làm theo bố cục và cách thể hiện, không so từng pixel).
 
 ## Giữ trang đúng với mã
 
