@@ -49,7 +49,7 @@ ALIAS_ITSELF = {"name": "models/gemini-flash-latest", "version": "latest", "disp
 @pytest.fixture
 def google(monkeypatch):
     """Two fake endpoints: the OpenAI-compatible model list (what doctor already read) and Google's native model record."""
-    compat = _Server(lambda call: (200, {"data": [{"id": "models/gemini-flash-latest"}, {"id": "models/gemini-flash-lite-latest"}]}))
+    compat = _Server(lambda call: (200, {"data": [{"id": f"models/{n}"} for n in ("gemini-flash-latest", "gemini-flash-lite-latest", "gemini-9-flash-001")]}))
     state = {"status": 200, "record": NAMES_A_MODEL}
     native = _Server(lambda call: (state["status"], state["record"] if state["status"] == 200 else {"error": "x"}))
     monkeypatch.setenv("RADAR_BASE_GOOGLE", compat.url)
@@ -81,6 +81,16 @@ def test_the_record_of_the_alias_itself_is_labelled_so_it_is_not_read_as_the_mod
     assert code == 0 and "name=models/gemini-flash-latest version=latest display=Gemini Flash Latest thinking=True" in line
     assert line.endswith("[the record of the alias itself: it does not say which model the alias points to]")
     assert "points to" in line.split("|", 1)[1] and "is offered" in out        # still only information next to the pass/fail lines
+
+
+def test_a_pinned_model_id_whose_record_has_its_own_name_is_not_called_an_alias(google, capsys):
+    _, state = google
+    state["record"] = {**NAMES_A_MODEL, "name": "models/gemini-9-flash-001"}
+    code, out = doctor(["google/gemini-9-flash-001"], capsys)
+    line = next(l for l in out.splitlines() if l.startswith("info  google/gemini-9-flash-001"))
+    assert code == 0 and "name=models/gemini-9-flash-001" in line and "alias itself" not in line
+    state["record"] = ALIAS_ITSELF                                              # ...while a -latest id with its own name still is
+    assert "alias itself" in next(l for l in doctor(["google/gemini-flash-latest"], capsys)[1].splitlines() if l.startswith("info  "))
 
 
 def test_a_missing_model_record_is_a_warning_and_never_fails_the_doctor(google, capsys):

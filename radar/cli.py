@@ -132,7 +132,8 @@ def _one_line(value, limit: int) -> str:
 
 def _describe(record: dict, requested: str) -> str:
     """The fields of the record Google keeps for `requested`. For a `-latest` alias this can be the alias's own metadata
-    (same name, a generic description) and not the model behind it, so a record that carries the requested name says so."""
+    (same name, a generic description) and not the model behind it, so a `-latest` alias whose record carries the requested name says so;
+    a pinned id (`...-001`) returns its own name too and is not an alias."""
     parts = [f"{label}={_one_line(record[key], 60)}" for label, key in (("name", "name"), ("version", "version"), ("display", "displayName"))
              if record.get(key) not in (None, "")]
     if isinstance(record.get("thinking"), bool):
@@ -143,7 +144,7 @@ def _describe(record: dict, requested: str) -> str:
     text = " ".join(parts) or "the record has no name, version or limits"
     description = _one_line(record.get("description") or "", 200)
     text = f"{text} | {description}" if description else text
-    if str(record.get("name") or "").removeprefix("models/") == requested:
+    if requested.endswith("-latest") and str(record.get("name") or "").removeprefix("models/") == requested:   # a pinned id returns its own name too
         text += "  [the record of the alias itself: it does not say which model the alias points to]"
     return text
 
