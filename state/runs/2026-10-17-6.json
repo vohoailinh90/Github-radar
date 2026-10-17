@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-17",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "source": "interactive session: Orca written again by hand (the pipeline's 2026-10-17 lesson had three content errors the gates cannot see)",
+  "picks": [
+    {
+      "repo": "stablyai/orca",
+      "bucket": "ai",
+      "stars": 94489
+    }
+  ],
+  "written": [
+    {
+      "repo": "stablyai/orca",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 2,
+        "used": 1
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "campaign": "radar-2026-10-17-6",
+  "ok": true,
+  "warnings": [
+    "no checker model: this draft was written and gated in one interactive session",
+    "replaces the lesson written by the pipeline in 2026-10-17 for the same repository; that one is kept"
+  ]
+}

@@ -1,0 +1,77 @@
+<!-- radar: Moda canvas 1200x2160; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Orca: chạy nhiều agent coding song song, mỗi agent một worktree</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Giao một prompt cho năm agent, mỗi agent một nhánh riêng, rồi so kết quả và chọn bản tốt nhất.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Orca trên máy tính</text>
+<text x="80" y="604" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ứng dụng desktop cho macOS, Windows, Linux: gom terminal, worktree, diff, GitHub và Linear.</text>
+<rectangle x="460" y="517" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Git worktree</text>
+<text x="480" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mỗi agent làm trong một worktree riêng, không ghi đè mã của agent khác.</text>
+<rectangle x="860" y="517" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">CLI agent</text>
+<text x="880" y="577" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Claude Code, Codex, OpenCode, Pi và nhiều agent khác chạy trong terminal của Orca.</text>
+<rectangle x="60" y="784" width="280" height="145" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Lệnh orca</text>
+<text x="80" y="844" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Viết kịch bản cho Orca: orca worktree create, snapshot, click, fill.</text>
+<rectangle x="460" y="784" width="280" height="145" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">App điện thoại</text>
+<text x="480" y="844" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Theo dõi agent và gửi tiếp yêu cầu từ iOS hoặc Android.</text>
+<rectangle x="860" y="784" width="280" height="145" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Relay</text>
+<text x="880" y="844" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghép app điện thoại với máy desktop; mã nằm trong thư mục cloud/ của repo.</text>
+<line x1="340" y1="613.5" x2="460" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="613.5" x2="860" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="784" x2="200" y2="710" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="856.5" x2="860" y2="856.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="784" x2="1000" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="747" x2="200" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="747" x2="200" y2="710" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="1011" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1077" width="520" height="192" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1099" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1099" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Mỗi agent một worktree</text>
+<text x="154" y="1135" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Orca chia một prompt cho nhiều agent, mỗi agent một git worktree biệt lập, rồi so kết quả và merge bản tốt nhất.</text>
+<line x1="584" y1="1173" x2="616" y2="1173" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1077" width="520" height="192" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1099" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1099" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Terminal thật cho CLI agent</text>
+<text x="714" y="1135" width="404" height="112" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Agent chạy trong terminal chia ô: README gọi là terminal cùng đẳng cấp Ghostty (Ghostty-class), vẽ bằng WebGL, chia ô không giới hạn, scrollback còn sau khi mở lại.</text>
+<rectangle x="60" y="1293" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1315" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1315" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Một nơi để theo dõi</text>
+<text x="154" y="1351" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Orca báo khi agent xong, hiện PR, issue và bảng dự án GitHub, Linear, và cho nhận xét thẳng lên diff.</text>
+<line x1="584" y1="1378" x2="616" y2="1378" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1293" width="520" height="170" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1315" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1315" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Agent cũng điều khiển Orca</text>
+<text x="714" y="1351" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch bản cho quy trình, với các lệnh con như worktree create, snapshot, click, fill.</text>
+<rectangle x="60" y="1487" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1509" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1509" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chạy từ xa và từ điện thoại</text>
+<text x="154" y="1545" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">SSH worktrees chạy agent trên máy từ xa mạnh hơn. App điện thoại ghép với máy desktop qua một relay mà mã nằm trong thư mục cloud/.</text>
+<text x="60" y="1739" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1805" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1845.8" x2="97.6" y2="1853" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1853" x2="110" y2="1837.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1825" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách ly bằng git worktree: mỗi agent một bản làm việc, nên chạy song song mà không giẫm chân nhau.</text>
+<rectangle x="615" y="1805" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1845.8" x2="652.6" y2="1853" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1853" x2="665" y2="1837.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1825" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Giao cùng một đề cho nhiều agent rồi so kết quả và chọn bản tốt nhất.</text>
+<rectangle x="60" y="1937" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1977.8" x2="97.6" y2="1985" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1985" x2="110" y2="1969.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1957" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Để agent điều khiển công cụ quản lý chúng qua dòng lệnh, nên quy trình lặp lại viết thành kịch bản được.</text>
+<rectangle x="615" y="1937" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1977.8" x2="652.6" y2="1985" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1985" x2="665" y2="1969.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1957" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đặt phần ghép điện thoại thành một relay riêng trong cùng repo, có workspace và hướng dẫn cài riêng.</text>
+<text x="60" y="2097" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: stablyai/orca · Giấy phép: MIT · 94.489 sao · Quét ngày 2026-10-17</text>
+</content>
