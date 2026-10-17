@@ -405,12 +405,12 @@ def test_an_edge_that_skips_a_column_goes_round_the_box_between_instead_of_behin
     inside(geo, 110, 3)
 
 
-def test_no_forward_edge_of_any_diagram_runs_behind_a_box():
+def test_no_edge_of_any_diagram_runs_behind_a_box():
     import random
     rng = random.Random(7)
     for _ in range(400):
         n = rng.choice([3, 4, 5, 6])
-        edges = [[a, b] for a in range(n) for b in range(n) if a < b and rng.random() < rng.choice([0.2, 0.4, 0.7])][:12]
+        edges = [[a, b] for a in range(n) for b in range(n) if a != b and rng.random() < rng.choice([0.1, 0.25, 0.5])][:12]
         comps = [{"name": rng.choice(["Part", "名" * 40, "Component number 3"]), "role": ""} for _ in range(n)]
         top = rng.choice([110, 153])
         geo = slides.flow_geometry(comps, edges, top, slides.BOTTOM)
@@ -418,6 +418,16 @@ def test_no_forward_edge_of_any_diagram_runs_behind_a_box():
         for (a, b), route in zip(edges, geo["routes"]):
             others = [box_of(geo, i) for i in range(n) if i not in (a, b)]
             assert not slides._hits(route["pts"], others), f"edge {a}->{b} runs behind a box"
+
+
+def test_a_loop_back_into_a_column_with_other_boxes_goes_through_the_gaps_not_behind_them():
+    comps = [{"name": f"Part {i}", "role": ""} for i in range(3)]
+    geo = slides.flow_geometry(comps, [[0, 2], [1, 2], [2, 0]], 110, slides.BOTTOM)
+    back = geo["routes"][2]["pts"]
+    assert geo["pos"][0][0] == geo["pos"][1][0] and geo["pos"][0][1] < geo["pos"][1][1]        # part 1 sits under part 0, the loop's target
+    assert not slides._hits(back, [box_of(geo, 1)]), "the return arrow climbs through the box under its target"
+    assert back[-1][0] == box_of(geo, 0)[2] and box_of(geo, 0)[1] < back[-1][1] < box_of(geo, 0)[3]      # it enters the target from its right side
+    inside(geo, 110, 3)
 
 
 def test_a_diagram_keeps_its_arrows_inside_the_content_area_when_edges_skip_columns():
@@ -553,6 +563,20 @@ def test_a_draft_that_no_longer_fits_the_schema_is_skipped_and_its_old_deck_stay
     assert not list(folder.glob("*.tmp"))
     (folder / "draft-vi.json").write_text("{not json", encoding="utf-8")
     assert "not JSON" in next(iter(slides.write(tmp_path, ["2026-10-17-2"])["skipped"].values()))
+
+
+@pytest.mark.parametrize("name", ["draft-zz.json", "draft-aa.json", "draft-vi-copy.json", "draft-.json"])
+def test_a_draft_file_named_for_another_language_never_overwrites_the_deck_of_the_real_one(tmp_path, name):
+    folder = one_digest(tmp_path)
+    slides.write(tmp_path, ["2026-10-17-2"])
+    real = (folder / "slides-vi.pptx").read_bytes()
+    stored = json.loads((folder / "draft-vi.json").read_text(encoding="utf-8"))
+    stored["draft"]["title"] = "A different title"
+    (folder / name).write_text(json.dumps(stored), encoding="utf-8")
+    report = slides.write(tmp_path, ["2026-10-17-2"])
+    assert report["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
+    assert "the file name says" in report["skipped"][f"digests/2026-10-17-2/agent-orchestrator/{name}"]
+    assert (folder / "slides-vi.pptx").read_bytes() == real and not list(folder.glob("*.tmp"))
 
 
 def test_one_strange_file_does_not_stop_the_others_and_leaves_no_temporary_file(tmp_path, monkeypatch):

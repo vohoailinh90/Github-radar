@@ -734,8 +734,12 @@ def flow_geometry(components: list[dict], edges: list[list[int]], top: float, bo
                 routes.append({"pts": [(xa + bw / 2, ya), (xb + bw / 2, yb + heights[b])], "dashed": True})
         else:                                           # a loop back: down under the boxes, across, and up into the target
             ylane = next_lane()
-            routes.append({"pts": [(xa + bw / 2, ya + heights[a]), (xa + bw / 2, ylane), (xb + bw / 2, ylane), (xb + bw / 2, yb + heights[b])],
-                           "dashed": True})
+            pts = [(xa + bw / 2, ya + heights[a]), (xa + bw / 2, ylane), (xb + bw / 2, ylane), (xb + bw / 2, yb + heights[b])]
+            if layer[b] < layer[a] and _hits(pts, others):          # it would climb through a box of its own column: use the gaps beside them
+                ya_out, yb_in = ya + heights[a] - 14, yb + heights[b] - 14
+                gap_a, gap_b = xa - gapx * 0.35, xb + bw + gapx * 0.35
+                pts = [(xa, ya_out), (gap_a, ya_out), (gap_a, ylane), (gap_b, ylane), (gap_b, yb_in), (xb + bw, yb_in)]
+            routes.append({"pts": pts, "dashed": True})
     return {"layer": layer, "pos": pos, "heights": heights, "bw": bw, "size": size, "routes": routes}
 
 
@@ -1044,7 +1048,12 @@ def write(root: Path, selectors: list[str] | None = None, *, everything: bool = 
                     report["skipped"][rel] = "not a stored draft (expected an object with lang, facts and draft)"
                     continue
                 lang = stored.get("lang")
-                if not isinstance(lang, str) or lang not in L or (langs and lang not in langs):
+                if not isinstance(lang, str) or lang not in L:
+                    continue
+                if path.name != f"draft-{lang}.json":                  # `draft-zz.json` saying "vi" must not overwrite the deck of `draft-vi.json`
+                    report["skipped"][rel] = f"the file name says {path.stem.removeprefix('draft-')!r} but the draft says {lang!r}"
+                    continue
+                if langs and lang not in langs:
                     continue
                 problems = [str(p) for p in gates.schema(stored["draft"]) if p.level == "error"]
                 if problems:
