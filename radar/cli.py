@@ -6,12 +6,14 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 from . import conditions, config, contract, history, pipeline
 from .github import GitHub
-from .llm import PROVIDER_KEYS, Gateway, base_url, family, has_key, split_model
+from .llm import PROVIDER_KEYS, Gateway, base_url, family, has_key, native_base, split_model
 from .net import HttpError, request_json
 
 ROOT = config.ROOT
@@ -106,7 +108,40 @@ def cmd_doctor(args, cfg) -> int:
             if missing:
                 # A retired model id is the usual cause; the replacement is among the ids this key can really call.
                 print(f"      {provider} offers: " + ", ".join(sorted(listed)[:60]))
+        # Information only: a missing record never fails the doctor (the models above already did the pass or fail).
+        for model in sorted({m for ids in models.values() for m in ids if m.startswith("google/") and _safe(has_key, m)}):
+            try:
+                print(f"info  {model} -> {_describe(_model_record(model))}")
+            except HttpError as exc:
+                print(f"WARN  {model}: no model record from Google (HTTP {exc.status}); what a -latest alias points to cannot be read")
     return 1 if bad else 0
+
+
+def _model_record(model: str) -> dict:
+    """Google's own record of one model. The key travels in a header, never in the URL, so no error message or log can show it."""
+    provider, name = split_model(model)
+    body = request_json(f"{native_base(provider)}/models/{urllib.parse.quote(name, safe='')}",
+                        headers={"x-goog-api-key": os.environ.get(PROVIDER_KEYS[provider], "")}, timeout=30)
+    return body if isinstance(body, dict) else {}
+
+
+def _one_line(value, limit: int) -> str:
+    """Provider text on one printable line: no control character, no line break, at most `limit` characters."""
+    return " ".join(re.sub(r"[\x00-\x1f\x7f]", " ", str(value)).split())[:limit]
+
+
+def _describe(record: dict) -> str:
+    """The fields that say what a model is. A `-latest` alias record names (or describes) the version it points to."""
+    parts = [f"{label}={_one_line(record[key], 60)}" for label, key in (("name", "name"), ("version", "version"), ("display", "displayName"))
+             if record.get(key) not in (None, "")]
+    if isinstance(record.get("thinking"), bool):
+        parts.append(f"thinking={record['thinking']}")
+    limits = (record.get("inputTokenLimit"), record.get("outputTokenLimit"))
+    if all(type(n) is int for n in limits):
+        parts.append(f"tokens in/out={limits[0]}/{limits[1]}")
+    text = " ".join(parts) or "the record has no name, version or limits"
+    description = _one_line(record.get("description") or "", 200)
+    return f"{text} | {description}" if description else text
 
 
 def _safe(fn, *a):
