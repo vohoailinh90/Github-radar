@@ -1169,3 +1169,30 @@ def test_the_content_security_policy_really_blocks_injected_script(ui):
     ui.evaluate("() => { fetch('https://example.com/x').catch(() => { window.__blocked = true; }); }")
     wait(ui, "window.__blocked === true")
     assert not [u for u in ui.seen if "example.com" in u]
+
+
+def test_the_command_for_this_computer_follows_the_form_and_asks_nobody(ui):
+    cli = lambda: ui.input_value("#cli")
+    assert ui.is_disabled("#copy-cli") is False and cli() == "python3 radar.py scan"        # Chromium here reports Linux: the guess is the sh form
+    ui.select_option("#preset", "quet-nhanh")
+    assert cli() == "python3 radar.py scan --preset quet-nhanh"
+    ui.select_option("#shell", "cmd")
+    assert cli() == "python radar.py scan --preset quet-nhanh"
+    ui.fill("#min_stars", "5000")
+    assert cli() == 'python radar.py scan --preset quet-nhanh --conditions "{\\"min_stars\\":5000}"'
+    ui.select_option("#shell", "sh")
+    assert cli() == """python3 radar.py scan --preset quet-nhanh --conditions '{"min_stars":5000}'"""
+    ui.fill("#single", "owner/name")
+    assert cli() == """python3 radar.py run --preset quet-nhanh --conditions '{"min_stars":5000}' --repo owner/name --dry-run"""
+    ui.fill("#single", "")
+    ui.uncheck("#dry")
+    assert cli().startswith("python3 radar.py run --preset quet-nhanh") and "--dry-run" not in cli()
+    assert "Quét thật trên máy" in text(ui, "#cli-note") and "export GITHUB_TOKEN" in text(ui, "#cli-note")
+    ui.check("#dry")
+    ui.fill("#min_stars", "-1")                                                      # a form the runner would refuse gives no command
+    assert cli() == "" and ui.is_disabled("#copy-cli") and "Sửa các lỗi" in text(ui, "#cli-note")
+    ui.fill("#min_stars", "5000")
+    ui.click("#copy-cli")
+    wait(ui, "document.getElementById('cli-msg').textContent !== ''")
+    assert text(ui, "#cli-msg").startswith(("Đã sao chép lệnh", "Hãy nhấn Ctrl+C"))     # the clipboard may be refused for a file page: the text is then selected
+    assert [r for r in ui.seen if not r.startswith("file://")] == [] and ui.gh.requests == [] and ui.problems == []
