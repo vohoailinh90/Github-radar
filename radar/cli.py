@@ -146,6 +146,13 @@ def cmd_rerender(args, cfg) -> int:
     return 1 if args.slug and args.slug in report["skipped"] else 0
 
 
+def cmd_slides(args, cfg) -> int:
+    from . import slides
+    report = slides.write(ROOT, args.digests, everything=args.all, langs=args.lang)
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+    return 1 if report["skipped"] else 0
+
+
 def cmd_publish(args, cfg) -> int:
     """Push the results commit in the current checkout to a new branch and open a pull request (see radar/publish.py)."""
     from . import publish
@@ -209,6 +216,11 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("rerender", help="draw digests, diagrams and studio posts again from the stored drafts (no model, no GitHub)")
     p.set_defaults(fn=cmd_rerender)
     p.add_argument("--slug", default=None, help="one run, e.g. 2026-10-12 (default: every run that has stored drafts)")
+    p = sub.add_parser("slides", help="draw slides-<lang>.pptx beside the stored drafts of the chosen digests (no model, no GitHub, no Moda)")
+    p.set_defaults(fn=cmd_slides)
+    p.add_argument("digests", nargs="*", help="a run (2026-10-17-2) or one repository of it (2026-10-17-2/orca); several allowed")
+    p.add_argument("--all", action="store_true", help="every stored digest (instead of naming them)")
+    p.add_argument("--lang", action="append", default=None, help="only this language (repeatable); default: every stored draft")
     p = sub.add_parser("publish", help="push the committed results to a new branch and open a pull request (token: RADAR_PR_TOKEN)")
     p.set_defaults(fn=cmd_publish)
     p.add_argument("--repo", default=None, help="owner/name (default: GITHUB_REPOSITORY)")
