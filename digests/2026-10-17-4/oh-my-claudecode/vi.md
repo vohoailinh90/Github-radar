@@ -12,7 +12,7 @@ OMC cài trong Claude Code, đội native được bật, và bạn chạy đư�
 
 ## Vấn đề nó giải quyết
 
-Khi một agent AI làm từ kế hoạch đến kiểm tra, bạn phải tự canh từng bước; chia việc cho nhiều agent bằng tay lại tốn công. oh-my-claudecode (OMC) đặt một lớp điều phối lên Claude Code: Team chạy các agent theo chuỗi giai đoạn có vòng sửa lỗi, còn omc team mở worker CLI thật trong tmux khi bạn muốn nhờ Codex hay Gemini.
+Một agent AI làm từ kế hoạch đến kiểm tra thì bạn phải tự chia việc và canh từng bước. oh-my-claudecode (OMC) đặt thêm một lớp điều phối lên Claude Code: Team chạy các agent theo chuỗi giai đoạn có vòng sửa lỗi, còn omc team mở worker CLI thật trong tmux khi bạn muốn nhờ Codex hay Gemini.
 
 > 💡 **Hình dung đời thường:** Giống một tổ trưởng công trình: bạn nói cần sửa gì, tổ trưởng chia cho từng thợ, có người nghiệm thu, chỗ nào chưa đạt thì quay lại làm tiếp.
 
@@ -24,10 +24,10 @@ Khi một agent AI làm từ kế hoạch đến kiểm tra, bạn phải tự c
 
 ## ⚠️ Lưu ý trước khi dùng
 
-- Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic. Với omc team, mỗi CLI (codex, gemini, grok, cursor-agent) tự cài và đăng nhập riêng.
+- Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic. Với omc team, mỗi CLI (codex, gemini, agy, grok, cursor-agent) tự cài và đăng nhập riêng.
 - Đội native cần đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`; nếu tắt, OMC cảnh báo và lùi về chạy không theo đội khi có thể.
 - Lệnh slash như /team, /autopilot cần phiên Claude Code đang chạy nên không dùng trong CI; omc team cần tmux.
-- Jev là tính năng tùy chọn, cần khóa riêng. README cũng gợi ý gajae-code cho ai thấy OMC hơi quá tay.
+- Jev (lớp phán đoán tùy chọn, bật bằng biến môi trường) cần khóa riêng. README cũng gợi ý gajae-code cho ai thấy OMC hơi quá tay.
 
 ## 🧰 Chuẩn bị trước khi bắt đầu
 
@@ -45,7 +45,7 @@ _Đánh dấu từng mục khi đã có đủ._
   <sub>Căn cứ: `README`</sub>
 - [ ] **CLI của agent khác (tùy chọn)**: codex, gemini, agy, grok, cursor-agent: mỗi cái cài và đăng nhập riêng. OMC chạy đủ khi không có chúng.  
   <sub>Căn cứ: `README`</sub>
-- [ ] **Chi phí thuê bao (README tự ước tính)**: README ước tính ba gói Pro (Claude, Antigravity/Gemini, ChatGPT) khoảng 60 USD mỗi tháng nếu dùng đủ.  
+- [ ] **Chi phí nếu dùng đủ ba hãng (tùy chọn)**: README ước tính ba gói Pro (Claude, Antigravity/Gemini, ChatGPT) khoảng 60 USD mỗi tháng; các hãng ngoài Claude không bắt buộc.  
   <sub>Căn cứ: `README`</sub>
 
 ## 🗺️ Lộ trình
@@ -100,6 +100,7 @@ _Gõ hoặc dán từng dòng, theo thứ tự._
 
 1. Mở `~/.claude/settings.json`.
 2. Thêm khối bên dưới để đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` bằng 1.
+3. Nếu file đã có khóa env, thêm biến vào đó thay vì chép cả khối. Giá trị 1 là giá trị thật, không phải chỗ giữ chỗ.
 
 _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị của bạn)_
 
@@ -125,8 +126,6 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 /team 3:executor "fix all TypeScript errors"
 ```
 
-✅ **Bạn sẽ thấy:** Theo README, đội chạy các giai đoạn plan, prd, exec, verify; giai đoạn fix lặp lại (loop).
-
 <sub>Căn cứ: `README`</sub>
 
 ### Bước 6 · Dùng autopilot khi chỉ cần một agent chính
@@ -134,7 +133,7 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 **Mục đích:** README mô tả autopilot là thực thi tự động bằng một agent chính, hợp việc làm trọn một tính năng với ít thủ tục.
 
 1. Gõ lệnh dưới đây trong phiên Claude Code để xây một tính năng từ mô tả.
-2. README dặn mỗi phiên chỉ dùng một quyền điều khiển vòng lặp chính, nên đừng chạy autopilot chồng lên /team.
+2. README dặn mỗi phiên chỉ dùng một cơ chế cầm vòng lặp chính (/goal, Execute, Team hoặc Verify). Autopilot cũng có thể được cấu hình để chạy giai đoạn thực thi qua team.
 
 ```bash
 /autopilot "build a REST API for managing tasks"
@@ -148,6 +147,7 @@ _Nội dung mẫu trong README (thay giá trị giữ chỗ bằng giá trị c�
 
 1. Chạy lệnh dưới đây trong terminal, không phải trong phiên Claude Code.
 2. Tên gói npm khác tên repo; nó cài cả `oh-my-claudecode` lẫn lệnh ngắn `omc`.
+3. README đưa đường npm như lựa chọn thay cho marketplace, nhưng bảng CLI và skill trong phiên liệt kê cả hai bề mặt; bước này chỉ thêm lệnh omc.
 
 ```bash
 npm i -g oh-my-claude-sisyphus@latest
@@ -160,7 +160,7 @@ npm i -g oh-my-claude-sisyphus@latest
 **Mục đích:** Worker của omc team là các pane tmux; README yêu cầu một phiên tmux đang hoạt động.
 
 1. Lệnh dưới đây dành cho macOS (Homebrew).
-2. Ubuntu/Debian: `sudo apt install tmux`. Fedora: `sudo dnf install tmux`. Arch: `sudo pacman -S tmux`. Windows: `winget install psmux`.
+2. Ubuntu/Debian: `sudo apt install tmux`. Fedora: `sudo dnf install tmux`. Arch: `sudo pacman -S tmux`. Windows: `winget install psmux`; WSL2 dùng tmux trong WSL.
 
 ```bash
 brew install tmux
@@ -174,9 +174,10 @@ brew install tmux
 
 **Mục đích:** Nhờ Codex (hay Gemini, Cursor) làm một phần việc như một worker riêng; worker tự tắt khi xong.
 
-1. Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.
-2. Chạy lệnh đầu để mở hai worker Codex xem xét module xác thực.
-3. Dùng hai lệnh sau để xem trạng thái và tắt đội; README minh họa với tên auth-review.
+1. Làm trong một phiên tmux đang hoạt động: README yêu cầu điều này nhưng không ghi cách mở phiên.
+2. Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.
+3. Chạy lệnh đầu để mở hai worker Codex xem xét module xác thực.
+4. Hai lệnh sau dùng tên auth-review như ví dụ của README; README không nói tên đội lấy từ đâu, nên đổi nếu tên đội của bạn khác.
 
 ```bash
 omc team 2:codex "review auth module for security issues"
@@ -197,7 +198,7 @@ Trong Claude Code, /team bắt đầu chuỗi giai đoạn của Team. Ở termi
 | npm cảnh báo deprecated prebuild-install@7.1.3 khi cài CLI | README nói cảnh báo đến từ phụ thuộc `better-sqlite3` và không có nghĩa là cài thất bại. | `README` |
 | Dán hai lệnh /plugin cùng lúc thì lỗi | Nhập từng lệnh một và đợi lệnh trước chạy xong, như README dặn. | `README` |
 | Chạy /team khi chưa bật đội native | OMC cảnh báo và lùi về chạy không theo đội khi có thể. Đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` ở bước 4. | `README` |
-| Gặp lỗi sau khi cập nhật plugin | README bảo xóa cache plugin cũ bằng lệnh `/omc-doctor` trong phiên Claude Code. | `README` |
+| Gặp lỗi sau khi cập nhật plugin | Cập nhật bằng `/plugin marketplace update omc` rồi `/omc-setup`; nếu vẫn lỗi, README bảo xóa cache plugin cũ bằng `/omc-doctor`. | `README` |
 | Chạy /team hay /autopilot trong CI không có người ngồi | README: các lệnh slash cần phiên Claude Code đang chạy; trong CI dùng lệnh terminal xác định như `omc setup`. | `README` |
 
 ## 🚀 Làm tiếp
@@ -232,7 +233,7 @@ Trong Claude Code, /team bắt đầu chuỗi giai đoạn của Team. Ở termi
 
 - Tách hai runtime: đội chạy trong phiên và worker chạy ngoài phiên, mỗi bên hợp một loại việc.
 - Đặt kiểm tra thành giai đoạn riêng và cho nó vòng sửa lỗi, thay vì kiểm tra một lần ở cuối.
-- Mỗi phiên chỉ một cơ chế cầm vòng lặp, để hai vòng lặp không giành kết quả của nhau.
+- Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.
 - Worker sinh khi cần và tắt khi xong: trả tài nguyên ngay sau mỗi việc.
 - Giữ trạng thái cục bộ cạnh dự án và nói rõ nó sống hay chết theo worktree.
 

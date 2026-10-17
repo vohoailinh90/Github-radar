@@ -68,7 +68,7 @@
 <rectangle x="800" y="1858" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
 <line x1="830.8" y1="1898.8" x2="837.6" y2="1906" stroke="#FFC83D" stroke-width="5"/>
 <line x1="837.6" y1="1906" x2="850" y2="1890.8" stroke="#FFC83D" stroke-width="5"/>
-<text x="876" y="1878" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mỗi phiên chỉ một cơ chế cầm vòng lặp, để hai vòng lặp không giành kết quả của nhau.</text>
+<text x="876" y="1878" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.</text>
 <rectangle x="60" y="2012" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
 <line x1="90.8" y1="2052.8" x2="97.6" y2="2060" stroke="#FFC83D" stroke-width="5"/>
 <line x1="97.6" y1="2060" x2="110" y2="2044.8" stroke="#FFC83D" stroke-width="5"/>

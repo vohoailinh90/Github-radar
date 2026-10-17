@@ -2,10 +2,10 @@
   "draft": {
     "analogy": "Giống một tổ trưởng công trình: bạn nói cần sửa gì, tổ trưởng chia cho từng thợ, có người nghiệm thu, chỗ nào chưa đạt thì quay lại làm tiếp.",
     "caveats": [
-      "Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic. Với omc team, mỗi CLI (codex, gemini, grok, cursor-agent) tự cài và đăng nhập riêng.",
+      "Cần Claude Code CLI và gói Max/Pro hoặc khóa API Anthropic. Với omc team, mỗi CLI (codex, gemini, agy, grok, cursor-agent) tự cài và đăng nhập riêng.",
       "Đội native cần đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`; nếu tắt, OMC cảnh báo và lùi về chạy không theo đội khi có thể.",
       "Lệnh slash như /team, /autopilot cần phiên Claude Code đang chạy nên không dùng trong CI; omc team cần tmux.",
-      "Jev là tính năng tùy chọn, cần khóa riêng. README cũng gợi ý gajae-code cho ai thấy OMC hơi quá tay."
+      "Jev (lớp phán đoán tùy chọn, bật bằng biến môi trường) cần khóa riêng. README cũng gợi ý gajae-code cho ai thấy OMC hơi quá tay."
     ],
     "facebook": {
       "caption": "oh-my-claudecode: một lệnh /team để Claude Code chia việc cho cả đội agent\n\n- /team: lập kế hoạch, thực thi, kiểm tra, rồi sửa lỗi theo vòng\n- omc team: mở worker Codex, Gemini, Cursor trong tmux\n- Cần Claude Code và gói Max/Pro hoặc khóa API Anthropic\nBài hướng dẫn từng bước có cả cách bật đội native và các lưu ý.",
@@ -73,9 +73,9 @@
           "link_ref": null
         },
         {
-          "detail": "README ước tính ba gói Pro (Claude, Antigravity/Gemini, ChatGPT) khoảng 60 USD mỗi tháng nếu dùng đủ.",
+          "detail": "README ước tính ba gói Pro (Claude, Antigravity/Gemini, ChatGPT) khoảng 60 USD mỗi tháng; các hãng ngoài Claude không bắt buộc.",
           "evidence": "README",
-          "item": "Chi phí thuê bao (README tự ước tính)",
+          "item": "Chi phí nếu dùng đủ ba hãng (tùy chọn)",
           "link_ref": null
         }
       ],
@@ -131,7 +131,8 @@
           "commands": [],
           "do": [
             "Mở `~/.claude/settings.json`.",
-            "Thêm khối bên dưới để đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` bằng 1."
+            "Thêm khối bên dưới để đặt `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` bằng 1.",
+            "Nếu file đã có khóa env, thêm biến vào đó thay vì chép cả khối. Giá trị 1 là giá trị thật, không phải chỗ giữ chỗ."
           ],
           "evidence": "README",
           "expect": "",
@@ -151,7 +152,7 @@
             "Đội đi theo chuỗi `team-plan → team-prd → team-exec → team-verify → team-fix (loop)`."
           ],
           "evidence": "README",
-          "expect": "Theo README, đội chạy các giai đoạn plan, prd, exec, verify; giai đoạn fix lặp lại (loop).",
+          "expect": "",
           "if_fails": "",
           "link_ref": null,
           "snippet_ref": null,
@@ -164,7 +165,7 @@
           ],
           "do": [
             "Gõ lệnh dưới đây trong phiên Claude Code để xây một tính năng từ mô tả.",
-            "README dặn mỗi phiên chỉ dùng một quyền điều khiển vòng lặp chính, nên đừng chạy autopilot chồng lên /team."
+            "README dặn mỗi phiên chỉ dùng một cơ chế cầm vòng lặp chính (/goal, Execute, Team hoặc Verify). Autopilot cũng có thể được cấu hình để chạy giai đoạn thực thi qua team."
           ],
           "evidence": "README",
           "expect": "",
@@ -180,7 +181,8 @@
           ],
           "do": [
             "Chạy lệnh dưới đây trong terminal, không phải trong phiên Claude Code.",
-            "Tên gói npm khác tên repo; nó cài cả `oh-my-claudecode` lẫn lệnh ngắn `omc`."
+            "Tên gói npm khác tên repo; nó cài cả `oh-my-claudecode` lẫn lệnh ngắn `omc`.",
+            "README đưa đường npm như lựa chọn thay cho marketplace, nhưng bảng CLI và skill trong phiên liệt kê cả hai bề mặt; bước này chỉ thêm lệnh omc."
           ],
           "evidence": "README",
           "expect": "",
@@ -196,7 +198,7 @@
           ],
           "do": [
             "Lệnh dưới đây dành cho macOS (Homebrew).",
-            "Ubuntu/Debian: `sudo apt install tmux`. Fedora: `sudo dnf install tmux`. Arch: `sudo pacman -S tmux`. Windows: `winget install psmux`."
+            "Ubuntu/Debian: `sudo apt install tmux`. Fedora: `sudo dnf install tmux`. Arch: `sudo pacman -S tmux`. Windows: `winget install psmux`; WSL2 dùng tmux trong WSL."
           ],
           "evidence": "README",
           "expect": "",
@@ -213,9 +215,10 @@
             "omc team shutdown auth-review"
           ],
           "do": [
+            "Làm trong một phiên tmux đang hoạt động: README yêu cầu điều này nhưng không ghi cách mở phiên.",
             "Cài và đăng nhập CLI bạn định dùng (ở đây là codex) trước.",
             "Chạy lệnh đầu để mở hai worker Codex xem xét module xác thực.",
-            "Dùng hai lệnh sau để xem trạng thái và tắt đội; README minh họa với tên auth-review."
+            "Hai lệnh sau dùng tên auth-review như ví dụ của README; README không nói tên đội lấy từ đâu, nên đổi nếu tên đội của bạn khác."
           ],
           "evidence": "README",
           "expect": "",
@@ -244,7 +247,7 @@
         },
         {
           "evidence": "README",
-          "fix": "README bảo xóa cache plugin cũ bằng lệnh `/omc-doctor` trong phiên Claude Code.",
+          "fix": "Cập nhật bằng `/plugin marketplace update omc` rồi `/omc-setup`; nếu vẫn lỗi, README bảo xóa cache plugin cũ bằng `/omc-doctor`.",
           "problem": "Gặp lỗi sau khi cập nhật plugin"
         },
         {
@@ -338,12 +341,12 @@
     "learn": [
       "Tách hai runtime: đội chạy trong phiên và worker chạy ngoài phiên, mỗi bên hợp một loại việc.",
       "Đặt kiểm tra thành giai đoạn riêng và cho nó vòng sửa lỗi, thay vì kiểm tra một lần ở cuối.",
-      "Mỗi phiên chỉ một cơ chế cầm vòng lặp, để hai vòng lặp không giành kết quả của nhau.",
+      "Mỗi phiên chỉ một cơ chế cầm vòng lặp chính, theo lời dặn của README.",
       "Worker sinh khi cần và tắt khi xong: trả tài nguyên ngay sau mỗi việc.",
       "Giữ trạng thái cục bộ cạnh dự án và nói rõ nó sống hay chết theo worktree."
     ],
     "one_liner": "Plugin cho Claude Code: lệnh /team chạy chuỗi lập kế hoạch, thực thi, kiểm tra, sửa lỗi; lệnh omc team mở thêm worker Codex, Gemini, Cursor trong tmux.",
-    "problem": "Khi một agent AI làm từ kế hoạch đến kiểm tra, bạn phải tự canh từng bước; chia việc cho nhiều agent bằng tay lại tốn công. oh-my-claudecode (OMC) đặt một lớp điều phối lên Claude Code: Team chạy các agent theo chuỗi giai đoạn có vòng sửa lỗi, còn omc team mở worker CLI thật trong tmux khi bạn muốn nhờ Codex hay Gemini.",
+    "problem": "Một agent AI làm từ kế hoạch đến kiểm tra thì bạn phải tự chia việc và canh từng bước. oh-my-claudecode (OMC) đặt thêm một lớp điều phối lên Claude Code: Team chạy các agent theo chuỗi giai đoạn có vòng sửa lỗi, còn omc team mở worker CLI thật trong tmux khi bạn muốn nhờ Codex hay Gemini.",
     "title": "oh-my-claudecode: cả đội agent chạy ngay trong Claude Code",
     "who_for": [
       "Người dùng Claude Code muốn chia một việc lớn cho nhiều agent mà vẫn có bước kiểm tra riêng.",
@@ -554,6 +557,6 @@
     "url": "https://github.com/Yeachan-Heo/oh-my-claudecode"
   },
   "lang": "vi",
-  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True.",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family. It replaces the lesson the pipeline wrote for the same repository in 2026-10-17-3, which is kept. Facts: README.md at commit 44c2730 of a shallow checkout (committed 2026-10-14), the whole cleaned README (42765 characters): the default of 12000 characters cuts it before the Team Mode section, so the pipeline's own digest never saw it; the repository file tree at that commit (top-level entries plus the children of docs, examples and src, at most 120), which the draft's evidence paths may cite; stars (39976) and forks (3586) as the pipeline's scan of 2026-10-17 recorded them; license, language, creation and last push dates from the GitHub search of the same day; open issues and topics were not read. The draft passed radar/gates.py with require_guide=True. A read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied (no instruction against stacking autopilot on /team, the active tmux session and the team name the README does not explain, an expected result the README does not give, the cost shown as optional, the update commands), and the renderer's fixed caption under a settings sample is answered in the step text instead.",
   "position": 1
 }
