@@ -77,6 +77,7 @@ python3 radar.py rerender                              # redraw digests, diagram
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
+python3 scripts/ui_sync.py --check                     # docs/ui pages: data block and CSP hashes match the code (board.html: docs/board.md)
 python3 scripts/vendor_impeccable.py check             # the vendored impeccable skill still matches its lock (also run by pytest)
 ```
 

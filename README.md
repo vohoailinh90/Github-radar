@@ -85,6 +85,8 @@ Không cần chờ thứ Tư hay thứ Bảy: Actions → *Radar scan* → *Run 
 
 **Hoặc bấm trên một trang:** mở [`docs/ui/index.html`](docs/ui/index.html) (tải về mở bằng trình duyệt; không dùng GitHub Pages `github.io`: trang từ chối nhận token ở đó, lý do trong `docs/ui.md`), chọn bộ điều kiện, xem ước tính và bấm *Quét*. Trang chỉ gửi lệnh chạy workflow bằng một token chỉ có quyền Actions của repo này (quyền đó gồm cả hủy/xóa lượt chạy và tắt workflow, xem `docs/ui.md`); mặc định là quét thử, quét thật cần gõ `QUET`. Cách tạo token, những gì đã/chưa kiểm: [`docs/ui.md`](docs/ui.md).
 
+**Theo dõi nhiều repo trên một màn hình:** mở [`docs/ui/board.html`](docs/ui/board.html) (cùng cách mở, chỉ-đọc, token không cần quyền ghi): liên kết các repo, xem task nào đang chạy và gồm những bước nào, lịch cron 7 ngày, agent thấy được trên GitHub, và nạp snapshot của Văn phòng agent để thấy phiên agent thật. Nguồn từng con số, những gì đã kiểm và chưa kiểm: [`docs/board.md`](docs/board.md).
+
 ### Quét đúng một repo bạn chọn
 
 `python3 radar.py run --repo owner/tên --dry-run` kiểm tra repo (không gọi model, không ghi gì); bỏ `--dry-run` để viết bài.

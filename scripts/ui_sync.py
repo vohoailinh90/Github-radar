@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Keep docs/ui/index.html in step with the code it mirrors: the data block (saved presets, the base configuration, the limits of
-radar/conditions.py, the costs) and the two CSP hashes (the page's one script and one style).
+radar/conditions.py, the costs) and the two CSP hashes (the page's one script and one style). docs/ui/board.html mirrors no Python value,
+so only its two CSP hashes are kept here.
 
     python3 scripts/ui_sync.py           rewrite the page
     python3 scripts/ui_sync.py --check   exit 1 and say what differs (the test suite runs this)
@@ -23,6 +24,7 @@ sys.path.insert(0, str(ROOT))
 from radar import conditions, config  # noqa: E402
 
 PAGE = ROOT / "docs" / "ui" / "index.html"
+BOARD = ROOT / "docs" / "ui" / "board.html"
 DEFAULT_REPO = "vohoailinh90/Github-radar"
 
 DATA_RE = re.compile(r'(<script type="application/json" id="radar-data">)(.*?)(</script>)', re.S)
@@ -60,14 +62,23 @@ def synced(html: str) -> str:
 def main(argv: list[str]) -> int:
     html = PAGE.read_text(encoding="utf-8")
     fresh = synced(html)
+    board = BOARD.read_text(encoding="utf-8")
+    board_fresh = synced(board)                      # the board mirrors no Python value: only its two CSP hashes can drift
     if "--check" in argv:
+        status = 0
         if fresh != html:
             print("docs/ui/index.html is out of step with radar.yaml, radar/presets.json or radar/conditions.py: run python3 scripts/ui_sync.py")
-            return 1
-        print("docs/ui/index.html is in step")
-        return 0
+            status = 1
+        if board_fresh != board:
+            print("docs/ui/board.html is out of step (its script or style changed without the CSP hashes): run python3 scripts/ui_sync.py")
+            status = 1
+        if not status:
+            print("docs/ui/index.html and docs/ui/board.html are in step")
+        return status
     PAGE.write_text(fresh, encoding="utf-8")
+    BOARD.write_text(board_fresh, encoding="utf-8")
     print("docs/ui/index.html updated" if fresh != html else "docs/ui/index.html already in step")
+    print("docs/ui/board.html updated" if board_fresh != board else "docs/ui/board.html already in step")
     return 0
 
 

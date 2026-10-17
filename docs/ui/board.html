@@ -1,0 +1,1179 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-sqEmY2qOjYSogFRhPrpJPptMomezCVxU9dijGmrsFco='; style-src 'sha256-riAfUjZa0MmDTsJI3JopyUhaenIkmde6jOBJbpC6GIE='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>GitHub Radar: bảng theo dõi repo</title>
+<style>
+:root {
+  color-scheme: light dark;
+  /* Status tokens follow Automation-UI-Kit (MIT): colour is only a dot or a fill, the words stay neutral, so contrast never depends on a coloured text. */
+  --bg: oklch(0.97 0 0); --card: oklch(1 0 0); --ink: oklch(0.2 0 0); --muted: oklch(0.5 0 0); --line: oklch(0.9 0 0); --soft: oklch(0.945 0 0);
+  --accent: oklch(0.5 0.17 255);
+  --success: oklch(0.6 0.13 163); --warning: oklch(0.64 0.17 55); --info: oklch(0.5 0.17 255); --failed: oklch(0.52 0.22 27); --neutral: oklch(0.62 0 0);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(0.145 0 0); --card: oklch(0.205 0 0); --ink: oklch(0.96 0 0); --muted: oklch(0.72 0 0); --line: oklch(1 0 0 / 12%); --soft: oklch(0.26 0 0);
+    --accent: oklch(0.72 0.15 255);
+    --success: oklch(0.72 0.14 163); --warning: oklch(0.8 0.17 75); --info: oklch(0.7 0.15 255); --failed: oklch(0.704 0.191 22); --neutral: oklch(0.6 0 0);
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
+h1 { font-size: 22px; margin: 16px 0 4px; }
+h2 { font-size: 17px; margin: 0 0 10px; }
+h3 { font-size: 15px; margin: 0; overflow-wrap: anywhere; }
+p { margin: 6px 0; }
+code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+.bad { color: var(--failed); } .ok { color: var(--ink); } .warn { color: var(--ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+nav.jump { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 0; background: var(--bg); border-bottom: 1px solid var(--line); }
+nav.jump a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 3px 12px; font-size: 13px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+.banner { border: 1px solid var(--warning); border-radius: 10px; padding: 8px 12px; margin: 12px 0; background: var(--card); }
+label { display: block; margin: 8px 0 4px; font-weight: 600; font-size: 13px; }
+input[type=text], input[type=password], select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+textarea { font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; min-height: 80px; }
+input[type=file] { font: inherit; max-width: 100%; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.row > .grow { flex: 1 1 260px; min-width: 0; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; }
+.row > .btns { margin: 0; }
+button { font: inherit; font-size: 14px; padding: 7px 12px; min-height: 36px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--ink); color: var(--card); border-color: var(--ink); font-weight: 600; }
+button.link { border: 0; background: none; padding: 0 4px; min-height: 0; color: var(--accent); text-decoration: underline; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.msg { margin: 8px 0 0; min-height: 1.4em; font-size: 14px; }
+.chips { list-style: none; padding: 0; margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 13px; background: var(--soft); }
+.chip button { border: 0; background: none; padding: 0 6px; min-height: 28px; font-size: 16px; line-height: 1; }
+.picklist { list-style: none; padding: 0; margin: 8px 0 0; max-height: 240px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+.picklist li { padding: 4px 10px; border-bottom: 1px solid var(--line); }
+.picklist label { display: flex; gap: 8px; align-items: center; margin: 0; font-weight: 400; font-size: 14px; }
+details.io { margin-top: 10px; }
+details.io summary { cursor: pointer; font-size: 13px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.tile .n { display: block; font-size: 28px; font-weight: 650; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.tile .l { font-size: 13px; color: var(--muted); }
+.tile .d { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--tone, var(--neutral)); margin-right: 6px; }
+.tone-success { --tone: var(--success); } .tone-failed { --tone: var(--failed); } .tone-warning { --tone: var(--warning); } .tone-info { --tone: var(--info); } .tone-neutral { --tone: var(--neutral); }
+.badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; font-size: 12.5px; font-weight: 500; white-space: nowrap; background: var(--card); }
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tone, var(--neutral)); flex: none; }
+.empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 10px; padding: 16px; text-align: center; }
+.task { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0; background: var(--card); }
+.task header, .repo header { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.task .meta { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.task .prog { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+progress { appearance: none; -webkit-appearance: none; flex: 1; height: 8px; border: 0; border-radius: 999px; overflow: hidden; background: var(--soft); }
+progress::-webkit-progress-bar { background: var(--soft); }
+progress::-webkit-progress-value { background: var(--info); }
+progress::-moz-progress-bar { background: var(--info); }
+ol.jobs { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 8px; }
+.job { border-left: 3px solid var(--tone, var(--neutral)); padding: 2px 0 2px 10px; }
+.job-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 14px; }
+ol.steps { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px 4px; }
+.step { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; font-size: 12.5px; background: var(--card); }
+.step:not(:last-child)::after { content: "→"; color: var(--muted); margin-left: 4px; }
+.step .glyph { color: var(--tone, var(--neutral)); font-weight: 700; width: 1em; text-align: center; }
+.step.st-running { border-color: var(--info); }
+.step.st-running .glyph, .badge.is-running .dot { animation: pulse 1.3s ease-in-out infinite; }
+.step.st-failure, .step.st-timed_out { border-color: var(--failed); }
+@keyframes pulse { 50% { opacity: 0.3; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 12px; }
+.repo { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.repo .desc { color: var(--muted); font-size: 13px; margin: 4px 0; overflow-wrap: anywhere; }
+.repo .stats { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); margin: 6px 0 8px; }
+.repo header .sp { flex: 1; }
+ul.wfs { list-style: none; padding: 0; margin: 0; }
+details.wf { border-top: 1px solid var(--line); }
+details.wf > summary { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; padding: 7px 0; cursor: pointer; font-size: 14px; }
+details.wf .name { font-weight: 600; overflow-wrap: anywhere; }
+details.wf .slot { padding: 2px 0 10px; }
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; }
+.spark i { display: block; width: 6px; height: 12px; border-radius: 2px; background: var(--tone, var(--neutral)); }
+.spark i.tone-failed { height: 18px; } .spark i.tone-neutral { height: 6px; } .spark i.tone-warning { height: 15px; }
+.sched { font-size: 12.5px; color: var(--muted); }
+.agentline { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.kind { display: inline-block; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; margin: 0 4px 2px 0; background: var(--soft); }
+.week { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 640px) { .week { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .week { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+.day { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--card); min-width: 0; }
+.day h3 { font-size: 13px; margin-bottom: 6px; }
+.day.today { border-color: var(--accent); }
+.day ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.day li { font-size: 12.5px; overflow-wrap: anywhere; }
+.day time { font-variant-numeric: tabular-nums; font-weight: 600; margin-right: 4px; }
+.agentrepo { border-top: 1px solid var(--line); padding: 10px 0; }
+.agentrepo:first-child { border-top: 0; }
+.agentrepo ul { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 4px; font-size: 14px; }
+.agentrepo li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.phase { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; padding: 0; list-style: none; }
+.phase li { border: 1px solid var(--line); border-radius: 999px; padding: 1px 12px; font-size: 13px; }
+.phase li.now { border-color: var(--info); font-weight: 600; }
+.office-agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-top: 8px; }
+.oa { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--card); min-width: 0; }
+.oa .t { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.log { font-size: 13px; color: var(--muted); margin: 8px 0 0; padding-left: 18px; }
+.budget { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; margin: 6px 0; }
+.gap-top { margin-top: 16px; }
+.plainlist { list-style: none; padding: 0; margin: 6px 0 10px; display: grid; gap: 2px; }
+</style>
+</head>
+<body>
+<noscript><div class="wrap"><p>Trang này cần JavaScript để gọi GitHub. Không có gì được gửi đi khi chưa bật.</p></div></noscript>
+<div class="wrap">
+  <h1>GitHub Radar · bảng theo dõi repo</h1>
+  <p class="muted small">Trang chạy hoàn toàn trong trình duyệt và chỉ <b>đọc</b> từ <code>api.github.com</code> (không gửi lệnh, không ghi gì). Liên kết các repo, xem task nào đang chạy và gồm những bước nào, lịch chạy theo cron, và agent. Token (nếu có) chỉ nằm trong bộ nhớ của trang này.</p>
+  <p id="banner" class="banner" role="status" hidden>Đang xem <b>dữ liệu mẫu</b>: tên repo và số liệu đều là giả, không gọi GitHub. Bấm “Thoát dữ liệu mẫu” để về repo của bạn.</p>
+
+  <nav class="jump" aria-label="Chuyển nhanh">
+    <a href="#connect">Kết nối</a><a href="#link">Repo</a><a href="#tasks">Task đang chạy</a><a href="#repos">Quy trình từng repo</a><a href="#schedule">Lịch chạy</a><a href="#agents">Agent</a>
+  </nav>
+
+  <section id="connect" class="panel" aria-labelledby="h-connect">
+    <h2 id="h-connect">Kết nối</h2>
+    <div class="row">
+      <div class="grow">
+        <label for="token">Token GitHub (tùy chọn, chỉ-đọc)</label>
+        <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+      </div>
+      <div>
+        <label for="interval">Tự làm mới</label>
+        <select id="interval"><option value="0">Tắt</option><option value="30">30 giây</option><option value="60" selected>1 phút</option><option value="300">5 phút</option></select>
+      </div>
+      <div class="btns"><button id="refresh" type="button" class="primary">Làm mới</button><button id="forget" type="button">Quên token</button></div>
+    </div>
+    <p class="muted small">Repo công khai đọc được không cần token (60 yêu cầu/giờ, nên tự làm mới tắt khi chưa có token). Có token chỉ-đọc: 5.000 yêu cầu/giờ và đọc được repo private. Tạo token fine-grained, chọn đúng các repo, quyền <b>Metadata, Actions, Pull requests, Contents: Read</b>. <b>Đừng</b> dùng token có quyền ghi: trang này không cần.</p>
+    <p id="rate" class="muted small" role="status"></p>
+    <p id="origin-warning" class="bad" role="alert" hidden>Trang đang chạy trên github.io: mọi trang của cùng một chủ dùng chung một origin ở đó, nên trang khác có thể mở trang này và đọc ô token. Vì vậy trang không nhận token ở đây. Tải file về mở trực tiếp, hoặc mở qua <code>python3 -m http.server</code> trên máy bạn (xem docs/board.md).</p>
+    <p id="connect-msg" class="msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="link" class="panel" aria-labelledby="h-link">
+    <h2 id="h-link">Repo đã liên kết</h2>
+    <div class="row">
+      <div class="grow">
+        <label for="add-repo">Thêm repo</label>
+        <input id="add-repo" type="text" autocomplete="off" spellcheck="false" placeholder="chủ/tên hoặc link github.com">
+      </div>
+      <div class="btns"><button id="add" type="button" class="primary">Liên kết</button><button id="pick" type="button" aria-expanded="false">Chọn từ tài khoản…</button><button id="demo" type="button">Xem dữ liệu mẫu</button></div>
+    </div>
+    <ul id="chips" class="chips" aria-label="Các repo đã liên kết"></ul>
+    <div id="picker" hidden>
+      <div class="row">
+        <div class="grow"><label for="pick-owner">Chủ tài khoản hoặc tổ chức</label><input id="pick-owner" type="text" autocomplete="off" spellcheck="false"></div>
+        <div class="btns"><button id="pick-load" type="button">Tải danh sách</button></div>
+      </div>
+      <ul id="pick-list" class="picklist" aria-label="Repo có thể liên kết"></ul>
+      <div class="btns"><button id="pick-add" type="button" class="primary">Thêm các repo đã chọn</button></div>
+    </div>
+    <details class="io">
+      <summary>Xuất / nhập danh sách repo</summary>
+      <label for="io">JSON hoặc mỗi dòng một repo</label>
+      <textarea id="io" spellcheck="false"></textarea>
+      <div class="btns"><button id="export" type="button">Xuất danh sách hiện tại</button><button id="import" type="button">Thêm các repo trong ô này</button></div>
+    </details>
+    <p id="link-msg" class="msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="summary" aria-label="Tổng quan"><div id="tiles" class="tiles"></div></section>
+
+  <section id="tasks" class="panel" aria-labelledby="h-tasks">
+    <h2 id="h-tasks">Task đang chạy</h2>
+    <p class="muted small">Mỗi task là một lượt chạy workflow đang chạy hoặc đang chờ, lấy từ 40 lượt gần nhất của từng repo. Dưới mỗi task là các job và từng bước của nó.</p>
+    <div id="tasks-body"></div>
+  </section>
+
+  <section id="repos" class="panel" aria-labelledby="h-repos">
+    <h2 id="h-repos">Quy trình từng repo</h2>
+    <p class="muted small">Mỗi dòng là một workflow: lượt gần nhất, tối đa 12 lượt gần đây (cột cao là lỗi, cột thấp là hủy/bỏ qua) và lần chạy theo lịch kế tiếp. Bấm vào dòng để xem các bước của lượt gần nhất.</p>
+    <div id="repo-grid" class="grid"></div>
+  </section>
+
+  <section id="schedule" class="panel" aria-labelledby="h-schedule">
+    <h2 id="h-schedule">Lịch chạy 7 ngày tới</h2>
+    <p class="muted small">Đọc từ mục <code>schedule</code> trong file workflow của nhánh mặc định. Giờ hiển thị theo máy bạn; cron của GitHub tính theo UTC và có thể trễ vài phút. Workflow theo lịch ở repo công khai bị GitHub tự tắt sau 60 ngày repo không có hoạt động.</p>
+    <ul id="frequent" class="plainlist small" hidden></ul>
+    <div id="week" class="week"></div>
+  </section>
+
+  <section id="agents" class="panel" aria-labelledby="h-agents">
+    <h2 id="h-agents">Agent</h2>
+    <h3>Phiên agent trên máy bạn (Office)</h3>
+    <p class="muted small">Trạng thái thật của agent (hook của Claude Code) chỉ có ở máy chạy chúng. Trang này đọc snapshot của “Văn phòng agent” trong <code>claude-agent-routing-template</code>: chạy <code>python3 scripts/office/snapshot.py &gt; snapshot.json</code> rồi chọn file. File chỉ được đọc trong trình duyệt, không gửi đi đâu và không được lưu.</p>
+    <label for="office-file">File snapshot.json</label>
+    <input id="office-file" type="file" accept=".json,application/json">
+    <p id="office-msg" class="msg" role="status" aria-live="polite"></p>
+    <div id="office-body"></div>
+    <h3 class="gap-top">Hoạt động agent thấy được trên GitHub</h3>
+    <p class="muted small">Nhận diện theo <b>tên</b> workflow, nhánh (<code>claude/</code>, <code>codex/</code>, <code>copilot/</code>…) và tác giả PR, cùng danh sách agent khai báo trong <code>.claude/agents/</code>. Đây là suy đoán theo tên, không phải trạng thái thật của phiên agent.</p>
+    <div id="agents-body"></div>
+  </section>
+</div>
+<script type="application/json" id="board-demo">
+{
+ "repos": [
+  {"repo": "demo/web-app", "info": {"description": "Ứng dụng web mẫu (dữ liệu giả)", "stars": 128, "private": false, "pushedAgo": 420, "openIssues": 9},
+   "workflows": [
+    {"id": 11, "name": "CI", "path": ".github/workflows/ci.yml", "dispatch": true, "crons": [],
+     "runs": [
+      {"n": 212, "status": "in_progress", "event": "push", "branch": "feat/search", "actor": "demo-dev", "ago": 130,
+       "jobs": [
+        {"name": "build", "status": "completed", "conclusion": "success", "dur": 95, "steps": "ok:Set up job|ok:Checkout|ok:Install dependencies|ok:Lint|ok:Complete job"},
+        {"name": "test", "status": "in_progress", "steps": "ok:Set up job|ok:Checkout|run:Run unit tests|wait:Upload coverage|wait:Complete job"},
+        {"name": "deploy-preview", "status": "queued", "steps": ""}]},
+      {"n": 211, "status": "completed", "conclusion": "success", "event": "push", "branch": "main", "actor": "demo-dev", "ago": 3600, "dur": 212,
+       "jobs": [
+        {"name": "build", "status": "completed", "conclusion": "success", "dur": 90, "steps": "ok:Set up job|ok:Checkout|ok:Install dependencies|ok:Lint|ok:Complete job"},
+        {"name": "test", "status": "completed", "conclusion": "success", "dur": 110, "steps": "ok:Set up job|ok:Checkout|ok:Run unit tests|ok:Upload coverage|ok:Complete job"}]}],
+     "history": ["success:7200:205", "success:14000:198", "failure:30000:150", "success:50000:210", "success:70000:201", "cancelled:90000:40", "success:110000:199", "success:130000:208", "success:150000:200", "success:170000:190"]},
+    {"id": 12, "name": "Nightly E2E", "path": ".github/workflows/e2e.yml", "dispatch": true, "crons": ["0 18 * * *"], "runs": [],
+     "history": ["success:21000:640", "success:107400:655", "failure:193800:300", "success:280200:652", "success:366600:641"]},
+    {"id": 13, "name": "Claude Code Review", "path": ".github/workflows/claude-review.yml", "dispatch": false, "crons": [],
+     "runs": [{"n": 58, "status": "queued", "event": "pull_request", "branch": "claude/fix-login-redirect", "actor": "claude[bot]", "ago": 20, "jobs": []}],
+     "history": ["success:5000:120", "success:20000:140"]}],
+   "pulls": [
+    {"n": 41, "title": "Sửa chuyển hướng sau khi đăng nhập", "user": "demo-dev", "type": "User", "branch": "claude/fix-login-redirect", "ago": 600, "draft": false},
+    {"n": 40, "title": "Bump vite từ 7.1 lên 7.2", "user": "dependabot[bot]", "type": "Bot", "branch": "dependabot/npm/vite-7.2", "ago": 86400, "draft": false},
+    {"n": 39, "title": "Thêm trang cài đặt", "user": "demo-dev", "type": "User", "branch": "feat/settings", "ago": 9000, "draft": true}],
+   "agentFiles": ["architect", "code-reviewer", "implementer"]},
+  {"repo": "demo/ml-pipeline", "info": {"description": "Huấn luyện và kiểm tra dữ liệu theo lịch (dữ liệu giả)", "stars": 54, "private": true, "pushedAgo": 7000, "openIssues": 3},
+   "workflows": [
+    {"id": 21, "name": "Train model", "path": ".github/workflows/train.yml", "dispatch": true, "crons": ["0 2 * * 1,4"],
+     "runs": [
+      {"n": 34, "status": "in_progress", "event": "schedule", "branch": "main", "actor": "demo-dev", "ago": 2400,
+       "jobs": [
+        {"name": "prepare-data", "status": "completed", "conclusion": "success", "dur": 600, "steps": "ok:Set up job|ok:Checkout|ok:Download dataset|ok:Validate schema|ok:Complete job"},
+        {"name": "train", "status": "in_progress", "steps": "ok:Set up job|ok:Checkout|ok:Install CUDA deps|run:Train epoch loop|wait:Evaluate|wait:Upload model|wait:Complete job"}]}],
+     "history": ["failure:300000:1900", "success:560000:2100", "success:900000:2050"]},
+    {"id": 22, "name": "Data validation", "path": ".github/workflows/validate.yml", "dispatch": false, "crons": ["*/30 * * * *"], "runs": [],
+     "history": ["success:900:40", "success:2700:42", "failure:4500:35", "success:6300:41", "success:8100:39", "success:9900:40", "success:11700:43", "success:13500:38"]}],
+   "pulls": [{"n": 12, "title": "Giảm batch size cho GPU nhỏ", "user": "demo-dev", "type": "User", "branch": "codex/reduce-batch-size", "ago": 7200, "draft": false}],
+   "agentFiles": null},
+  {"repo": "demo/docs-site", "info": {"description": "Trang tài liệu (dữ liệu giả)", "stars": 12, "private": false, "pushedAgo": 172800, "openIssues": 0},
+   "workflows": [
+    {"id": 31, "name": "Deploy docs", "path": ".github/workflows/deploy.yml", "dispatch": true, "crons": ["30 1 * * 0"], "runs": [],
+     "history": ["success:90000:95", "success:700000:90", "success:1300000:101", "success:1900000:92"]},
+    {"id": 32, "name": "Link check", "path": ".github/workflows/links.yml", "dispatch": false, "crons": ["0 3 1 * *"], "runs": [],
+     "history": ["success:900000:60", "success:3500000:61"]}],
+   "pulls": [], "agentFiles": []},
+  {"repo": "demo/private-repo", "error": "Không thấy repo (private hoặc sai tên): cần token có quyền đọc repo này."}
+ ],
+ "office": {"version": 1, "mode": "claude", "live": true,
+  "requirement": {"id": "REQ-031", "tier": "T2", "lane": "claude", "strategy": "main_with_architect_and_reviewer"},
+  "boss": {"state": "waiting", "task": "Đọc diff và chạy kiểm chứng độc lập", "waiting_for": "code-reviewer"},
+  "phase": {"steps": ["analysis", "design", "implement", "verify"], "current": "verify"},
+  "progress": {"pct": 67, "agents": 2, "total": 3, "running": 1, "done": 1, "blocked": 0},
+  "budget": [{"id": "base", "cap": 2, "granted": 2, "used": 2}, {"id": "escalation_reserve", "cap": 1, "granted": 0, "used": 0}],
+  "agents": {
+   "architect": {"id": "architect", "state": "done", "task": "Thiết kế bảng theo dõi chỉ-đọc", "note": "1 phương án, 0 câu hỏi mở", "progress": 1, "model": "sonnet", "tokens": 21400, "stalled": false},
+   "code-reviewer": {"id": "code-reviewer", "state": "working", "task": "Soát diff và chạy kiểm tra", "note": null, "progress": 0.55, "model": "sonnet", "tokens": 9800, "stalled": false}},
+  "log": [{"ago": 20, "kind": "start", "agent": "code-reviewer", "text": "Soát diff và chạy kiểm tra"}, {"ago": 140, "kind": "done", "agent": "architect", "text": "1 phương án, 0 câu hỏi mở"}]}
+}
+</script>
+<script>
+(() => {
+"use strict";
+// A page inside someone else's frame could be clicked through: a meta CSP cannot forbid framing, so refuse to run framed.
+if (window.top !== window.self) {
+  document.documentElement.textContent = "Trang này không chạy trong khung nhúng.";
+  throw new Error("framed");
+}
+const DEMO = JSON.parse(document.getElementById("board-demo").textContent);
+// github.io serves every site of an owner from ONE origin, so a sibling site's script can open this page and read the token field. Take no token there.
+const SHARED_ORIGIN = /^https?:\/\/[^/]*\.github\.io\.?(:\d+)?$/i.test(window.origin);
+const API = "https://api.github.com";
+const STORE_KEY = "radar-board.v1";
+const DEFAULT_REPOS = ["vohoailinh90/Github-radar"];
+const INTERVALS = [0, 30, 60, 300];
+
+/* LOGIC:BEGIN (pure: no DOM, no network, no clock; tests/test_board.py runs it under Node) */
+const SEGMENT = /^[A-Za-z0-9._-]{1,100}$/;
+const MAX_REPOS = 30;
+const DOW_VN = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const AI_AGENTS = [["claude", /\bclaude\b|\banthropic\b/i], ["codex", /\bcodex\b/i], ["copilot", /\bcopilot\b/i], ["gemini", /\bgemini\b/i],
+                   ["cursor", /\bcursor\b/i], ["devin", /\bdevin\b/i], ["jules", /\bjules\b/i], ["agent", /\bagents?\b/i]];
+const PLAIN_BOTS = /\b(dependabot|renovate|github-actions)\b/i;
+const OFFICE_STATES = { working: ["Đang làm", "info"], reviewing: ["Đang soát", "info"], waiting: ["Đang chờ", "warning"], done: ["Xong", "success"],
+                        blocked: ["Bị chặn / im lặng", "failed"], idle: ["Rảnh", "neutral"] };
+
+function pad2(n) { return String(n).padStart(2, "0"); }
+function clip(value, n) { const s = value == null ? "" : String(value); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+function whole(x) { return Number.isInteger(x) && x >= 0 ? x : 0; }
+function finite(x) { return typeof x === "number" && Number.isFinite(x) ? x : null; }
+function isoMs(text) { const t = Date.parse(text); return Number.isFinite(t) ? t : null; }
+
+// ---- which repositories ----
+function segmentOk(p) { return SEGMENT.test(p) && p !== "." && p !== ".."; }
+function parseRepo(input) {
+  let text = String(input == null ? "" : input).trim();
+  const url = /^(?:https?:\/\/)?(?:www\.)?github\.com\/(.*)$/i.exec(text);
+  if (url) text = url[1].split(/[?#]/)[0].split("/").slice(0, 2).join("/");
+  const parts = text.replace(/\.git$/i, "").split("/");
+  return parts.length === 2 && parts.every(segmentOk) ? parts.join("/") : null;
+}
+function sameRepo(a, b) { return String(a).toLowerCase() === String(b).toLowerCase(); }
+function parseRepoList(text) {
+  const raw = String(text == null ? "" : text).trim();
+  let items;
+  if (raw.startsWith("[") || raw.startsWith("{")) {
+    try { const j = JSON.parse(raw); items = Array.isArray(j) ? j : (j && Array.isArray(j.repos) ? j.repos : null); } catch (e) { items = null; }
+    if (items === null) return { repos: [], rejected: [clip(raw, 40)] };
+  } else {
+    items = raw.split(/[\s,;]+/).filter(Boolean);
+  }
+  const repos = [], rejected = [];
+  for (const it of items) {
+    const name = typeof it === "string" ? parseRepo(it) : null;
+    if (!name) rejected.push(clip(it, 60));
+    else if (!repos.some((r) => sameRepo(r, name))) repos.push(name);
+  }
+  return { repos, rejected };
+}
+function safeWorkflowPath(p) { return /^\.github\/workflows\/[A-Za-z0-9._-]+\.ya?ml$/.test(String(p)); }
+
+// ---- what GitHub returned, kept to the fields this page draws and cut to a length it can lay out ----
+function normInfo(i) {
+  i = i || {};
+  return { description: clip(i.description, 240), stars: whole(i.stargazers_count), private: !!i.private, archived: !!i.archived,
+           pushedAt: i.pushed_at || null, openIssues: whole(i.open_issues_count), defaultBranch: clip(i.default_branch, 60) };
+}
+function normWorkflow(w) {
+  if (!w || !Number.isInteger(w.id)) return null;
+  return { id: w.id, name: clip(w.name, 80), path: clip(w.path, 120), state: clip(w.state, 30) };
+}
+function normRun(r) {
+  if (!r || !Number.isInteger(r.id)) return null;
+  return { id: r.id, wfId: Number.isInteger(r.workflow_id) ? r.workflow_id : null, number: whole(r.run_number), status: clip(r.status, 30),
+           conclusion: r.conclusion == null ? null : clip(r.conclusion, 30), event: clip(r.event, 30), branch: clip(r.head_branch, 80),
+           actor: clip(r.actor && r.actor.login, 60), createdAt: r.created_at || null, startedAt: r.run_started_at || r.created_at || null, updatedAt: r.updated_at || null };
+}
+function normStep(s) { return { number: whole(s && s.number), name: clip(s && s.name, 100), status: clip(s && s.status, 30), conclusion: s && s.conclusion != null ? clip(s.conclusion, 30) : null }; }
+function normJob(j) {
+  if (!j || !Number.isInteger(j.id)) return null;
+  return { id: j.id, name: clip(j.name, 80), status: clip(j.status, 30), conclusion: j.conclusion == null ? null : clip(j.conclusion, 30),
+           startedAt: j.started_at || null, completedAt: j.completed_at || null, steps: (Array.isArray(j.steps) ? j.steps : []).slice(0, 60).map(normStep) };
+}
+function normPull(p) {
+  if (!p || !Number.isInteger(p.number)) return null;
+  return { number: p.number, title: clip(p.title, 140), draft: !!p.draft, user: clip(p.user && p.user.login, 60), userType: p.user && p.user.type === "Bot" ? "Bot" : "User",
+           branch: clip(p.head && p.head.ref, 80), updatedAt: p.updated_at || null, createdAt: p.created_at || null };
+}
+
+// ---- states: every one has a word and a glyph as well as a colour ----
+function runState(x) {
+  const s = x && x.status, c = x && x.conclusion;
+  if (s === "in_progress") return { key: "running", label: "Đang chạy", tone: "info", glyph: "●", active: true };
+  if (s === "waiting") return { key: "waiting", label: "Chờ duyệt", tone: "warning", glyph: "!", active: true };
+  if (s === "queued" || s === "requested" || s === "pending") return { key: "queued", label: "Đang chờ", tone: "info", glyph: "○", active: true };
+  if (s === "completed") {
+    if (c === "success") return { key: "success", label: "Thành công", tone: "success", glyph: "✓", active: false };
+    if (c === "failure") return { key: "failure", label: "Lỗi", tone: "failed", glyph: "✕", active: false };
+    if (c === "timed_out") return { key: "timed_out", label: "Quá thời gian", tone: "failed", glyph: "✕", active: false };
+    if (c === "startup_failure") return { key: "startup_failure", label: "Không khởi động được", tone: "failed", glyph: "✕", active: false };
+    if (c === "cancelled") return { key: "cancelled", label: "Đã hủy", tone: "neutral", glyph: "–", active: false };
+    if (c === "skipped") return { key: "skipped", label: "Bỏ qua", tone: "neutral", glyph: "–", active: false };
+    if (c === "action_required") return { key: "action_required", label: "Cần xử lý", tone: "warning", glyph: "!", active: false };
+    if (c === "neutral") return { key: "neutral", label: "Trung tính", tone: "neutral", glyph: "–", active: false };
+    if (c === "stale") return { key: "stale", label: "Quá hạn", tone: "neutral", glyph: "–", active: false };
+  }
+  return { key: "unknown", label: "Không rõ", tone: "neutral", glyph: "?", active: false };
+}
+function stepState(step) {
+  const st = runState(step);
+  return st.key === "queued" ? Object.assign({}, st, { label: "Chưa chạy" }) : st;
+}
+function stepCounts(steps) {
+  const list = Array.isArray(steps) ? steps : [];
+  const done = list.filter((s) => s.status === "completed").length;
+  return { total: list.length, done, running: list.filter((s) => s.status === "in_progress").length, failed: list.filter((s) => runState(s).tone === "failed").length };
+}
+function runProgress(jobs) {
+  const list = Array.isArray(jobs) ? jobs : [];
+  let stepsTotal = 0, stepsDone = 0;
+  for (const j of list) { const c = stepCounts(j.steps); stepsTotal += c.total; stepsDone += c.done; }
+  const jobsDone = list.filter((j) => j.status === "completed").length;
+  const partial = list.some((j) => j.status !== "completed" && !(j.steps && j.steps.length));      // a job that has not started lists no steps yet
+  const value = stepsTotal ? stepsDone : jobsDone, max = stepsTotal || list.length;
+  return { jobs: list.length, jobsDone, stepsTotal, stepsDone, value, max, partial };
+}
+function lastDone(runs) { return (runs || []).find((r) => r.status === "completed") || null; }
+function isFailing(wf) { const r = lastDone(wf.runs); return !!r && runState(r).tone === "failed"; }
+function orderWorkflows(workflows) {
+  const rank = (w) => ((w.runs || []).some((r) => runState(r).active) ? 0 : isFailing(w) ? 1 : 2);
+  return workflows.slice().sort((a, b) => rank(a) - rank(b) || String(a.name).localeCompare(String(b.name)));
+}
+function sparkHistory(runs, n) {
+  const cells = (runs || []).slice(0, n).reverse().map((r) => { const st = runState(r); return { tone: st.tone, key: st.key, label: st.label, id: r.id, number: r.number }; });
+  const counts = new Map();
+  for (const c of cells) counts.set(c.label, (counts.get(c.label) || 0) + 1);
+  const text = cells.length ? cells.length + " lượt gần nhất: " + [...counts].map(([label, k]) => k + " " + label.toLowerCase()).join(", ") : "Chưa có lượt chạy";
+  return { cells, text };
+}
+function repoHealth(m) {
+  if (!m || !m.ok) return { tone: "neutral", label: "Không đọc được" };
+  const wfs = m.workflows || [];
+  if (wfs.some(isFailing)) return { tone: "failed", label: "Có lỗi" };
+  if (wfs.some((w) => lastDone(w.runs))) return { tone: "success", label: "Ổn" };
+  return { tone: "neutral", label: wfs.length ? "Chưa có lượt chạy" : "Chưa có workflow" };
+}
+
+// ---- agents seen from GitHub: by name, so a guess ----
+function agentKind(text) {
+  const s = String(text == null ? "" : text);
+  for (const [kind, re] of AI_AGENTS) if (re.test(s)) return kind;
+  return PLAIN_BOTS.test(s) ? "bot" : null;
+}
+function agentActivity(m) {
+  if (!m || !m.ok) return [];
+  const out = [];
+  for (const wf of m.workflows || []) {
+    const seen = new Set();
+    for (const run of (wf.runs || []).slice(0, 10)) {
+      const kind = [wf.name, wf.path, run.branch, run.actor].map(agentKind).find((k) => k && k !== "bot");
+      if (!kind) continue;
+      const st = runState(run);
+      if (!st.active && seen.has("done")) continue;
+      if (!st.active) seen.add("done");
+      out.push({ type: "run", kind, title: wf.name, number: run.number, id: run.id, st, when: isoMs(run.updatedAt || run.startedAt), active: st.active });
+    }
+  }
+  for (const pr of m.pulls || []) {
+    const kind = agentKind(pr.branch) || agentKind(pr.user) || (pr.userType === "Bot" ? "bot" : null);
+    if (kind) out.push({ type: "pr", kind, title: pr.title, number: pr.number, draft: pr.draft, st: null, when: isoMs(pr.updatedAt), active: false });
+  }
+  return out.sort((a, b) => (b.active - a.active) || ((b.when || 0) - (a.when || 0))).slice(0, 12);
+}
+
+// ---- cron, as GitHub reads it: five fields in UTC; day-of-month and day-of-week are OR-ed when both are restricted ----
+function parseField(text, min, max, names, nameBase) {
+  const out = new Set();
+  const value = (t) => {
+    if (/^\d+$/.test(t)) return Number(t);
+    const i = names ? names.indexOf(t.toUpperCase()) : -1;
+    return i < 0 ? null : i + nameBase;
+  };
+  for (const item of String(text).split(",")) {
+    const m = /^(\*|[^/]+?)(?:\/(\d+))?$/.exec(item);
+    if (!m) return null;
+    const step = m[2] === undefined ? 1 : Number(m[2]);
+    if (step < 1) return null;
+    let lo, hi;
+    if (m[1] === "*") { lo = min; hi = max; }
+    else if (m[1].includes("-")) {
+      const [a, b, extra] = m[1].split("-");
+      if (extra !== undefined) return null;
+      lo = value(a); hi = value(b);
+    } else {
+      lo = value(m[1]); hi = m[2] === undefined ? lo : max;
+    }
+    if (lo === null || hi === null || lo < min || hi > max || lo > hi) return null;
+    for (let v = lo; v <= hi; v += step) out.add(v);
+  }
+  return out.size ? [...out].sort((a, b) => a - b) : null;
+}
+function parseCron(expr) {
+  const f = String(expr == null ? "" : expr).trim().split(/\s+/);
+  if (f.length !== 5) return null;
+  const minute = parseField(f[0], 0, 59), hour = parseField(f[1], 0, 23), dom = parseField(f[2], 1, 31);
+  const month = parseField(f[3], 1, 12, MONTH_NAMES, 1), dow = parseField(f[4], 0, 6, DAY_NAMES, 0);
+  if (!minute || !hour || !dom || !month || !dow) return null;
+  return { minute, hour, dom, month, dow, domAny: f[2].startsWith("*"), dowAny: f[4].startsWith("*"), fields: f };
+}
+function dayMatches(c, y, mo, d, wd) {
+  if (!c.month.includes(mo + 1)) return false;
+  if (c.domAny && c.dowAny) return true;
+  if (c.domAny) return c.dow.includes(wd);
+  if (c.dowAny) return c.dom.includes(d);
+  return c.dom.includes(d) || c.dow.includes(wd);
+}
+function occurrences(expr, fromMs, untilMs, limit) {
+  const c = typeof expr === "string" ? parseCron(expr) : expr;
+  const out = [];
+  if (!c) return out;
+  const start = new Date(fromMs);
+  let day = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+  for (; day <= untilMs && out.length < limit; day += 86400000) {
+    const dt = new Date(day);
+    if (!dayMatches(c, dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), dt.getUTCDay())) continue;
+    for (const h of c.hour) {
+      for (const mi of c.minute) {
+        const t = day + h * 3600000 + mi * 60000;
+        if (t > fromMs && t < untilMs) { out.push(t); if (out.length >= limit) return out; }
+      }
+    }
+  }
+  return out;
+}
+function nextOccurrence(expr, fromMs) { return occurrences(expr, fromMs, fromMs + 1500 * 86400000, 1)[0] || null; }
+function describeCron(expr) {
+  const c = parseCron(expr);
+  if (!c) return String(expr);
+  const f = c.fields;
+  const every = /^\*\/(\d+)$/.exec(f[0]);
+  if (every && f.slice(1).every((x) => x === "*")) return "mỗi " + every[1] + " phút";
+  if (c.minute.length === 1 && f[1] === "*" && f.slice(2).every((x) => x === "*")) return "mỗi giờ, phút " + pad2(c.minute[0]);
+  if (c.minute.length === 1 && c.hour.length === 1 && c.month.length === 12) {
+    const at = pad2(c.hour[0]) + ":" + pad2(c.minute[0]) + " UTC";
+    if (c.domAny && c.dowAny) return "hằng ngày " + at;
+    if (c.domAny) return at + ", " + c.dow.map((d) => DOW_VN[d]).join(" ");
+    if (c.dowAny) return at + ", ngày " + c.dom.join(",") + " hằng tháng";
+  }
+  return String(expr);
+}
+function extractCrons(text) {
+  const out = [];
+  let indent = -1;
+  for (const raw of String(text == null ? "" : text).split(/\r?\n/)) {
+    const line = raw.replace(/\t/g, "    ");
+    if (/^\s*(#.*)?$/.test(line)) continue;
+    const lead = line.length - line.trimStart().length;
+    if (indent >= 0 && (lead < indent || (lead === indent && !/^\s*-/.test(line)))) indent = -1;
+    if (indent < 0) {
+      const flow = /^\s*schedule\s*:\s*\[(.*)\]\s*(#.*)?$/.exec(line);
+      if (flow) { for (const m of flow[1].matchAll(/cron\s*:\s*(["'])(.*?)\1/g)) out.push(m[2].trim()); continue; }
+      if (/^\s*schedule\s*:\s*(#.*)?$/.test(line)) indent = lead;
+      continue;
+    }
+    const m = /^\s*(?:-\s*)?cron\s*:\s*(?:"([^"]*)"|'([^']*)'|([^#\s][^#]*?))\s*(?:#.*)?$/.exec(line);
+    if (m) out.push((m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]).trim());
+  }
+  return out.filter((c) => parseCron(c));
+}
+function hasDispatch(text) { return String(text == null ? "" : text).split(/\r?\n/).some((l) => !/^\s*#/.test(l) && /\bworkflow_dispatch\b/.test(l)); }
+
+// ---- words for time ----
+function span(sec) {
+  const s = Math.abs(sec);
+  if (s < 90) return "1 phút";
+  if (s < 5400) return Math.round(s / 60) + " phút";
+  if (s < 129600) return Math.round(s / 3600) + " giờ";
+  return Math.round(s / 86400) + " ngày";
+}
+function ago(sec) {
+  if (!Number.isFinite(sec)) return "";
+  if (sec < 0) return "sau " + span(sec);
+  return sec < 45 ? "vừa xong" : span(sec) + " trước";
+}
+function fmtDuration(sec) {
+  if (!Number.isFinite(sec)) return "";
+  const s = Math.max(0, Math.round(sec));
+  if (s < 60) return s + " giây";
+  if (s < 3600) return Math.floor(s / 60) + " phút " + pad2(s % 60) + " giây";
+  return Math.floor(s / 3600) + " giờ " + pad2(Math.floor((s % 3600) / 60)) + " phút";
+}
+
+// ---- totals, and the schedule of the next seven days ----
+const FREQUENT_PER_DAY = 6;
+// A cron that fires more than FREQUENT_PER_DAY times on a matching day is not listed run by run (it would fill the week and hide the rest); it is named once.
+function weekPlan(models, nowMs, days) {
+  const until = nowMs + (days || 7) * 86400000, items = [], frequent = [];
+  for (const m of models) {
+    if (!m || !m.ok) continue;
+    for (const wf of m.workflows || []) {
+      for (const cron of wf.crons || []) {
+        const c = parseCron(cron);
+        if (!c) continue;
+        if (c.minute.length * c.hour.length > FREQUENT_PER_DAY) { frequent.push({ repo: m.repo, wf: wf.name, path: wf.path, cron }); continue; }
+        for (const t of occurrences(c, nowMs, until, 60)) items.push({ ms: t, repo: m.repo, wf: wf.name, path: wf.path, cron });
+      }
+    }
+  }
+  return { items: items.sort((a, b) => a.ms - b.ms), frequent };
+}
+function countScheduled(models, fromMs, untilMs) {
+  let n = 0;
+  for (const m of models) {
+    if (!m || !m.ok) continue;
+    for (const wf of m.workflows || []) for (const cron of wf.crons || []) n += occurrences(cron, fromMs, untilMs, 2000).length;
+  }
+  return n;
+}
+function summarize(models, nowMs) {
+  const out = { repos: models.length, unreadable: 0, running: 0, queued: 0, failing: 0, prs: 0, agentPrs: 0, upcoming: 0 };
+  for (const m of models) {
+    if (!m || !m.ok) { out.unreadable++; continue; }
+    let failing = false;
+    for (const wf of m.workflows || []) {
+      for (const r of wf.runs || []) { const st = runState(r); if (st.key === "running") out.running++; else if (st.active) out.queued++; }
+      if (isFailing(wf)) failing = true;
+    }
+    if (failing) out.failing++;
+    out.prs += (m.pulls || []).length;
+    out.agentPrs += agentActivity(m).filter((a) => a.type === "pr" && a.kind !== "bot").length;
+  }
+  out.upcoming = countScheduled(models, nowMs, nowMs + 86400000);
+  return out;
+}
+
+// ---- a snapshot of the agent office (claude-agent-routing-template, scripts/office/snapshot.py), read as untrusted data ----
+function readOffice(snap) {
+  if (!snap || typeof snap !== "object" || Array.isArray(snap)) return { ok: false, error: "File không phải snapshot của Office." };
+  if (snap.version !== 1) return { ok: false, error: "Snapshot của Office phải là version 1 (file này: " + clip(snap.version, 12) + ")." };
+  if (snap.mode !== "claude") return { ok: false, error: "Chỉ đọc snapshot mode=claude (file này: " + clip(snap.mode, 12) + ")." };
+  const state = (s) => (Object.prototype.hasOwnProperty.call(OFFICE_STATES, s) ? s : "idle");
+  const req = snap.requirement && typeof snap.requirement === "object" ? snap.requirement : null;
+  const boss = snap.boss && typeof snap.boss === "object" ? snap.boss : null;
+  const phase = snap.phase && Array.isArray(snap.phase.steps) ? snap.phase : null;
+  const prog = snap.progress && typeof snap.progress === "object" ? snap.progress : null;
+  const agents = snap.agents && typeof snap.agents === "object" ? Object.values(snap.agents) : [];
+  return {
+    ok: true, mode: "claude", atMs: finite(snap.now) === null ? null : snap.now * 1000, live: snap.live === true,
+    requirement: req ? { id: clip(req.id, 40), tier: clip(req.tier, 4), lane: clip(req.lane, 20), strategy: clip(req.strategy, 60) } : null,
+    boss: boss ? { state: state(boss.state), task: clip(boss.task, 160), waitingFor: clip(boss.waiting_for, 60) } : null,
+    phase: phase ? { steps: phase.steps.slice(0, 8).map((s) => clip(s, 20)), current: clip(phase.current, 20) } : null,
+    progress: prog ? { pct: Math.max(0, Math.min(100, finite(prog.pct) || 0)), agents: whole(prog.agents), total: whole(prog.total), running: whole(prog.running), done: whole(prog.done), blocked: whole(prog.blocked) } : null,
+    budget: (Array.isArray(snap.budget) ? snap.budget : []).slice(0, 8).map((b) => ({ id: clip(b && b.id, 30), cap: whole(b && b.cap), granted: whole(b && b.granted), used: whole(b && b.used) })),
+    agents: agents.slice(0, 40).map((a) => ({ id: clip(a && a.id, 60), state: state(a && a.state), task: clip(a && a.task, 160), note: clip(a && a.note, 160),
+                                           progress: finite(a && a.progress) === null ? null : Math.max(0, Math.min(1, a.progress)), model: clip(a && a.model, 40),
+                                           tokens: finite(a && a.tokens), stalled: !!(a && a.stalled) })),
+    log: (Array.isArray(snap.log) ? snap.log : []).slice(0, 8).map((e) => ({ t: finite(e && e.t) === null ? null : e.t * 1000, kind: clip(e && e.kind, 12), agent: clip(e && e.agent, 60), text: clip(e && e.text, 160) })),
+  };
+}
+
+// ---- the demo: a fixed description turned into the same models the live loader builds ----
+function demoSteps(text) {
+  const kinds = { ok: ["completed", "success"], run: ["in_progress", null], wait: ["queued", null], fail: ["completed", "failure"], skip: ["completed", "skipped"] };
+  return String(text || "").split("|").filter(Boolean).map((part, i) => {
+    const at = part.indexOf(":"), k = kinds[part.slice(0, at)] || kinds.wait;
+    return { number: i + 1, name: part.slice(at + 1), status: k[0], conclusion: k[1] };
+  });
+}
+function buildDemo(spec, nowMs) {
+  const iso = (agoSec) => new Date(nowMs - agoSec * 1000).toISOString();
+  const models = [];
+  for (const r of spec.repos) {
+    if (r.error) { models.push({ repo: r.repo, ok: false, error: r.error }); continue; }
+    const jobsByRun = {};
+    const workflows = r.workflows.map((w) => {
+      const runs = [];
+      const make = (n, status, conclusion, event, branch, actor, agoSec, dur) => {
+        const id = w.id * 1000 + n;
+        runs.push({ id, wfId: w.id, number: n, status, conclusion, event, branch, actor, createdAt: iso(agoSec), startedAt: iso(agoSec), updatedAt: iso(agoSec - (dur || 0)) });
+        return id;
+      };
+      for (const e of w.runs) {
+        const id = make(e.n, e.status, e.conclusion || null, e.event, e.branch, e.actor, e.ago, e.dur);
+        jobsByRun[id] = (e.jobs || []).map((j, k) => ({ id: id * 10 + k, name: j.name, status: j.status, conclusion: j.conclusion || null,
+          startedAt: j.status === "queued" ? null : iso(e.ago), completedAt: j.status === "completed" ? iso(e.ago - (j.dur || 0)) : null, steps: demoSteps(j.steps) }));
+      }
+      let n = (w.runs[0] ? w.runs[0].n : w.history.length + 1) - (w.runs.length ? w.runs.length : 0);
+      for (const h of w.history) {
+        const [c, a, d] = h.split(":");
+        const id = make(n--, "completed", c, "push", "main", "demo-dev", Number(a), Number(d));
+        const last = c === "failure" ? "fail:Run workflow|skip:Complete job" : c === "cancelled" ? "skip:Run workflow|skip:Complete job" : "ok:Run workflow|ok:Complete job";
+        jobsByRun[id] = [{ id: id * 10, name: "run", status: "completed", conclusion: c, startedAt: iso(Number(a)), completedAt: iso(Number(a) - Number(d)), steps: demoSteps("ok:Set up job|ok:Checkout|" + last) }];
+      }
+      return { id: w.id, name: w.name, path: w.path, state: "active", crons: w.crons, dispatch: w.dispatch, runs };
+    });
+    const active = [];
+    for (const w of workflows) for (const run of w.runs) if (runState(run).active) active.push({ run, wf: { id: w.id, name: w.name, path: w.path } });
+    models.push({
+      repo: r.repo, ok: true, loadedAt: nowMs, warnings: [],
+      info: { description: r.info.description, stars: r.info.stars, private: r.info.private, archived: false, pushedAt: iso(r.info.pushedAgo), openIssues: r.info.openIssues, defaultBranch: "main" },
+      workflows, active, jobs: jobsByRun,
+      pulls: r.pulls.map((p) => ({ number: p.n, title: p.title, draft: p.draft, user: p.user, userType: p.type, branch: p.branch, updatedAt: iso(p.ago), createdAt: iso(p.ago) })),
+      agentFiles: r.agentFiles,
+    });
+  }
+  return models;
+}
+function demoOffice(spec, nowMs) {
+  const o = JSON.parse(JSON.stringify(spec.office));
+  o.now = nowMs / 1000;
+  o.log = o.log.map((e) => ({ t: o.now - e.ago, kind: e.kind, agent: e.agent, text: e.text }));
+  return readOffice(o);
+}
+/* LOGIC:END */
+
+// ---- the page ----
+const $ = (id) => document.getElementById(id);
+const state = { repos: [], models: new Map(), demo: false, saved: null, office: null, realOffice: null, rate: null, interval: 60, open: new Set(), jobsCache: new Map(),
+                loadingJobs: new Set(), etags: new Map(), files: new Map(), epoch: new Map(), refreshing: false, again: false, timer: null, pickList: [] };
+const keyOf = (repo) => repo.toLowerCase();
+
+function h(tag, attrs, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === false || v == null) continue;
+    if (k === "text") node.textContent = v; else node.setAttribute(k, v === true ? "" : String(v));
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) node.append(kid);
+  return node;
+}
+function say(id, text, kind) { const node = $(id); node.textContent = text; node.className = "msg" + (kind ? " " + kind : ""); }
+function gh(repo, tail) { return "https://github.com/" + repo + tail; }
+function extLink(href, text, cls) { return h("a", { href, target: "_blank", rel: "noopener noreferrer", class: cls || false, text }); }
+function badge(st) { return h("span", { class: "badge tone-" + st.tone + (st.key === "running" ? " is-running" : "") }, h("span", { class: "dot", "aria-hidden": "true" }), st.label); }
+function sinceNode(startedAt, prefix) {
+  const t = isoMs(startedAt);
+  return t === null ? null : h("span", { class: "small muted", "data-since": t, "data-prefix": prefix, text: prefix + fmtDuration((Date.now() - t) / 1000) });
+}
+function agoText(iso) { const t = isoMs(iso); return t === null ? "" : ago((Date.now() - t) / 1000); }
+function token() { return SHARED_ORIGIN ? "" : $("token").value.trim(); }
+
+// ---- the saved list of repositories (names only: never the token) ----
+function loadStore() {
+  try {
+    const raw = window.localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const j = JSON.parse(raw);
+      return { repos: parseRepoList(JSON.stringify(Array.isArray(j.repos) ? j.repos : [])).repos.slice(0, MAX_REPOS), interval: INTERVALS.includes(j.interval) ? j.interval : 60 };
+    }
+  } catch (e) { /* storage blocked or damaged: start from the defaults */ }
+  return { repos: DEFAULT_REPOS.slice(), interval: 60 };
+}
+function saveStore() {
+  if (state.demo) return;
+  try { window.localStorage.setItem(STORE_KEY, JSON.stringify({ repos: state.repos, interval: state.interval })); }
+  catch (e) { say("link-msg", "Trình duyệt không cho lưu danh sách: nó chỉ giữ đến khi bạn đóng trang.", "warn"); }
+}
+
+// ---- GitHub (GET only) ----
+function noteRate(headers) {
+  const remaining = parseInt(headers.get("x-ratelimit-remaining"), 10), limit = parseInt(headers.get("x-ratelimit-limit"), 10), reset = parseInt(headers.get("x-ratelimit-reset"), 10);
+  if (Number.isFinite(remaining) && Number.isFinite(limit)) { state.rate = { remaining, limit, resetMs: Number.isFinite(reset) ? reset * 1000 : null }; renderRate(); }
+}
+async function call(path, opts) {
+  const raw = !!(opts && opts.raw);
+  const headers = { "Accept": raw ? "application/vnd.github.raw+json" : "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  if (token()) headers.Authorization = "Bearer " + token();
+  const slot = (raw ? "raw:" : "") + path, known = state.etags.get(slot);
+  if (known) headers["If-None-Match"] = known.etag;
+  let res;
+  try { res = await fetch(API + path, { method: "GET", headers, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }); }
+  catch (e) { return { status: 0, data: null }; }
+  noteRate(res.headers);
+  if (res.status === 304 && known) return { status: 200, data: known.data };
+  let data = null;
+  try { data = raw ? await res.text() : await res.json(); } catch (e) { data = null; }
+  const etag = res.headers.get("etag");
+  if (res.status === 200 && etag) state.etags.set(slot, { etag, data });
+  return { status: res.status, data };
+}
+async function cached(name, ttlMs, fn) {
+  const hit = state.files.get(name);
+  if (hit && Date.now() - hit.at < ttlMs) return hit.value;
+  const value = await fn();
+  if (value.status === 200 || value.status === 404) state.files.set(name, { at: Date.now(), value });
+  return value;
+}
+function explain(status, data) {
+  if (status === 0) return "Không kết nối được api.github.com.";
+  if (status === 401) return "Token sai hoặc đã hết hạn.";
+  if (status === 403 || status === 429) {
+    const r = state.rate, said = data && typeof data.message === "string" ? data.message : "";
+    if (r && r.remaining === 0) return "Hết hạn mức GitHub" + (r.resetMs ? ", có lại lúc " + new Date(r.resetMs).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "") + ". Dán token chỉ-đọc để có 5.000 yêu cầu/giờ.";
+    if (/rate limit/i.test(said)) return "GitHub đang giới hạn tốc độ (có thể do nhiều yêu cầu cùng lúc hoặc IP dùng chung): thử lại sau ít phút. Dán token chỉ-đọc để có hạn mức riêng.";
+    return "GitHub từ chối (" + status + "): token thiếu quyền đọc repo này.";
+  }
+  if (status === 404) return "Không thấy repo (private hoặc sai tên): cần token có quyền đọc repo này.";
+  return "GitHub trả mã " + status + ".";
+}
+async function loadRepo(repo) {
+  const base = "/repos/" + repo, warnings = [];
+  const [info, runsRes, wfsRes, pullsRes] = await Promise.all([call(base), call(base + "/actions/runs?per_page=40"), call(base + "/actions/workflows?per_page=100"), call(base + "/pulls?state=open&per_page=100")]);
+  if (info.status !== 200) return { repo, ok: false, error: explain(info.status, info.data) };
+  let runList = [], wfList = [], pulls = [];
+  if (runsRes.status === 200 && runsRes.data && Array.isArray(runsRes.data.workflow_runs)) runList = runsRes.data.workflow_runs.map(normRun).filter(Boolean);
+  else warnings.push("Không đọc được các lượt chạy: " + explain(runsRes.status, runsRes.data));
+  if (wfsRes.status === 200 && wfsRes.data && Array.isArray(wfsRes.data.workflows)) wfList = wfsRes.data.workflows.map(normWorkflow).filter(Boolean);
+  else warnings.push("Không đọc được danh sách workflow: " + explain(wfsRes.status, wfsRes.data));
+  if (pullsRes.status === 200 && Array.isArray(pullsRes.data)) pulls = pullsRes.data.map(normPull).filter(Boolean);
+  else warnings.push("Không đọc được PR: " + explain(pullsRes.status, pullsRes.data));
+  const workflows = wfList.map((w) => Object.assign({ crons: [], dispatch: false, runs: runList.filter((r) => r.wfId === w.id) }, w));
+  await Promise.all(workflows.filter((w) => w.state === "active" && safeWorkflowPath(w.path)).slice(0, 10).map(async (w) => {
+    const file = await cached("file:" + repo + ":" + w.path, 600000, () => call(base + "/contents/" + w.path.split("/").map(encodeURIComponent).join("/"), { raw: true }));
+    if (file.status === 200 && typeof file.data === "string") { w.crons = extractCrons(file.data); w.dispatch = hasDispatch(file.data); }
+  }));
+  const agentsRes = await cached("agents:" + repo, 600000, () => call(base + "/contents/.claude/agents"));
+  const agentFiles = agentsRes.status === 200 && Array.isArray(agentsRes.data)
+    ? agentsRes.data.filter((f) => f && f.type === "file" && /\.md$/i.test(String(f.name))).map((f) => clip(String(f.name).replace(/\.md$/i, ""), 60)).slice(0, 30) : null;
+  // The 40 newest runs of the whole repository are crowded by the busiest workflow: a scan that runs twice a week would show no history at all.
+  await Promise.all(workflows.filter((w) => w.state === "active" && w.runs.length < 3).slice(0, 8).map(async (w) => {
+    const res = await call(base + "/actions/workflows/" + w.id + "/runs?per_page=12");
+    if (res.status !== 200 || !res.data || !Array.isArray(res.data.workflow_runs)) return;
+    const have = new Set(w.runs.map((r) => r.id));
+    for (const r of res.data.workflow_runs.map(normRun).filter(Boolean)) if (!have.has(r.id)) w.runs.push(r);
+    w.runs.sort((a, b) => (isoMs(b.createdAt) || 0) - (isoMs(a.createdAt) || 0));
+  }));
+  const active = [];
+  for (const w of workflows) for (const run of w.runs) if (runState(run).active) active.push({ run, wf: { id: w.id, name: w.name, path: w.path } });
+  active.sort((a, b) => (isoMs(b.run.createdAt) || 0) - (isoMs(a.run.createdAt) || 0));
+  const shown = active.slice(0, 4), jobs = {};
+  await Promise.all(shown.map(async (a) => {
+    const res = await call(base + "/actions/runs/" + a.run.id + "/jobs?per_page=100");
+    jobs[a.run.id] = res.status === 200 && res.data && Array.isArray(res.data.jobs) ? res.data.jobs.map(normJob).filter(Boolean) : null;
+  }));
+  return { repo, ok: true, loadedAt: Date.now(), warnings, info: normInfo(info.data), workflows, active: shown, activeExtra: active.length - shown.length, jobs, pulls, agentFiles };
+}
+// Steps of a finished run never change, so they are kept; the steps of a run still going are only trusted for 30 seconds.
+async function loadJobs(model, run) {
+  const k = model.repo + "#" + run.id;
+  if (jobsOf(model, run) !== undefined || state.loadingJobs.has(k) || state.demo) return;
+  state.loadingJobs.add(k);
+  const res = await call("/repos/" + model.repo + "/actions/runs/" + run.id + "/jobs?per_page=100");
+  state.loadingJobs.delete(k);
+  state.jobsCache.set(k, { at: Date.now(), active: runState(run).active, jobs: res.status === 200 && res.data && Array.isArray(res.data.jobs) ? res.data.jobs.map(normJob).filter(Boolean) : null });
+  render();
+}
+function jobsOf(model, run) {
+  if (model.jobs && Object.prototype.hasOwnProperty.call(model.jobs, run.id)) return model.jobs[run.id];
+  const e = state.jobsCache.get(model.repo + "#" + run.id);
+  return e && (!e.active || Date.now() - e.at < 30000) ? e.jobs : undefined;
+}
+
+// ---- drawing ----
+function keepFocus(fn) {
+  const was = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.focusKey : null;
+  fn();
+  if (was) for (const node of document.querySelectorAll("[data-focus-key]")) if (node.dataset.focusKey === was) { node.focus(); break; }
+}
+function models() { return state.repos.map((r) => state.models.get(keyOf(r))).filter(Boolean); }
+function renderRate() {
+  const r = state.rate;
+  $("rate").textContent = r ? "Hạn mức GitHub còn " + r.remaining.toLocaleString("vi-VN") + "/" + r.limit.toLocaleString("vi-VN") + (r.resetMs ? " (đặt lại lúc " + new Date(r.resetMs).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + ")" : "") : "";
+}
+function renderChips() {
+  $("chips").replaceChildren(...state.repos.map((repo) => h("li", { class: "chip" }, h("span", { text: repo }),
+    state.demo ? null : h("button", { type: "button", "aria-label": "Bỏ liên kết " + repo, "data-remove": repo, "data-focus-key": "rm:" + repo, text: "×" }))));
+  for (const b of $("chips").querySelectorAll("button[data-remove]")) b.addEventListener("click", () => removeRepo(b.dataset.remove));
+}
+function renderTiles(all) {
+  const s = summarize(all, Date.now());
+  const tiles = [
+    [s.repos, "Repo đã liên kết" + (s.unreadable ? " (" + s.unreadable + " không đọc được)" : ""), "neutral"],
+    [s.running, "Task đang chạy", s.running ? "info" : "neutral"],
+    [s.queued, "Đang chờ", s.queued ? "warning" : "neutral"],
+    [s.failing, "Repo có lỗi", s.failing ? "failed" : "success"],
+    [s.prs, "PR đang mở" + (s.agentPrs ? " (" + s.agentPrs + " từ agent)" : ""), "neutral"],
+    [s.upcoming, "Lần chạy theo lịch trong 24 giờ", "neutral"],
+  ];
+  $("tiles").replaceChildren(...tiles.map(([n, label, tone]) => h("div", { class: "tile tone-" + tone }, h("span", { class: "n", text: String(n) }), h("span", { class: "l" }, h("span", { class: "d", "aria-hidden": "true" }), label))));
+}
+function stepChip(step) {
+  const st = stepState(step);
+  return h("li", { class: "step st-" + st.key + " tone-" + st.tone }, h("span", { class: "glyph", "aria-hidden": "true", text: st.glyph }), h("span", { text: step.name }), h("span", { class: "sr", text: " – " + st.label }));
+}
+function pipeline(jobs) {
+  if (jobs === undefined) return h("p", { class: "muted small", text: "Đang đọc các bước…" });
+  if (jobs === null) return h("p", { class: "muted small", text: "Chưa đọc được các bước (GitHub không trả lời hoặc token thiếu quyền Actions)." });
+  if (!jobs.length) return h("p", { class: "muted small", text: "Chưa có job nào: đang chờ runner." });
+  return h("ol", { class: "jobs" }, jobs.map((job) => {
+    const st = runState(job), c = stepCounts(job.steps);
+    const timing = job.status === "in_progress" ? sinceNode(job.startedAt, "đã chạy ")
+      : job.completedAt && job.startedAt ? h("span", { class: "small muted", text: fmtDuration((isoMs(job.completedAt) - isoMs(job.startedAt)) / 1000) }) : null;
+    return h("li", { class: "job tone-" + st.tone },
+      h("div", { class: "job-head" }, h("b", { text: job.name }), badge(st), c.total ? h("span", { class: "small muted", text: c.done + "/" + c.total + " bước" }) : null, timing),
+      job.steps.length ? h("ol", { class: "steps", "aria-label": "Các bước của job " + job.name }, job.steps.map(stepChip))
+                       : h("p", { class: "muted small", text: st.active ? "Chưa có bước nào (đang chờ runner)." : "Job này không có bước." }));
+  }));
+}
+function taskCard(model, item) {
+  const st = runState(item.run), jobs = jobsOf(model, item.run), p = runProgress(jobs);
+  const note = p.partial ? "ước lượng: có job chưa bắt đầu" : "";
+  return h("article", { class: "task tone-" + st.tone },
+    h("header", null, badge(st), h("b", { text: item.wf.name }), extLink(gh(model.repo, "/actions/runs/" + item.run.id), "Mở trên GitHub"),
+      st.key === "running" ? sinceNode(item.run.startedAt, "đã chạy ") : sinceNode(item.run.createdAt, "chờ ")),
+    h("div", { class: "meta", text: model.repo + " · lượt #" + item.run.number + " · " + item.run.event + (item.run.branch ? " · nhánh " + item.run.branch : "") + (item.run.actor ? " · " + item.run.actor : "") }),
+    p.max ? h("div", { class: "prog" }, h("progress", { value: p.value, max: p.max, "aria-label": "Tiến độ " + model.repo + " lượt " + item.run.number }),
+      h("span", { class: "small", text: (p.stepsTotal ? p.stepsDone + "/" + p.stepsTotal + " bước" : p.jobsDone + "/" + p.jobs + " job") + (p.stepsTotal ? " · " + p.jobsDone + "/" + p.jobs + " job" : "") + (note ? " (" + note + ")" : "") })) : null,
+    pipeline(jobs));
+}
+function renderTasks(all) {
+  const items = [];
+  for (const m of all) if (m.ok) for (const a of m.active || []) items.push({ m, a });
+  items.sort((x, y) => (runState(x.a.run).key === "running" ? 0 : 1) - (runState(y.a.run).key === "running" ? 0 : 1) || (isoMs(x.a.run.createdAt) || 0) - (isoMs(y.a.run.createdAt) || 0));
+  const extra = all.reduce((n, m) => n + (m.ok ? m.activeExtra || 0 : 0), 0);
+  const body = items.length ? items.map(({ m, a }) => taskCard(m, a)) : [h("p", { class: "empty", text: state.repos.length ? (all.length ? "Không có task nào đang chạy hoặc đang chờ." : "Đang tải…") : "Chưa liên kết repo nào. Thêm một repo ở trên." })];
+  if (extra > 0) body.push(h("p", { class: "muted small", text: "Còn " + extra + " task nữa không hiện ở đây (mỗi repo hiện tối đa 4)." }));
+  $("tasks-body").replaceChildren(...body);
+}
+function workflowRow(model, wf) {
+  const k = model.repo + "|" + wf.id, latest = wf.runs[0] || null, st = latest ? runState(latest) : null, hist = sparkHistory(wf.runs, 12);
+  const crons = (wf.crons || []).map((c) => ({ c, next: nextOccurrence(c, Date.now()) })).filter((x) => x.next !== null).sort((a, b) => a.next - b.next);
+  const sched = crons.length ? h("span", { class: "sched", title: crons.map((x) => x.c + " (UTC)").join(" · ") },
+    "⏱ " + describeCron(crons[0].c) + " · kế tiếp " + new Date(crons[0].next).toLocaleString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " (" + ago((Date.now() - crons[0].next) / 1000) + ")") : null;
+  const d = h("details", { class: "wf" },
+    h("summary", { "data-focus-key": "wf:" + k },
+      st ? badge(st) : h("span", { class: "badge tone-neutral" }, h("span", { class: "dot", "aria-hidden": "true" }), "Chưa thấy lượt chạy"),
+      h("span", { class: "name", text: wf.name }),
+      h("span", { class: "spark", role: "img", "aria-label": hist.text, title: hist.text }, hist.cells.map((c) => h("i", { class: "tone-" + c.tone, "aria-hidden": "true" }))),
+      latest && !st.active && latest.startedAt && latest.updatedAt ? h("span", { class: "small muted", text: fmtDuration((isoMs(latest.updatedAt) - isoMs(latest.startedAt)) / 1000) }) : null,
+      latest ? h("span", { class: "small muted", text: agoText(latest.startedAt) }) : null, sched));
+  const slot = h("div", { class: "slot" });
+  if (latest) {
+    slot.append(h("p", { class: "small muted" }, "Lượt gần nhất #" + latest.number + " (" + latest.event + (latest.branch ? ", nhánh " + latest.branch : "") + ") · ",
+      extLink(gh(model.repo, "/actions/runs/" + latest.id), "Mở trên GitHub")), pipeline(jobsOf(model, latest)));
+  } else slot.append(h("p", { class: "small muted", text: "GitHub không trả lượt chạy nào cho workflow này (chưa từng chạy, hoặc các lượt đã bị xóa)." }));
+  if (safeWorkflowPath(wf.path)) slot.append(h("p", { class: "small" }, extLink(gh(model.repo, "/blob/HEAD/" + wf.path), "Xem file workflow"), wf.dispatch ? " · có thể chạy tay (workflow_dispatch)" : ""));
+  d.append(slot);
+  d.open = state.open.has(k);
+  d.addEventListener("toggle", () => {
+    if (d.open) { state.open.add(k); if (latest && jobsOf(model, latest) === undefined) loadJobs(model, latest); } else state.open.delete(k);
+  });
+  return h("li", null, d);
+}
+function repoCard(repo) {
+  const m = state.models.get(keyOf(repo));
+  const remove = state.demo ? null : h("button", { type: "button", class: "link", "data-remove": repo, "data-focus-key": "rm2:" + repo, text: "Bỏ liên kết" });
+  let card;
+  if (!m) { card = h("article", { class: "repo" }, h("header", null, h("h3", { text: repo })), h("p", { class: "muted", text: "Đang tải…" })); }
+  else if (!m.ok) {
+    card = h("article", { class: "repo" }, h("header", null, h("h3", { text: repo }), h("span", { class: "sp" }), remove), h("p", { class: "bad", role: "alert", text: m.error }),
+      state.demo ? null : h("button", { type: "button", "data-retry": repo, text: "Thử lại" }));
+  } else {
+    const health = repoHealth(m), running = m.workflows.reduce((n, w) => n + w.runs.filter((r) => runState(r).key === "running").length, 0);
+    const issues = Math.max(0, m.info.openIssues - m.pulls.length), wfs = orderWorkflows(m.workflows);
+    card = h("article", { class: "repo" },
+      h("header", null, h("h3", null, extLink(gh(repo, ""), repo)), m.info.private ? h("span", { class: "kind", text: "private" }) : null, m.info.archived ? h("span", { class: "kind", text: "archived" }) : null,
+        h("span", { class: "sp" }), remove),
+      m.info.description ? h("p", { class: "desc", text: m.info.description }) : null,
+      h("div", { class: "agentline" }, badge({ tone: health.tone, label: health.label, key: "" }), running ? badge({ tone: "info", label: running + " đang chạy", key: "running" }) : null),
+      h("div", { class: "stats" }, h("span", { text: "★ " + m.info.stars.toLocaleString("vi-VN") }), h("span", { text: "PR mở: " + m.pulls.length }), h("span", { text: "Issue mở: " + (m.pulls.length >= 100 ? "?" : issues) }),
+        m.info.pushedAt ? h("span", { text: "push " + agoText(m.info.pushedAt) }) : null),
+      (m.warnings || []).map((w) => h("p", { class: "small bad", text: w })),
+      wfs.length ? h("ul", { class: "wfs" }, wfs.slice(0, 6).map((w) => workflowRow(m, w))) : h("p", { class: "small muted", text: "Repo chưa có workflow GitHub Actions." }),
+      wfs.length > 6 ? h("p", { class: "small muted", text: "và " + (wfs.length - 6) + " workflow khác (xem trên GitHub)." }) : null);
+  }
+  const rm = card.querySelector("button[data-remove]");
+  if (rm) rm.addEventListener("click", () => removeRepo(repo));
+  const retry = card.querySelector("button[data-retry]");
+  if (retry) retry.addEventListener("click", () => loadOne(repo));
+  return card;
+}
+function renderRepos() {
+  $("repo-grid").replaceChildren(...(state.repos.length ? state.repos.map(repoCard) : [h("p", { class: "empty", text: "Chưa liên kết repo nào." })]));
+}
+function dayKey(d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }
+function renderWeek(all) {
+  const now = new Date(), first = new Date(now.getFullYear(), now.getMonth(), now.getDate()), plan = weekPlan(all, now.getTime(), 7), cols = [];
+  const byDay = new Map();
+  for (let i = 0; i < 7; i++) { const d = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i); byDay.set(dayKey(d), []); cols.push(d); }
+  for (const e of plan.items) { const list = byDay.get(dayKey(new Date(e.ms))); if (list) list.push(e); }
+  const anyCron = plan.items.length > 0;
+  $("frequent").replaceChildren(...plan.frequent.map((f) => h("li", { title: f.cron + " (UTC)" }, h("b", { text: f.repo.split("/")[1] + " · " + f.wf }), " chạy lặp " + describeCron(f.cron) + " (không liệt kê từng lần)")));
+  $("frequent").hidden = !plan.frequent.length;
+  $("week").replaceChildren(...cols.map((d, i) => {
+    const list = byDay.get(dayKey(d)), shown = list.slice(0, 8);
+    const title = i === 0 ? "Hôm nay" : i === 1 ? "Ngày mai" : d.toLocaleDateString("vi-VN", { weekday: "long" });
+    return h("div", { class: "day" + (i === 0 ? " today" : "") }, h("h3", { text: title + " · " + d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }) }),
+      list.length ? h("ul", null, shown.map((e) => h("li", { title: e.cron + " (UTC)" }, h("time", { datetime: new Date(e.ms).toISOString(), text: new Date(e.ms).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) }), e.repo.split("/")[1] + " · " + e.wf)),
+        list.length > shown.length ? h("li", { class: "muted", text: "+" + (list.length - shown.length) + " lần nữa" }) : null) : h("p", { class: "small muted", text: anyCron ? "—" : "Không có lịch" }));
+  }));
+}
+function officeView() {
+  const o = state.office;
+  if (!o) return [h("p", { class: "empty", text: "Chưa nạp snapshot nào." })];
+  const out = [];
+  const age = o.atMs === null ? null : (Date.now() - o.atMs) / 1000;
+  out.push(h("p", { class: "small" }, o.requirement ? h("b", { text: o.requirement.id + " · " + o.requirement.tier + " · " + o.requirement.strategy + " " }) : "Không có yêu cầu đang ghi sổ. ",
+    age === null ? "" : "Snapshot " + ago(age) + (o.live && age > 300 ? " (đã cũ: nạp lại file mới)" : "") + "."));
+  if (o.boss) { const [label, tone] = OFFICE_STATES[o.boss.state]; out.push(h("p", { class: "small" }, "Main session: ", badge({ tone, label, key: "" }), " " + o.boss.task + (o.boss.waitingFor ? " (chờ " + o.boss.waitingFor + ")" : ""))); }
+  if (o.phase) out.push(h("ol", { class: "phase", "aria-label": "Giai đoạn" }, o.phase.steps.map((s) => h("li", { class: s === o.phase.current ? "now" : "", text: s }))));
+  if (o.progress) out.push(h("div", { class: "prog" }, h("progress", { value: o.progress.pct, max: 100, "aria-label": "Tiến độ chung" }), h("span", { class: "small", text: o.progress.pct + "% · " + o.progress.done + "/" + o.progress.total + " vai xong, " + o.progress.running + " đang chạy, " + o.progress.blocked + " bị chặn" })));
+  if (o.budget.length) out.push(h("div", { class: "budget" }, o.budget.map((b) => h("span", { text: b.id + ": " + b.used + "/" + b.granted + (b.cap > b.granted ? " (tối đa " + b.cap + ")" : "") }))));
+  out.push(h("div", { class: "office-agents" }, o.agents.map((a) => {
+    const [label, tone] = OFFICE_STATES[a.state];
+    return h("div", { class: "oa" }, h("div", { class: "job-head" }, h("b", { text: a.id }), badge({ tone: a.stalled ? "failed" : tone, label: a.stalled ? "Im lặng" : label, key: "" })),
+      a.task ? h("div", { class: "t", text: a.task }) : null, a.note ? h("div", { class: "t", text: "→ " + a.note }) : null,
+      a.progress !== null ? h("progress", { value: Math.round(a.progress * 100), max: 100, "aria-label": "Tiến độ " + a.id }) : null,
+      h("div", { class: "t", text: [a.model, a.tokens !== null ? Math.round(a.tokens).toLocaleString("vi-VN") + " token" : ""].filter(Boolean).join(" · ") }));
+  })));
+  if (o.log.length) out.push(h("ul", { class: "log" }, o.log.map((e) => h("li", { text: (e.t === null ? "" : ago((Date.now() - e.t) / 1000) + ": ") + e.agent + " " + e.kind + (e.text ? " — " + e.text : "") }))));
+  return out;
+}
+function renderAgents(all) {
+  $("office-body").replaceChildren(...officeView());
+  const parts = [];
+  for (const m of all) {
+    if (!m.ok) continue;
+    const acts = agentActivity(m);
+    parts.push(h("div", { class: "agentrepo" }, h("h3", { text: m.repo }),
+      h("p", { class: "small" }, "Đã khai báo trong .claude/agents/: ", m.agentFiles === null ? h("span", { class: "muted", text: "không đọc được hoặc không có thư mục" })
+        : m.agentFiles.length ? m.agentFiles.map((n) => h("span", { class: "kind", text: n })) : h("span", { class: "muted", text: "thư mục trống" })),
+      acts.length ? h("ul", null, acts.map((a) => h("li", null,
+        h("span", { class: "kind", text: a.kind }),
+        a.type === "run" ? [a.st ? badge(a.st) : null, extLink(gh(m.repo, "/actions/runs/" + a.id), a.title + " #" + a.number)]
+                         : [badge({ tone: a.draft ? "neutral" : "info", label: a.draft ? "PR nháp" : "PR mở", key: "" }), extLink(gh(m.repo, "/pull/" + a.number), "#" + a.number + " " + a.title)],
+        a.when ? h("span", { class: "small muted", text: ago((Date.now() - a.when) / 1000) }) : null))) : h("p", { class: "small muted", text: "Chưa thấy hoạt động nào nhận ra là của agent." })));
+  }
+  $("agents-body").replaceChildren(...(parts.length ? parts : [h("p", { class: "empty", text: "Chưa có repo nào đọc được." })]));
+}
+function render() {
+  keepFocus(() => {
+    const all = models();
+    renderChips(); renderTiles(all); renderTasks(all); renderRepos(); renderWeek(all); renderAgents(all);
+    $("banner").hidden = !state.demo;
+    $("demo").textContent = state.demo ? "Thoát dữ liệu mẫu" : "Xem dữ liệu mẫu";
+    for (const id of ["add", "add-repo", "pick", "import"]) $(id).disabled = state.demo;
+  });
+}
+function tick() {
+  const now = Date.now();
+  for (const node of document.querySelectorAll("[data-since]")) {
+    const since = Number(node.dataset.since);
+    if (Number.isFinite(since)) node.textContent = (node.dataset.prefix || "") + fmtDuration((now - since) / 1000);
+  }
+}
+
+// ---- doing things ----
+async function pool(items, size, fn) {
+  const queue = items.slice();
+  await Promise.all(Array.from({ length: Math.min(size, queue.length) }, async () => { while (queue.length) await fn(queue.shift()); }));
+}
+async function loadOne(repo) {
+  const k = keyOf(repo), mine = (state.epoch.get(k) || 0) + 1;
+  state.epoch.set(k, mine);
+  let model;
+  try { model = await loadRepo(repo); } catch (e) { model = { repo, ok: false, error: "Lỗi không rõ khi đọc repo." }; }
+  if (state.demo || state.epoch.get(k) !== mine || !state.repos.some((r) => sameRepo(r, repo))) return;
+  state.models.set(k, model);
+  render();
+}
+function enterDemoData() {
+  const now = Date.now();
+  state.models = new Map(buildDemo(DEMO, now).map((m) => [keyOf(m.repo), m]));
+  state.repos = [...state.models.values()].map((m) => m.repo);
+  state.office = demoOffice(DEMO, now);
+}
+async function refreshAll() {
+  if (state.demo) { enterDemoData(); render(); return; }
+  if (state.refreshing) { state.again = true; return; }
+  state.refreshing = true;
+  $("refresh").disabled = true;
+  try { await pool(state.repos, 3, loadOne); } finally { state.refreshing = false; $("refresh").disabled = false; }
+  if (state.again) { state.again = false; await refreshAll(); }
+}
+function clearCaches() { state.etags.clear(); state.files.clear(); state.jobsCache.clear(); state.models.clear(); }
+function schedule() {
+  clearTimeout(state.timer);
+  const seconds = state.interval;
+  if (!seconds || state.demo) return;
+  state.timer = setTimeout(async () => {
+    if (!document.hidden && token()) await refreshAll();
+    schedule();
+  }, seconds * 1000);
+}
+function addRepos(names) {
+  let added = 0;
+  for (const name of names) {
+    if (state.repos.some((r) => sameRepo(r, name))) continue;
+    if (state.repos.length >= MAX_REPOS) { say("link-msg", "Tối đa " + MAX_REPOS + " repo (hạn mức API của GitHub).", "bad"); break; }
+    state.repos.push(name); added++;
+    loadOne(name);
+  }
+  saveStore(); render();
+  return added;
+}
+function removeRepo(repo) {
+  state.repos = state.repos.filter((r) => !sameRepo(r, repo));
+  state.models.delete(keyOf(repo));
+  saveStore(); render();
+  say("link-msg", "Đã bỏ liên kết " + repo + ".", "ok");
+}
+function onAdd() {
+  const name = parseRepo($("add-repo").value);
+  if (!name) return say("link-msg", "Tên repo phải dạng chủ/tên hoặc link github.com/chủ/tên.", "bad");
+  if (state.repos.some((r) => sameRepo(r, name))) return say("link-msg", name + " đã được liên kết.", "bad");
+  $("add-repo").value = "";
+  if (addRepos([name])) say("link-msg", "Đã liên kết " + name + ".", "ok");
+}
+async function onPickLoad() {
+  const owner = $("pick-owner").value.trim();
+  if (!token() && !segmentOk(owner)) return say("link-msg", "Nhập tên tài khoản hoặc tổ chức (hoặc dán token để liệt kê repo của bạn).", "bad");
+  say("link-msg", "Đang tải danh sách…");
+  const res = await call(token() ? "/user/repos?sort=pushed&per_page=100&affiliation=owner,collaborator,organization_member" : "/users/" + owner + "/repos?sort=pushed&per_page=100&type=owner");
+  if (res.status !== 200 || !Array.isArray(res.data)) return say("link-msg", explain(res.status, res.data), "bad");
+  state.pickList = res.data.map((r) => ({ name: parseRepo(r && r.full_name), owner: String(r && r.owner && r.owner.login || ""), private: !!(r && r.private), pushedAt: r && r.pushed_at }))
+    .filter((r) => r.name && (!owner || r.owner.toLowerCase() === owner.toLowerCase())).slice(0, 100);
+  $("pick-list").replaceChildren(...state.pickList.map((r, i) => {
+    const linked = state.repos.some((x) => sameRepo(x, r.name));
+    return h("li", null, h("label", null, h("input", { type: "checkbox", "data-i": i, checked: linked, disabled: linked }), r.name + (r.private ? " (private)" : "") + (r.pushedAt ? " · push " + agoText(r.pushedAt) : "")));
+  }));
+  say("link-msg", state.pickList.length ? "Chọn repo rồi bấm “Thêm các repo đã chọn”." : "Không thấy repo nào.", state.pickList.length ? "" : "bad");
+}
+function onPickAdd() {
+  const names = [...$("pick-list").querySelectorAll("input:checked:not(:disabled)")].map((n) => state.pickList[Number(n.dataset.i)]).filter(Boolean).map((r) => r.name);
+  if (!names.length) return say("link-msg", "Chưa chọn repo nào.", "bad");
+  const n = addRepos(names);
+  say("link-msg", "Đã liên kết " + n + " repo.", "ok");
+  $("pick-list").replaceChildren();
+}
+function onExport() { $("io").value = JSON.stringify({ repos: state.repos }, null, 2); say("link-msg", "Đã xuất " + state.repos.length + " repo ra ô bên trên.", "ok"); }
+function onImport() {
+  const { repos, rejected } = parseRepoList($("io").value);
+  const added = addRepos(repos);
+  say("link-msg", "Đã liên kết thêm " + added + " repo" + (rejected.length ? "; bỏ qua " + rejected.length + " mục không hợp lệ (" + rejected.slice(0, 3).join(", ") + ")" : "") + ".", rejected.length ? "bad" : "ok");
+}
+async function onOfficeFile(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  if (file.size > 2000000) return say("office-msg", "File quá lớn (tối đa 2 MB).", "bad");
+  let json;
+  try { json = JSON.parse(await file.text()); } catch (e) { return say("office-msg", "File không phải JSON.", "bad"); }
+  const view = readOffice(json);
+  if (!view.ok) return say("office-msg", view.error, "bad");
+  state.office = state.realOffice = view;
+  say("office-msg", "Đã nạp snapshot (" + view.agents.length + " agent).", "ok");
+  render();
+}
+function toggleDemo() {
+  state.demo = !state.demo;
+  if (state.demo) {
+    state.saved = { repos: state.repos, models: state.models, office: state.office };
+    enterDemoData();
+    say("link-msg", "Đang xem dữ liệu mẫu.", "");
+  } else {
+    state.repos = state.saved.repos; state.models = state.saved.models; state.office = state.realOffice;
+    say("link-msg", "", "");
+    refreshAll();
+  }
+  schedule(); render();
+}
+
+function init() {
+  const store = loadStore();
+  state.repos = store.repos; state.interval = store.interval;
+  $("interval").value = String(state.interval);
+  if (SHARED_ORIGIN) { $("token").disabled = true; $("origin-warning").hidden = false; }
+  $("add").addEventListener("click", onAdd);
+  $("add-repo").addEventListener("keydown", (e) => { if (e.key === "Enter") onAdd(); });
+  $("pick").addEventListener("click", () => {
+    const open = $("picker").hidden;
+    $("picker").hidden = !open; $("pick").setAttribute("aria-expanded", String(open));
+    if (open && !$("pick-owner").value && state.repos[0]) $("pick-owner").value = state.repos[0].split("/")[0];
+  });
+  $("pick-load").addEventListener("click", onPickLoad);
+  $("pick-add").addEventListener("click", onPickAdd);
+  $("export").addEventListener("click", onExport);
+  $("import").addEventListener("click", onImport);
+  $("demo").addEventListener("click", toggleDemo);
+  $("office-file").addEventListener("change", onOfficeFile);
+  $("refresh").addEventListener("click", () => { state.files.clear(); refreshAll(); });
+  $("interval").addEventListener("change", () => { state.interval = Number($("interval").value); saveStore(); schedule(); });
+  $("token").addEventListener("change", () => { clearCaches(); render(); refreshAll(); say("connect-msg", token() ? "Đã nhận token (chỉ nằm trong bộ nhớ trang này). Đang tải lại…" : "", token() ? "ok" : ""); });
+  $("forget").addEventListener("click", () => { $("token").value = ""; state.rate = null; renderRate(); clearCaches(); render(); refreshAll(); say("connect-msg", "Đã quên token và xóa dữ liệu đã tải bằng token.", "ok"); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && state.interval && token() && !state.demo) refreshAll(); });
+  setInterval(tick, 1000);
+  render();
+  refreshAll();
+  schedule();
+}
+init();
+})();
+</script>
+</body>
+</html>
