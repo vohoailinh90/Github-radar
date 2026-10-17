@@ -19,6 +19,11 @@
     "covered": "2026-10-13",
     "stars": 36720
   },
+  "OrchestratorInc/agent-orchestrator": {
+    "bucket": "software",
+    "covered": "2026-10-17",
+    "stars": 13260
+  },
   "Panniantong/Agent-Reach": {
     "bucket": "software",
     "covered": "2026-10-12",

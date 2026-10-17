@@ -1,0 +1,238 @@
+{
+  "draft": {
+    "analogy": "Giống như người quản đốc công trường chia mỗi nhóm thợ vào một phòng riêng biệt để thi công mà không cản trở nhau.",
+    "caveats": [
+      "Mỗi agent harness (Claude Code, Codex, v.v.) có mức độ hỗ trợ Worker, Chat và reviewer khác nhau",
+      "Cần cài đặt riêng CLI cho từng coding agent theo tài liệu hướng dẫn"
+    ],
+    "facebook": {
+      "caption": "Điều phối đội ngũ AI coding agent mượt mà trên từng nhánh Git riêng biệt.\n\nKhông còn cảnh xung đột branch khi chạy nhiều AI cùng lúc.\nMỗi agent nhận một worktree, terminal và feedback loop riêng.\nTheo dõi toàn bộ tiến độ, CI và review ngay trên bảng Kanban trực quan.",
+      "hashtags": [
+        "Orchestrator",
+        "CodingAgents",
+        "DevTools",
+        "GitWorktree",
+        "OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Tính năng của Git cho phép gắn nhiều thư mục làm việc vào cùng một repository",
+        "term": "Worktree"
+      },
+      {
+        "meaning": "Đơn vị thực thi gồm một tác vụ, một coding agent và một không gian làm việc riêng biệt",
+        "term": "Worker"
+      },
+      {
+        "meaning": "Tiến trình chạy nền trên máy để tự động giám sát trạng thái hệ thống",
+        "term": "Daemon"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Xem hướng dẫn thiết lập từng agent CLI như Claude Code, Codex, Cursor trong tài liệu",
+        "Theo dõi tiến độ pull request và CI của các worker ngay trên bảng Kanban"
+      ],
+      "outcome": "Cài đặt thành công ứng dụng desktop trên máy tính, kết nối với kho mã nguồn Git và khởi tạo worker session đầu tiên cho coding agent.",
+      "requirements": [
+        {
+          "detail": "macOS (Apple silicon hoặc Intel), Windows, hoặc Linux (AppImage, deb, rpm)",
+          "evidence": "README",
+          "item": "Hệ điều hành tương thích",
+          "link_ref": 13
+        },
+        {
+          "detail": "Dự án mã nguồn Git cục bộ để ứng dụng quản lý nhánh và worktree",
+          "evidence": "README",
+          "item": "Kho lưu trữ Git",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Tải tệp cài đặt phù hợp với hệ điều hành từ danh sách phát hành chính thức.",
+            "Mở tệp đã tải để khởi động ứng dụng trên máy tính."
+          ],
+          "evidence": "README",
+          "expect": "Giao diện ứng dụng hiển thị thành công trên màn hình.",
+          "if_fails": "Trên macOS nếu hệ thống báo không thể xác minh nhà phát triển, nhấp chuột phải vào ứng dụng rồi chọn Open, sau đó chọn Open lần nữa.",
+          "link_ref": 1,
+          "snippet_ref": null,
+          "title": "Tải và khởi chạy ứng dụng desktop",
+          "why": "Cài đặt ứng dụng desktop để tự động chạy tiến trình nền daemon quản lý mã nguồn mà không cần CLI."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Trỏ ứng dụng tới repository bạn muốn quản lý.",
+            "Bấm New task khi công việc đã rõ ràng, mô tả kết quả mong muốn, chọn agent và model, sau đó đính kèm tệp liên quan."
+          ],
+          "evidence": "README",
+          "expect": "Một worker session được tạo với branch, worktree riêng và giao diện Chat hoặc terminal UI tương ứng.",
+          "if_fails": "",
+          "link_ref": 13,
+          "snippet_ref": null,
+          "title": "Thêm repository và khởi tạo worker session",
+          "why": "Gắn dự án vào ứng dụng và tạo không gian làm việc cô lập cho coding agent thực hiện tác vụ."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Nhấp chuột phải vào ứng dụng và chọn Open, sau đó chọn Open lần nữa; nếu vẫn lỗi thì mở issue kèm chẩn đoán Gatekeeper.",
+          "problem": "Trên macOS ứng dụng không mở và báo không thể xác minh nhà phát triển"
+        }
+      ],
+      "verify": "Tài liệu không cung cấp dòng lệnh CLI để xác thực; kiểm tra trực quan trên màn hình thấy worker session đã gắn liền với branch và hiển thị trạng thái trên Kanban."
+    },
+    "hook": "Quản lý nhiều coding agent cùng lúc trên từng branch và worktree riêng biệt mà không lo xung đột.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "Desktop App",
+          "role": "Giao diện làm việc trung tâm cung cấp bảng Kanban, Chat và terminal UI"
+        },
+        {
+          "evidence": "README",
+          "icon": "activity",
+          "name": "Local Daemon",
+          "role": "Tiến trình nền theo dõi hoạt động agent và trạng thái kiểm soát phiên bản"
+        },
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "Coding Agent Workers",
+          "role": "Các agent thực thi tác vụ trên worktree và nhánh Git riêng biệt"
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Mỗi tác vụ được gán cho một worker gồm một coding agent, mô hình phù hợp và một không gian làm việc cô lập.",
+          "title": "Tạo worker session"
+        },
+        {
+          "evidence": "README",
+          "text": "Mỗi worker chạy trên một nhánh và Git worktree riêng biệt, hoặc thư mục độc lập không cần repo.",
+          "title": "Cô lập không gian Git"
+        },
+        {
+          "evidence": "README",
+          "text": "Daemon chạy nền tự động theo dõi hoạt động của agent, thay đổi mã nguồn, pull request và kết quả CI.",
+          "title": "Giám sát qua daemon"
+        },
+        {
+          "evidence": "README",
+          "text": "Người dùng gửi trực tiếp góp ý duyệt mã hoặc lỗi từ CI về đúng agent sở hữu phần việc đó.",
+          "title": "Phản hồi hai chiều"
+        }
+      ]
+    },
+    "learn": [
+      "Dùng Git worktree để cô lập hoàn toàn môi trường làm việc của từng AI agent",
+      "Mô hình tiến trình daemon nền giúp tự động hóa việc theo dõi mã nguồn mà không cần gõ lệnh thủ công",
+      "Quản lý vòng lặp phản hồi khép kín bằng cách trả thẳng lỗi CI vào phiên làm việc của agent"
+    ],
+    "one_liner": "Ứng dụng desktop điều phối và giám sát các coding agent từ khâu lập kế hoạch đến hợp nhất mã nguồn.",
+    "problem": "Khi chạy nhiều AI coding agent trên cùng một dự án, lập trình viên gặp khó khăn trong việc phân chia công việc và cấp ngữ cảnh phù hợp. Việc nhiều tác vụ chạy song song dễ gây xung đột nhánh Git và mất dấu trạng thái kiểm thử.",
+    "title": "Điều phối đội ngũ AI coding agent đa nhiệm",
+    "who_for": [
+      "Lập trình viên muốn chạy song song nhiều AI coding agent mà không sợ xung đột mã nguồn",
+      "Trưởng nhóm kỹ thuật cần giám sát trạng thái kéo mã, CI và tiến độ sửa đổi từ nhiều agent",
+      "Người dùng các công cụ như Claude Code, Codex, Cursor muốn có giao diện quản lý tập trung"
+    ]
+  },
+  "facts": {
+    "bucket": "software",
+    "forks": 1819,
+    "full_name": "OrchestratorInc/agent-orchestrator",
+    "language": "Go",
+    "license": "Apache-2.0",
+    "links": [
+      [
+        "github.com",
+        "https://github.com/OrchestratorInc/agent-orchestrator/stargazers"
+      ],
+      [
+        "github.com",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest"
+      ],
+      [
+        "github.com",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases"
+      ],
+      [
+        "x.com",
+        "https://x.com/useOrchestrator"
+      ],
+      [
+        "discord.com",
+        "https://discord.com/invite/UZv7JjxbwG"
+      ],
+      [
+        "Documentation",
+        "https://docs.orchestrator.inc"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-darwin-arm64.dmg"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-darwin-x64.dmg"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-win32-x64.exe"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-linux-x64.AppImage"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-linux-x64.deb"
+      ],
+      [
+        "Download",
+        "https://github.com/OrchestratorInc/agent-orchestrator/releases/latest/download/agent-orchestrator-linux-x64.rpm"
+      ],
+      [
+        "open an issue",
+        "https://github.com/OrchestratorInc/agent-orchestrator/issues/new?template=bug_report.yml"
+      ],
+      [
+        "installation guide",
+        "https://docs.orchestrator.inc/installation"
+      ],
+      [
+        "Browse agent setup guides →",
+        "https://docs.orchestrator.inc/plugins/agents"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 13260,
+    "url": "https://github.com/OrchestratorInc/agent-orchestrator"
+  },
+  "lang": "vi",
+  "position": 1
+}
