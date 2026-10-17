@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-17-6](2026-10-17-6/README.md) — agency-agents-zh
 - [2026-10-17-5](2026-10-17-5/README.md) — chat-on-steroids, rea, supervision
 - [2026-10-17-4](2026-10-17-4/README.md) — oh-my-claudecode
 - [2026-10-17-3](2026-10-17-3/README.md) — oh-my-claudecode

@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-17",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 1,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 117,
+  "dropped": {
+    "already covered": 18,
+    "licence noassertion is not on the free list": 30,
+    "licence none is not on the free list": 7,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "jnMetaCode/agency-agents-zh",
+      "bucket": "solutions",
+      "score": 14.9446,
+      "stars": 21331,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 2844,
+      "velocity": "lifetime",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "affaan-m/ECC",
+      "bucket": "ai",
+      "score": 18.7243,
+      "stars": 282400,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "NousResearch/hermes-agent",
+      "bucket": "ai",
+      "score": 18.3154,
+      "stars": 254668,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "DietrichGebert/ponytail",
+      "bucket": "ai",
+      "score": 18.3096,
+      "stars": 166165,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Graphify-Labs/graphify",
+      "bucket": "ai",
+      "score": 17.6958,
+      "stars": 127749,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.5428,
+      "stars": 192470,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 301,
+    "measured": 0
+  },
+  "written": [
+    {
+      "repo": "jnMetaCode/agency-agents-zh",
+      "lang": "vi",
+      "writer": "google/gemini-flash-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 27,
+        "used": 4
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 23.3,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.4,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 92.3,
+      "served": "gemini-flash-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-17-6"
+}
