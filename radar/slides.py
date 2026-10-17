@@ -295,9 +295,11 @@ def _chip_rows(items, size: float, width: float) -> tuple[list[list[tuple[str, f
 def _sentences(text: str) -> list[str]:
     """Split a long text at sentence ends, outside code spans, so a card too tall for a slide can continue on the next."""
     spans = [(m.start(), m.end()) for m in readmelib.CODE_SPAN.finditer(str(text))]
-    out, last = [], 0
+    out, last, nxt = [], 0, 0
     for m in re.finditer(r"(?<=[.!?。])\s+", str(text)):
-        if any(a <= m.start() < b for a, b in spans):
+        while nxt < len(spans) and spans[nxt][1] <= m.start():          # both lists run left to right: step past the spans already behind
+            nxt += 1
+        if nxt < len(spans) and spans[nxt][0] <= m.start():
             continue
         out.append(str(text)[last:m.start()])
         last = m.end()
@@ -1073,6 +1075,8 @@ def write(root: Path, selectors: list[str] | None = None, *, everything: bool = 
     for folder in _folders(root, selectors or [], everything):
         for path in sorted(folder.glob("draft-*.json")):
             rel = path.relative_to(root).as_posix()
+            if langs and path.stem.removeprefix("draft-") not in langs:      # not asked for: not even read, so a broken file of another language is no failure
+                continue
             tmp = None
             try:
                 stored = json.loads(path.read_text(encoding="utf-8"))

@@ -308,6 +308,30 @@ def test_an_inline_code_span_longer_than_a_slide_stays_code_on_every_slide(where
     assert "".join(code_parts) == inner                                          # every fragment is still drawn as code, none lost or added
 
 
+def test_sentences_are_cut_outside_code_spans_like_a_plain_scan_would_cut_them():
+    import random
+    rng = random.Random(3)
+    for _ in range(200):
+        text = "".join(rng.choice(["Câu một. ", "`a. b` ", "ghi chú! ", "`x` ", "いち。 ", "word ", "`p.q.r`. "]) for _ in range(rng.randint(1, 40)))
+        spans = [(m.start(), m.end()) for m in slides.readmelib.CODE_SPAN.finditer(text)]
+        out, last = [], 0
+        for m in re.finditer(r"(?<=[.!?。])\s+", text):
+            if any(a <= m.start() < b for a, b in spans):
+                continue
+            out.append(text[last:m.start()])
+            last = m.end()
+        out.append(text[last:])
+        assert slides._sentences(text) == [x for x in out if x.strip()]
+
+
+def test_a_text_of_thousands_of_code_spans_is_split_into_sentences_in_linear_time():
+    import time
+    text = "Câu `x` ngắn. " * 12000
+    started = time.perf_counter()
+    assert len(slides._sentences(text)) == 12000
+    assert time.perf_counter() - started < 3, "splitting into sentences rescans every code span for every sentence end"
+
+
 def test_a_legacy_note_taller_than_a_slide_continues_on_the_next_slide_keeping_its_code_spans():
     note = ("Một ghi chú rất dài có `npm run build` ở giữa " * 60).strip()
     pages = slides.paginate([slides.code(["npm start"]), slides.para(slides.prose(note), size=22)], 100)
@@ -652,6 +676,18 @@ def test_a_draft_file_named_for_another_language_never_overwrites_the_deck_of_th
     assert report["written"] == ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"]
     assert "the file name says" in report["skipped"][f"digests/2026-10-17-2/agent-orchestrator/{name}"]
     assert (folder / "slides-vi.pptx").read_bytes() == real and not list(folder.glob("*.tmp"))
+
+
+def test_a_broken_file_of_a_language_nobody_asked_for_is_not_a_failure(tmp_path, monkeypatch, capsys):
+    folder = one_digest(tmp_path)
+    (folder / "draft-en.json").write_text("{not json", encoding="utf-8")
+    (folder / "draft-zz.json").write_bytes(b"\xff\xfe")
+    report = slides.write(tmp_path, ["2026-10-17-2"], langs=["vi"])
+    assert report == {"written": ["digests/2026-10-17-2/agent-orchestrator/slides-vi.pptx"], "skipped": {}}
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    assert cli.main(["slides", "2026-10-17-2", "--lang", "vi"]) == 0
+    assert cli.main(["slides", "2026-10-17-2"]) == 1                              # asked for every language, the broken one is reported
+    capsys.readouterr()
 
 
 def test_one_strange_file_does_not_stop_the_others_and_leaves_no_temporary_file(tmp_path, monkeypatch):
