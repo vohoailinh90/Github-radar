@@ -24,7 +24,7 @@ Mỗi repo thành một **hướng dẫn làm theo từng bước**, để ngư�
 **chuẩn bị** (danh sách đánh dấu: phần mềm, phần cứng, tài khoản, khóa API, có liên kết lấy từ README), **lộ trình** (hình tóm tắt các bước),
 **làm theo từng bước** (mỗi bước: mục đích, việc cần làm, khối lệnh chép nguyên văn từ README, khối cấu hình mẫu in đúng như README, *bạn sẽ thấy*, *nếu không được*, căn cứ),
 **kiểm tra kết quả**, **lỗi thường gặp** (chỉ lỗi README tự nêu), **làm tiếp**; rồi mới đến phần giải thích bên trong (sơ đồ các mảnh ghép, bài học thiết kế, từ khóa).
-Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng dẫn làm video AI](docs/ai-video-guides.md) (5 repo, quét 16/10/2026).
+Các hình (SVG) do script vẽ, không phải model vẽ. Ví dụ: [hướng dẫn làm video AI](docs/ai-video-guides.md) (5 repo, quét 16/10/2026) và [công cụ cho AI agent làm giao diện và duyệt web](docs/ui-agent-tools-guides.md) (3 repo, quét 16/10/2026).
 Bài cũ (trước khi có hướng dẫn) vẫn được vẽ như trước: `draft` không có khóa `guide` dùng bố cục giải thích cũ.
 Cạnh mỗi bài có `draft-<ngôn ngữ>.json`: câu trả lời của model (sau các cổng kiểm tra). Một bản nháp có khóa `note` (như bài Agent-Reach đầu tiên, "RECONSTRUCTED",
 hay các hướng dẫn viết trong phiên tương tác) **không phải** câu trả lời gốc của model free. Có bản nháp thì khi bộ vẽ được cải thiện, `radar.py rerender` vẽ lại mọi bài cũ mà không tốn quota.

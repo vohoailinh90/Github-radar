@@ -3,6 +3,7 @@
 - [2026-10-17-3](2026-10-17-3/README.md) — oh-my-claudecode
 - [2026-10-17-2](2026-10-17-2/README.md) — agent-orchestrator
 - [2026-10-17](2026-10-17/README.md) — orca
+- [2026-10-16-4](2026-10-16-4/README.md) — impeccable, playwright-mcp, ui-ux-pro-max-skill
 - [2026-10-16-3](2026-10-16-3/README.md) — moneyprinterturbo, pyvideotrans, videolingo, vimax, wan2-2
 - [2026-10-16-2](2026-10-16-2/README.md) — flowkit
 - [2026-10-16](2026-10-16/README.md) — flowkit

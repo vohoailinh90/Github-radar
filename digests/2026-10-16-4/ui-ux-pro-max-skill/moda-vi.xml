@@ -1,0 +1,79 @@
+<!-- radar: Moda canvas 1200x2340; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="146" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="146" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Phần mềm</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">UI UX Pro Max: kho tri thức thiết kế cho AI viết giao diện</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">AI tự sinh cả hệ thống thiết kế từ mô tả sản phẩm: kiểu trang, màu, phông và điều cần tránh</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">CLI uipro</text>
+<text x="80" y="577" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cài skill đúng thư mục của từng công cụ AI từ mẫu có sẵn; còn có update, uninstall, versions.</text>
+<rectangle x="460" y="517" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Skill trong công cụ AI</text>
+<text x="480" y="604" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Phần hướng dẫn để AI tự kích hoạt khi bạn yêu cầu UI/UX và biết gọi script tìm kiếm.</text>
+<rectangle x="860" y="517" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Kho dữ liệu CSV</text>
+<text x="880" y="577" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Phong cách, bảng màu, cặp phông, biểu đồ, hướng dẫn UX và quy tắc theo ngành, nằm dưới src/ui-ux-pro-max.</text>
+<rectangle x="60" y="784" width="280" height="235" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="806" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Script tìm kiếm và suy luận</text>
+<text x="80" y="871" width="240" height="126" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Python chỉ dùng thư viện chuẩn: xếp hạng BM25 và khớp loại sản phẩm với 192 quy tắc ngành để chọn mẫu trang, phong cách, màu, phông.</text>
+<rectangle x="460" y="784" width="280" height="235" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Hệ thiết kế đã lưu</text>
+<text x="480" y="844" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">File master lưu hệ thiết kế, kèm file ghi đè riêng từng trang, để các phiên sau đọc lại.</text>
+<line x1="340" y1="613.5" x2="460" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="600" y1="710" x2="600" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="600" y1="747" x2="200" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="747" x2="200" y2="784" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="710" x2="1000" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="747" x2="200" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="747" x2="200" y2="784" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="340" y1="901.5" x2="460" y2="901.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="1101" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1167" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1189" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1189" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bạn nêu yêu cầu</text>
+<text x="154" y="1225" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bạn yêu cầu việc UI/UX (build, design, create, review, fix...); trong công cụ hỗ trợ, skill tự kích hoạt.</text>
+<line x1="584" y1="1241" x2="616" y2="1241" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1167" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1189" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1189" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tìm kiếm đa miền</text>
+<text x="714" y="1225" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bước tìm kiếm đa miền chạy 5 tìm kiếm song song: loại sản phẩm, phong cách, bảng màu, mẫu landing page và cặp phông.</text>
+<rectangle x="60" y="1339" width="520" height="170" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1361" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1361" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Suy luận theo ngành</text>
+<text x="154" y="1397" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Reasoning engine khớp sản phẩm với quy tắc ngành, xếp hạng phong cách bằng BM25, lọc kiểu cần tránh cho ngành đó và xử lý quy tắc điều kiện dạng JSON.</text>
+<line x1="584" y1="1424" x2="616" y2="1424" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1339" width="520" height="170" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1361" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1361" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ra hệ thống thiết kế</text>
+<text x="714" y="1397" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đầu ra gồm mẫu trang, phong cách, màu, chữ, hiệu ứng, điều cần tránh và danh sách kiểm tra trước khi giao.</text>
+<rectangle x="60" y="1533" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1555" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1555" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Viết mã và tự soát</text>
+<text x="154" y="1591" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">AI viết giao diện theo hệ đó cho stack bạn chọn (mặc định HTML kèm Tailwind) rồi đối chiếu với lỗi UI/UX phổ biến.</text>
+<text x="60" y="1763" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1829" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1869.8" x2="97.6" y2="1877" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1877" x2="110" y2="1861.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1849" width="244" height="157" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách dữ liệu khỏi mã: README đặt cơ sở dữ liệu trong các file CSV và bộ tìm kiếm trong script riêng, nên mở rộng kho tri thức chủ yếu là sửa dữ liệu.</text>
+<rectangle x="430" y="1829" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1869.8" x2="467.6" y2="1877" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1877" x2="480" y2="1861.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1849" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mẫu Master kèm Overrides: quy tắc chung nằm một file, từng trang chỉ ghi phần khác biệt, giống cách kế thừa cấu hình.</text>
+<rectangle x="800" y="1829" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1869.8" x2="837.6" y2="1877" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1877" x2="850" y2="1861.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1849" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đầu ra luôn kèm điều cần tránh và danh sách kiểm tra, nên AI có sẵn tiêu chí để tự soát trước khi giao.</text>
+<rectangle x="60" y="2050" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="2090.8" x2="97.6" y2="2098" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="2098" x2="110" y2="2082.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="2070" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Script chỉ dùng thư viện chuẩn, không gọi mạng, và AI được dặn hỏi người dùng thay vì tự cài phần mềm, theo đúng README.</text>
+<rectangle x="430" y="2050" width="340" height="175" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="2090.8" x2="467.6" y2="2098" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="2098" x2="480" y2="2082.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="2070" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách phạm vi ngay trong README: bản mã nguồn mở này lo UI/UX, còn thương hiệu và logo thuộc bản Premium, nên người đọc biết trước nên kỳ vọng gì.</text>
+<text x="60" y="2277" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: nextlevelbuilder/ui-ux-pro-max-skill · Giấy phép: MIT · 136.600 sao · Quét ngày 2026-10-16</text>
+</content>
