@@ -330,14 +330,41 @@ def _plain_break_points(text: str) -> list[str]:
     return pieces + ([cur] if cur else [])
 
 
+def _longest(piece: str, fits) -> int:
+    """The largest n below len(piece) for which fits(piece[:n]) holds, or 1 when none does. `fits` only gets harder as the text grows, so the
+    answer is found by doubling and then halving: a handful of measurements of about one slide of text, never one per prefix."""
+    lo, step = 1, 1
+    while lo + step < len(piece) and fits(piece[:lo + step]):
+        lo += step
+        step *= 2
+    hi = min(lo + step, len(piece)) - 1
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if fits(piece[:mid]):
+            lo = mid
+        else:
+            hi = mid - 1
+    return lo
+
+
 def _chars(piece: str, fits) -> list[str]:
     """One word too long for a slide, cut between characters into pieces that each fit alone."""
     out = []
     while len(piece) > 1 and not fits(piece):
-        cut = next(n for n in range(len(piece) - 1, 0, -1) if fits(piece[:n]) or n == 1)
+        cut = _longest(piece, fits)
         out.append(piece[:cut])
         piece = piece[cut:]
     return out + [piece]
+
+
+def _span_chars(piece: str, fits) -> list[str]:
+    """`_chars` for a piece that may be a whole backtick span: each fragment of a span too long for a slide is a span again, so it is still
+    drawn as code and no backtick is left unpaired."""
+    found = readmelib.CODE_SPAN.fullmatch(piece)
+    if not found:
+        return _chars(piece, fits)
+    mark = found.group(1)
+    return [mark + part + mark for part in _chars(found.group(2), lambda t: fits(mark + t + mark))]
 
 
 def _cut(text: str, fits) -> list[str]:
@@ -351,7 +378,7 @@ def _cut(text: str, fits) -> list[str]:
             units.append(lead + sentence)
             continue
         for piece in _break_points(sentence):
-            for part in _chars(piece, lambda t: fits(t, False)):
+            for part in _span_chars(piece, lambda t: fits(t, False)):
                 units.append(lead + part)
                 lead = ""
     pieces: list[str] = []

@@ -242,6 +242,47 @@ def test_a_heading_nearly_as_tall_as_a_slide_stands_alone_and_its_body_follows()
     assert card_text(pages).replace(" ", "") == (head + "a meaning " * 40).replace(" ", "")
 
 
+@pytest.mark.parametrize("length", [1, 2, 3, 7, 50, 333])
+def test_the_longest_prefix_that_fits_is_found_like_a_linear_scan_would(length):
+    text = "x" * length
+    for limit in range(0, length + 2):
+        fits = lambda t, limit=limit: len(t) <= limit                      # noqa: E731
+        by_scan = next((n for n in range(length - 1, 0, -1) if fits(text[:n])), 1)
+        assert slides._longest(text, fits) == (by_scan if length > 1 else 1)
+
+
+@pytest.mark.parametrize("where", ["head", "body"])
+def test_a_text_of_thousands_of_characters_without_a_break_is_cut_with_few_measurements(monkeypatch, where):
+    calls = []
+    real = slides.measure
+
+    def counting(block, width):
+        calls.append(1)
+        assert len(calls) < 4000, "cutting an unbreakable text measures it far too often"
+        return real(block, width)
+
+    monkeypatch.setattr(slides, "measure", counting)
+    word = "x" * 20000
+    card = slides.card(word, "short", size=24) if where == "head" else slides.card("Term", word, size=24)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 10 and placed_ok(pages)
+    assert card_text(pages) == (word + "short" if where == "head" else "Term" + word)
+
+
+@pytest.mark.parametrize("where", ["head", "body"])
+def test_an_inline_code_span_longer_than_a_slide_stays_code_on_every_slide(where):
+    inner = "path/to/" + "file" * 800
+    span = f"`{inner}`"
+    card = slides.card(span, "meaning", size=24) if where == "head" else slides.card("Term", span + " then more words", size=24)
+    pages = slides.paginate([card], 100)
+    assert len(pages) >= 3 and placed_ok(pages)
+    texts_ = [t for page in pages for b, _, _ in page for t in (b["head"], b["body"]) if t]
+    for t in texts_:
+        assert t.count("`") % 2 == 0, f"an unpaired backtick would be printed as text: {t[:20]!r}"
+    code_parts = [s for t in texts_ for s, is_code in slides._spans(t) if is_code]
+    assert "".join(code_parts) == inner                                          # every fragment is still drawn as code, none lost or added
+
+
 def test_a_legacy_note_taller_than_a_slide_continues_on_the_next_slide_keeping_its_code_spans():
     note = ("Một ghi chú rất dài có `npm run build` ở giữa " * 60).strip()
     pages = slides.paginate([slides.code(["npm start"]), slides.para(slides.prose(note), size=22)], 100)
