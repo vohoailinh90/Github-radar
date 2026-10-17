@@ -1,4 +1,4 @@
-<!-- radar: Moda canvas 1200x2160; create it that size, then apply this markup -->
+<!-- radar: Moda canvas 1200x2165; create it that size, then apply this markup -->
 <content font-family="Be Vietnam Pro">
 <background fill="#FFF6E5"/>
 <rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
@@ -52,26 +52,31 @@
 <rectangle x="642" y="1315" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
 <text x="714" y="1315" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Agent cũng điều khiển Orca</text>
 <text x="714" y="1351" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch bản cho quy trình, với các lệnh con như worktree create, snapshot, click, fill.</text>
-<rectangle x="60" y="1487" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="60" y="1487" width="520" height="175" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
 <rectangle x="82" y="1509" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
-<text x="154" y="1509" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chạy từ xa và từ điện thoại</text>
-<text x="154" y="1545" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">SSH worktrees chạy agent trên máy từ xa mạnh hơn. App điện thoại ghép với máy desktop qua một relay mà mã nằm trong thư mục cloud/.</text>
-<text x="60" y="1739" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
-<rectangle x="60" y="1805" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
-<line x1="90.8" y1="1845.8" x2="97.6" y2="1853" stroke="#FFC83D" stroke-width="5"/>
-<line x1="97.6" y1="1853" x2="110" y2="1837.8" stroke="#FFC83D" stroke-width="5"/>
-<text x="136" y="1825" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách ly bằng git worktree: mỗi agent một bản làm việc, nên chạy song song mà không giẫm chân nhau.</text>
-<rectangle x="615" y="1805" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
-<line x1="645.8" y1="1845.8" x2="652.6" y2="1853" stroke="#FFC83D" stroke-width="5"/>
-<line x1="652.6" y1="1853" x2="665" y2="1837.8" stroke="#FFC83D" stroke-width="5"/>
-<text x="691" y="1825" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Giao cùng một đề cho nhiều agent rồi so kết quả và chọn bản tốt nhất.</text>
-<rectangle x="60" y="1937" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
-<line x1="90.8" y1="1977.8" x2="97.6" y2="1985" stroke="#FFC83D" stroke-width="5"/>
-<line x1="97.6" y1="1985" x2="110" y2="1969.8" stroke="#FFC83D" stroke-width="5"/>
-<text x="136" y="1957" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Để agent điều khiển công cụ quản lý chúng qua dòng lệnh, nên quy trình lặp lại viết thành kịch bản được.</text>
-<rectangle x="615" y="1937" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
-<line x1="645.8" y1="1977.8" x2="652.6" y2="1985" stroke="#FFC83D" stroke-width="5"/>
-<line x1="652.6" y1="1985" x2="665" y2="1969.8" stroke="#FFC83D" stroke-width="5"/>
-<text x="691" y="1957" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đặt phần ghép điện thoại thành một relay riêng trong cùng repo, có workspace và hướng dẫn cài riêng.</text>
-<text x="60" y="2097" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: stablyai/orca · Giấy phép: MIT · 94.489 sao · Quét ngày 2026-10-17</text>
+<text x="154" y="1509" width="404" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">SSH worktrees: agent chạy ở máy từ xa</text>
+<text x="154" y="1572" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">README nói có thể chạy agent trên một máy từ xa mạnh, với sửa file, git và terminal đầy đủ, tự nối lại và chuyển cổng.</text>
+<line x1="584" y1="1574.5" x2="616" y2="1574.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1487" width="520" height="175" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1509" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="6" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1509" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">App điện thoại ghép qua relay</text>
+<text x="714" y="1545" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">App điện thoại được ghép với máy desktop qua một relay; README nói mã relay nằm trong thư mục cloud/ của repo.</text>
+<text x="60" y="1744" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1810" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1850.8" x2="97.6" y2="1858" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1858" x2="110" y2="1842.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1830" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách ly bằng git worktree: mỗi agent một bản làm việc, nên chạy song song mà không giẫm chân nhau.</text>
+<rectangle x="615" y="1810" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1850.8" x2="652.6" y2="1858" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1858" x2="665" y2="1842.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1830" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Giao cùng một đề cho nhiều agent rồi so kết quả và chọn bản tốt nhất.</text>
+<rectangle x="60" y="1942" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1982.8" x2="97.6" y2="1990" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1990" x2="110" y2="1974.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1962" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Để agent điều khiển công cụ quản lý chúng qua dòng lệnh, nên quy trình lặp lại viết thành kịch bản được.</text>
+<rectangle x="615" y="1942" width="525" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1982.8" x2="652.6" y2="1990" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1990" x2="665" y2="1974.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1962" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đặt phần ghép điện thoại thành một relay riêng trong cùng repo, có workspace và hướng dẫn cài riêng.</text>
+<text x="60" y="2102" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: stablyai/orca · Giấy phép: MIT · 94.489 sao · Quét ngày 2026-10-17</text>
 </content>

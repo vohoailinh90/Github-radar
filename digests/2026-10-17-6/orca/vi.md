@@ -12,7 +12,7 @@ Orca đã cài và mở được trên máy, sẵn sàng chạy CLI agent trong 
 
 ## Vấn đề nó giải quyết
 
-Cho nhiều agent làm trên cùng một dự án thì dễ đạp lên nhau: chung thư mục, chung nhánh, khó biết ai đang làm gì. Orca cho mỗi agent một git worktree riêng và gom tất cả vào một cửa sổ, để bạn so kết quả rồi merge bản tốt nhất.
+Chạy nhiều agent trên cùng một dự án cần mỗi agent một bản làm việc riêng và một chỗ để theo dõi tất cả. Orca cho mỗi agent một git worktree biệt lập và theo dõi chúng ở một nơi, để bạn so kết quả rồi merge bản tốt nhất.
 
 > 💡 **Hình dung đời thường:** Giống một lớp có năm bàn riêng: mỗi bạn làm cùng một đề trên bàn của mình, cuối giờ thầy đặt các bài cạnh nhau và chọn bài tốt nhất.
 
@@ -24,7 +24,7 @@ Cho nhiều agent làm trên cùng một dự án thì dễ đạp lên nhau: ch
 
 ## ⚠️ Lưu ý trước khi dùng
 
-- Dự án mới và đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.
+- Dự án đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.
 - README không nói Orca kèm sẵn agent: mỗi CLI agent bạn dùng phải tự cài và chạy được trong terminal.
 - Có thu thập dữ liệu sử dụng ẩn danh; README dẫn tới trang nói rõ thu gì và cách tắt.
 - README không nói relay của app điện thoại chạy ở đâu; chỉ nói mã relay nằm trong cloud/.
@@ -81,7 +81,7 @@ brew install --cask stablyai/orca/orca
 **Mục đích:** Orca điều phối agent chạy trong terminal; README không nói nó kèm sẵn agent nên bạn chuẩn bị agent riêng.
 
 1. Chọn agent bạn muốn dùng trong danh sách README (Claude Code, Codex, OpenCode, Pi, Cursor, Goose, Cline...).
-2. Cài agent đó theo trang của chính nó; README dẫn liên kết đến trang của từng agent.
+2. README gắn liên kết đến trang của từng agent; đó là nơi tìm cách cài agent bạn chọn.
 
 <sub>Căn cứ: `README`</sub>
 
@@ -108,8 +108,9 @@ brew install --cask stablyai/orca/orca
 **Mục đích:** Theo dõi agent và gửi tiếp yêu cầu từ điện thoại.
 
 1. Cài app: iOS từ App Store, Android bằng tệp APK (README có trang hướng dẫn cài APK).
-2. Ghép app với app Orca trên máy tính; README nói app nhắc khi agent làm xong.
-3. Mã relay dùng để ghép nằm trong thư mục `cloud/` của repo, có hướng dẫn riêng.
+2. Ghép app với app Orca trên máy tính để theo dõi và điều khiển agent từ điện thoại; README nói app nhắc khi agent làm xong.
+3. README không ghi cách ghép từng bước; mục Mobile Companion của README có liên kết Docs.
+4. Mã relay dùng để ghép nằm trong thư mục `cloud/` của repo, có hướng dẫn riêng.
 
 🔗 Liên kết trong README: [Install guide](https://www.onorca.dev/docs/android-apk)
 
@@ -146,7 +147,8 @@ README không nêu cách kiểm tra sau khi cài. Orca mở được và agent b
 2. **Terminal thật cho CLI agent**: Agent chạy trong terminal chia ô: README gọi là terminal cùng đẳng cấp Ghostty (Ghostty-class), vẽ bằng WebGL, chia ô không giới hạn, scrollback còn sau khi mở lại. _(Căn cứ: `README`)_
 3. **Một nơi để theo dõi**: Orca báo khi agent xong, hiện PR, issue và bảng dự án GitHub, Linear, và cho nhận xét thẳng lên diff. _(Căn cứ: `README`)_
 4. **Agent cũng điều khiển Orca**: README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch bản cho quy trình, với các lệnh con như worktree create, snapshot, click, fill. _(Căn cứ: `README`)_
-5. **Chạy từ xa và từ điện thoại**: SSH worktrees chạy agent trên máy từ xa mạnh hơn. App điện thoại ghép với máy desktop qua một relay mà mã nằm trong thư mục cloud/. _(Căn cứ: `README`)_
+5. **SSH worktrees: agent chạy ở máy từ xa**: README nói có thể chạy agent trên một máy từ xa mạnh, với sửa file, git và terminal đầy đủ, tự nối lại và chuyển cổng. _(Căn cứ: `README`)_
+6. **App điện thoại ghép qua relay**: App điện thoại được ghép với máy desktop qua một relay; README nói mã relay nằm trong thư mục cloud/ của repo. _(Căn cứ: `README`)_
 
 ### Các mảnh ghép
 
@@ -170,7 +172,7 @@ README không nêu cách kiểm tra sau khi cài. Orca mở được và agent b
 
 - **Worktree**: Bản làm việc riêng của git cho một nhánh, nằm ở thư mục khác nhưng cùng một repo.
 - **CLI agent**: Trợ lý lập trình AI chạy trong terminal, như Claude Code hay Codex.
-- **Relay**: Máy chủ trung gian giúp app điện thoại tìm và nói chuyện với app trên máy tính.
+- **Relay**: Thành phần ghép app điện thoại với máy desktop; mã của nó nằm trong thư mục cloud/ của repo.
 
 ---
 

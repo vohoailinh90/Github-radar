@@ -16,9 +16,9 @@ slides:
   label: sao trên GitHub
   caption: MIT · TypeScript
 - layout: quote
-  text: 'Cho nhiều agent làm trên cùng một dự án thì dễ đạp lên nhau: chung thư mục, chung nhánh, khó
-    biết ai đang làm gì. Orca cho mỗi agent một git worktree riêng và gom tất cả vào một cửa sổ, để bạn
-    so kết quả rồi merge bản tốt nhất.'
+  text: Chạy nhiều agent trên cùng một dự án cần mỗi agent một bản làm việc riêng và một chỗ để theo dõi
+    tất cả. Orca cho mỗi agent một git worktree biệt lập và theo dõi chúng ở một nơi, để bạn so kết quả
+    rồi merge bản tốt nhất.
   author: Vấn đề nó giải quyết
 - layout: flow
   variant: after
@@ -32,8 +32,10 @@ slides:
       và cho nhận xét thẳng lên diff.'
   - text: 'Agent cũng điều khiển Orca: README nói dòng lệnh orca cho agent điều khiển Orca và viết kịch
       bản cho quy trình, với các lệnh con như worktree create, snapshot, click…'
-  - text: 'Chạy từ xa và từ điện thoại: SSH worktrees chạy agent trên máy từ xa mạnh hơn. App điện thoại
-      ghép với máy desktop qua một relay mà mã nằm trong thư mục cloud/.'
+  - text: 'SSH worktrees: agent chạy ở máy từ xa: README nói có thể chạy agent trên một máy từ xa mạnh,
+      với sửa file, git và terminal đầy đủ, tự nối lại và chuyển cổng.'
+  - text: 'App điện thoại ghép qua relay: App điện thoại được ghép với máy desktop qua một relay; README
+      nói mã relay nằm trong thư mục cloud/ của repo.'
 - layout: features
   title: Các mảnh ghép
   items:
@@ -69,7 +71,7 @@ slides:
   tone: accent
   items:
   - emoji: ⚠️
-    text: 'Dự án mới và đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.'
+    text: 'Dự án đổi nhanh: README nói phát hành hằng ngày và danh sách tính năng luôn cũ hơn changelog.'
   - emoji: ⚠️
     text: 'README không nói Orca kèm sẵn agent: mỗi CLI agent bạn dùng phải tự cài và chạy được trong
       terminal.'
@@ -87,7 +89,7 @@ platforms:
     caption: 'Orca: giao một prompt cho nhiều agent coding, mỗi agent một worktree riêng
 
 
-      - Chạy Claude Code, Codex, OpenCode cạnh nhau trong một cửa sổ
+      - Chạy Claude Code, Codex, OpenCode cạnh nhau, theo dõi ở một nơi
 
       - So kết quả rồi merge bản tốt nhất
 
