@@ -69,6 +69,11 @@
     "covered": "2026-10-16",
     "stars": 19400
   },
+  "jnMetaCode/agency-agents-zh": {
+    "bucket": "solutions",
+    "covered": "2026-10-17",
+    "stars": 21331
+  },
   "microsoft/playwright": {
     "bucket": "solutions",
     "covered": "2026-10-13",

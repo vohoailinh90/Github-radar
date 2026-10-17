@@ -1,0 +1,217 @@
+{
+  "draft": {
+    "analogy": "Giống như việc tuyển dụng sẵn một danh bạ hàng trăm chuyên gia với bản mô tả công việc hoàn chỉnh và nạp thẳng vào máy tính của bạn thay vì phải đào tạo từ đầu.",
+    "caveats": [
+      "Dữ liệu nhân sự AI và tài liệu chủ yếu viết bằng tiếng Trung",
+      "Claude Code và Copilot hỗ trợ cài trực tiếp, các công cụ khác bắt buộc chạy lệnh chuyển đổi trước"
+    ],
+    "facebook": {
+      "caption": "Kho 277 AI agent chuyên gia cài đặt trực tiếp vào Cursor và Claude Code chỉ với 1 dòng lệnh!\n- Bao quát 20 bộ phận: Engineering, Design, Finance, HR...\n- Hỗ trợ 20 công cụ AI phổ biến\n- Script cài đặt tự động cực nhanh",
+      "hashtags": [
+        "AIAgents",
+        "Cursor",
+        "ClaudeCode",
+        "OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Một nền tảng hỗ trợ tích hợp và điều phối đa agent thông qua các tệp SOUL, AGENTS và IDENTITY.",
+        "term": "OpenClaw"
+      },
+      {
+        "meaning": "Đồ thị có hướng không chu trình, mô hình dùng để phối hợp thứ tự làm việc tự động giữa các agent.",
+        "term": "DAG"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Sao chép trực tiếp tệp từ thư mục marketing vào ~/.claude/agents/ bằng lệnh cp",
+        "Khám phá thư viện trực tuyến hoặc tải ứng dụng máy tính agency-orchestrator"
+      ],
+      "outcome": "Các vai trò AI chuyên gia được chuyển đổi định dạng và cài đặt sẵn sàng vào thư mục cấu hình của công cụ AI trên máy tính.",
+      "requirements": [
+        {
+          "detail": "Hệ thống hỗ trợ chạy các tệp lệnh sh (Linux, macOS hoặc môi trường tương thích trên Windows).",
+          "evidence": "README",
+          "item": "Môi trường dòng lệnh Unix hoặc Shell",
+          "link_ref": null
+        },
+        {
+          "detail": "Đã cài đặt sẵn một trong 20 công cụ như Claude Code, Cursor, GitHub Copilot, OpenClaw,...",
+          "evidence": "README",
+          "item": "Một công cụ lập trình AI được hỗ trợ",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "./scripts/convert.sh --tool cursor"
+          ],
+          "do": [
+            "Mở terminal tại thư mục gốc của dự án agency-agents-zh.",
+            "Chạy lệnh chuyển đổi sang định dạng của Cursor hoặc toàn bộ các công cụ."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chuyển đổi định dạng cho công cụ AI",
+          "why": "Chuẩn hoá định dạng hồ sơ agent phù hợp với công cụ đích (Claude Code và Copilot có thể bỏ qua bước này)."
+        },
+        {
+          "commands": [
+            "./scripts/install.sh --tool cursor"
+          ],
+          "do": [
+            "Chạy lệnh cài đặt vào công cụ đã chọn (ví dụ Cursor) trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt nhân sự AI vào công cụ chỉ định",
+          "why": "Sao chép cấu hình agent vào thư mục làm việc của công cụ AI tương ứng."
+        },
+        {
+          "commands": [
+            "./scripts/lint-agents.sh"
+          ],
+          "do": [
+            "Thực thi tập lệnh kiểm tra chất lượng tệp trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra định dạng các tệp agent",
+          "why": "Đảm bảo tính hợp lệ của toàn bộ cấu hình nhân sự AI sau khi xử lý."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Mở công cụ lập trình AI (như Claude Code hoặc Cursor) và kích hoạt chế độ làm việc với chuyên gia tương ứng."
+    },
+    "hook": "Tích hợp 277 nhân sự AI chuyên môn hoá vào Claude Code, Cursor hay Copilot chỉ bằng vài dòng lệnh shell.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "folder",
+          "name": "Thư mục chuyên ngành",
+          "role": "Chứa định nghĩa của 277 AI agent theo 20 bộ phận công việc."
+        },
+        {
+          "evidence": "README",
+          "icon": "refresh-cw",
+          "name": "Tập lệnh chuyển đổi",
+          "role": "Chuyển đổi định dạng prompt sang cú pháp riêng của từng công cụ hỗ trợ."
+        },
+        {
+          "evidence": "README",
+          "icon": "download",
+          "name": "Tập lệnh cài đặt",
+          "role": "Tự động phát hiện và cài đặt các agent vào môi trường AI đích."
+        },
+        {
+          "evidence": "README",
+          "icon": "shield-check",
+          "name": "Tập lệnh kiểm tra",
+          "role": "Kiểm tra cú pháp và tính toàn vẹn của các tệp định nghĩa agent."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Mỗi vai trò AI được định nghĩa chi tiết gồm nhân cách độc lập, quy trình chuyên môn và sản phẩm bàn giao.",
+          "title": "Lưu trữ định nghĩa agent"
+        },
+        {
+          "evidence": "README",
+          "text": "Tập lệnh chuyển đổi đọc cấu hình gốc và tách thành cấu trúc phù hợp từng công cụ (như SOUL, AGENTS, IDENTITY).",
+          "title": "Chuyển đổi cấu trúc"
+        },
+        {
+          "evidence": "README",
+          "text": "Tập lệnh cài đặt phát hiện hoặc ghi trực tiếp tệp vào thư mục cấu hình của công cụ AI cục bộ.",
+          "title": "Tích hợp công cụ"
+        }
+      ]
+    },
+    "learn": [
+      "Cách đóng gói vai trò AI với đầy đủ nhân cách, quy trình và kết quả bàn giao thay vì prompt đơn lẻ",
+      "Phương pháp tổ chức script tự động chuyển đổi prompt giữa nhiều công cụ lập trình AI khác nhau",
+      "Kỹ thuật chuẩn hóa cấu trúc định nghĩa agent nhiều tệp (SOUL, AGENTS, IDENTITY)"
+    ],
+    "one_liner": "Kho 277 vai trò AI chuyên gia bằng tiếng Trung, hỗ trợ cài đặt tự động vào 20 công cụ lập trình AI phổ biến như Claude Code, Cursor và GitHub Copilot.",
+    "problem": "Người dùng AI thường phải tự viết system prompt dài dòng mỗi khi cần giải quyết việc chuyên môn trong từng phòng ban. Các prompt chung chung thiếu vai trò, quy trình chuẩn và định dạng kết quả bàn giao cụ thể.",
+    "title": "Cài đặt 277 AI Agent chuyên gia vào công cụ lập trình",
+    "who_for": [
+      "Lập trình viên sử dụng Cursor, Claude Code, Copilot muốn bổ sung nhiều vai trò chuyên gia",
+      "Nhóm phát triển phần mềm cần mẫu phân vai rõ ràng cho các phòng ban kỹ thuật, vận hành, thiết kế"
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 3523,
+    "full_name": "jnMetaCode/agency-agents-zh",
+    "language": "Shell",
+    "license": "MIT",
+    "links": [
+      [
+        "English upstream",
+        "https://github.com/msitarzewski/agency-agents"
+      ],
+      [
+        "下载桌面客户端",
+        "https://github.com/jnMetaCode/agency-orchestrator/releases/latest"
+      ],
+      [
+        "ao.aiolaola.com/experts",
+        "https://ao.aiolaola.com/experts"
+      ],
+      [
+        "github.com",
+        "https://github.com/jnMetaCode/agency-agents-zh"
+      ],
+      [
+        "opensource.org",
+        "https://opensource.org/licenses/MIT"
+      ],
+      [
+        "makeapullrequest.com",
+        "https://makeapullrequest.com"
+      ],
+      [
+        "www.npmjs.com",
+        "https://www.npmjs.com/package/agency-agents-zh"
+      ],
+      [
+        "engram",
+        "https://github.com/jnMetaCode/engram"
+      ]
+    ],
+    "scanned": "2026-10-17",
+    "stars": 21331,
+    "url": "https://github.com/jnMetaCode/agency-agents-zh"
+  },
+  "lang": "vi",
+  "position": 1
+}
