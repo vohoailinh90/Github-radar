@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mQqf0lBLLw/sWoNRihFRefOl6MJ/0F9vh8/Y/AsFrd4='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-okUDyi7Hzo3qSyvVN5V1j6AcRdgvxiRZwDB5dz5j24A='; style-src 'sha256-0kCgdcaxHlM4R43tEMrkTKI1IuJqk8Sy/HWu6p7vugU='; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>GitHub Radar: quét theo yêu cầu</title>
 <style>
@@ -113,6 +113,21 @@ a { color: var(--accent); }
     </table>
     <div class="actions"><button id="refresh" type="button">Làm mới</button></div>
     <p class="muted small">Kết quả của lượt quét thử nằm trong phần <i>Summary</i> của lượt chạy (mục "Radar run"). Lượt quét thật ghi bài vào thư mục <code>digests/</code>.</p>
+  </section>
+
+  <section id="local">
+    <h2>5. Hoặc chạy ngay trên máy bạn</h2>
+    <p class="muted small">Trang không tự chạy được Python trên máy bạn. Nó viết sẵn lệnh <code>radar.py</code> tương đương với các điều kiện ở mục 2; bạn sao chép rồi dán vào cửa sổ lệnh đang mở trong thư mục của repo (đã cài <code>pip install -r requirements.txt</code>). Không cần token Actions ở mục 1.</p>
+    <label for="shell">Cửa sổ lệnh</label>
+    <select id="shell">
+      <option value="cmd">Windows (cmd)</option>
+      <option value="sh">macOS, Linux, Git Bash</option>
+    </select>
+    <label for="cli">Lệnh</label>
+    <textarea id="cli" readonly spellcheck="false" rows="3"></textarea>
+    <div class="actions"><button id="copy-cli" type="button" disabled>Sao chép lệnh</button></div>
+    <p id="cli-note" class="muted small"></p>
+    <p id="cli-msg" class="msg" role="status" aria-live="polite"></p>
   </section>
 </main>
 <script type="application/json" id="radar-data">
@@ -394,6 +409,31 @@ function newestId(runs) { return runs.reduce((m, r) => (r && Number.isInteger(r.
 // running may be cancelled by the next send. Whether GitHub calls a run held by the group "pending" or "queued" is unverified, so every active run that is
 // not in progress counts.
 function replaceable(runs) { return runs.filter((r) => r && Number.isInteger(r.id) && typeof r.status === "string" && runState(r).active && r.status !== "in_progress").map((r) => r.id).sort((a, b) => a - b); }
+// The same scan on this computer. A page cannot start Python, so it writes the command a person pastes into a terminal: `scan` for a trial scan (rank only),
+// `run` otherwise, with the same preset and the same changed fields the workflow would get (radar.py reads --preset/--conditions as RADAR_PRESET/RADAR_CONDITIONS).
+// `scan` takes no --repo, --bucket or --dry-run: a single repository is `run --repo ... --dry-run`.
+// Callers pass only values `problems` and `isRepo` accepted; quoting is still done for any text, and cmd.exe gets nothing it could read as syntax (null).
+function quoteArg(shell, text) {
+  const s = String(text);
+  if (shell === "cmd") {
+    if (/^[A-Za-z0-9._\/-]+$/.test(s)) return s;
+    return /^[A-Za-z0-9._\/\-:,{}\[\]" ]*$/.test(s) ? "\"" + s.replace(/"/g, "\\\"") + "\"" : null;      // the C runtime reads \" as a quote; & | < > ^ % ! ( ) and \ are refused
+  }
+  return /^[A-Za-z0-9_@%+=:,.\/-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\"'\"'") + "'";           // what Python's shlex.quote writes
+}
+function cliCommand(v, presetName, dry, single, bucket, shell) {
+  const args = [single || !dry ? "run" : "scan"];
+  if (presetName) args.push("--preset", presetName);
+  const changed = delta(v, resolve(presetName));
+  if (Object.keys(changed).length) args.push("--conditions", JSON.stringify(canon(changed)));
+  if (single) {
+    args.push("--repo", single);
+    if (bucket) args.push("--bucket", bucket);
+    if (dry) args.push("--dry-run");
+  }
+  const quoted = args.map((a) => quoteArg(shell, a));
+  return quoted.includes(null) ? null : [shell === "cmd" ? "python" : "python3", "radar.py", ...quoted].join(" ");
+}
 function runState(run) {
   const active = ["queued", "pending", "waiting", "requested", "in_progress"].includes(run.status);
   if (active) return { active: true, text: run.status === "in_progress" ? "Đang chạy" : "Đang chờ" };
@@ -524,6 +564,18 @@ function syncBucketChoices(v) {
 function selectedPreset() { const name = $("preset").value; return name === "none" ? "" : name; }
 function single() { return $("single").value.trim(); }
 
+// The command for this computer follows the form; nothing is written while the form has a problem (the box is emptied, the button off).
+function refreshLocal(v, valid, singleText, dry) {
+  const shell = $("shell").value === "sh" ? "sh" : "cmd";
+  const command = valid ? cliCommand(v, selectedPreset(), dry, singleText, bucketFor(v, singleText, $("single-bucket").value), shell) : null;
+  $("cli").value = command || "";
+  $("copy-cli").disabled = !command;
+  $("cli-note").textContent = !command ? "Sửa các lỗi ở mục 2 để có lệnh." :
+    (dry ? (singleText ? "Quét thử một repo: kiểm tra repo, không gọi model, không ghi gì. " : "Quét thử: chỉ xếp hạng ứng viên, không gọi model, không ghi file. ") :
+           "Quét thật trên máy: gọi model (cần khóa model trong biến môi trường, xem README), ghi bài vào digests/, export/ và state/ của bản clone này, không mở PR. ") +
+    "Nên đặt biến GITHUB_TOKEN trước (" + (shell === "cmd" ? "set GITHUB_TOKEN=..." : "export GITHUB_TOKEN=...") + "; một token không cần quyền nào): không có thì GitHub giới hạn tìm kiếm rất thấp và lượt quét dễ dừng giữa chừng.";
+}
+
 function refresh() {
   const v = readValues();
   const issues = problems(v);
@@ -545,6 +597,7 @@ function refresh() {
     $("json").value = "";
   }
   const dry = $("dry").checked;
+  refreshLocal(v, issues.length === 0 && !(singleText && !isRepo(singleText)), singleText, dry);
   $("confirm-box").hidden = dry;
   const confirmed = dry || $("confirm").value === "QUET";
   const ready = isRepo(repoName()) && token() !== "" && !issues.length && !(singleText && !isRepo(singleText)) && confirmed && !busy();
@@ -666,12 +719,14 @@ async function loadRuns() {
   }
 }
 
-async function copyJson() {
-  const box = $("json");
+async function copyFrom(boxId, msgId, done) {
+  const box = $(boxId);
   if (!box.value) return;
-  try { await navigator.clipboard.writeText(box.value); say("msg", "Đã sao chép.", "ok"); }
-  catch (e) { box.select(); say("msg", "Hãy nhấn Ctrl+C để sao chép phần đã chọn.", "warn"); }
+  try { await navigator.clipboard.writeText(box.value); say(msgId, done, "ok"); }
+  catch (e) { box.select(); say(msgId, "Hãy nhấn Ctrl+C để sao chép phần đã chọn.", "warn"); }
 }
+const copyJson = () => copyFrom("json", "msg", "Đã sao chép.");
+const copyCli = () => copyFrom("cli", "cli-msg", "Đã sao chép lệnh. Dán vào cửa sổ lệnh trong thư mục của repo.");
 
 // ---- start ----------------------------------------------------------------------------------------------------------
 $("repo").value = DATA.defaultRepo;
@@ -687,6 +742,7 @@ for (const id of BUCKET_IDS) {
   $("buckets").append(row);
 }
 writeValues(resolve(""));
+$("shell").value = /Windows/i.test(navigator.userAgent) ? "cmd" : "sh";                // a guess the person can change
 if (SHARED_ORIGIN) {
   $("origin-warning").hidden = false;
   $("token").disabled = true;
@@ -722,6 +778,7 @@ $("forget").addEventListener("click", () => { branch = { repo: "", name: "" }; w
 $("go").addEventListener("click", go);
 $("refresh").addEventListener("click", loadRuns);
 $("copy").addEventListener("click", copyJson);
+$("copy-cli").addEventListener("click", copyCli);
 window.addEventListener("pagehide", () => { $("token").value = ""; });
 refresh();
 })();

@@ -6,12 +6,13 @@ import copy
 import itertools
 import json
 import re
+import shlex
 import shutil
 import subprocess
 
 import pytest
 
-from radar import conditions, config
+from radar import cli, conditions, config
 from scripts import ui_sync
 
 PAGE = ui_sync.PAGE
@@ -146,7 +147,7 @@ def _node(cases: list, schema: dict | None = None) -> list:
     data = json.dumps(data)
     program = f"""const DATA = {data};
 {_logic()}
-const fns = {{ isRepo, isBranch, merge, resolve, delta, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId, replaceable }};
+const fns = {{ isRepo, isBranch, merge, resolve, delta, estimate, estimateFor, estimateRun, problems, dispatchInputs, runState, roundHalfEven, risingSlots, canon, bucketFor, newestId, replaceable, quoteArg, cliCommand }};
 const cases = JSON.parse(require("fs").readFileSync(0, "utf8"));
 process.stdout.write(JSON.stringify(cases.map(([name, args]) => fns[name](...args))));
 """
@@ -389,3 +390,99 @@ def test_the_runs_a_send_could_replace_are_the_active_ones_not_yet_running():
     runs = [{"id": 5, "status": "in_progress"}, {"id": 4, "status": "queued"}, {"id": 3, "status": "completed"}, {"id": 7, "status": "pending"},
             {"id": 6, "status": "waiting"}, None, {"id": "x", "status": "queued"}, {"id": 8}, {"id": 9, "status": "requested"}]
     assert _node([["replaceable", [runs]], ["replaceable", [[]]]]) == [[4, 6, 7, 9], []]
+
+
+# ---- the command for this computer ------------------------------------------------------------------------------------
+
+
+def _windows_split(line: str) -> list[str]:
+    """How the Windows C runtime (the argv python.exe sees) splits a command line: 2n backslashes before a quote are n backslashes and the quote
+    toggles quoting; 2n+1 are n backslashes and a literal quote; spaces outside quotes separate arguments."""
+    args, cur, quoted, started, i = [], [], False, False, 0
+    while i < len(line):
+        c = line[i]
+        if c == "\\":
+            j = i
+            while j < len(line) and line[j] == "\\":
+                j += 1
+            n, started = j - i, True
+            if j < len(line) and line[j] == '"':
+                cur.append("\\" * (n // 2))
+                if n % 2:
+                    cur.append('"')
+                    j += 1
+            else:
+                cur.append("\\" * n)
+            i = j
+            continue
+        if c == '"':
+            quoted, started = not quoted, True
+        elif c in " \t" and not quoted:
+            if started:
+                args.append("".join(cur))
+                cur, started = [], False
+        else:
+            cur.append(c)
+            started = True
+        i += 1
+    if started:
+        args.append("".join(cur))
+    return args
+
+
+def test_the_windows_reference_splitter_inverts_what_python_writes():
+    tricky = [["a", '{"k": [1, 2]}', "x y", "", 'say "hi"', "back\\", 'back\\"q', "end\\\\"], ["--conditions", '{"min_stars":5000}']]
+    assert [_windows_split(subprocess.list2cmdline(args)) for args in tricky] == tricky
+
+
+def test_sh_quoting_is_what_shlex_quote_writes_and_cmd_refuses_what_it_could_read_as_syntax():
+    texts = ["quet-nhanh", "owner/name", "--dry-run", "", "a b", "it's", '{"a":1}', "x=1,y", "ü", "$(id)", "a;b", "`x`"]
+    assert _node([["quoteArg", ["sh", t]] for t in texts]) == [shlex.quote(t) for t in texts]
+    refused = ["a&b", "50%", "a|b", "a<b", "a>b", "a^b", "a!b", "(a)", "a\\b", "a\nb", "ü", "$(id)"]
+    assert _node([["quoteArg", ["cmd", t]] for t in refused]) == [None] * len(refused)
+    assert _node([["quoteArg", ["cmd", t]] for t in ["--preset", "owner/name", '{"a":[1,"b"]}']]) == ["--preset", "owner/name", '"{\\"a\\":[1,\\"b\\"]}"']
+
+
+def _form_cases() -> list[tuple]:
+    """(values on the form, preset, dry, single repo, bucket) for every saved preset with edits, in both kinds of scan."""
+    cases = []
+    for name in ["", *conditions.load_presets()]:
+        base = _python_values(name)
+        kept = next(iter(base["buckets"]))
+        edits = [{}, {"min_stars": 5000}, {"langs": ["vi", "en"], "picks_per_run": 7}, {"max_days_since_push": 30, "rising": {**base["rising"], "slots": 0}},
+                 {"buckets": {kept: ["llm", "rag-2"]}}, {"rising": {**base["rising"], "enabled": False, "created_within_days": 45}}]
+        for edit in edits:
+            v = {**base, **edit}
+            for dry, one in itertools.product((True, False), ("", "owner/some.repo-1")):
+                cases.append((v, name, dry, one, kept if one else ""))
+    return cases
+
+
+def test_the_command_runs_the_same_scan_as_the_form_in_both_shells(monkeypatch):
+    for var in ("RADAR_PRESET", "RADAR_CONDITIONS", "RADAR_PICKS", "RADAR_LANGS", "RADAR_REPO", "RADAR_BUCKET"):
+        monkeypatch.delenv(var, raising=False)
+    cases = _form_cases()
+    commands = {shell: _node([["cliCommand", [*case, shell]] for case in cases]) for shell in ("cmd", "sh")}
+    seen = {}
+    monkeypatch.setattr(cli, "cmd_scan", lambda args, cfg: seen.update(cmd="scan", args=args, cfg=cfg) or 0)
+    monkeypatch.setattr(cli, "cmd_run", lambda args, cfg: seen.update(cmd="run", args=args, cfg=cfg) or 0)
+    for i, (v, name, dry, one, bucket) in enumerate(cases):
+        windows, posix = commands["cmd"][i], commands["sh"][i]
+        assert windows.startswith("python radar.py ") and posix.startswith("python3 radar.py ")
+        argv = _windows_split(windows)
+        assert argv[1:] == shlex.split(posix)[1:], (windows, posix)                  # one argument list, however it is quoted
+        seen.clear()
+        assert cli.main(argv[2:]) == 0, windows                                      # the real parser accepts every flag
+        assert seen["cmd"] == ("run" if one or not dry else "scan")
+        assert conditions.resolved(seen["cfg"]) == v, windows                        # and the scan it starts has the values on the form
+        assert getattr(seen["args"], "preset") == (name or None)
+        if one:
+            assert (seen["args"].repo, seen["args"].bucket or "", seen["args"].dry_run) == (one, bucket, dry)
+        elif seen["cmd"] == "run":
+            assert (seen["args"].repo, seen["args"].dry_run) == (None, False)
+
+
+def test_the_command_is_the_one_asked_for_when_only_a_preset_is_chosen():
+    quick = _python_values("quet-nhanh")
+    assert _node([["cliCommand", [quick, "quet-nhanh", True, "", "", "cmd"]], ["cliCommand", [quick, "quet-nhanh", True, "", "", "sh"]]]) == [
+        "python radar.py scan --preset quet-nhanh", "python3 radar.py scan --preset quet-nhanh"]
