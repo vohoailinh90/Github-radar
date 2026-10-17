@@ -117,9 +117,10 @@ Build a landing page for my SaaS product
 
 **Mục đích:** Xem trực tiếp thứ AI dựa vào, và dùng được cả khi không qua công cụ AI.
 
-1. Chạy lệnh dưới đây từ thư mục dự án đã cài cho Claude Code ở bước 3. Với Continue, Droid, ZCode, Amazon Q, README dặn đổi `.claude/skills/` thành thư mục skill của công cụ đó.
-2. Cài với `--global` thì README ghi skill nằm ở ~/.claude/skills/, và README không nói Marketplace đặt script ở đâu, nên đường dẫn trong lệnh có thể khác.
-3. Thay chuỗi mô tả sản phẩm và tên dự án bằng của bạn.
+1. Thay chuỗi mô tả sản phẩm và tên dự án bằng của bạn, rồi chạy lệnh dưới đây từ thư mục dự án đã cài bằng `--ai claude` ở bước 3; đường dẫn trong lệnh là thư mục skill của Claude Code.
+2. Công cụ khác, đổi `.claude/skills/` thành: `.cursor/skills/`, `.windsurf/skills/`, `.agents/skills/` (Antigravity/Codex), `.continue/skills/`, `.factory/skills/`, `.zcode/skills/`, `.amazonq/skills/`.
+3. Cài `--global`: README ghi skill nằm ở `~/.claude/skills/` (Claude Code), `~/.cursor/skills/` (Cursor), `~/.zcode/skills/` hay `~/.agents/skills/`; thay `.claude/skills/` trong lệnh bằng đường dẫn đó.
+4. Công cụ không có trong danh sách trên, hay cài bằng Marketplace: README không ghi thư mục skill, hãy tìm thư mục skill mà lệnh cài đã tạo rồi thay vào lệnh.
 
 ```bash
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness" --design-system -p "Serenity Spa"
@@ -135,6 +136,7 @@ python3 .claude/skills/ui-ux-pro-max/scripts/search.py "beauty spa wellness" --d
 
 1. Chạy lệnh đầu để ghi hệ thiết kế vào thư mục `design-system/`; chạy lệnh sau để thêm file ghi đè riêng cho một trang.
 2. README mô tả quy tắc lấy lại: dựng trang nào thì xem file riêng của trang đó trước; nếu không có thì chỉ dùng file master.
+3. Đường dẫn trong các lệnh theo thư mục skill của công cụ bạn, như ở bước 5.
 
 ```bash
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "SaaS dashboard" --design-system --persist -p "MyApp"
@@ -180,6 +182,7 @@ Now, generate the code...
 
 1. Lệnh đầu tra theo lĩnh vực: README có các miền như style, typography, chart, ux và icons.
 2. Lệnh sau tra hướng dẫn theo stack, ví dụ react hay html-tailwind.
+3. Đường dẫn trong các lệnh theo thư mục skill của công cụ bạn, như ở bước 5.
 
 ```bash
 python3 .claude/skills/ui-ux-pro-max/scripts/search.py "glassmorphism" --domain style
