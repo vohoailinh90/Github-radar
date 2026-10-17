@@ -1,0 +1,537 @@
+{
+  "draft": {
+    "analogy": "Giống như đưa trợ lý một bản danh mục ghi sẵn từng nút và ô nhập của trang, thay vì đưa một bức ảnh rồi bắt đoán. Trợ lý chỉ cần nói: bấm mục này.",
+    "caveats": [
+      "Không phải ranh giới bảo mật, README nói rõ. Các tùy chọn chặn origin hay chặn file cũng không phải ranh giới bảo mật: hãy dựa vào quyền của MCP client.",
+      "Tốn ngữ cảnh hơn CLI: README cho biết coding agent thường chuộng CLI kèm SKILLS vì tiết kiệm token, không phải nạp schema công cụ và cây accessibility dài.",
+      "`browser_run_code_unsafe` chạy JavaScript tùy ý trong tiến trình máy chủ Playwright và README gọi là tương đương RCE; cân nhắc trước khi cho agent dùng.",
+      "Hồ sơ lưu bền giữ đăng nhập trên đĩa và chỉ một trình duyệt dùng được một lúc. Bản Docker chỉ hỗ trợ chromium headless."
+    ],
+    "facebook": {
+      "caption": "Để AI tự mở trình duyệt, bấm nút và điền form mà không cần ảnh chụp màn hình\n\nPlaywright MCP đưa cho agent cấu trúc của trang và một bộ công cụ có tên rõ ràng.\nBài hướng dẫn từng bước đi kèm chỉ cách khai báo máy chủ, chọn hồ sơ trình duyệt và bật thêm nhóm công cụ.\nLưu ý: README nói đây không phải ranh giới bảo mật.",
+      "hashtags": [
+        "AI",
+        "MCP",
+        "Playwright"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Model Context Protocol: giao thức mà máy chủ này dùng để đưa khả năng điều khiển trình duyệt cho ứng dụng AI.",
+        "term": "MCP"
+      },
+      {
+        "meaning": "Bản chụp cấu trúc của trang theo cây accessibility, dùng thay cho ảnh chụp màn hình.",
+        "term": "Accessibility snapshot"
+      },
+      {
+        "meaning": "Chạy trình duyệt không hiện cửa sổ.",
+        "term": "Headless"
+      },
+      {
+        "meaning": "Tệp lưu cookie và local storage của một phiên để nạp lại sau.",
+        "term": "Storage state"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử `--caps=devtools` để quay video hay ghi trace, hoặc `--caps=testing` để agent kiểm tra chữ và phần tử hiển thị.",
+        "Muốn dùng phiên đã đăng nhập sẵn, cài Playwright Extension và chạy với `--extension`.",
+        "Nếu agent của bạn là coding agent, so sánh với Playwright CLI kèm SKILLS mà README đề xuất."
+      ],
+      "outcome": "Một máy chủ Playwright MCP đã khai báo trong ứng dụng AI của bạn, để agent gọi các công cụ như browser_navigate và browser_snapshot điều khiển trình duyệt.",
+      "requirements": [
+        {
+          "detail": "README ghi là điều kiện; máy chủ được khởi chạy bằng `npx`.",
+          "evidence": "README",
+          "item": "Node.js 18 trở lên",
+          "link_ref": null
+        },
+        {
+          "detail": "README kể VS Code, Cursor, Windsurf, Claude Desktop, Goose, Grok, Junie hoặc client MCP khác.",
+          "evidence": "README",
+          "item": "Một MCP client",
+          "link_ref": null
+        },
+        {
+          "detail": "README ghi bản Docker hiện chỉ hỗ trợ chromium headless.",
+          "evidence": "README",
+          "item": "Docker (chỉ khi chạy bằng container)",
+          "link_ref": null
+        },
+        {
+          "detail": "Chỉ cho Edge hoặc Chrome; README dẫn tới trang cài đặt tiện ích.",
+          "evidence": "README",
+          "item": "Playwright Extension (chỉ khi nối vào trình duyệt đang chạy)",
+          "link_ref": 29
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Xem lại phiên bản Node.js trên máy: README yêu cầu 18 trở lên.",
+            "Chọn ứng dụng AI bạn dùng làm MCP client, ví dụ VS Code, Cursor, Claude Desktop hay Claude Code."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra Node.js và chọn MCP client",
+          "why": "Có đủ điều kiện chạy npx và biết nơi khai báo máy chủ."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở file cấu hình MCP của client; mỗi client để ở một chỗ khác nhau và README có mục riêng cho từng client.",
+            "Dán khối cấu hình mẫu bên dưới. README gọi đây là cấu hình chuẩn, chạy được trong hầu hết công cụ.",
+            "Claude Desktop, Gemini CLI, Windsurf, Warp và LM Studio được README bảo dùng đúng cấu hình chuẩn này."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 0,
+          "title": "Khai báo máy chủ bằng cấu hình chuẩn",
+          "why": "Cho client biết cách khởi chạy Playwright MCP bằng npx."
+        },
+        {
+          "commands": [
+            "claude mcp add playwright npx @playwright/mcp@latest",
+            "codex mcp add playwright npx \"@playwright/mcp@latest\"",
+            "code --add-mcp '{\"name\":\"playwright\",\"command\":\"npx\",\"args\":[\"@playwright/mcp@latest\"]}'"
+          ],
+          "do": [
+            "Chọn MỘT dòng đúng với công cụ bạn dùng, đừng chạy cả ba: Claude Code dùng `claude mcp add`, Codex dùng `codex mcp add`, VS Code dùng `code --add-mcp`.",
+            "Ứng dụng khác (Amp, Factory, Grok...) cũng có lệnh riêng trong README."
+          ],
+          "evidence": "README",
+          "expect": "Với VS Code, README nói máy chủ sau đó dùng được với agent GitHub Copilot.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Hoặc thêm bằng một lệnh của client",
+          "why": "Một lệnh thay cho việc sửa file cấu hình bằng tay, nếu client của bạn có lệnh thêm máy chủ MCP."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mặc định là hồ sơ lưu bền (persistent): thông tin đăng nhập được giữ cho các phiên sau.",
+            "Muốn mỗi phiên sạch, thêm `--isolated` vào danh sách args như mẫu bên dưới. Mẫu có dòng `--storage-state` với đường dẫn giữ chỗ: thay bằng file thật hoặc bỏ dòng đó.",
+            "Muốn dùng tab đã đăng nhập sẵn, dùng `--extension` cùng Playwright Extension (chỉ Edge hoặc Chrome)."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "Hai client cùng workspace dùng chung hồ sơ lưu bền sẽ xung đột: thêm `--isolated` hoặc đặt `--user-data-dir` riêng cho từng client.",
+          "link_ref": 29,
+          "snippet_ref": 11,
+          "title": "Chọn cách giữ hồ sơ trình duyệt",
+          "why": "Quyết định agent giữ đăng nhập giữa các phiên hay mỗi phiên một hồ sơ sạch."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Thêm `--caps` vào danh sách args của client. README gắn từng nhóm với một giá trị, ví dụ `--caps=vision` (bấm theo tọa độ), `--caps=pdf` (lưu PDF), `--caps=devtools` (quay video, ghi trace).",
+            "Các nhóm mạng, lưu trữ (cookie, localStorage) và kiểm thử cũng bật theo cách này, ví dụ `--caps=network`.",
+            "Vài tùy chọn khác README mô tả: `--headless` chạy không hiện cửa sổ, `--browser` chọn trình duyệt, `--device` giả lập thiết bị."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Bật thêm nhóm công cụ khi cần",
+          "why": "Nhiều nhóm công cụ là khả năng bổ sung: README ghi chúng bật bằng --caps."
+        },
+        {
+          "commands": [
+            "docker run -d -i --rm --init --pull=always --entrypoint node --name playwright -p 8931:8931 mcr.microsoft.com/playwright/mcp /app/cli.js --headless --browser chromium --no-sandbox --port 8931 --host 0.0.0.0"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây để mở một container chạy lâu, lắng nghe cổng 8931 cho mọi MCP client nối vào.",
+            "README còn có cách để client tự khởi chạy container: khai báo `command` là `docker` trong cấu hình. Xem mục Docker của README để lấy đúng danh sách args."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy bằng Docker (tùy chọn)",
+          "why": "Chạy máy chủ trong container thay vì bằng npx; README ghi bản này chỉ hỗ trợ chromium headless."
+        },
+        {
+          "commands": [
+            "npx @playwright/mcp@latest --port 8931"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong môi trường có `DISPLAY`; cờ `--port` bật cách truyền HTTP.",
+            "Trong cấu hình client, thay `command` và `args` bằng `url` trỏ tới điểm cuối HTTP mà README in bên dưới."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 30,
+          "snippet_ref": null,
+          "title": "Chạy máy chủ riêng qua HTTP khi cần",
+          "why": "Dùng khi trình duyệt có giao diện chạy trên máy không có màn hình, hoặc client chạy trong tiến trình phụ của IDE."
+        },
+        {
+          "commands": [
+            "npx @playwright/mcp@latest --config path/to/config.json"
+          ],
+          "do": [
+            "Tạo file JSON theo lược đồ trong README, chia nhóm như `browser`, `server`, `network` và `timeouts`.",
+            "Thay path/to/config.json bằng đường dẫn file của bạn. README đưa lệnh dưới đây làm cách truyền file cấu hình, không phải bước kiểm tra; trong client thì thêm `--config` cùng đường dẫn vào args."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Gom tùy chọn vào file cấu hình JSON",
+          "why": "Gom các tùy chọn vào một file JSON thay vì một chuỗi args, theo cách README mô tả."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Nhờ agent mở một trang web bất kỳ rồi lấy snapshot của trang; hai công cụ liên quan là `browser_navigate` và `browser_snapshot`.",
+            "Các công cụ như `browser_click` và `browser_type` nhận tham chiếu phần tử lấy từ snapshot làm `target`."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Nhờ agent làm thử một việc nhỏ",
+          "why": "Xác nhận agent gọi được công cụ và nhận lại cấu trúc của trang."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Chạy client thứ hai với `--isolated`, hoặc cho nó `--user-data-dir` riêng.",
+          "problem": "Hai client cùng workspace tranh nhau hồ sơ trình duyệt"
+        },
+        {
+          "evidence": "README",
+          "fix": "Chạy máy chủ từ môi trường có `DISPLAY` và thêm `--port`, rồi trỏ client bằng `url`.",
+          "problem": "Cần trình duyệt có giao diện trên máy không có màn hình"
+        },
+        {
+          "evidence": "README",
+          "fix": "README ghi bản Docker chỉ hỗ trợ chromium headless; cần trình duyệt khác thì xem tùy chọn `--browser` khi chạy bằng `npx`.",
+          "problem": "Bản Docker không chạy được Firefox hay WebKit"
+        },
+        {
+          "evidence": "README",
+          "fix": "Mặc định truy cập file bị giới hạn trong workspace; `--allow-unrestricted-file-access` mở rộng, nhưng README cảnh báo đây không phải ranh giới bảo mật.",
+          "problem": "Agent không đọc được file ngoài workspace"
+        }
+      ],
+      "verify": "README không mô tả màn hình xác nhận. Cách kiểm tra: agent gọi được `browser_navigate` và `browser_snapshot` rồi trả lại nội dung của trang bạn yêu cầu."
+    },
+    "hook": "Agent AI đọc trang web bằng cấu trúc thay vì ảnh chụp, nên không cần mô hình xử lý hình",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "MCP client",
+          "role": "Ứng dụng AI của bạn (VS Code, Cursor, Claude Desktop...), nơi khai báo máy chủ và nơi agent gọi công cụ."
+        },
+        {
+          "evidence": "README",
+          "icon": "server",
+          "name": "Máy chủ Playwright MCP",
+          "role": "Tiến trình chạy bằng npx @playwright/mcp@latest, nhận lời gọi công cụ và điều khiển trình duyệt."
+        },
+        {
+          "evidence": "README",
+          "icon": "globe",
+          "name": "Trình duyệt do Playwright mở",
+          "role": "Chromium, Firefox, WebKit hoặc kênh Chrome, Edge; chạy headless hoặc có cửa sổ."
+        },
+        {
+          "evidence": "README",
+          "icon": "file-text",
+          "name": "Accessibility snapshot",
+          "role": "Cây cấu trúc của trang kèm tham chiếu phần tử; thứ agent đọc thay cho ảnh chụp."
+        },
+        {
+          "evidence": "README",
+          "icon": "wrench",
+          "name": "Bộ công cụ (tools)",
+          "role": "Nhóm cốt lõi (điều hướng, bấm, gõ, snapshot), quản lý tab và các nhóm bật bằng --caps."
+        },
+        {
+          "evidence": "README",
+          "icon": "settings",
+          "name": "Hồ sơ và cấu hình",
+          "role": "Tham số args, biến môi trường hoặc file JSON; hồ sơ lưu bền, isolated hoặc extension."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "MCP client khởi chạy máy chủ bằng npx @playwright/mcp@latest rồi gọi các công cụ như browser_navigate hay browser_click.",
+          "title": "Client gọi công cụ"
+        },
+        {
+          "evidence": "README",
+          "text": "Máy chủ dùng Playwright mở Chromium, Firefox, WebKit hoặc kênh Chrome, Edge; hồ sơ có thể lưu bền, isolated hoặc nối vào trình duyệt đang chạy.",
+          "title": "Máy chủ điều khiển trình duyệt"
+        },
+        {
+          "evidence": "README",
+          "text": "browser_snapshot trả cây accessibility của trang. Ảnh chụp màn hình chỉ để xem: README nói không thể hành động dựa trên ảnh, hãy dùng snapshot.",
+          "title": "Snapshot thay vì ảnh chụp"
+        },
+        {
+          "evidence": "README",
+          "text": "Công cụ thao tác như bấm, gõ nhận target là tham chiếu chính xác lấy từ snapshot hoặc một selector duy nhất (kéo thả có điểm đầu và điểm cuối). README nói cách này tránh sự mơ hồ của cách dựa trên ảnh chụp.",
+          "title": "Chọn phần tử theo tham chiếu"
+        },
+        {
+          "evidence": "README",
+          "text": "Ngoài nhóm cốt lõi và quản lý tab, các nhóm mạng, lưu trữ, devtools, vision, pdf và kiểm thử được bật thêm bằng --caps.",
+          "title": "Nhóm công cụ mở rộng"
+        }
+      ]
+    },
+    "learn": [
+      "Đưa cho mô hình dữ liệu có cấu trúc thay vì ảnh: ít mơ hồ hơn và không cần mô hình xem ảnh (README gọi là áp dụng công cụ có tính xác định).",
+      "Chia khả năng thành nhóm bật thêm theo nhu cầu (`--caps`): nhóm cốt lõi có sẵn, các nhóm mạng, lưu trữ, devtools bật riêng.",
+      "Một lõi, nhiều cách nối: stdio qua `npx`, HTTP qua `--port`, Docker, hoặc nhúng bằng `createConnection`: README liệt kê cả bốn cách chạy.",
+      "Nói rõ giới hạn của mình: README phân biệt MCP với CLI kèm SKILLS và nhắc đây không phải ranh giới bảo mật, giúp người dùng chọn đúng công cụ."
+    ],
+    "one_liner": "Máy chủ MCP dùng Playwright để một agent AI mở trình duyệt, bấm, gõ, điền form và đọc trang qua ảnh chụp cấu trúc (accessibility snapshot) thay vì ảnh chụp màn hình.",
+    "problem": "Muốn agent AI thao tác trên website, cách quen thuộc là chụp màn hình rồi nhờ mô hình xem ảnh đoán chỗ cần bấm: dễ mơ hồ và cần mô hình biết xem ảnh. Playwright MCP đưa cho agent cấu trúc của trang (accessibility tree) cùng một bộ công cụ có tên rõ ràng như bấm, gõ, điều hướng. Phạm vi: điều khiển trình duyệt qua một MCP client; README nói thẳng đây không phải ranh giới bảo mật.",
+    "title": "Playwright MCP: cho AI agent tự điều khiển trình duyệt",
+    "who_for": [
+      "Người làm agent cần vòng lặp khám phá web: tự động hóa thăm dò, tự sửa test, quy trình tự chạy dài (ba ví dụ README nêu).",
+      "Dev hoặc QA muốn agent kiểm tra giao diện: đổi giao diện sáng tối, giả lập thiết bị, đọc console và request mạng.",
+      "Người cần agent dùng phiên đã đăng nhập: nối vào tab Chrome hoặc Edge đang mở, hoặc nạp storage state.",
+      "Coding agent cần tiết kiệm ngữ cảnh có thể hợp hơn với Playwright CLI kèm SKILLS, theo README; MCP hợp vòng lặp cần giữ trạng thái."
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "js",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "json",
+        "\"amp.mcpServers\": {\n  \"playwright\": {\n    \"command\": \"npx\",\n    \"args\": [\n      \"@playwright/mcp@latest\"\n    ]\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"timeout\": 30,\n      \"args\": [\n        \"-y\",\n        \"@playwright/mcp@latest\"\n      ],\n      \"disabled\": false\n    }\n  }\n}"
+      ],
+      [
+        "toml",
+        "[mcp_servers.playwright]\ncommand = \"npx\"\nargs = [\"@playwright/mcp@latest\"]"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"type\": \"local\",\n      \"command\": \"npx\",\n      \"tools\": [\n        \"*\"\n      ],\n      \"args\": [\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "toml",
+        "[mcp_servers.playwright]\ncommand = \"npx\"\nargs = [\"@playwright/mcp@latest\"]"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"Playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"$schema\": \"https://opencode.ai/config.json\",\n  \"mcp\": {\n    \"playwright\": {\n      \"type\": \"local\",\n      \"command\": [\n        \"npx\",\n        \"@playwright/mcp@latest\"\n      ],\n      \"enabled\": true\n    }\n  }\n}"
+      ],
+      [
+        "js",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"@playwright/mcp@latest\"\n      ]\n    }\n  }\n}"
+      ],
+      [
+        "js",
+        "{\n  \"mcpServers\": {\n    \"playwright\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"@playwright/mcp@latest\",\n        \"--isolated\",\n        \"--storage-state={path/to/storage.json}\"\n      ]\n    }\n  }\n}"
+      ]
+    ],
+    "bucket": "ai",
+    "forks": 3300,
+    "full_name": "microsoft/playwright-mcp",
+    "language": "",
+    "license": "Apache-2.0",
+    "links": [
+      [
+        "guide",
+        "https://modelcontextprotocol.io/quickstart/user"
+      ],
+      [
+        "Configuring MCP Servers",
+        "https://docs.cline.bot/mcp/configuring-mcp-servers"
+      ],
+      [
+        "clinemcpsettings.json",
+        "https://docs.cline.bot/mcp/configuring-mcp-servers#editing-mcp-settings-files"
+      ],
+      [
+        "Codex MCP documentation",
+        "https://github.com/openai/codex/blob/main/codex-rs/config.md#mcp_servers"
+      ],
+      [
+        "Copilot CLI documentation",
+        "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli"
+      ],
+      [
+        "cursor.com",
+        "https://cursor.com/en/install-mcp?name=Playwright&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D"
+      ],
+      [
+        "Factory MCP documentation",
+        "https://docs.factory.ai/cli/configuration/mcp"
+      ],
+      [
+        "guide",
+        "https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md#configure-the-mcp-server-in-settingsjson"
+      ],
+      [
+        "Grok MCP documentation",
+        "https://docs.x.ai/build/features/mcp-servers"
+      ],
+      [
+        "Junie MCP configuration documentation",
+        "https://junie.jetbrains.com/docs/junie-cli-mcp-configuration.html"
+      ],
+      [
+        "kiro.dev",
+        "https://kiro.dev/launch/mcp/add?name=playwright&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22%40playwright%2Fmcp%40latest%22%5D%7D"
+      ],
+      [
+        "documentation",
+        "https://kiro.dev/docs/mcp/"
+      ],
+      [
+        "lmstudio.ai",
+        "https://lmstudio.ai/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcGxheXdyaWdodC9tY3BAbGF0ZXN0Il19"
+      ],
+      [
+        "documentation",
+        "https://opencode.ai/docs/mcp-servers/"
+      ],
+      [
+        "opencode.ai",
+        "https://opencode.ai/config.json"
+      ],
+      [
+        "Qodo Gen",
+        "https://docs.qodo.ai/qodo-documentation/qodo-gen"
+      ],
+      [
+        "guide",
+        "https://code.visualstudio.com/docs/copilot/chat/mcp-servers#_add-an-mcp-server"
+      ],
+      [
+        "add an MCP Server",
+        "https://docs.warp.dev/knowledge-and-collaboration/mcp#adding-an-mcp-server"
+      ],
+      [
+        "documentation",
+        "https://docs.windsurf.com/windsurf/cascade/mcp"
+      ],
+      [
+        "myproxy:3128",
+        "http://myproxy:3128"
+      ],
+      [
+        "playwright.dev",
+        "https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context"
+      ],
+      [
+        "example.com:8080",
+        "https://example.com:8080"
+      ],
+      [
+        "localhost:",
+        "http://localhost:*"
+      ],
+      [
+        "playwright.dev",
+        "https://playwright.dev/docs/api/class-page#page-set-default-timeout"
+      ],
+      [
+        "playwright.dev",
+        "https://playwright.dev/docs/api/class-page#page-set-default-navigation-timeout"
+      ],
+      [
+        "playwright.dev",
+        "https://playwright.dev/docs/test-timeouts#expect-timeout"
+      ],
+      [
+        "CLI+SKILLS",
+        "https://github.com/microsoft/playwright-cli"
+      ],
+      [
+        "Playwright",
+        "https://playwright.dev"
+      ],
+      [
+        "here",
+        "https://playwright.dev/docs/auth"
+      ],
+      [
+        "microsoft/playwright › packages/extension",
+        "https://github.com/microsoft/playwright/tree/main/packages/extension#readme"
+      ],
+      [
+        "localhost:8931",
+        "http://localhost:8931/mcp"
+      ],
+      [
+        "MCP Security Best Practices",
+        "https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices"
+      ],
+      [
+        "example.com",
+        "https://example.com"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "stars": 38200,
+    "url": "https://github.com/microsoft/playwright-mcp"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family (a read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied, the rest rejected). Facts: README.md at commit b8b4183 of a shallow checkout, the whole cleaned README (61190 characters); the default limit of 12000 would have kept only 9637 of them and dropped the Tools section; stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date; what the page did not show (open issues, language, creation date) was left empty, not guessed. The draft passed radar/gates.py with require_guide=True.",
+  "position": 1
+}

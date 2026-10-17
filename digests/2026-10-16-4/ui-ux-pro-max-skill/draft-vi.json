@@ -1,0 +1,509 @@
+{
+  "draft": {
+    "analogy": "Giống một cuốn sổ tay phong cách có chỉ mục: bạn hỏi spa thư giãn thì sổ mở đúng trang gợi ý màu, phông, kiểu bố cục và điều nên tránh.",
+    "caveats": [
+      "Cần Python 3 để chạy script tìm kiếm. README dặn AI không tự cài phần mềm giúp bạn mà sẽ hỏi; bạn tự cài Python nếu máy chưa có.",
+      "Ví dụ trước và sau trong README chỉ là minh họa do cộng đồng đóng góp, không phải demo chính thức hay phép đo hiệu quả; đầu ra mẫu còn nhắc tự xác minh yêu cầu về khả năng tiếp cận (accessibility).",
+      "Lỗi cài hay gặp theo README: tải cả ZIP repo lên trang tải skill của Claude bị từ chối vì quá 200 file, Marketplace trước v2.5.1 lỗi symlink, gói cũ `uipro-cli` đã lỗi thời.",
+      "Bản miễn phí chỉ lo UI/UX. Thương hiệu, logo, slide, sinh ảnh và kiến trúc design token cho đội lớn thuộc bản Premium, bản nâng cấp mà README mô tả."
+    ],
+    "facebook": {
+      "caption": "Cho AI một cuốn sổ tay thiết kế để nó dựng giao diện có chủ đích\n\nUI UX Pro Max có 79 phong cách UI có thể tìm (50 đang dùng), 192 bảng màu, 74 cặp phông và 192 quy tắc theo ngành, tra bằng script Python.\nBài hướng dẫn từng bước đi kèm chỉ cách cài, sinh hệ thống thiết kế và lưu để dùng lại.\nLưu ý: ví dụ trước và sau trong README chỉ để minh họa.",
+      "hashtags": [
+        "AI",
+        "UIUX",
+        "OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Thuật toán xếp hạng kết quả tìm kiếm theo mức khớp từ khóa.",
+        "term": "BM25"
+      },
+      {
+        "meaning": "Bộ quy tắc về màu, chữ, khoảng cách và thành phần để giao diện nhất quán.",
+        "term": "Design system"
+      },
+      {
+        "meaning": "Trang giới thiệu một sản phẩm hoặc dịch vụ để người xem hành động, ví dụ đăng ký.",
+        "term": "Landing page"
+      },
+      {
+        "meaning": "Cách làm thường gặp nhưng nên tránh; ở đây là điều AI được dặn không dùng cho ngành đó.",
+        "term": "Anti-pattern"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử `uipro init --ai all` để cài cho mọi công cụ AI README hỗ trợ.",
+        "Nêu stack bạn dùng ngay trong yêu cầu gửi AI (mặc định là HTML kèm Tailwind), hoặc tra riêng bằng `--stack` như ở bước tra cứu.",
+        "Đọc mục so sánh Basic và Premium trong README nếu cần thương hiệu, logo hay slide."
+      ],
+      "outcome": "Skill UI UX Pro Max cài trong công cụ AI của dự án; AI sinh hệ thống thiết kế (kiểu trang, màu, phông, hiệu ứng, điều cần tránh) rồi viết giao diện theo đó.",
+      "requirements": [
+        {
+          "detail": "Để cài `ui-ux-pro-max-cli` bằng `npm install -g`; README không ghi phiên bản tối thiểu.",
+          "evidence": "README",
+          "item": "Node.js và npm",
+          "link_ref": null
+        },
+        {
+          "detail": "Script tìm kiếm chỉ dùng thư viện chuẩn và không gọi mạng. Tự cài từ liên kết dưới đây hoặc bằng Homebrew, apt, winget.",
+          "evidence": "README",
+          "item": "Python 3",
+          "link_ref": 0
+        },
+        {
+          "detail": "Claude Code, Cursor, Windsurf, Antigravity, Copilot, Kiro, Codex CLI, Gemini CLI... README liệt kê đầy đủ.",
+          "evidence": "README",
+          "item": "Một công cụ AI được hỗ trợ",
+          "link_ref": null
+        },
+        {
+          "detail": "Lệnh cài chạy từ thư mục dự án.",
+          "evidence": "README",
+          "item": "Thư mục dự án của bạn",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "python3 --version"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong terminal.",
+            "Nếu máy chưa có Python, tự cài (xem liên kết bên dưới). README nhấn mạnh bước này dành cho bạn: AI dùng skill sẽ hỏi bạn chứ không tự cài phần mềm."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 0,
+          "snippet_ref": null,
+          "title": "Kiểm tra Python 3",
+          "why": "Script tìm kiếm cần Python 3 để chạy."
+        },
+        {
+          "commands": [
+            "npm install -g ui-ux-pro-max-cli"
+          ],
+          "do": [
+            "Chạy lệnh dưới đây trong terminal; gói npm là `ui-ux-pro-max-cli` và nó vẫn cài lệnh `uipro`.",
+            "Gặp lỗi quyền? Xem mục lỗi thường gặp bên dưới."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài CLI toàn cục",
+          "why": "Có lệnh uipro để cài skill vào đúng thư mục của từng công cụ AI."
+        },
+        {
+          "commands": [
+            "cd /path/to/your/project",
+            "uipro init --ai claude"
+          ],
+          "do": [
+            "Chạy hai lệnh dưới đây: đổi đường dẫn thành thư mục dự án thật, rồi cài cho Claude Code.",
+            "Công cụ khác thì đổi `claude` thành tên tương ứng, ví dụ `cursor`, `windsurf`, `codex`, `gemini`, hay `all` cho mọi công cụ README hỗ trợ.",
+            "Muốn dùng cho mọi dự án, thêm `--global`; muốn xem trước mà chưa ghi file, thêm `--dry-run`.",
+            "Cách khác trên Claude Code: Marketplace bằng `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` rồi `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill`."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài skill vào dự án cho công cụ AI của bạn",
+          "why": "Đặt dữ liệu, script và hướng dẫn kích hoạt vào dự án để AI dùng được."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở dự án trong công cụ AI vừa cài và gõ yêu cầu như mẫu bên dưới.",
+            "Trae: chuyển sang chế độ SOLO trước. Kiro, Roo Code và KiloCode dùng lệnh `/ui-ux-pro-max` đặt trước yêu cầu."
+          ],
+          "evidence": "README",
+          "expect": "README mô tả: AI sinh hệ thống thiết kế bằng reasoning engine, chọn phong cách, màu và phông phù hợp, viết mã rồi kiểm tra lỗi UI/UX phổ biến.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 1,
+          "title": "Nhờ AI dựng giao diện bằng lời thường",
+          "why": "Skill tự kích hoạt khi có yêu cầu UI/UX, bạn không phải nhớ cú pháp."
+        },
+        {
+          "commands": [
+            "python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"beauty spa wellness\" --design-system -p \"Serenity Spa\""
+          ],
+          "do": [
+            "Chạy lệnh dưới đây từ thư mục dự án đã cài cho Claude Code ở bước 3. Với Continue, Droid, ZCode, Amazon Q, README dặn đổi `.claude/skills/` thành thư mục skill của công cụ đó.",
+            "Cài với `--global` thì README ghi skill nằm ở ~/.claude/skills/, và README không nói Marketplace đặt script ở đâu, nên đường dẫn trong lệnh có thể khác.",
+            "Thay chuỗi mô tả sản phẩm và tên dự án bằng của bạn."
+          ],
+          "evidence": "README",
+          "expect": "Bảng RECOMMENDED DESIGN SYSTEM gồm mẫu trang, phong cách, màu, chữ, hiệu ứng, điều cần tránh và danh sách kiểm tra trước khi giao (README in ví dụ Serenity Spa).",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tự sinh hệ thống thiết kế bằng script",
+          "why": "Xem trực tiếp thứ AI dựa vào, và dùng được cả khi không qua công cụ AI."
+        },
+        {
+          "commands": [
+            "python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"SaaS dashboard\" --design-system --persist -p \"MyApp\"",
+            "python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"SaaS dashboard\" --design-system --persist -p \"MyApp\" --page \"dashboard\""
+          ],
+          "do": [
+            "Chạy lệnh đầu để ghi hệ thiết kế vào thư mục `design-system/`; chạy lệnh sau để thêm file ghi đè riêng cho một trang.",
+            "README mô tả quy tắc lấy lại: dựng trang nào thì xem file riêng của trang đó trước; nếu không có thì chỉ dùng file master."
+          ],
+          "evidence": "README",
+          "expect": "Thư mục design-system/myapp/ có file master, và thư mục pages có file riêng cho trang dashboard khi bạn chạy lệnh có --page.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 4,
+          "title": "Lưu hệ thiết kế để dùng lại giữa các phiên",
+          "why": "Hệ thiết kế được lưu thành file để các phiên AI sau lấy lại."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Khi nhờ AI dựng một trang, dán câu dặn mẫu bên dưới vào yêu cầu.",
+            "Thay [Page Name], [project-slug] và [page-name] bằng tên trang và tên thư mục dự án thật của bạn."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 5,
+          "title": "Dặn AI đọc hệ thiết kế đã lưu",
+          "why": "Để AI làm theo quy tắc trang riêng trước, file master sau, README đưa sẵn một câu dặn mẫu."
+        },
+        {
+          "commands": [
+            "python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"glassmorphism\" --domain style",
+            "python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"form validation\" --stack react"
+          ],
+          "do": [
+            "Lệnh đầu tra theo lĩnh vực: README có các miền như style, typography, chart, ux và icons.",
+            "Lệnh sau tra hướng dẫn theo stack, ví dụ react hay html-tailwind."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tra cứu riêng theo lĩnh vực hoặc stack",
+          "why": "Lấy đúng phần tri thức cần dùng, ví dụ chỉ về phong cách hay chỉ về React."
+        },
+        {
+          "commands": [
+            "npm install -g ui-ux-pro-max-cli@latest",
+            "uipro update"
+          ],
+          "do": [
+            "Chạy lệnh đầu để cập nhật gói npm, vì lệnh cập nhật skill chỉ làm mới file từ gói đang cài.",
+            "Chạy lệnh thứ hai để làm mới file skill trong dự án; cài toàn cục thì thêm `--global`.",
+            "Muốn gỡ skill, README có `uipro uninstall`; chạy từ đúng thư mục dự án đã cài."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "Gỡ báo không thấy thư mục skill: chạy lại từ thư mục dự án đã cài, hoặc thêm `--global` nếu bạn cài toàn cục.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cập nhật khi có bản mới",
+          "why": "Giữ skill ở bản mới: README dặn cập nhật gói npm trước."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Đây là giới hạn một câu trả lời của Claude Code, không phải lỗi cài đặt: chia nhỏ việc, hoặc đặt biến `CLAUDE_CODE_MAX_OUTPUT_TOKENS` rồi mở lại.",
+          "problem": "Claude Code báo response exceeded the output token maximum"
+        },
+        {
+          "evidence": "README",
+          "fix": "Bản CLI đã cũ: chạy `npm install -g ui-ux-pro-max-cli@latest` rồi thử lại.",
+          "problem": "uipro báo unknown command uninstall hoặc update"
+        },
+        {
+          "evidence": "README",
+          "fix": "Dùng trình quản lý phiên bản Node, hoặc chạy `npx ui-ux-pro-max-cli init --ai claude` mà không cần cài toàn cục.",
+          "problem": "npm install -g báo lỗi quyền"
+        },
+        {
+          "evidence": "README",
+          "fix": "Đừng tải ZIP cả repo lên. Với Claude Code, cài qua Marketplace hoặc bằng lệnh `uipro`.",
+          "problem": "Trang tải skill của Claude báo ZIP có quá nhiều file (tối đa 200)"
+        },
+        {
+          "evidence": "README",
+          "fix": "Đầu ra đọc được cắt ở 300 ký tự; thêm `--json` để lấy đủ dữ liệu.",
+          "problem": "Đầu ra của script tìm kiếm bị cắt các trường dài"
+        }
+      ],
+      "verify": "README không nêu cách xác nhận cài đặt. Chạy lệnh ở bước 5: README cho thấy ví dụ kết quả là bảng RECOMMENDED DESIGN SYSTEM; thấy bảng tương tự nghĩa là script chạy được."
+    },
+    "hook": "AI tự sinh cả hệ thống thiết kế từ mô tả sản phẩm: kiểu trang, màu, phông và điều cần tránh",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "cli",
+          "icon": "terminal",
+          "name": "CLI uipro",
+          "role": "Cài skill đúng thư mục của từng công cụ AI từ mẫu có sẵn; còn có update, uninstall, versions."
+        },
+        {
+          "evidence": "README",
+          "icon": "puzzle",
+          "name": "Skill trong công cụ AI",
+          "role": "Phần hướng dẫn để AI tự kích hoạt khi bạn yêu cầu UI/UX và biết gọi script tìm kiếm."
+        },
+        {
+          "evidence": "src/ui-ux-pro-max",
+          "icon": "database",
+          "name": "Kho dữ liệu CSV",
+          "role": "Phong cách, bảng màu, cặp phông, biểu đồ, hướng dẫn UX và quy tắc theo ngành, nằm dưới src/ui-ux-pro-max."
+        },
+        {
+          "evidence": "src/ui-ux-pro-max",
+          "icon": "search",
+          "name": "Script tìm kiếm và suy luận",
+          "role": "Python chỉ dùng thư viện chuẩn: xếp hạng BM25 và khớp loại sản phẩm với 192 quy tắc ngành để chọn mẫu trang, phong cách, màu, phông."
+        },
+        {
+          "evidence": "README",
+          "icon": "file-text",
+          "name": "Hệ thiết kế đã lưu",
+          "role": "File master lưu hệ thiết kế, kèm file ghi đè riêng từng trang, để các phiên sau đọc lại."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Bạn yêu cầu việc UI/UX (build, design, create, review, fix...); trong công cụ hỗ trợ, skill tự kích hoạt.",
+          "title": "Bạn nêu yêu cầu"
+        },
+        {
+          "evidence": "README",
+          "text": "Bước tìm kiếm đa miền chạy 5 tìm kiếm song song: loại sản phẩm, phong cách, bảng màu, mẫu landing page và cặp phông.",
+          "title": "Tìm kiếm đa miền"
+        },
+        {
+          "evidence": "README",
+          "text": "Reasoning engine khớp sản phẩm với quy tắc ngành, xếp hạng phong cách bằng BM25, lọc kiểu cần tránh cho ngành đó và xử lý quy tắc điều kiện dạng JSON.",
+          "title": "Suy luận theo ngành"
+        },
+        {
+          "evidence": "README",
+          "text": "Đầu ra gồm mẫu trang, phong cách, màu, chữ, hiệu ứng, điều cần tránh và danh sách kiểm tra trước khi giao.",
+          "title": "Ra hệ thống thiết kế"
+        },
+        {
+          "evidence": "README",
+          "text": "AI viết giao diện theo hệ đó cho stack bạn chọn (mặc định HTML kèm Tailwind) rồi đối chiếu với lỗi UI/UX phổ biến.",
+          "title": "Viết mã và tự soát"
+        }
+      ]
+    },
+    "learn": [
+      "Tách dữ liệu khỏi mã: README đặt cơ sở dữ liệu trong các file CSV và bộ tìm kiếm trong script riêng, nên mở rộng kho tri thức chủ yếu là sửa dữ liệu.",
+      "Mẫu Master kèm Overrides: quy tắc chung nằm một file, từng trang chỉ ghi phần khác biệt, giống cách kế thừa cấu hình.",
+      "Đầu ra luôn kèm điều cần tránh và danh sách kiểm tra, nên AI có sẵn tiêu chí để tự soát trước khi giao.",
+      "Script chỉ dùng thư viện chuẩn, không gọi mạng, và AI được dặn hỏi người dùng thay vì tự cài phần mềm, theo đúng README.",
+      "Tách phạm vi ngay trong README: bản mã nguồn mở này lo UI/UX, còn thương hiệu và logo thuộc bản Premium, nên người đọc biết trước nên kỳ vọng gì."
+    ],
+    "one_liner": "Skill cho AI coding agent gồm kho dữ liệu (79 phong cách UI có thể tìm, 50 đang dùng; 192 bảng màu; 74 cặp phông) và script Python tìm kiếm để sinh hệ thống thiết kế theo từng loại sản phẩm.",
+    "problem": "UI UX Pro Max là skill đem design intelligence cho AI dựng UI/UX trên nhiều nền tảng. Thay vì bạn tự chọn phong cách, màu, phông cho từng dự án, bộ sinh hệ thống thiết kế phân tích yêu cầu và dùng 192 quy tắc theo ngành để ra mẫu trang, phong cách, màu, phông, hiệu ứng, điều cần tránh và danh sách kiểm tra. Phạm vi: UI/UX cho 22 tech stack; thương hiệu, logo, slide thuộc bản Premium.",
+    "title": "UI UX Pro Max: kho tri thức thiết kế cho AI viết giao diện",
+    "who_for": [
+      "Người dùng Claude Code, Cursor, Windsurf, Copilot... cần AI dựng landing page, dashboard hay ứng dụng mobile với hệ màu, phông nhất quán.",
+      "Dev dùng một trong 22 tech stack (React, Next.js, Vue, SwiftUI, Flutter, Jetpack Compose...) muốn gợi ý đúng theo stack.",
+      "Đội muốn lưu hệ thiết kế thành file master cùng file ghi đè từng trang để các phiên AI sau dùng lại.",
+      "Không hợp nếu cần tạo logo, nhận diện thương hiệu, slide hay ảnh: README xếp các việc đó vào bản Premium."
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "",
+        "/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill\n/plugin install ui-ux-pro-max@ui-ux-pro-max-skill"
+      ],
+      [
+        "",
+        "Build a landing page for my SaaS product"
+      ],
+      [
+        "",
+        "/ui-ux-pro-max Build a landing page for my SaaS product"
+      ],
+      [
+        "",
+        "Build a landing page for my SaaS product\n\nCreate a dashboard for healthcare analytics\n\nDesign a portfolio website with dark mode\n\nMake a mobile app UI for e-commerce\n\nBuild a fintech banking app with dark theme"
+      ],
+      [
+        "",
+        "design-system/\n└── myapp/                  # One folder per project (slug of -p \"MyApp\")\n    ├── MASTER.md           # Global Source of Truth (colors, typography, spacing, components)\n    └── pages/\n        └── dashboard.md    # Page-specific overrides (only deviations from Master)"
+      ],
+      [
+        "",
+        "I am building the [Page Name] page. Please read design-system/[project-slug]/MASTER.md.\nAlso check if design-system/[project-slug]/pages/[page-name].md exists.\nIf the page file exists, prioritize its rules.\nIf not, use the Master rules exclusively.\nNow, generate the code..."
+      ]
+    ],
+    "bucket": "software",
+    "forks": 14500,
+    "full_name": "nextlevelbuilder/ui-ux-pro-max-skill",
+    "language": "",
+    "license": "MIT",
+    "links": [
+      [
+        "python.org",
+        "https://www.python.org/downloads/"
+      ],
+      [
+        "before",
+        "https://skill-fixture-before.theroost.dev"
+      ],
+      [
+        "after",
+        "https://ui-ux-pro-max-after.theroost.dev"
+      ],
+      [
+        "Claude Code environment-variable reference",
+        "https://code.claude.com/docs/en/env-vars#variables"
+      ],
+      [
+        "UI UX Pro Max",
+        "https://uupm.cc"
+      ],
+      [
+        "🇮🇩 Bahasa Indonesia",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/README.id.md"
+      ],
+      [
+        "🇰🇷 한국어",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/README.ko.md"
+      ],
+      [
+        "🇻🇳 Tiếng Việt",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/README.vi.md"
+      ],
+      [
+        "🇨🇳 简体中文",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/README.zh.md"
+      ],
+      [
+        "🇺🇸 English",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/README.md"
+      ],
+      [
+        "github.com",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/releases"
+      ],
+      [
+        "github.com",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/LICENSE"
+      ],
+      [
+        "www.npmjs.com",
+        "https://www.npmjs.com/package/ui-ux-pro-max-cli"
+      ],
+      [
+        "github.com",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/stargazers"
+      ],
+      [
+        "paypal.me",
+        "https://paypal.me/uiuxpromax"
+      ],
+      [
+        "NextLevelBuilder.io",
+        "https://nextlevelbuilder.io"
+      ],
+      [
+        "GoClaw.sh",
+        "https://goclaw.sh"
+      ],
+      [
+        "AgentKit.best",
+        "https://agentkit.best"
+      ],
+      [
+        "TOSE.sh",
+        "https://tose.sh"
+      ],
+      [
+        "github.com",
+        "https://github.com/viettranx/3dviz-pro-max"
+      ],
+      [
+        "cdn.nextlevelbuilder.io",
+        "https://cdn.nextlevelbuilder.io/skills/3dviz/wordmark-dark.svg"
+      ],
+      [
+        "media provenance",
+        "https://github.com/viettranx/3dviz-pro-max/blob/main/docs/demos/README.md"
+      ],
+      [
+        "https://3dviz.dev/",
+        "https://3dviz.dev/"
+      ],
+      [
+        "fonts.google.com",
+        "https://fonts.google.com/share?selection.family="
+      ],
+      [
+        "Claude Code",
+        "https://claude.com/product/claude-code"
+      ],
+      [
+        "AdaL",
+        "https://sylph.ai/"
+      ],
+      [
+        "Docs",
+        "https://docs.sylph.ai/"
+      ],
+      [
+        "GitHub",
+        "https://github.com/SylphAI-Inc/adal-cli"
+      ],
+      [
+        "github.com",
+        "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git"
+      ],
+      [
+        "star-history.dera.page",
+        "https://star-history.dera.page/#nextlevelbuilder/ui-ux-pro-max-skill&Date"
+      ]
+    ],
+    "scanned": "2026-10-16",
+    "shells": {
+      "$env:CLAUDE_CODE_MAX_OUTPUT_TOKENS = \"64000\"": "powershell"
+    },
+    "stars": 136600,
+    "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill"
+  },
+  "lang": "vi",
+  "note": "WRITTEN IN AN INTERACTIVE SESSION by Claude, not by the pipeline's free models, and not checked by a model of another family (a read-only fact-check of the draft against the README was done by a separate Claude sub-agent of the same family; the findings that held up were applied, the rest rejected). Facts: README.md at commit 56ea9cf of a shallow checkout, the whole cleaned README (34951 characters); stars and forks read from the repository page on 2026-10-16 and rounded to its precision; 'pushed' is the commit date; what the page did not show (language, creation date) was left empty, not guessed. The draft passed radar/gates.py with require_guide=True.",
+  "position": 3
+}

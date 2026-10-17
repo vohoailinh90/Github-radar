@@ -68,5 +68,20 @@
     "bucket": "solutions",
     "covered": "2026-10-13",
     "stars": 97646
+  },
+  "microsoft/playwright-mcp": {
+    "bucket": "ai",
+    "covered": "2026-10-16",
+    "stars": 38200
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill": {
+    "bucket": "software",
+    "covered": "2026-10-16",
+    "stars": 136600
+  },
+  "pbakaus/impeccable": {
+    "bucket": "software",
+    "covered": "2026-10-16",
+    "stars": 82000
   }
 }

@@ -1,0 +1,79 @@
+<!-- radar: Moda canvas 1200x2230; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Playwright MCP: cho AI agent tự điều khiển trình duyệt</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Agent AI đọc trang web bằng cấu trúc thay vì ảnh chụp, nên không cần mô hình xử lý hình</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">MCP client</text>
+<text x="80" y="577" width="240" height="105" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ứng dụng AI của bạn (VS Code, Cursor, Claude Desktop...), nơi khai báo máy chủ và nơi agent gọi công cụ.</text>
+<rectangle x="460" y="517" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Máy chủ Playwright MCP</text>
+<text x="480" y="604" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tiến trình chạy bằng npx @playwright/mcp@latest, nhận lời gọi công cụ và điều khiển trình duyệt.</text>
+<rectangle x="860" y="517" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Trình duyệt do Playwright mở</text>
+<text x="880" y="604" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chromium, Firefox, WebKit hoặc kênh Chrome, Edge; chạy headless hoặc có cửa sổ.</text>
+<rectangle x="60" y="784" width="280" height="193" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="806" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Accessibility snapshot</text>
+<text x="80" y="871" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cây cấu trúc của trang kèm tham chiếu phần tử; thứ agent đọc thay cho ảnh chụp.</text>
+<rectangle x="460" y="784" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bộ công cụ (tools)</text>
+<text x="480" y="844" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nhóm cốt lõi (điều hướng, bấm, gõ, snapshot), quản lý tab và các nhóm bật bằng --caps.</text>
+<rectangle x="860" y="784" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="806" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Hồ sơ và cấu hình</text>
+<text x="880" y="844" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tham số args, biến môi trường hoặc file JSON; hồ sơ lưu bền, isolated hoặc extension.</text>
+<line x1="340" y1="613.5" x2="460" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="613.5" x2="860" y2="613.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="710" x2="1000" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="747" x2="200" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="747" x2="200" y2="784" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="600" y1="710" x2="600" y2="784" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="784" x2="1000" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="747" x2="600" y2="747" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="600" y1="747" x2="600" y2="710" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="1059" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1125" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1147" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1147" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Client gọi công cụ</text>
+<text x="154" y="1183" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">MCP client khởi chạy máy chủ bằng npx @playwright/mcp@latest rồi gọi các công cụ như browser_navigate hay browser_click.</text>
+<line x1="584" y1="1210" x2="616" y2="1210" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1125" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1147" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1147" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Máy chủ điều khiển trình duyệt</text>
+<text x="714" y="1183" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Máy chủ dùng Playwright mở Chromium, Firefox, WebKit hoặc kênh Chrome, Edge; hồ sơ có thể lưu bền, isolated hoặc nối vào trình duyệt đang chạy.</text>
+<rectangle x="60" y="1319" width="520" height="192" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1341" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1341" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Snapshot thay vì ảnh chụp</text>
+<text x="154" y="1377" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">browser_snapshot trả cây accessibility của trang. Ảnh chụp màn hình chỉ để xem: README nói không thể hành động dựa trên ảnh, hãy dùng snapshot.</text>
+<line x1="584" y1="1415" x2="616" y2="1415" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1319" width="520" height="192" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1341" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1341" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chọn phần tử theo tham chiếu</text>
+<text x="714" y="1377" width="404" height="112" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Công cụ thao tác như bấm, gõ nhận target là tham chiếu chính xác lấy từ snapshot hoặc một selector duy nhất (kéo thả có điểm đầu và điểm cuối). README nói cách này tránh sự mơ hồ của cách dựa trên ảnh chụp.</text>
+<rectangle x="60" y="1535" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1557" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1557" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Nhóm công cụ mở rộng</text>
+<text x="154" y="1593" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ngoài nhóm cốt lõi và quản lý tab, các nhóm mạng, lưu trữ, devtools, vision, pdf và kiểm thử được bật thêm bằng --caps.</text>
+<text x="60" y="1765" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1831" width="525" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1871.8" x2="97.6" y2="1879" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1879" x2="110" y2="1863.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1851" width="429" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đưa cho mô hình dữ liệu có cấu trúc thay vì ảnh: ít mơ hồ hơn và không cần mô hình xem ảnh (README gọi là áp dụng công cụ có tính xác định).</text>
+<rectangle x="615" y="1831" width="525" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1871.8" x2="652.6" y2="1879" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1879" x2="665" y2="1863.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1851" width="429" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Chia khả năng thành nhóm bật thêm theo nhu cầu (`--caps`): nhóm cốt lõi có sẵn, các nhóm mạng, lưu trữ, devtools bật riêng.</text>
+<rectangle x="60" y="1985" width="525" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="2025.8" x2="97.6" y2="2033" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="2033" x2="110" y2="2017.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="2005" width="429" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một lõi, nhiều cách nối: stdio qua `npx`, HTTP qua `--port`, Docker, hoặc nhúng bằng `createConnection`: README liệt kê cả bốn cách chạy.</text>
+<rectangle x="615" y="1985" width="525" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="2025.8" x2="652.6" y2="2033" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="2033" x2="665" y2="2017.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="2005" width="429" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Nói rõ giới hạn của mình: README phân biệt MCP với CLI kèm SKILLS và nhắc đây không phải ranh giới bảo mật, giúp người dùng chọn đúng công cụ.</text>
+<text x="60" y="2167" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: microsoft/playwright-mcp · Giấy phép: Apache-2.0 · 38.200 sao · Quét ngày 2026-10-16</text>
+</content>

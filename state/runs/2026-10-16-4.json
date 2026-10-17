@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-16",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "source": "interactive session: three UI/agent-tooling repositories chosen by hand (playwright-mcp, impeccable, ui-ux-pro-max-skill)",
+  "picks": [
+    {
+      "repo": "microsoft/playwright-mcp",
+      "bucket": "ai",
+      "stars": 38200
+    },
+    {
+      "repo": "pbakaus/impeccable",
+      "bucket": "software",
+      "stars": 82000
+    },
+    {
+      "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "bucket": "software",
+      "stars": 136600
+    }
+  ],
+  "written": [
+    {
+      "repo": "microsoft/playwright-mcp",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 13,
+        "used": 3
+      }
+    },
+    {
+      "repo": "pbakaus/impeccable",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 58,
+        "used": 6
+      }
+    },
+    {
+      "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "lang": "vi",
+      "writer": "claude (interactive session)",
+      "checker": null,
+      "independent_checker": false,
+      "fixed": false,
+      "coverage": {
+        "readme_commands": 99,
+        "used": 11
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": null,
+  "campaign": "radar-2026-10-16-4",
+  "ok": true,
+  "warnings": [
+    "no checker model: these drafts were written and gated in one interactive session"
+  ]
+}

@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-16-4](2026-10-16-4/README.md) — impeccable, playwright-mcp, ui-ux-pro-max-skill
 - [2026-10-16-3](2026-10-16-3/README.md) — moneyprinterturbo, pyvideotrans, videolingo, vimax, wan2-2
 - [2026-10-16-2](2026-10-16-2/README.md) — flowkit
 - [2026-10-16](2026-10-16/README.md) — flowkit

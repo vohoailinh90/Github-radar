@@ -1,0 +1,85 @@
+<!-- radar: Moda canvas 1200x2364; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="146" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="146" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Phần mềm</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Impeccable: bộ lệnh thiết kế giao diện cho AI coding agent</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">24 lệnh giúp AI vẽ giao diện bớt giống nhau, từ lập kế hoạch đến kiểm tra và chỉnh lần cuối</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="193" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Skill impeccable</text>
+<text x="80" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Một skill cho mọi công cụ AI; 24 lệnh con đi qua /impeccable.</text>
+<rectangle x="460" y="545" width="280" height="193" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">PRODUCT.md và DESIGN.md</text>
+<text x="480" y="632" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">PRODUCT.md giữ sự thật bền của sản phẩm; DESIGN.md ghi riêng hệ thống thị giác.</text>
+<rectangle x="860" y="545" width="280" height="193" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Engine và launcher</text>
+<text x="880" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Binary tự chứa chạy cạnh launcher, hoặc được tải một lần vào ~/.impeccable/bin/.</text>
+<rectangle x="60" y="812" width="280" height="166" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="834" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Bộ dò (detector)</text>
+<text x="80" y="872" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">59 quy tắc xác định, chạy bằng CLI hoặc tiện ích trình duyệt, không cần LLM hay khóa API.</text>
+<rectangle x="460" y="812" width="280" height="166" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="834" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Hook thiết kế</text>
+<text x="480" y="872" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Chạy detector khi agent sửa file giao diện và đưa phát hiện về luồng của agent.</text>
+<rectangle x="860" y="812" width="280" height="166" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="834" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chế độ live</text>
+<text x="880" y="872" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lặp biến thể của một phần tử ngay trên trình duyệt, trên checkout cục bộ.</text>
+<line x1="340" y1="641.5" x2="460" y2="641.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="738" x2="1000" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="775" x2="200" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="775" x2="200" y2="812" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="340" y1="895" x2="460" y2="895" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="738" x2="200" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="775" x2="1000" y2="775" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="775" x2="1000" y2="812" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="1060" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1126" width="520" height="170" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1148" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1148" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cài skill vào công cụ AI</text>
+<text x="154" y="1184" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">npx impeccable install đặt skill, và hook cho Claude Code, Copilot, Codex, Cursor, Grok Build, vào thư mục của từng công cụ. Launcher trong scripts chạy engine.</text>
+<line x1="584" y1="1211" x2="616" y2="1211" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1126" width="520" height="170" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1148" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1148" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Một lệnh, nhiều việc</text>
+<text x="714" y="1184" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mọi việc đi qua /impeccable &lt;command&gt; &lt;target&gt;. init ghi PRODUCT.md; các lệnh khác dùng từ vựng chung như shape, critique, audit, polish.</text>
+<rectangle x="60" y="1320" width="520" height="192" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1342" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1342" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chọn hướng thị giác</text>
+<text x="154" y="1378" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Khi bắt đầu một thiết kế mới, skill hỏi roll API chia ra một bàn các thế giới thị giác từ danh mục; hướng được chọn ghi vào bản tóm tắt của màn hình đó.</text>
+<line x1="584" y1="1416" x2="616" y2="1416" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1320" width="520" height="192" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1342" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="4" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1342" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Chọn đường dựng</text>
+<text x="714" y="1378" width="404" height="112" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Comp-first tạo bản thiết kế đầy đủ rồi dựng theo; code-first dựng thẳng bằng mã. Lựa chọn áp dụng cho landing page và màn hình trình diễn; màn hình ứng dụng và tài liệu luôn dựng bằng mã. Lưu ở buildPath.</text>
+<rectangle x="60" y="1536" width="520" height="192" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1558" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="5" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1558" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Dò lỗi bằng luật cố định</text>
+<text x="154" y="1594" width="404" height="112" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">59 quy tắc xác định chạy qua npx impeccable detect hoặc hook khi agent sửa file giao diện: Claude Code, Copilot, Codex báo sau khi sửa, Grok Build báo khi dừng, Cursor chặn trước khi ghi.</text>
+<text x="60" y="1810" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1876" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1916.8" x2="97.6" y2="1924" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1924" x2="110" y2="1908.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1896" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Đặt tên cho từng việc: 24 lệnh như polish, quieter, distill tạo từ vựng chung giữa người và AI, nên yêu cầu ngắn mà vẫn rõ.</text>
+<rectangle x="430" y="1876" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1916.8" x2="467.6" y2="1924" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1924" x2="480" y2="1908.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1896" width="244" height="135" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tách sự thật của sản phẩm (PRODUCT.md) khỏi hướng thị giác (DESIGN.md và bản tóm tắt từng màn hình), để lệnh sau không nhầm hai thứ.</text>
+<rectangle x="800" y="1876" width="340" height="197" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1916.8" x2="837.6" y2="1924" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1924" x2="850" y2="1908.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1896" width="244" height="157" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Phần dò lỗi dùng luật xác định, không cần LLM: 59 quy tắc lặp lại được, có mã thoát cho CI, không cần khóa API. Phần đánh giá thiết kế vẫn có kiểm tra bằng LLM.</text>
+<rectangle x="60" y="2097" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="2137.8" x2="97.6" y2="2145" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="2145" x2="110" y2="2129.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="2117" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Nói rõ giới hạn của công cụ kiểm tra: README viết rằng lần quét sạch chỉ là bằng chứng, không thay việc xem giao diện thật.</text>
+<rectangle x="430" y="2097" width="340" height="152" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="2137.8" x2="467.6" y2="2145" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="2145" x2="480" y2="2129.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="2117" width="244" height="112" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Một trình cài, nhiều công cụ AI: cùng nội dung được đóng gói theo từng nhà cung cấp, nên chuyển công cụ không phải học lại.</text>
+<text x="60" y="2301" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: pbakaus/impeccable · Giấy phép: Apache-2.0 · 82.000 sao · Quét ngày 2026-10-16</text>
+</content>
