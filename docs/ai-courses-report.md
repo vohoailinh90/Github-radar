@@ -123,7 +123,7 @@ rồi `python3 phases/01-math-foundations/01-linear-algebra-intuition/code/vecto
 
 **Điều nên xem lại (quan sát, không phải kết luận).** Repo tạo ngày 18/03/2026 và đã có 71.442 sao sau 216 ngày, trung bình khoảng 331 sao mỗi ngày: rất nhanh so với
 các repo khác trong báo cáo, dù một đợt lan truyền cũng có thể gây ra điều này. Số fork (12.570, khoảng 18% số sao) lại không thấp bất thường, nên con số không cho thấy
-dấu hiệu mua sao; cờ `star-spike` của Radar cũng chưa chạy cho repo này vì cần ảnh chụp sao qua nhiều lần quét (`state/stars.json`). README rất dài (khoảng 115.000 ký tự)
+dấu hiệu mua sao. `state/stars.json` có ảnh chụp 70.659 sao ngày 17/10, tức thêm 783 sao trong 3 ngày (khoảng 261 sao mỗi ngày): vẫn nhanh, nhưng đó mới là một khoảng đo ngắn. README rất dài (khoảng 115.000 ký tự)
 và nêu nhiều con số về quy mô. Chưa ai ở đây kiểm 542 bài có thật sự đầy đủ, đúng và chạy được. Trước khi dành hàng trăm giờ, hãy thử vài bài đầu và vài bài ở giai đoạn
 bạn quan tâm.
 
