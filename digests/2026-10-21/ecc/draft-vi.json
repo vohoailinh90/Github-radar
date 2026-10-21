@@ -1,0 +1,274 @@
+{
+  "draft": {
+    "analogy": "Giống như việc lắp thêm các mô-đun động cơ phản lực và hộp đen ghi nhớ cho một chiếc xe đua AI có sẵn, giúp nó chạy nhanh và thông minh hơn hẳn.",
+    "caveats": [
+      "Yêu cầu Node.js 18+ và Claude Code 2.1+",
+      "Cần chọn đúng một phương pháp cài đặt cho mỗi harness để tránh trùng lặp"
+    ],
+    "facebook": {
+      "caption": "Tối ưu hóa trợ lý AI của bạn với ECC cho Claude Code và Codex! Hướng dẫn từng bước cho người mới.",
+      "hashtags": [
+        "#ECC",
+        "#ClaudeCode",
+        "#AI",
+        "#DeveloperTools"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Môi trường hoặc khung làm việc chạy các trợ lý AI lập trình",
+        "term": "Agent Harness"
+      },
+      {
+        "meaning": "Cấu hình các sự kiện tự động chạy ngầm trong quá trình làm việc của trợ lý AI",
+        "term": "Hook Profile"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Khám phá multi-harness wizard với lệnh `npx ecc-universal@2.2.3 install --guided`",
+        "Thêm các rule pack tùy chọn cho Claude Code thủ công nếu cần"
+      ],
+      "outcome": "Cài đặt thành công plugin `ecc@ecc` qua trình hướng dẫn hoặc dòng lệnh npx, sẵn sàng sử dụng trên Claude Code hoặc các harness được hỗ trợ.",
+      "requirements": [
+        {
+          "detail": "Yêu cầu bắt buộc để chạy gói universal setup",
+          "evidence": "README",
+          "item": "Node.js 18 hoặc mới hơn",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần có sẵn trên PATH",
+          "evidence": "README",
+          "item": "Git",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần có sẵn trên PATH",
+          "evidence": "README",
+          "item": "Claude Code phiên bản 2.1 hoặc mới hơn",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "node --version",
+            "git --version",
+            "claude --version"
+          ],
+          "do": [
+            "Mở PowerShell từ menu Start trên Windows.",
+            "Chạy lệnh kiểm tra phiên bản các công cụ cần thiết."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "Cài đặt hoặc sửa lỗi phần mềm thiếu trước khi chạy lại ECC setup.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra các phần mềm điều kiện",
+          "why": "Xác nhận máy tính đã có sẵn Node.js, Git và Claude Code trước khi chạy cài đặt."
+        },
+        {
+          "commands": [
+            "npx ecc-universal@2.2.3 setup"
+          ],
+          "do": [
+            "Chạy lệnh cài đặt universal setup trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "Kiểm tra lại phiên bản registry bằng lệnh npm view ecc-universal version trước khi thử lại.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy trình cài đặt hướng dẫn universal",
+          "why": "Cài đặt plugin `ecc@ecc` một cách tự động và an toàn thông qua npx."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Khởi động phiên làm việc Claude Code mới.",
+            "Chạy lệnh liệt kê plugin."
+          ],
+          "evidence": "README",
+          "expect": "plugin `ecc@ecc` xuất hiện và đã được bật.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Xác minh cài đặt thành công",
+          "why": "Kiểm tra xem `ecc@ecc` đã được kích hoạt thành công trong Claude Code."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Xác nhận lại phiên bản trên registry bằng lệnh `npm view ecc-universal version` trước khi thử lại.",
+          "problem": "NPM báo lỗi phiên bản hoặc lỗi cache"
+        }
+      ],
+      "verify": "Khởi động phiên làm việc Claude Code mới và chạy lệnh `/plugin list` để xác nhận `ecc@ecc` đang hoạt động."
+    },
+    "hook": "Nâng cấp kỹ năng, bộ nhớ và độ bảo mật cho Claude Code, Codex, Cursor chỉ trong vài bước.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "package",
+          "name": "ECC Universal Package",
+          "role": "Gói cài đặt tự động toàn năng cho các agent harness"
+        },
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "Claude Plugin",
+          "role": "Tích hợp các kỹ năng, câu lệnh và hook quản lý trực tiếp vào Claude Code"
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Kiểm tra marketplace chính thức và các phạm vi cài đặt Claude để cài đặt hoặc cập nhật plugin `ecc@ecc` an toàn.",
+          "title": "Universal Setup Wizard"
+        },
+        {
+          "evidence": "README",
+          "text": "Hỗ trợ cấu hình nhiều coding agent khác nhau như Claude Code, Codex, Kimi Code trong một luồng.",
+          "title": "Multi-Harness Support"
+        },
+        {
+          "evidence": "README",
+          "text": "Tích hợp trực tiếp vào hệ thống sinh thái sẵn có của agent mà không làm gián đoạn luồng làm việc.",
+          "title": "Native Integration"
+        }
+      ]
+    },
+    "learn": [
+      "Không chồng chéo nhiều phương pháp cài đặt khác nhau trên cùng một harness",
+      "Sử dụng công cụ universal setup giúp preflight và tránh xung đột cấu hình",
+      "Tuân thủ việc chọn đúng một phương pháp cài đặt cho mỗi loại trợ lý AI",
+      "Kiểm tra kỹ lưỡng các điều kiện phần mềm trước khi chạy trình cài đặt tự động"
+    ],
+    "one_liner": "Hệ thống tối ưu hóa hiệu năng trợ lý AI (agent harness) cung cấp kỹ năng, trí nhớ, bảo mật và công cụ phát triển cho Claude Code, Codex, Kimi Code và nhiều công cụ khác.",
+    "problem": "Lập trình viên sử dụng trợ lý AI thường gặp tình trạng thiếu kỹ năng chuyên sâu, thiếu bộ nhớ ngữ cảnh và khó quản lý cấu hình đồng bộ giữa nhiều công cụ code khác nhau. Việc cài đặt thủ công dễ gây xung đột hoặc trùng lặp lệnh.",
+    "title": "Tối ưu hóa trợ lý AI với ECC cho Claude Code và các harness",
+    "who_for": [
+      "Lập trình viên sử dụng Claude Code",
+      "Người dùng muốn tối ưu hóa hiệu năng và kỹ năng cho trợ lý AI"
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "text",
+        "/plugin marketplace add https://github.com/affaan-m/ECC\n/plugin install ecc@ecc"
+      ]
+    ],
+    "bucket": "ai",
+    "forks": 42287,
+    "full_name": "affaan-m/ECC",
+    "language": "JavaScript",
+    "license": "MIT",
+    "links": [
+      [
+        "ECC Pro + GitHub App",
+        "https://ecc.tools/pricing"
+      ],
+      [
+        "Sponsor ECC",
+        "https://github.com/sponsors/affaan-m"
+      ],
+      [
+        "www.coderabbit.ai",
+        "https://www.coderabbit.ai"
+      ],
+      [
+        "www.greptile.com",
+        "https://www.greptile.com/go/ecc"
+      ],
+      [
+        "compute.itomarkets.com",
+        "https://compute.itomarkets.com"
+      ],
+      [
+        "serpapi.com",
+        "https://serpapi.com/github-ecc"
+      ],
+      [
+        "Mike Morgan inactive",
+        "https://github.com/mikejmorgan-ai"
+      ],
+      [
+        "@jasonwu513",
+        "https://github.com/jasonwu513"
+      ],
+      [
+        "@1anter",
+        "https://github.com/1anter"
+      ],
+      [
+        "@massimotodaro",
+        "https://github.com/massimotodaro"
+      ],
+      [
+        "@meadmccabe",
+        "https://github.com/meadmccabe"
+      ],
+      [
+        "the published ECC 2.2.3 release",
+        "https://www.npmjs.com/package/ecc-universal/v/2.2.3"
+      ],
+      [
+        "install or runtime problem form",
+        "https://github.com/affaan-m/ECC/issues/new?template=install-problem.yml"
+      ],
+      [
+        "github.com",
+        "https://github.com/affaan-m/ECC.git"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/36yGMHGFbR"
+      ],
+      [
+        "ecc.tools",
+        "https://ecc.tools"
+      ],
+      [
+        "github.com",
+        "https://github.com/apps/ecc-tools"
+      ],
+      [
+        "github.com",
+        "https://github.com/affaan-m/ECC"
+      ],
+      [
+        "github.com",
+        "https://github.com/affaan-m/ECC/forks"
+      ],
+      [
+        "github.com",
+        "https://github.com/affaan-m/ECC/graphs/contributors"
+      ],
+      [
+        "github.com",
+        "https://github.com/marketplace/ecc-tools"
+      ]
+    ],
+    "scanned": "2026-10-21",
+    "shells": {
+      "claude --version": "powershell",
+      "git --version": "powershell",
+      "node --version": "powershell"
+    },
+    "stars": 285034,
+    "url": "https://github.com/affaan-m/ECC"
+  },
+  "lang": "vi",
+  "position": 1
+}
