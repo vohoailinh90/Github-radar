@@ -8,7 +8,7 @@ date: 2026-10-22
 
 ## Tóm tắt
 
-Repo GenAI Agents có gì, nên học từ đâu, và cần cẩn thận chỗ nào? Câu trả lời ngắn: đây là một kho dạy học do Nir Diamant lập ra, gồm 59 notebook Jupyter chạy được, mỗi notebook dạy một agent AI hoặc một mẫu thiết kế, từ chatbot nhớ hội thoại đến hệ thống nhiều agent [S2]. Nó **không phải framework**: không có gói để cài và không có API ổn định, đơn vị giá trị là một notebook đọc và chạy từ đầu đến cuối [S2]. Bảng README ghi LangGraph ở 40 trên 57 hàng [S1], và 40 trên 59 notebook cần khóa OpenAI trả phí (người viết đếm bằng script, xem mục Cách học và chạy).
+Repo GenAI Agents có gì, nên học từ đâu, và cần cẩn thận chỗ nào? Câu trả lời ngắn: đây là một kho dạy học do Nir Diamant lập ra, gồm 59 notebook Jupyter chạy được, mỗi notebook dạy một agent AI hoặc một mẫu thiết kế, từ chatbot nhớ hội thoại đến hệ thống nhiều agent [S2]. Nó **không phải framework**: không có gói để cài và không có API ổn định, đơn vị giá trị là một notebook đọc và chạy từ đầu đến cuối [S2]. Bảng README ghi LangGraph ở 40 trên 57 hàng [S1], và 40 trên 59 notebook dùng biến môi trường OPENAI_API_KEY (người viết đếm bằng script, xem mục Cách học và chạy).
 
 Bài này đọc repo theo ba tầng. Tầng một là bản đồ: repo chứa gì, chia nhóm thế nào, một notebook được dựng ra sao [S1] [S3]. Tầng hai là tám ý tưởng cốt lõi mà các notebook dạy, mỗi ý lấy một notebook làm ví dụ đọc kỹ: vòng lặp agent, đồ thị LangGraph, bộ nhớ, tự cải thiện, nhiều agent, giao thức MCP, cổng phê duyệt của con người và đánh giá bằng dấu vết [S7] [S9] [S11] [S12] [S13] [S14] [S15] [S16]. Tầng ba là điều ít người đọc: giấy phép chỉ cho dùng phi thương mại, chỗ quảng cáo khóa học, các tài liệu trong repo lệch nhau ở vài con số, và phiên bản thư viện đã cũ [S4] [S1] [S5].
 
