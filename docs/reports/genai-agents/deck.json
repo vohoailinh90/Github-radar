@@ -1,0 +1,11 @@
+{
+  "canvas": "https://moda.app/canvas/79b1e3b4-242a-485c-80fc-88cd3dd76688",
+  "pages": 40,
+  "slides_json_sha256": "376318bb3f25eb9141cdc460b73fc2ca3f9ef60649bf19f26e7db3b146b13376",
+  "built": "2026-10-22",
+  "brand_kit": null,
+  "source": {
+    "repo": "https://github.com/NirDiamant/GenAI_Agents",
+    "commit": "1b455719952dd3bf1ff90d8eb54a1d7870cce7af"
+  }
+}

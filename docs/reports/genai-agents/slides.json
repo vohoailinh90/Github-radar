@@ -1,0 +1,737 @@
+{
+  "title": "GenAI Agents: bản đồ 59 notebook học xây agent AI",
+  "subtitle": "Báo cáo đọc repo NirDiamant/GenAI_Agents ở commit 1b45571",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "bullets": [
+        "Repo này có gì, nên học từ đâu, và cần cẩn thận chỗ nào?",
+        "59 notebook, mỗi cái dạy một agent AI hoặc một mẫu thiết kế",
+        "Đọc trực tiếp từ repo ở commit 1b45571, ngày 17/10/2026"
+      ],
+      "notes": "Mở bài bằng câu hỏi thay vì định nghĩa, vì người ta thường mở một repo có hàng chục notebook rồi không biết bắt đầu từ đâu. GenAI Agents của Nir Diamant là một kho dạy học: 59 notebook Jupyter, mỗi cái dạy một agent hoặc một mẫu thiết kế. Bài trả lời ba việc: repo có gì, nên đọc theo thứ tự nào, và những chỗ nào cần cẩn thận như giấy phép hay phiên bản thư viện. Hãy nhắc người nghe rằng mọi con số trong deck đến từ việc đọc repo ở một commit cụ thể, nên có thể đã đổi khi họ xem. Ba nhãn xuyên suốt bài: nguồn repo, người viết đếm bằng script, và suy luận của người viết.",
+      "layout": "one-highlighted-sentence",
+      "tone": "light"
+    },
+    {
+      "title": "Bản đồ bài: bốn khối",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "bullets": [
+        "Là gì: kho dạy học 59 notebook, không phải framework",
+        "Có gì: 11 nhóm, LangGraph ở 40 trên 57 hàng",
+        "Dạy gì: vòng lặp, đồ thị, bộ nhớ, MCP, phê duyệt",
+        "Cẩn thận: giấy phép, phiên bản cũ, liên kết theo dõi"
+      ],
+      "notes": "Bản đồ gồm bốn khối. Khối một trả lời repo là gì: kho dạy học, không có gói để cài và không có API ổn định. Khối hai là bản đồ nội dung: 59 notebook chia thành 11 nhóm, và LangGraph xuất hiện ở 40 trong 57 hàng của bảng README. Khối ba là tám ý tưởng cốt lõi mà các notebook dạy, từ vòng lặp agent đến cổng phê duyệt của con người. Khối bốn là những điều hay bị bỏ qua: giấy phép chỉ cho phi thương mại, phiên bản thư viện cũ, quảng cáo khóa học và liên kết có theo dõi. Đi theo thứ tự này để người nghe có khung trước khi gặp chi tiết kỹ thuật.",
+      "layout": "card-grid",
+      "tone": "dark"
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S2",
+        "S4",
+        "S7"
+      ],
+      "bullets": [
+        "Agent là vòng lặp quanh mô hình; luật bắt buộc phải nằm trong mã, không trong prompt",
+        "Repo là sổ bài tập để hiểu cơ chế; đưa vào sản phẩm thì tác giả chỉ sang repo khác",
+        "Giấy phép chỉ cho dùng phi thương mại; đọc LICENSE trước khi dùng mã"
+      ],
+      "notes": "Ba ý để mang về. Một: agent không có phép màu, nó là một vòng lặp gửi hội thoại cho mô hình, chạy công cụ rồi lặp lại; những quy tắc bắt buộc phải đúng thì phải viết thành mã trong vòng lặp. Hai: repo này dạy cơ chế, còn muốn đưa agent vào sản phẩm thì chính AGENTS.md chỉ sang repo agents-towards-production. Ba: giấy phép là bản tùy chỉnh, chỉ cho dùng không thương mại và giữ quyền thương mại cho tác giả. Nếu người nghe chỉ nhớ ba câu này, họ đã tránh được hai sai lầm phổ biến: coi repo là thư viện, và coi mã trong đó là miễn phí cho mọi mục đích.",
+      "layout": "numbered-rows",
+      "tone": "light"
+    },
+    {
+      "title": "Một kho dạy học, không phải thư viện",
+      "section": "Repo này là gì",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "bullets": [
+        "Ở đâu: thư mục all_agents_tutorials, một agent một notebook",
+        "Làm gì: dạy cách xây agent, từ chatbot đến đa agent",
+        "Đừng hiểu nhầm: không phải thư viện để import vào sản phẩm"
+      ],
+      "notes": "Nhiều người thấy cái tên GenAI Agents và nghĩ đây là một framework để cài bằng pip. Không phải. AGENTS.md viết rõ: không có gói để cài, không có API ổn định, đơn vị giá trị là một notebook đọc và chạy từ đầu đến cuối. Hãy hình dung nó như một cuốn sách bài tập: mỗi chương là một notebook, mỗi chương tự đứng được, và các chương dùng framework khác nhau một cách cố ý. Điều này quyết định cách bạn dùng nó: đọc để hiểu cơ chế, chép ý tưởng, không chép nguyên một khối mã vào sản phẩm. Chỗ dễ nhầm: số 59 là số notebook, không phải số tính năng hay số thư viện.",
+      "layout": "explainer",
+      "tone": "dark",
+      "body": "**GenAI Agents** là kho do Nir Diamant lập ra, gồm 59 notebook Jupyter mà mỗi cái dạy một agent AI hoặc một mẫu thiết kế, từ chatbot nhớ hội thoại đến hệ nhiều agent [S1] [S2].\n\nTác giả nói thẳng đây là kho dạy học, không phải framework: không có gói để cài, không có API ổn định. Đơn vị giá trị là một **notebook** mà bạn chạy từ đầu đến cuối rồi học được điều gì đó [S2].\n\nMỗi notebook phải giải thích mục tiêu, trạng thái, công cụ và luồng điều khiển trước khi viết mã [S2]."
+    },
+    {
+      "title": "Hồ sơ nhanh của repo",
+      "section": "Repo này là gì",
+      "sources": [
+        "S1",
+        "S2",
+        "S4"
+      ],
+      "bullets": [],
+      "notes": "Thẻ hồ sơ này gom những gì cần biết trước khi mở repo. Tác giả là Nir Diamant, có bản tin, kênh YouTube, Discord và Reddit. Nội dung là 59 notebook chia 11 nhóm trong bảng README. Về công nghệ, LangGraph ở 40 trong 57 hàng, phần còn lại là LangChain, AutoGen, CrewAI và OpenAI Swarm. Giấy phép là bản tùy chỉnh chỉ cho phi thương mại. Nếu muốn đi tiếp, README chỉ bốn repo cùng tác giả về truy xuất, đưa agent vào sản phẩm, prompt và bộ nhớ. Cuối cùng, kiểm thử chỉ ở mức import và kiểm thử khói theo chính AGENTS.md, nên đừng hiểu 'có thư mục tests' là 'mọi notebook đều được kiểm chạy'.",
+      "layout": "profile-card",
+      "tone": "light",
+      "facts": [
+        {
+          "label": "Tác giả",
+          "text": "Nir Diamant; có bản tin, kênh YouTube, Discord và Reddit"
+        },
+        {
+          "label": "Nội dung",
+          "text": "59 notebook Jupyter, 11 nhóm trong bảng README"
+        },
+        {
+          "label": "Framework",
+          "text": "LangGraph ở 40 trên 57 hàng; còn lại LangChain, AutoGen, CrewAI, Swarm"
+        },
+        {
+          "label": "Giấy phép",
+          "text": "Tùy chỉnh, chỉ phi thương mại; quyền thương mại do tác giả giữ"
+        },
+        {
+          "label": "Đi tiếp",
+          "text": "RAG Techniques, Agents Towards Production, Prompt Engineering, Agent Memory"
+        },
+        {
+          "label": "Kiểm thử",
+          "text": "Chỉ kiểm thử import và kiểm thử khói, không kiểm thử hành vi"
+        }
+      ]
+    },
+    {
+      "title": "Bố cục thư mục",
+      "section": "Repo này là gì",
+      "sources": [
+        "S2",
+        "S6"
+      ],
+      "bullets": [
+        "all_agents_tutorials/: 59 notebook, mỗi cái một agent hoặc một mẫu",
+        "all_agents_tutorials/data/: dữ liệu mẫu cho các notebook cần nó",
+        "data/ và images/: dữ liệu dùng chung, sơ đồ cho README và notebook",
+        "scripts/: công cụ cấp repo, hiện có validate_notebook.py",
+        "tests/: kiểm thử import và kiểm thử khói, không phải bộ kiểm thử hành vi",
+        "requirements.txt: hợp các phụ thuộc; mỗi notebook tự cài thứ nó cần"
+      ],
+      "notes": "Bảng này cho biết mỗi thư mục chứa gì, theo AGENTS.md. Thư mục quan trọng nhất là all_agents_tutorials, nơi có toàn bộ notebook. Dữ liệu mẫu nằm ở hai chỗ: thư mục data riêng của các notebook và thư mục data dùng chung. Thư mục images chứa sơ đồ, thường là SVG dựng từ Mermaid. Thư mục scripts có validate_notebook.py để kiểm cấu trúc notebook. Chỗ dễ nhầm là requirements.txt: nó là hợp của các phụ thuộc, nghĩa là không nên cài hết vào một môi trường, vì từng notebook tự cài thứ nó cần và có notebook cần phiên bản khác. Mẹo: khi mở repo lần đầu, hãy mở thẳng một notebook ngắn thay vì đọc cả cây thư mục.",
+      "layout": "lookup-table",
+      "tone": "dark"
+    },
+    {
+      "title": "Hai con số 57 và 59",
+      "section": "Bản đồ 59 notebook",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "bullets": [
+        "Thư mục chứa 59 file .ipynb; bảng README chỉ có 57 hàng",
+        "Một hàng trỏ sang repo khác, hai notebook có thêm bản PydanticAI, một notebook không có link",
+        "56 + 2 + 1 = 59 (phép đếm của người viết)"
+      ],
+      "notes": "README nói 57 tutorial, AGENTS.md nói 59 notebook. Cả hai đều đúng ở cách đếm của mình. Người viết đếm bằng script: thư mục có 59 file ipynb. Bảng README có 57 hàng, nhưng hàng Controllable RAG Agent trỏ sang một repo khác, nên chỉ có 56 notebook trong thư mục. Cộng hai bản PydanticAI của bài hội thoại đơn giản và bài phân tích dữ liệu đơn giản, nằm trong phần mô tả chi tiết chứ không có hàng riêng. Cộng thêm một notebook Hr_AI_Agent không được liên kết trong README. Kết quả 56 cộng 2 cộng 1 bằng 59. Đây là suy luận từ phép đếm, không phải lời giải thích của tác giả, nên hãy nói rõ như vậy khi trình bày.",
+      "layout": "one-big-number",
+      "tone": "light"
+    },
+    {
+      "title": "Mười một nhóm, từ dễ đến khó",
+      "section": "Bản đồ 59 notebook",
+      "sources": [
+        "S1"
+      ],
+      "bullets": [
+        "Analysis · 13: bộ nhớ, đa agent, tự sửa mã, dữ liệu, tiếp nhận tài liệu",
+        "Business · 9: hỗ trợ khách hàng, hợp đồng, dự án, nhân sự, báo giá",
+        "Creative · 8: GIF, đọc thơ, nhạc, meme, game phá án, đăng mạng xã hội",
+        "QA · 6: kiểm thử, tuân thủ, phê duyệt, đánh giá dấu vết, router",
+        "Educational 5 · News 5: học tập, bài báo khoa học, tin tức, podcast",
+        "Còn lại · 11: Beginner 4, Framework 2, Shopping 2, Task 2, Advanced 1"
+      ],
+      "notes": "Bảng README chia 57 hàng thành 11 nhóm. Nhóm lớn nhất là Analysis với 13 hàng, gồm bộ nhớ, đa agent, tự sửa mã và phân tích dữ liệu. Business có 9 hàng như hỗ trợ khách hàng, phân tích hợp đồng, quản lý dự án và nhân sự. Creative có 8 hàng, từ ảnh GIF đến game phá án. QA có 6 hàng, và đây là nhóm đáng chú ý vì chứa cổng phê duyệt, đánh giá dấu vết và bộ định tuyến. Educational và News mỗi nhóm 5 hàng. Các nhóm nhỏ còn lại gộp 11 hàng. Với người mới, nhóm Beginner chỉ có 4 bài nhưng là điểm bắt đầu tốt nhất, trong đó có bài vòng lặp while. Cộng lại 13 cộng 9 cộng 8 cộng 6 cộng 10 cộng 11 bằng 57.",
+      "layout": "lookup-table",
+      "tone": "dark"
+    },
+    {
+      "title": "Framework nào xuất hiện",
+      "section": "Bản đồ 59 notebook",
+      "sources": [
+        "S1"
+      ],
+      "bullets": [
+        "LangGraph: 38 hàng, thêm 2 hàng kết hợp LightRAG, Ollama",
+        "LangChain: 6 hàng, thêm 2 hàng cùng PydanticAI",
+        "Transformers: 2 hàng, chạy mô hình mở trên máy bạn",
+        "7 hàng lẻ: MCP, AutoGen, Swarm, CrewAI, Custom, Python, Pure Python"
+      ],
+      "notes": "Cột framework trong bảng README cho thấy một bức tranh rất lệch: LangGraph ghi đúng ở 38 hàng, cộng hai hàng kết hợp với LightRAG và Ollama, tức 40 trên 57. LangChain có 6 hàng, thêm 2 hàng ghi LangChain cùng PydanticAI. Transformers có 2 hàng, đều là hai bài mới nhất chạy mô hình mở ngay trên máy. Bảy hàng còn lại mỗi loại một hàng: MCP, AutoGen, OpenAI Swarm, CrewAI, Custom, Python và Pure Python. Suy luận: ai học xong LangGraph thì đọc được phần lớn kho này, và nếu bạn chỉ có thời gian cho một framework thì đây là lựa chọn hợp lý. Cộng lại 40 cộng 8 cộng 2 cộng 7 bằng 57.",
+      "layout": "connection-diagram",
+      "tone": "light"
+    },
+    {
+      "title": "Chín phần của một notebook, gom thành năm bước",
+      "section": "Một notebook được dựng thế nào",
+      "sources": [
+        "S3"
+      ],
+      "bullets": [
+        "Tiêu đề và tổng quan",
+        "Giải thích: động cơ, thành phần, kiến trúc",
+        "Sơ đồ Mermaid lưu thành SVG",
+        "Cài gói, cài đặt, ví dụ chạy",
+        "So sánh, cân nhắc, tài liệu tham khảo"
+      ],
+      "notes": "CONTRIBUTING.md yêu cầu notebook mới có chín phần theo thứ tự. Để dễ nhớ, deck gom chúng thành năm bước. Bước một là tiêu đề và tổng quan. Bước hai là giải thích chi tiết gồm động cơ, thành phần chính, kiến trúc và lợi ích. Bước ba là sơ đồ trực quan: nên viết bằng Mermaid, xuất ra SVG, lưu trong thư mục images. Bước bốn gồm gói cần cài, phần cài đặt từng bước và ví dụ sử dụng. Bước năm gồm so sánh với agent đơn giản hơn, cân nhắc thêm như giới hạn và hướng cải tiến, rồi tài liệu tham khảo. Ý nghĩa thực tế: bạn có thể đoán trước notebook nào cũng có phần thiết kế trước phần mã, và có phần so sánh để thấy vì sao thiết kế đó đáng dùng.",
+      "layout": "flow",
+      "tone": "dark"
+    },
+    {
+      "title": "Script kiểm tra và cách đọc một notebook",
+      "section": "Một notebook được dựng thế nào",
+      "sources": [
+        "S6",
+        "S8",
+        "S10",
+        "S15",
+        "S16"
+      ],
+      "bullets": [
+        "Ở đâu: scripts/validate_notebook.py",
+        "Cách đọc: tổng quan, sơ đồ, rồi mới chạy từng ô"
+      ],
+      "notes": "Repo có sẵn một script kiểm tra: validate_notebook.py kiểm các notebook được chọn trước khi đóng góp, yêu cầu đủ tám tiêu đề từ Overview đến References. Đây là phần cứng hóa của luật thiết kế trước, mã sau. Người viết nhận thấy có hai thế hệ notebook: các bài cũ mở đầu bằng một khối Overview, Motivation, Key Components, Method Details, Conclusion; các bài mới theo đúng tám tiêu đề của script. Cách đọc gợi ý là đọc phần tổng quan và giải thích, nhìn sơ đồ, rồi mới chạy từng ô. Chỗ dễ nhầm: script chỉ chạy khi người đóng góp tự gọi, người viết chưa thấy dấu hiệu nó được chạy tự động.",
+      "layout": "explainer",
+      "tone": "light",
+      "body": "Repo có sẵn script **validate_notebook.py** để kiểm các notebook được chọn trước khi đóng góp; nó yêu cầu đủ tám tiêu đề, từ Overview đến References [S6].\n\nCác bài cũ mở đầu bằng Overview, Motivation, Key Components, Method Details, Conclusion [S8] [S10]; các bài mới theo đúng tám tiêu đề đó [S15] [S16].\n\nCách đọc gợi ý: xem **tổng quan** và phần giải thích trước, nhìn sơ đồ, rồi mới chạy từng ô. Phần khó thường nằm ở thiết kế, không ở dòng khởi tạo mô hình [S8]."
+    },
+    {
+      "title": "Agent là một file văn bản gắn thêm động cơ",
+      "section": "Agent thật ra là gì: một vòng lặp",
+      "sources": [
+        "S7"
+      ],
+      "bullets": [
+        "Quy tắc viết vào prompt chỉ là lời khuyên. Quy tắc viết vào vòng lặp là định luật.",
+        "Giữa hai lượt, mô hình không nhớ gì; vòng lặp gửi lại cả hội thoại mỗi lần",
+        "Bản ghi hội thoại chính là toàn bộ trí óc của agent"
+      ],
+      "notes": "Đây là ý trung tâm của notebook vòng lặp while. Mô hình ngôn ngữ không nhớ gì giữa hai lượt gọi. Cảm giác liên tục đến từ việc vòng lặp gửi lại toàn bộ hội thoại mỗi lần. Vì vậy bản ghi hội thoại chính là trí óc của agent, và một trí óc tin mọi thứ viết trong nó có thể đầy lên những sai lầm của chính mình. Từ đó tác giả rút ra một quy tắc thực hành: điều gì bắt buộc phải đúng thì viết vào động cơ, tức là mã, chứ không viết vào prompt. Ví dụ đời thường: nội quy dán trên tường chỉ là lời nhắc, còn cánh cửa khóa mới là quy tắc. Chỗ dễ nhầm: đây là cách tác giả diễn đạt, không phải một định luật toán học.",
+      "layout": "one-highlighted-sentence",
+      "tone": "dark"
+    },
+    {
+      "title": "Ví dụ: tìm hóa đơn quá hạn",
+      "section": "Agent thật ra là gì: một vòng lặp",
+      "sources": [
+        "S7"
+      ],
+      "bullets": [
+        "Việc: ba hóa đơn, hỏi cái nào quá hạn và quá bao nhiêu",
+        "Lượt 1 và 2: xin danh sách file, rồi đọc cả ba hóa đơn",
+        "Lượt 3: trả lời, sau khi tự tính chênh lệch ngày"
+      ],
+      "notes": "Hãy xem vòng lặp làm việc thật. Trong thư mục có ba hóa đơn, mỗi hóa đơn ghi khách hàng, số tiền, hạn thanh toán và trạng thái chưa trả. Câu hỏi là hóa đơn nào quá hạn và quá bao nhiêu. Ở lượt một, mô hình chưa trả lời mà xin liệt kê danh sách file. Ở lượt hai, nó đọc cả ba hóa đơn và tự tính chênh lệch ngày, không ai đưa máy tính cho nó. Ở lượt ba, nó trả lời. Điều đáng để ý là mô hình chỉ viết chữ: việc mở file thật do mã của bạn làm rồi đưa nội dung trở lại hội thoại. Ví dụ đời thường: mô hình như một nhân viên ngồi trong phòng kín chỉ viết giấy nhờ người ngoài đưa tài liệu vào; vòng lặp là người chạy giấy.",
+      "layout": "explainer",
+      "tone": "light",
+      "body": "Việc được giao: trong thư mục có ba hóa đơn, cái nào **quá hạn** và quá bao nhiêu ngày. Ở lượt một, mô hình chưa trả lời mà xin liệt kê danh sách file. Ở lượt hai, nó đọc cả ba hóa đơn và tự tính chênh lệch ngày, không ai đưa máy tính cho nó. Ở lượt ba, nó trả lời [S7].\n\nChính vòng lặp làm cho chuyện này xảy ra: mô hình chỉ viết chữ, còn mã của bạn mới thật sự mở file và đưa nội dung trở lại hội thoại [S7]."
+    },
+    {
+      "title": "Một lượt của vòng lặp",
+      "section": "Agent thật ra là gì: một vòng lặp",
+      "sources": [
+        "S7"
+      ],
+      "bullets": [
+        "Gửi cả hội thoại và công cụ",
+        "Mô hình trả chữ hoặc gọi công cụ",
+        "Mã chạy công cụ được yêu cầu",
+        "Kết quả, kể cả lỗi, được dán vào hội thoại",
+        "Lặp lại; dừng khi hết yêu cầu hoặc chạm MAX_TURNS = 10"
+      ],
+      "notes": "Đây là toàn bộ chương trình, khoảng 80 dòng Python theo lời tác giả. Mã vòng lặp gửi cả hội thoại và danh sách công cụ cho mô hình. Mô hình trả lời bằng chữ hoặc yêu cầu gọi một công cụ. Nếu có yêu cầu, mã chạy công cụ, nhận kết quả, rồi dán kết quả vào hội thoại như một tin nhắn mới. Chú ý: lỗi cũng được dán vào y hệt kết quả thật, và đó là gốc của cái bẫy ở slide sau. Vòng lặp dừng khi mô hình không còn yêu cầu công cụ nào, hoặc khi chạm giới hạn MAX_TURNS bằng 10. Giới hạn này nằm trong vòng lặp chứ không trong prompt. Ba công cụ của bài là liệt kê file, đọc file và chạy lệnh shell; việc được giao là tìm hóa đơn nào quá hạn.",
+      "layout": "sequence-diagram",
+      "tone": "light"
+    },
+    {
+      "title": "Cái bẫy và hai cách sửa",
+      "section": "Agent thật ra là gì: một vòng lặp",
+      "sources": [
+        "S7"
+      ],
+      "bullets": [
+        "Luật trong prompt: thêm câu «đừng lặp lại lệnh đã lỗi» vào system prompt. Theo tác giả, mô hình vẫn thử lại thêm ba lần",
+        "Luật trong vòng lặp: mã nhớ lệnh đã lỗi và trả về BLOCKED. Một lần bị chặn là mô hình đổi công cụ",
+        "Cả hai cách dùng cùng một câu chữ; khác nhau ở chỗ ai thực thi nó",
+        "Ba thứ nên nằm trong mã: trần chi tiêu và điểm dừng cứng, luật không lặp lại, hội thoại được tóm tắt"
+      ],
+      "notes": "Cái bẫy: tác giả bật cờ FLAKY để mọi lần đọc hóa đơn trả về lỗi tạm thời không dùng được, hãy thử lại. Lỗi rơi vào hội thoại như một kết quả bình thường, mô hình đọc lại và thử lại, mỗi lượt tốn tiền. Cách sửa thứ nhất là thêm vào system prompt một câu cấm lặp lại lệnh đã lỗi. Theo lời tác giả kể về lần chạy trong video, mô hình đọc luật mà vẫn thử lại ba lần. Cách sửa thứ hai là cùng câu đó nhưng thành mã: hàm chạy công cụ ghi nhớ lệnh đã lỗi và từ chối chạy lại. Chú ý: đây là lời kể của tác giả về lần chạy của họ, người viết chưa tái lập, nên đừng phát biểu như một kết quả đã kiểm chứng.",
+      "layout": "two-column-comparison",
+      "tone": "dark"
+    },
+    {
+      "title": "Ba khái niệm: trạng thái, nút, cạnh",
+      "section": "LangGraph: agent là một đồ thị",
+      "sources": [
+        "S9"
+      ],
+      "bullets": [
+        "Trạng thái: dữ liệu chung, khai báo bằng TypedDict",
+        "Nút: một hàm, thường là một lời gọi mô hình",
+        "Cạnh: thứ tự chạy, có thể rẽ nhánh theo điều kiện"
+      ],
+      "notes": "Ba khái niệm này là toàn bộ từ vựng nhập môn của LangGraph. Trạng thái là một cấu trúc dữ liệu chung, trong bài nhập môn là một TypedDict có bốn trường. Nút là một hàm Python: nhận trạng thái, làm một việc, trả về phần trạng thái cần cập nhật. Cạnh quyết định nút nào chạy sau nút nào. Ví dụ cho người mới: hãy tưởng tượng một dây chuyền sản xuất, trạng thái là món hàng đi trên băng chuyền, nút là các trạm, cạnh là các đoạn băng chuyền. Sau khi compile, đồ thị thành một ứng dụng chạy bằng invoke. Chỗ dễ nhầm: nút không nhất thiết phải gọi mô hình, nó có thể là hàm thường.",
+      "layout": "explainer",
+      "tone": "light",
+      "body": "Trong LangGraph, **trạng thái** (state) là một TypedDict giữ dữ liệu đi qua đồ thị; bài nhập môn dùng bốn trường: văn bản, phân loại, thực thể, bản tóm tắt [S9]. Mỗi **nút** (node) là một hàm đọc trạng thái và trả về phần cần cập nhật. Các **cạnh** (edge) nối nút với nút; điểm vào đặt bằng set_entry_point, điểm ra là END [S9].\n\nSau compile(), đồ thị thành ứng dụng chạy bằng invoke, và có thể vẽ thành sơ đồ Mermaid để nhìn luồng điều khiển [S9]."
+    },
+    {
+      "title": "Ví dụ một: đường ống phân tích văn bản",
+      "section": "LangGraph: agent là một đồ thị",
+      "sources": [
+        "S9"
+      ],
+      "bullets": [
+        "Văn bản đi vào trạng thái",
+        "Phân loại: News, Blog, Research hoặc Other",
+        "Trích thực thể: người, tổ chức, địa điểm",
+        "Tóm tắt trong một câu ngắn",
+        "Trả trạng thái đã đủ bốn trường"
+      ],
+      "notes": "Đây là ví dụ đơn giản nhất. Văn bản đi vào trạng thái. Nút thứ nhất phân loại văn bản thành News, Blog, Research hoặc Other. Nút thứ hai trích các thực thể gồm người, tổ chức và địa điểm. Nút thứ ba tóm tắt văn bản trong một câu ngắn. Cuối cùng ứng dụng trả về trạng thái có đủ bốn trường. Mỗi nút là một lời gọi mô hình với một prompt riêng, rất ngắn. Ý nghĩa: thay vì một prompt khổng lồ làm ba việc, ta chia thành ba bước nhỏ, mỗi bước dễ kiểm tra và dễ thay thế. Chỗ dễ nhầm: các nút ở đây nối thẳng một đường, chưa có rẽ nhánh. Rẽ nhánh nằm ở ví dụ sau.",
+      "layout": "flow",
+      "tone": "dark"
+    },
+    {
+      "title": "Ví dụ hai: đường rẽ hỗ trợ khách hàng",
+      "section": "LangGraph: agent là một đồ thị",
+      "sources": [
+        "S10"
+      ],
+      "bullets": [
+        "Technical: nút trả lời kỹ thuật",
+        "Billing: nút trả lời thanh toán",
+        "General: nút trả lời chung",
+        "Cảm xúc Negative: chuyển cho nhân viên"
+      ],
+      "notes": "Bài hỗ trợ khách hàng thêm điều mà chuỗi thẳng không làm được: rẽ nhánh. Trạng thái có bốn trường: câu hỏi, nhóm, cảm xúc và phản hồi. Nút categorize xếp câu hỏi vào Technical, Billing hoặc General. Nút analyze_sentiment đánh giá Positive, Neutral hoặc Negative. Sau đó cạnh có điều kiện gọi hàm route_query để chọn một trong bốn nút xử lý: kỹ thuật, thanh toán, chung, hoặc escalate để chuyển cho nhân viên thật khi cảm xúc tiêu cực. Ý nghĩa: đây là mẫu quen thuộc của chăm sóc khách hàng tự động, nơi máy xử lý phần dễ và người nhận phần khó hoặc phần khách đang bực. Chỗ dễ nhầm: đây là bài minh họa, chưa có tích hợp với hệ thống ticket thật.",
+      "layout": "connection-diagram",
+      "tone": "light"
+    },
+    {
+      "title": "Hai tầng nhớ trong một notebook",
+      "section": "Bộ nhớ, tự cải thiện và đa agent",
+      "sources": [
+        "S8",
+        "S11"
+      ],
+      "bullets": [],
+      "notes": "Bài bộ nhớ mở rộng bài hội thoại đơn giản bằng một tầng nhớ nữa. Tầng ngắn hạn là lịch sử hội thoại theo từng phiên, lưu trong một dictionary theo mã phiên. Tầng dài hạn là dictionary long_term_memory, được chèn vào prompt qua một dòng hệ thống ghi Long-term memory. Quy tắc lưu rất đơn giản: chỉ lưu câu của người dùng dài hơn 20 ký tự, và giữ 5 mục gần nhất. Suy luận của người viết: quy tắc này đo độ dài chứ không đo độ quan trọng, và vì kho nhớ là dictionary trong bộ nhớ của kernel nên mất khi khởi động lại. Chính phần kết của bài cũng nêu hướng cải tiến là tiêu chí lưu tốt hơn và tóm tắt. Muốn đi sâu hơn thì README chỉ sang repo Agent Memory Techniques.",
+      "layout": "profile-card",
+      "tone": "dark",
+      "facts": [
+        {
+          "label": "Ngắn hạn",
+          "text": "Lịch sử hội thoại theo từng phiên, lưu trong dictionary theo session_id"
+        },
+        {
+          "label": "Dài hạn",
+          "text": "Dictionary long_term_memory, chèn vào prompt qua dòng «Long-term memory»"
+        },
+        {
+          "label": "Quy tắc lưu",
+          "text": "Chỉ lưu câu người dùng dài hơn 20 ký tự và giữ 5 mục gần nhất"
+        },
+        {
+          "label": "Giới hạn",
+          "text": "Đo độ dài chứ không đo độ quan trọng; mất khi kernel khởi động lại (suy luận)"
+        }
+      ]
+    },
+    {
+      "title": "Tự cải thiện: trả lời, phản chiếu, học",
+      "section": "Bộ nhớ, tự cải thiện và đa agent",
+      "sources": [
+        "S12"
+      ],
+      "bullets": [
+        "Trả lời: kèm các nhận xét hiện có trong prompt",
+        "Phản chiếu: mô hình đọc lịch sử và đề xuất cải thiện",
+        "Học: tóm tắt thành điểm cần nhớ, ghi vào lịch sử",
+        "Còn thiếu: phép đo cho thấy câu trả lời thật sự tốt hơn"
+      ],
+      "notes": "Lớp SelfImprovingAgent có ba việc. Respond trả lời người dùng và đưa các nhận xét hiện có vào prompt. Reflect cho mô hình đọc lịch sử hội thoại và xin đề xuất để cải thiện. Learn tóm tắt các đề xuất thành những điểm cần nhớ và ghi vào lịch sử dưới dạng tin nhắn hệ thống Agent learned. Vòng tương tác, phản chiếu, học này là lõi của tự cải thiện trong bài. Suy luận của người viết: trong các ô đã đọc, phần ví dụ chỉ in câu trả lời trước và sau khi học, không có phép đo nào cho thấy câu trả lời tốt hơn. Vì vậy hãy xem đây là mô hình minh họa cơ chế, không phải bằng chứng agent giỏi lên. Bài đánh giá dấu vết ở phần sau cho thấy cách đo nghiêm túc hơn.",
+      "layout": "flow",
+      "tone": "light"
+    },
+    {
+      "title": "Đa agent: hai vai, năm bước",
+      "section": "Bộ nhớ, tự cải thiện và đa agent",
+      "sources": [
+        "S13"
+      ],
+      "bullets": [
+        "Clio nêu bối cảnh lịch sử",
+        "Data xác định cần số liệu gì",
+        "Clio cung cấp số liệu lịch sử",
+        "Data phân tích xu hướng",
+        "Clio tổng hợp câu trả lời cuối"
+      ],
+      "notes": "Bài cộng tác lịch sử và dữ liệu định nghĩa một lớp Agent có tên, vai trò và danh sách kỹ năng, rồi biến thành system prompt. Hai agent là Clio, chuyên gia nghiên cứu lịch sử, và Data, chuyên gia phân tích dữ liệu. Quy trình cố định gồm năm bước: Clio nêu bối cảnh; Data xác định cần số liệu gì; Clio cung cấp số liệu; Data phân tích xu hướng; Clio tổng hợp câu trả lời. Có giới hạn thời gian mặc định 300 giây. Suy luận của người viết: cả hai agent dùng chung một mô hình và chỉ khác system prompt, còn thứ tự lượt là kịch bản viết sẵn, không phải thương lượng tự do. Đó là mẫu cộng tác đơn giản nhất, đủ để hiểu ý tưởng. README còn có các biến thể dùng AutoGen, OpenAI Swarm và CrewAI.",
+      "layout": "sequence-diagram",
+      "tone": "dark"
+    },
+    {
+      "title": "MCP: ổ USB-C của agent",
+      "section": "MCP: cắm công cụ vào agent",
+      "sources": [
+        "S14"
+      ],
+      "bullets": [
+        "Vì sao: mỗi nguồn một kiểu tích hợp thì khó mở rộng",
+        "Được gì: cắm thêm công cụ, khám phá công cụ khi chạy"
+      ],
+      "notes": "Notebook MCP ví giao thức này như cổng USB-C: một chuẩn thay cho vô số đầu nối riêng. Trước MCP, mỗi nguồn dữ liệu hoặc công cụ cần một tích hợp riêng, nên thêm công cụ mới ngày càng khó và cập nhật một chỗ có thể làm hỏng chỗ khác. Với MCP, host là ứng dụng AI, client giữ kết nối, server phơi ra công cụ và dữ liệu. Ví dụ đời thường: server là một ổ cắm, công cụ là thiết bị cắm vào, host là người dùng điện. Chỗ dễ nhầm: MCP không phải là một mô hình hay một framework agent, nó chỉ là cách chuẩn hóa việc nối mô hình với công cụ và dữ liệu bên ngoài.",
+      "layout": "explainer",
+      "tone": "light",
+      "body": "**MCP** (Model Context Protocol) là giao thức mở chuẩn hóa cách ứng dụng đưa ngữ cảnh và công cụ cho mô hình ngôn ngữ. Bài ví nó như cổng USB-C: một chuẩn thay cho vô số đầu nối riêng [S14].\n\nCó bốn vai: **host** là ứng dụng AI như Claude Desktop, Cursor hoặc agent tự dựng; **client** giữ kết nối; **server** là chương trình nhẹ phơi ra công cụ và dữ liệu; cuối cùng là nguồn dữ liệu cục bộ hoặc từ xa [S14]."
+    },
+    {
+      "title": "Bốn pha của host tự dựng",
+      "section": "MCP: cắm công cụ vào agent",
+      "sources": [
+        "S14"
+      ],
+      "bullets": [
+        "Khám phá: host hỏi server có công cụ nào",
+        "Lập kế hoạch: mô hình chọn công cụ và tham số",
+        "Thực thi: client gọi công cụ trên server",
+        "Diễn giải: mô hình nói kết quả bằng lời thường"
+      ],
+      "notes": "Phần thực hành có hai nửa. Nửa đầu xây một MCP server tra giá tiền mã hóa bằng API CoinGecko, mỗi công cụ là một hàm gắn mcp.tool, chạy bằng trình quản lý gói uv rồi khai báo trong file cấu hình của Claude Desktop. Nửa sau tự dựng host và client, đi qua bốn pha: khám phá công cụ, lập kế hoạch chọn công cụ, thực thi, rồi diễn giải kết quả. Mỗi lần gọi công cụ mở một kết nối mới, bài nói đó là cách đơn giản và bền, còn hệ thống thật nên giữ kết nối. Hai chỗ cần để ý: phần kiến trúc viết MCP dùng WebSocket trong khi mã dùng stdio_client; và ô cấu hình gán khóa API bằng một chuỗi giữ chỗ, hãy dùng biến môi trường thật.",
+      "layout": "timeline",
+      "tone": "dark"
+    },
+    {
+      "title": "Vì sao phê duyệt phải đứng trước công cụ",
+      "section": "An toàn và đánh giá",
+      "sources": [
+        "S15"
+      ],
+      "bullets": [
+        "Ở đâu: giữa quyết định của mô hình và công cụ",
+        "Làm gì: dừng, hỏi người, kiểm tra, rồi mới chạy",
+        "Đừng hiểu nhầm: không phải hỏi «bạn chắc chứ?» sau khi đã làm"
+      ],
+      "notes": "Bài human-in-the-loop mở bằng một nhận xét đơn giản: agent trở nên rủi ro khi một mô hình có thể chuyển tiền, gửi tin hoặc sửa bản ghi mà không có điểm kiểm tra có chủ ý. Một lời xác nhận trong chat sau khi công cụ đã chạy chỉ là thông báo. Cổng phê duyệt thật phải dừng hành động trước tác dụng phụ, nhận quyết định của người duyệt, kiểm tra tham số, rồi chạy tiếp từ đúng trạng thái đã dừng. Notebook dùng chính sách xác định và công cụ giả lập nên chạy an toàn mà không cần khóa API. Khi dùng thật, một mô hình hay bộ lập kế hoạch đề xuất cùng hành động có cấu trúc, còn chính sách và ranh giới phê duyệt vẫn là mã xác định. Ví dụ đời thường: thủ quỹ không thể chi tiền rồi mới xin chữ ký.",
+      "layout": "explainer",
+      "tone": "dark",
+      "body": "Một lời xác nhận trong chat **sau khi** công cụ đã chạy chỉ là thông báo. Cổng phê duyệt thật phải dừng hành động trước tác dụng phụ, nhận quyết định của người duyệt, kiểm tra tham số rồi mới chạy tiếp từ đúng trạng thái đã dừng [S15].\n\nNotebook dùng chính sách xác định và công cụ giả lập, nên chạy an toàn mà không cần khóa API. Khi dùng thật, một mô hình hay bộ lập kế hoạch sẽ đề xuất cùng hành động có cấu trúc, còn chính sách và ranh giới **phê duyệt** vẫn là mã xác định [S15]."
+    },
+    {
+      "title": "Cổng phê duyệt đứng trước công cụ",
+      "section": "An toàn và đánh giá",
+      "sources": [
+        "S15"
+      ],
+      "bullets": [
+        "Một agent đề xuất hành động có cấu trúc",
+        "Phân loại: đọc là thấp, mọi hoàn tiền là cao",
+        "Rủi ro cao dừng ở cổng, chưa chạy gì",
+        "Người duyệt: approve, reject hoặc modify",
+        "Chạy công cụ và ghi nhật ký kiểm toán"
+      ],
+      "notes": "Bài human-in-the-loop lập luận rằng một lời xác nhận trong chat sau khi công cụ đã chạy chỉ là thông báo. Cổng phê duyệt thật phải chặn hành động trước tác dụng phụ. Ví dụ là công cụ hoàn tiền giả lập: tra cứu đơn hàng là rủi ro thấp và chạy ngay, còn mọi lần hoàn tiền là rủi ro cao dù số tiền nhỏ nên dừng chờ người duyệt. Người duyệt chỉ có ba lựa chọn: approve, reject hoặc modify. Đồ thị dùng interrupt để dừng và Command resume để chạy tiếp cùng luồng. Chú ý: bộ lưu InMemorySaver chỉ giữ trạng thái khi tiến trình còn sống, muốn khôi phục sau khi khởi động lại phải dùng bộ lưu bền vững. Đây là ví dụ cụ thể của câu quy tắc phải nằm trong động cơ.",
+      "layout": "flow",
+      "tone": "light"
+    },
+    {
+      "title": "Cổng này giữ những điều gì",
+      "section": "An toàn và đánh giá",
+      "sources": [
+        "S15"
+      ],
+      "bullets": [
+        "Từ chối: không bao giờ vượt qua cổng",
+        "Sửa: tham số mới phải qua cùng bộ kiểm tra",
+        "Công cụ tự chặn: execute_tool từ chối nếu chưa được cấp quyền",
+        "Nhật ký: chỉ thêm, có dấu thời gian, tên người duyệt"
+      ],
+      "notes": "Bốn thẻ này là bốn điều mà thiết kế của notebook giữ chắc. Một: từ chối không bao giờ vượt qua ranh giới giữa cổng và công cụ. Hai: khi người duyệt sửa tham số, tham số mới phải qua đúng bộ kiểm tra như đề xuất gốc, nên không thể lách qua việc sửa. Ba: hàm execute_tool tự kiểm tra độc lập và từ chối hành động rủi ro cao nếu trạng thái chưa được cấp quyền, nên quy tắc vẫn đúng khi ai đó gọi vòng qua đồ thị. Bốn: nhật ký kiểm toán chỉ thêm vào, có dấu thời gian và tên người duyệt. Notebook ghim langgraph 0.2.76 và khuyên chạy trong môi trường riêng, vì requirements của cả repo ghim phiên bản cũ hơn.",
+      "layout": "card-grid",
+      "tone": "dark"
+    },
+    {
+      "title": "Chấm dấu vết, không cần giám khảo AI",
+      "section": "An toàn và đánh giá",
+      "sources": [
+        "S16"
+      ],
+      "bullets": [
+        "Chuỗi công cụ đúng: 25% điểm",
+        "Tham số đúng: 25% điểm",
+        "Bằng chứng khớp kết quả công cụ: 25% điểm",
+        "Độ trễ trong ngân sách: 25% điểm",
+        "Có lỗi thực thi: 0 điểm, dù chạy nhanh"
+      ],
+      "notes": "Một câu trả lời cuối có thể trông hợp lý dù agent gọi sai công cụ, gửi sai tham số hoặc vượt ngân sách thời gian. Bài đánh giá dấu vết chấm chính lần thực thi thay vì nhờ một mô hình khác cho điểm. Bốn tiêu chí có trọng số bằng nhau, mỗi tiêu chí 25%: chuỗi công cụ, tham số, bằng chứng khớp kết quả công cụ và độ trễ. Nếu có lỗi thực thi thì điểm bằng 0, vì lỗi nhanh không đáng điểm một phần. Bộ chấm đứng ngoài agent và chỉ đọc một hợp đồng dữ liệu nhỏ, nên so sánh được nhiều kiểu agent. Bài chạy offline với thư viện chuẩn, so một agent mắc lỗi định tuyến với bản đã sửa, và cho ra cổng chất lượng dùng được trong kiểm thử hồi quy.",
+      "layout": "lookup-table",
+      "tone": "light"
+    },
+    {
+      "title": "Router một bước: đọc xác suất trước khi nó viết",
+      "section": "Đo chi phí và độ tin cậy",
+      "sources": [
+        "S17"
+      ],
+      "bullets": [
+        "Dữ liệu: banking77, 77 ý định gộp thành 7 đội",
+        "Mô hình: Qwen3-1.7B chạy trên máy, không cần khóa API",
+        "Công cụ: temperature scaling và cổng độ tin cậy"
+      ],
+      "notes": "Nhiều bước của agent là quyết định, không phải viết lách: ticket này về đội nào, bình luận này có phải spam không. Thay vì bắt mô hình viết câu trả lời rồi phân tích chữ, bài đọc xác suất của token đầu tiên của từng lựa chọn sau một lần chạy mô hình. Ý tưởng then chốt: một bộ định tuyến sai 3 trên 10 lần vẫn dùng được nếu nó biết 3 lần nào, vì những ca đó chuyển cho người. Điều đó chỉ đúng khi độ tự tin được hiệu chỉnh. Bài đo bằng bảng độ tin cậy và sai số ECE. Chỗ dễ nhầm: phép gộp 77 ý định thành 7 đội là của tác giả bài, và bài nói rõ có tin có thể thuộc hai đội.",
+      "layout": "explainer",
+      "tone": "dark",
+      "body": "Nhiều bước của agent là **quyết định**, không phải viết lách: ticket này về đội nào, bình luận này có phải spam không. Thay vì bắt mô hình viết câu trả lời rồi phân tích chữ, bài đọc xác suất của token đầu tiên của từng lựa chọn sau một lần chạy mô hình [S17].\n\nMột bộ định tuyến sai 3 trên 10 lần vẫn dùng được nếu nó biết 3 lần nào, và chỉ khi độ tự tin được **hiệu chỉnh** (calibration). Bài đo bằng bảng độ tin cậy và sai số ECE [S17]."
+    },
+    {
+      "title": "Đọc rẻ, viết đắt",
+      "section": "Đo chi phí và độ tin cậy",
+      "sources": [
+        "S18"
+      ],
+      "bullets": [
+        "Đọc (prefill): cả prompt đi qua mô hình một lượt, chip bận tính toán, chi phí mỗi token thấp",
+        "Viết (decode): mỗi token mới cần đi qua toàn bộ trọng số, chip chủ yếu chờ dữ liệu từ bộ nhớ",
+        "Bốn đòn bẩy: số token viết ra",
+        "cỡ mô hình",
+        "độ dài hội thoại đã có",
+        "số câu trả lời dùng chung một lượt tải"
+      ],
+      "notes": "Một câu trả lời của mô hình có hai pha. Pha đọc, gọi là prefill, cho cả prompt đi qua mô hình một lượt nên chip bận tính toán và chi phí mỗi token thấp. Pha viết, gọi là decode, viết từng token, và mỗi token mới cần đi qua toàn bộ trọng số chỉ để làm một token, nên phần lớn thời gian chip chờ dữ liệu từ bộ nhớ. Từ đó bài chỉ ra bốn đòn bẩy quyết định chi phí: số token viết ra, cỡ mô hình, độ dài hội thoại đã có và số câu trả lời dùng chung một lượt tải trọng số. Notebook cho bạn tự bấm giờ trên máy mình, dùng truyện Sherlock Holmes làm đầu vào, và có bước đo năng lượng tùy chọn cho GPU NVIDIA. Ý nghĩa thực tế: muốn tiết kiệm thì viết ngắn và gộp lô, không phải bắt mô hình nghĩ ít.",
+      "layout": "two-column-comparison",
+      "tone": "light"
+    },
+    {
+      "title": "Lộ trình năm bước",
+      "section": "Cách học và chạy",
+      "sources": [
+        "S7",
+        "S8",
+        "S9",
+        "S10",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "bullets": [
+        "Vòng lặp while từ con số không: hiểu agent không có phép màu",
+        "Hội thoại có nhớ, rồi nhập môn LangGraph: quen với trạng thái và đồ thị",
+        "Một ứng dụng hợp lĩnh vực của bạn, ví dụ hỗ trợ khách hàng",
+        "Cổng phê duyệt và đánh giá dấu vết: làm agent an toàn và kiểm được",
+        "MCP để nối công cụ thật, hai bài đo chi phí khi cần chọn mô hình"
+      ],
+      "notes": "Đây là lộ trình do người viết đề xuất, dựa trên các nhóm trong bảng README, không phải lộ trình chính thức của tác giả. Bước một: đọc bài vòng lặp while để hiểu agent không có phép màu. Bước hai: bài hội thoại có nhớ, rồi nhập môn LangGraph, để quen với trạng thái và đồ thị. Bước ba: chọn một ứng dụng hợp lĩnh vực của bạn, chẳng hạn hỗ trợ khách hàng, và sửa nhỏ để chạy trên dữ liệu của bạn. Bước bốn: đọc cổng phê duyệt và đánh giá dấu vết để biết cách làm agent an toàn và kiểm được. Bước năm: MCP để nối công cụ thật, và hai bài đo chi phí khi cần quyết định về mô hình. Mẹo: hoàn thành từng bước bằng cách sửa một chi tiết nhỏ rồi chạy lại, thay vì chỉ đọc.",
+      "layout": "numbered-rows",
+      "tone": "dark"
+    },
+    {
+      "title": "Trước khi chạy: chuẩn bị gì",
+      "section": "Cách học và chạy",
+      "sources": [
+        "S2",
+        "S5",
+        "S7",
+        "S15",
+        "S17",
+        "S18"
+      ],
+      "bullets": [
+        "Khóa API: OPENAI_API_KEY trong 40 notebook, ANTHROPIC_API_KEY trong 4",
+        "Môi trường: requirements.txt ghim langchain 0.2.16, langgraph 0.2.18",
+        "Ngoại lệ: bài phê duyệt cần langgraph 0.2.76, nên tạo môi trường riêng",
+        "Không cần khóa: bài router và bài đọc-viết chạy mô hình mở trên máy",
+        "Chi phí: tác giả nói mỗi lần chạy bài vòng lặp tốn vài cent"
+      ],
+      "notes": "Trước khi chạy, bạn cần biết bốn điều. Một: khóa API. Người viết quét 59 notebook và thấy OPENAI_API_KEY xuất hiện trong 40 notebook, ANTHROPIC_API_KEY trong 4. Hai: requirements.txt ghim các phiên bản cũ như langchain 0.2.16 và langgraph 0.2.18; suy luận của người viết là nên tạo một môi trường ảo cho mỗi nhóm notebook thay vì cài hết vào một chỗ. Ba: bài phê duyệt cần langgraph 0.2.76 nên cần môi trường riêng. Bốn: hai bài router và đọc-viết chạy mô hình mở trên máy, không cần khóa API nhưng cần bộ nhớ, tốt nhất có GPU. AGENTS.md yêu cầu chạy notebook từ trên xuống dưới trên kernel sạch. Hãy thử bài ngắn trước để biết chi phí thực tế.",
+      "layout": "lookup-table",
+      "tone": "light"
+    },
+    {
+      "title": "Giấy phép: học thì thoải mái, bán thì phải xin",
+      "section": "Giấy phép, quảng cáo và theo dõi",
+      "sources": [
+        "S2",
+        "S4"
+      ],
+      "bullets": [
+        "Được: dùng, sao chép, sửa và chia sẻ cho mục đích không thương mại",
+        "Phải: ghi tên tác giả, dẫn liên kết repo, nêu rõ chỗ đã sửa",
+        "Không được: dùng thương mại khi chưa có văn bản cho phép của tác giả",
+        "Đóng góp: bạn cấp cho tác giả quyền độc quyền, vĩnh viễn cho phần gửi lên"
+      ],
+      "notes": "LICENSE không phải giấy phép nguồn mở thông dụng mà là một Custom License Agreement của Nir Diamant. Tầng trên cùng là điều được làm: dùng, sao chép, sửa và phân phối cho mục đích không thương mại. Tầng thứ hai là điều kiện: ghi tên tác giả, dẫn liên kết tới repo, nêu rõ nếu đã sửa. Tầng thứ ba là điều bị cấm: dùng cho mục đích thương mại khi chưa có sự đồng ý bằng văn bản. Tầng cuối dành cho người đóng góp: bạn cấp cho tác giả quyền cấp phép độc quyền, vĩnh viễn, trên toàn thế giới đối với phần bạn gửi lên, còn bạn vẫn dùng phần của mình cho mục đích phi thương mại. Đây là tóm tắt để biết đi đọc ở đâu, không phải tư vấn pháp lý. AGENTS.md cũng dặn đọc LICENSE trước khi tái sử dụng trong bối cảnh thương mại.",
+      "layout": "layers",
+      "tone": "dark"
+    },
+    {
+      "title": "Quảng cáo và theo dõi: biết để chọn",
+      "section": "Giấy phép, quảng cáo và theo dõi",
+      "sources": [
+        "S1",
+        "S8"
+      ],
+      "bullets": [
+        "Ở đâu: đầu README, các liên kết, cuối notebook",
+        "Làm gì: bán khóa học, đếm lượt xem và lượt bấm",
+        "Cách tránh: đọc bản tải về, tắt tải ảnh ngoài"
+      ],
+      "notes": "Phần này không buộc tội ai: quảng cáo khóa học và đo lượt xem là quyền của tác giả. Điều đáng nhớ là phần học miễn phí và phần bán khóa học nằm cạnh nhau trên cùng một trang README. Đầu README là khối giới thiệu khóa Prompt to Production giá 199 đô la, kèm nhà tài trợ CodeRabbit và Qodo, và bản tin mà tác giả nói có hơn 50.000 người đọc. Nhiều liên kết đi qua địa chỉ trung gian tên rag-techniques-tracker. Và 52 trong 59 notebook kết thúc bằng một ảnh nhúng gọi tới địa chỉ tên genai-agents-views-tracker. Tên gọi cho thấy mục đích là đếm lượt xem, nhưng người viết không kiểm tra máy chủ đó nhận gì. Nếu bạn không muốn gửi yêu cầu đó, hãy đọc bản tải về với chế độ không tải ảnh ngoài.",
+      "layout": "explainer",
+      "tone": "light",
+      "body": "Đầu README là khối giới thiệu khóa học **Prompt to Production** của tác giả, giá 199 đô la, thanh toán một lần, kèm nhà tài trợ CodeRabbit và Qodo, và bản tin mà tác giả nói có hơn 50.000 người đọc [S1]. Phần học miễn phí và phần bán khóa học nằm cạnh nhau trên cùng một trang.\n\nNhiều liên kết đi qua địa chỉ trung gian rag-techniques-tracker có ghi lại nút nào được bấm [S1]. Và 52 trong 59 notebook kết thúc bằng một ảnh nhúng gọi tới genai-agents-views-tracker; tên gọi cho thấy nó đếm lượt xem, bài này không kiểm tra nó nhận gì [S8]."
+    },
+    {
+      "title": "Sáu điểm yếu cần biết",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S1",
+        "S2",
+        "S4",
+        "S5",
+        "S11",
+        "S12",
+        "S13",
+        "S15"
+      ],
+      "bullets": [
+        "Phiên bản thư viện cũ, và không đồng nhất với bài phê duyệt",
+        "Đa số bài gắn với OpenAI trả phí; đổi nhà cung cấp là việc của bạn",
+        "Nhiều bài ở quy mô đồ chơi: bộ nhớ trong dictionary, đa agent theo kịch bản",
+        "Tự cải thiện không có phép đo cho thấy tốt hơn thật",
+        "Kiểm thử chỉ ở mức import và kiểm thử khói, theo chính AGENTS.md",
+        "Giấy phép phi thương mại: không dùng nguyên văn trong sản phẩm có thu tiền"
+      ],
+      "notes": "Sáu điểm yếu này là suy luận của người viết từ các nguồn đã đọc, không phải lời chê của ai. Một: phiên bản trong requirements.txt cũ và không đồng nhất với bài phê duyệt. Hai: người viết đếm thấy OPENAI_API_KEY trong 40 trên 59 notebook, nên chạy thử tốn tiền và đổi nhà cung cấp là việc của bạn. Ba: nhiều bài ở quy mô đồ chơi, ví dụ bộ nhớ nằm trong dictionary và đa agent theo kịch bản cố định. Bốn: bài tự cải thiện không có phép đo. Năm: AGENTS.md nói kiểm thử chỉ ở mức import và kiểm thử khói. Sáu: giấy phép phi thương mại khiến mã không dùng nguyên văn được trong sản phẩm có thu tiền. Điểm yếu không làm repo kém giá trị học tập, nhưng cho biết đừng kỳ vọng nó như một thư viện.",
+      "layout": "numbered-rows",
+      "tone": "dark"
+    },
+    {
+      "title": "Tài liệu trong repo lệch nhau ở bốn chỗ",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S1",
+        "S2",
+        "S5",
+        "S14",
+        "S15"
+      ],
+      "bullets": [
+        "Số bài: README nói 57 tutorial, AGENTS.md nói 59 notebook",
+        "Giao thức MCP: chữ viết WebSocket, mã dùng stdio_client",
+        "Phiên bản: requirements ghim LangGraph 0.2.18, bài phê duyệt ghim 0.2.76",
+        "Khóa API: luật «không ghi cứng» đi cùng một ô gán chuỗi giữ chỗ"
+      ],
+      "notes": "Bốn chỗ lệch này đều nhỏ nhưng nên biết để khỏi mất thời gian gỡ lỗi. Số bài: README nói 57 tutorial còn AGENTS.md nói 59 notebook, cả hai đúng theo cách đếm của mình. Giao thức MCP: phần kiến trúc viết kết nối WebSocket, trong khi mã của chính bài dùng stdio_client, tức giao tiếp qua đầu vào và đầu ra chuẩn của một tiến trình con. Phiên bản: requirements.txt ghim LangGraph 0.2.18, còn bài phê duyệt ghim 0.2.76. Khóa API: AGENTS.md viết khóa lấy từ môi trường, không ghi cứng, nhưng ô cấu hình trong bài MCP gán khóa bằng một chuỗi giữ chỗ trong mã; hãy thay bằng biến môi trường thật và đừng dán khóa vào notebook. Quan sát khi đọc cây thư mục: thư mục workflows chỉ có một file đổi dòng giá khóa học theo mùa giảm giá, không có quy trình chạy thử notebook.",
+      "layout": "lookup-table",
+      "tone": "light"
+    },
+    {
+      "title": "Có nên dùng không",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S2",
+        "S4"
+      ],
+      "bullets": [
+        "Dùng như bản đồ và sổ bài tập, không dùng như thư viện hay nguồn mã cho sản phẩm có thu tiền",
+        "Hợp: người đã biết Python cơ bản, muốn hiểu agent chạy bên trong ra sao",
+        "Không hợp: đưa vào sản phẩm; tác giả chỉ sang repo agents-towards-production"
+      ],
+      "notes": "Kết luận của người viết: dùng repo như bản đồ và sổ bài tập, không dùng như thư viện hay nguồn mã cho sản phẩm có thu tiền. Repo hợp với người đã biết Python cơ bản, muốn hiểu agent chạy bên trong ra sao và xem nhiều mẫu thiết kế đặt cạnh nhau. Nó không hợp để đưa thẳng vào sản phẩm. Chính AGENTS.md chỉ sang repo agents-towards-production cho việc đó, và giấy phép đòi bạn xin phép trước khi dùng thương mại. Nếu bạn thuộc một công ty, hãy hỏi bộ phận pháp lý trước khi chép mã. Nếu bạn là người học, hãy bắt đầu từ bài vòng lặp while và đi theo lộ trình năm bước. Đây là nhận định của người viết, bạn hoàn toàn có thể đánh giá khác dựa trên nhu cầu của mình.",
+      "layout": "one-highlighted-sentence",
+      "tone": "dark"
+    },
+    {
+      "title": "Bốn điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S4",
+        "S7",
+        "S9",
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "bullets": [
+        "Vòng lặp: luật bắt buộc nằm trong mã, không trong prompt",
+        "LangGraph: luồng điều khiển thành đồ thị, ở 40 trên 57 hàng",
+        "An toàn và đo lường: phê duyệt, dấu vết, router, chi phí",
+        "Giấy phép: phi thương mại; có quảng cáo và liên kết theo dõi"
+      ],
+      "notes": "Bốn điều đáng mang theo. Một: agent là vòng lặp quanh mô hình, và quy tắc bắt buộc phải nằm trong mã chứ không trong prompt. Hai: LangGraph biến luồng điều khiển thành đồ thị nhìn thấy được và có mặt ở 40 trên 57 hàng của bảng README. Ba: theo người viết, các bài đáng đọc nhất là các bài về an toàn và đo lường, gồm cổng phê duyệt, đánh giá dấu vết, router và chi phí đọc-viết, vì chúng dạy cách biết agent có đáng tin hay không. Bốn: giấy phép chỉ cho dùng phi thương mại, và quảng cáo cùng liên kết theo dõi là có thật nên hãy đọc LICENSE trước khi dùng mã. Nếu người nghe chỉ nhớ bốn dòng này, họ đã nắm phần cốt lõi của cả bài.",
+      "layout": "card-grid",
+      "tone": "light"
+    },
+    {
+      "title": "Giới hạn của bài này",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "bullets": [
+        "Đã làm: đọc README, AGENTS, CONTRIBUTING, LICENSE, requirements và 12 notebook ở commit 1b45571; đếm bằng script",
+        "Chưa làm: chạy notebook nào; đọc số sao, fork, issue; kiểm máy chủ theo dõi",
+        "Hai bài router và đọc-viết chỉ đọc phần mô tả; lời kể về lần chạy trong video là của tác giả, chưa tái lập",
+        "Phần giấy phép chỉ là tóm tắt, không phải tư vấn pháp lý"
+      ],
+      "notes": "Slide này nói rõ bài làm được gì và chưa làm gì. Đã làm: đọc README, AGENTS, CONTRIBUTING, LICENSE, requirements và 12 notebook ở commit 1b45571 ngày 17 tháng 10 năm 2026, và đếm các con số bằng script. Chưa làm: chạy bất kỳ notebook nào vì không có khóa API trả phí, nên mọi mô tả hành vi là đọc mã và văn bản, không phải kết quả thực nghiệm. Người viết cũng không đọc số sao, số fork, issue hay lịch sử commit, nên bài không có con số nào về mức độ phổ biến. Với hai bài router và đọc-viết, người viết chỉ đọc phần mô tả. Lời kể về những lần chạy trong video, như chuyện mô hình bỏ qua luật trong prompt, là của tác giả notebook và chưa được tái lập. Phần giấy phép chỉ là tóm tắt. Repo cập nhật thường xuyên nên các con số có thể đã đổi.",
+      "layout": "two-column-comparison",
+      "tone": "dark"
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "bullets": [
+        "S1: README.md: giới thiệu, bảng 57 hàng, khóa học, tài trợ",
+        "S2: AGENTS.md: 59 notebook, bố cục, luật làm việc",
+        "S3: CONTRIBUTING.md: cấu trúc chín phần của notebook",
+        "S4: LICENSE: giấy phép tùy chỉnh, chỉ phi thương mại",
+        "S5: requirements.txt: phiên bản thư viện được ghim",
+        "S6: scripts/validate_notebook.py: tám tiêu đề bắt buộc",
+        "S7: notebook Agent từ con số không: vòng lặp while",
+        "S8: notebook Simple Conversational Agent",
+        "S9: notebook Introduction to LangGraph",
+        "S10: notebook Customer Support Agent với LangGraph",
+        "S11: notebook Memory-Enhanced Conversational Agent",
+        "S12: notebook Self-Improving Agent",
+        "S13: notebook Multi-Agent Collaboration System",
+        "S14: notebook Building an Agent with MCP",
+        "S15: notebook Human-in-the-Loop Approval Agent",
+        "S16: notebook Trace-Based Agent Evaluation",
+        "S17: notebook One-Step Decision Router",
+        "S18: notebook Read vs Write: What One AI Answer Costs"
+      ],
+      "notes": "",
+      "layout": "references",
+      "tone": "dark"
+    }
+  ]
+}
