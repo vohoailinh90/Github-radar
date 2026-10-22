@@ -419,7 +419,7 @@
         "Thực thi: client gọi công cụ trên server",
         "Diễn giải: mô hình nói kết quả bằng lời thường"
       ],
-      "notes": "Phần thực hành có hai nửa. Nửa đầu xây một MCP server tra giá tiền mã hóa bằng API CoinGecko, mỗi công cụ là một hàm gắn mcp.tool, chạy bằng trình quản lý gói uv rồi khai báo trong file cấu hình của Claude Desktop. Nửa sau tự dựng host và client, đi qua bốn pha: khám phá công cụ, lập kế hoạch chọn công cụ, thực thi, rồi diễn giải kết quả. Mỗi lần gọi công cụ mở một kết nối mới, bài nói đó là cách đơn giản và bền, còn hệ thống thật nên giữ kết nối. Hai chỗ cần để ý: phần kiến trúc viết MCP dùng WebSocket trong khi mã dùng stdio_client; và ô cấu hình gán khóa API bằng một chuỗi giữ chỗ, hãy dùng biến môi trường thật.",
+      "notes": "Phần thực hành có hai nửa. Nửa đầu xây một MCP server tra giá tiền mã hóa bằng API CoinGecko, công cụ tra giá trong file đi kèm mcp_server.py là một hàm gắn mcp.tool của FastMCP và notebook minh họa thêm một công cụ thứ hai theo cùng cách, chạy bằng trình quản lý gói uv rồi khai báo trong file cấu hình của Claude Desktop. Nửa sau tự dựng host và client, đi qua bốn pha: khám phá công cụ, lập kế hoạch chọn công cụ, thực thi, rồi diễn giải kết quả. Mỗi lần gọi công cụ mở một kết nối mới, bài nói đó là cách đơn giản và bền, còn hệ thống thật nên giữ kết nối. Hai chỗ cần để ý: phần kiến trúc viết MCP dùng WebSocket trong khi mã dùng stdio_client; và ô cấu hình gán khóa API bằng một chuỗi giữ chỗ, hãy dùng biến môi trường thật.",
       "layout": "timeline",
       "tone": "dark"
     },
@@ -583,7 +583,7 @@
         "Không được: dùng thương mại khi chưa có văn bản cho phép của tác giả",
         "Đóng góp: bạn cấp cho tác giả quyền độc quyền, vĩnh viễn cho phần gửi lên"
       ],
-      "notes": "LICENSE không phải giấy phép nguồn mở thông dụng mà là một Custom License Agreement của Nir Diamant. Tầng trên cùng là điều được làm: dùng, sao chép, sửa và phân phối cho mục đích không thương mại. Tầng thứ hai là điều kiện: ghi tên tác giả, dẫn liên kết tới repo, nêu rõ nếu đã sửa. Tầng thứ ba là điều bị cấm: dùng cho mục đích thương mại khi chưa có sự đồng ý bằng văn bản. Tầng cuối dành cho người đóng góp: bạn cấp cho tác giả quyền cấp phép độc quyền, vĩnh viễn, trên toàn thế giới đối với phần bạn gửi lên, còn bạn vẫn dùng phần của mình cho mục đích phi thương mại. Đây là tóm tắt để biết đi đọc ở đâu, không phải tư vấn pháp lý. AGENTS.md cũng dặn đọc LICENSE trước khi tái sử dụng trong bối cảnh thương mại.",
+      "notes": "LICENSE không phải giấy phép nguồn mở thông dụng mà là một Custom License Agreement của Nir Diamant. Tầng trên cùng là điều được làm: dùng, sao chép, sửa và phân phối cho mục đích không thương mại. Tầng thứ hai là điều kiện: ghi tên tác giả, dẫn liên kết tới repo, nêu rõ nếu đã sửa. Tầng thứ ba là điều bị cấm: dùng cho mục đích thương mại khi chưa có sự đồng ý bằng văn bản. Tầng cuối dành cho người đóng góp: bạn cấp cho tác giả quyền cấp phép độc quyền, vĩnh viễn, trên toàn thế giới đối với phần bạn gửi lên, còn bạn vẫn dùng phần của mình cho mục đích phi thương mại nhưng không có quyền thương mại nào với nó; quyền cấp cho tác giả cũng không thể thu hồi. Đây là tóm tắt để biết đi đọc ở đâu, không phải tư vấn pháp lý. AGENTS.md cũng dặn đọc LICENSE trước khi tái sử dụng trong bối cảnh thương mại.",
       "layout": "layers",
       "tone": "dark"
     },
