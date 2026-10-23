@@ -1,0 +1,20 @@
+{
+  "snapshot_date": "2026-10-23",
+  "origin": "GitHub connector search sorted by total stars and repository metadata read in the initial conversation scan",
+  "ranking_type": "total_stargazers_descending",
+  "repositories": [
+    {
+      "repo": "codecrafters-io/build-your-own-x",
+      "stars": 555699
+    },
+    {
+      "repo": "sindresorhus/awesome",
+      "stars": 523630
+    },
+    {
+      "repo": "public-apis/public-apis",
+      "stars": 491660
+    }
+  ],
+  "scope": "Metadata and documentation reading; no exhaustive runtime validation of linked resources."
+}
