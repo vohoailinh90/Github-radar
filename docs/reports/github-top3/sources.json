@@ -1,0 +1,62 @@
+{
+  "snapshot_date": "2026-10-23",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "GitHub — metadata và kết quả tìm repo theo sao",
+      "url": "https://github.com/search?q=stars%3A%3E100000&type=repositories&s=stars&o=desc",
+      "note": "Ảnh chụp số liệu phiên quét 23/10/2026; không phải dữ liệu tăng trưởng.",
+      "pinned_url": null,
+      "commit": null
+    },
+    {
+      "id": "S2",
+      "name": "CodeCrafters — build-your-own-x / README",
+      "url": "https://github.com/codecrafters-io/build-your-own-x/blob/master/README.md",
+      "pinned_url": "https://github.com/codecrafters-io/build-your-own-x/blob/aa17439b62f384511a5561ce308e9598b94d8989/README.md",
+      "commit": "aa17439b62f384511a5561ce308e9598b94d8989"
+    },
+    {
+      "id": "S3",
+      "name": "Sindre Sorhus — awesome / README",
+      "url": "https://github.com/sindresorhus/awesome/blob/main/readme.md",
+      "pinned_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md",
+      "commit": "bc98e517ddca672f55f9857d714fc3ea3c3540b2"
+    },
+    {
+      "id": "S4",
+      "name": "Sindre Sorhus — The awesome manifesto",
+      "url": "https://github.com/sindresorhus/awesome/blob/main/awesome.md",
+      "pinned_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md",
+      "commit": "bc98e517ddca672f55f9857d714fc3ea3c3540b2"
+    },
+    {
+      "id": "S5",
+      "name": "public-apis — README",
+      "url": "https://github.com/public-apis/public-apis/blob/master/README.md",
+      "pinned_url": "https://github.com/public-apis/public-apis/blob/339ab55dc8532107fdeb5ef22777b4e34bd4af6f/README.md",
+      "commit": "339ab55dc8532107fdeb5ef22777b4e34bd4af6f"
+    },
+    {
+      "id": "S6",
+      "name": "public-apis — Contributing",
+      "url": "https://github.com/public-apis/public-apis/blob/master/CONTRIBUTING.md",
+      "pinned_url": "https://github.com/public-apis/public-apis/blob/339ab55dc8532107fdeb5ef22777b4e34bd4af6f/CONTRIBUTING.md",
+      "commit": "339ab55dc8532107fdeb5ef22777b4e34bd4af6f"
+    },
+    {
+      "id": "S7",
+      "name": "Multiple-report — quy cách bài học",
+      "url": "https://github.com/vohoailinh90/Multiple-report/blob/main/CLAUDE.md",
+      "pinned_url": null,
+      "commit": null
+    },
+    {
+      "id": "S8",
+      "name": "Multiple-report — phong cách deck",
+      "url": "https://github.com/vohoailinh90/Multiple-report/blob/main/docs/deck-style.md",
+      "pinned_url": null,
+      "commit": null
+    }
+  ]
+}

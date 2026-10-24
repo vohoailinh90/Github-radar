@@ -1,0 +1,17 @@
+{
+  "canvas": "https://moda.app/canvas/60db81b1-196f-4acb-831c-72d8b957e299",
+  "pages": 24,
+  "built": "2026-10-23",
+  "brand_kit": null,
+  "slides_json_sha256": "4fe37283536c65ae4d78ac9b6678831662a95c762c747890a1441dbf232d2f42",
+  "source_snapshot": "facts-snapshot.json",
+  "source_pins": "sources.json",
+  "pptx_notes": "Expanded notes added to the native Moda PPTX; page graphics preserved.",
+  "pdf_caveats": [
+    "One page rasterized by Moda; all content visible."
+  ],
+  "artifacts": {
+    "github-top3-report.pptx": "4f875ceadef9e51f16aaa01b75d184dbd7752212b6fc7f07ee016df666489114",
+    "github-top3-report.pdf": "036087414f2e959bf473a52fcc4307fe9928a7a2506c6f93b2be16c0db09a20b"
+  }
+}
