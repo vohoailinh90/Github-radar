@@ -1,0 +1,30 @@
+{
+  "canvas": "https://moda.app/canvas/f347764f-cccf-4fd4-bc84-10469cba0678?source=agent",
+  "pages": 33,
+  "built": "2026-10-24",
+  "design": "Atlas Lab / A4 / Lexend + Noto Sans / white, petrol and coral",
+  "brand_kit": null,
+  "source_pins": "sources.json",
+  "navigation": "navigation.json",
+  "post_export_changes": "Added tested PDF GoTo destinations and bookmarks; native PowerPoint TOC links target lesson slides. No page content or shapes removed.",
+  "verification": {
+    "pdf_pages": 33,
+    "pptx_pages": 33,
+    "internal_pdf_toc_links": 16,
+    "internal_pptx_toc_links": 16,
+    "category_links": 27,
+    "example_repo_links": 27,
+    "lesson_repo_links": 16,
+    "lesson_source_links": 16,
+    "source_section_anchors_checked": 43,
+    "pptx_native_shape_counts_preserved": true
+  },
+  "hashes": {
+    "course.json": "e3d55c149212e01d03bb078b37f8c853b32f1dbff2e907f0aec47eac5b5c631c",
+    "page-plan.json": "5770946cdd420a43b9b88dff8054ee0e37f4e1b595d350590fc4c6a97314c27e",
+    "moda-pages.json": "7ce751f6b50dfe8c7196fd4962e1287c16a701f26246e307721499118b57d3fa",
+    "awesome-handbook.pdf": "ffbadc687ae61dbff4299d2a9674ba45f8c18751ade3d00608c980c256cbb665",
+    "awesome-handbook.pptx": "1c85c8822e40cd1bdc1fa73083967be5a7a6a0759ee5d327ea624c41df685fb4"
+  },
+  "pdf_export_caveat": "Moda reported one rasterized page; clickable links are preserved/explicitly added, but rasterized page text is not searchable."
+}

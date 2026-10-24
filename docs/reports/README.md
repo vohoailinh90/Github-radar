@@ -18,5 +18,7 @@ Each report is a folder:
 
 | [github-top3](github-top3/report.md) | build-your-own-x, awesome, public-apis | 2026-10-23 snapshot; [source pins](github-top3/sources.json) |
 
+| [awesome-handbook](awesome-handbook/report.md) | [sindresorhus/awesome](https://github.com/sindresorhus/awesome) | `bc98e51`; 8 chapters / 16 lessons (2026-10-24) |
+
 The format follows [vohoailinh90/Multiple-report](https://github.com/vohoailinh90/Multiple-report): a lesson, a slide plan and a Moda deck,
 checked by a structure gate (sections in order, every `[Sn]` listed and used, slide layouts and text sizes).

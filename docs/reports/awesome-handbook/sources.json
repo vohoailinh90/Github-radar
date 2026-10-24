@@ -1,0 +1,50 @@
+[
+  {
+    "id": "R1",
+    "title": "README: bản đồ nhóm và liên kết",
+    "repo": "sindresorhus/awesome",
+    "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+    "path": "readme.md",
+    "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md"
+  },
+  {
+    "id": "R2",
+    "title": "The awesome manifesto",
+    "repo": "sindresorhus/awesome",
+    "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+    "path": "awesome.md",
+    "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md"
+  },
+  {
+    "id": "R3",
+    "title": "Contribution Guidelines",
+    "repo": "sindresorhus/awesome",
+    "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+    "path": "contributing.md",
+    "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/contributing.md"
+  },
+  {
+    "id": "R4",
+    "title": "Creating Your Own List",
+    "repo": "sindresorhus/awesome",
+    "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+    "path": "create-list.md",
+    "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/create-list.md"
+  },
+  {
+    "id": "R5",
+    "title": "Checklist đề xuất danh sách",
+    "repo": "sindresorhus/awesome",
+    "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+    "path": "pull_request_template.md",
+    "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md"
+  },
+  {
+    "id": "R6",
+    "title": "awesome-lint: CLI và kiểm tra",
+    "repo": "sindresorhus/awesome-lint",
+    "sha": "4f870abda373cfa18c67822c39ee29c451ae8a70",
+    "path": "readme.md",
+    "url": "https://github.com/sindresorhus/awesome-lint/blob/4f870abda373cfa18c67822c39ee29c451ae8a70/readme.md"
+  }
+]
