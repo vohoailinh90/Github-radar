@@ -20,5 +20,7 @@ Each report is a folder:
 
 | [awesome-handbook](awesome-handbook/report.md) | [sindresorhus/awesome](https://github.com/sindresorhus/awesome) | `bc98e51`; 8 chapters / 16 lessons (2026-10-24) |
 
+| [build-your-own-x](build-your-own-x/report.md) | [codecrafters-io/build-your-own-x](https://github.com/codecrafters-io/build-your-own-x) | `aa17439`; overview / 31 groups (2026-10-24) |
+
 The format follows [vohoailinh90/Multiple-report](https://github.com/vohoailinh90/Multiple-report): a lesson, a slide plan and a Moda deck,
 checked by a structure gate (sections in order, every `[Sn]` listed and used, slide layouts and text sizes).

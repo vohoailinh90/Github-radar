@@ -1,0 +1,33 @@
+{
+  "canvas": "https://moda.app/canvas/4074b77f-9d96-457d-abde-1be20ada8693?source=agent",
+  "pages": 20,
+  "built": "2026-10-24",
+  "design": "Build Atlas / A4 / Lexend + Noto Sans",
+  "brand_kit": null,
+  "source_pins": "sources.json",
+  "post_export_changes": "Tested explicit PDF page-object destinations, bookmarks and native PowerPoint TOC links; graphics preserved.",
+  "verification": {
+    "pdf_pages": 20,
+    "pptx_pages": 20,
+    "groups": 31,
+    "pdf_toc_targets": 18,
+    "pptx_toc_targets": 18,
+    "external_pdf_links_checked": 108,
+    "pptx_native_shapes_preserved": true
+  },
+  "export_warnings": {
+    "pdf": [
+      {
+        "code": "pdf_page_rasterized",
+        "message": "1 page(s) shipped as pixels rather than a text layer (). Everything on them is visible and their hyperlinks still work, but their text is not selectable or searchable."
+      }
+    ],
+    "pptx": []
+  },
+  "sha256": {
+    "report.json": "77622d80c42565df7dafb8a0e08263595bf04993bf4f8af7abe6532725b71669",
+    "moda-pages.json": "a1b07b78f77cb7cc0078cee896de901ec01ebc139f1aabb41da271be26bd317e",
+    "build-your-own-x.pdf": "6865a247ba2d4f194752fa3d5ff526cb05f5421aa92a1e6f953928db7d0d3259",
+    "build-your-own-x.pptx": "071f8e428c79ae66e3c076d72f62ed28152bb5fd5e1b2536c78ace192b8d6594"
+  }
+}
