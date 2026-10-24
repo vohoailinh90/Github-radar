@@ -4,6 +4,11 @@
     "covered": "2026-10-13",
     "stars": 87320
   },
+  "DuarteSantos8/openGym": {
+    "bucket": "software",
+    "covered": "2026-10-24",
+    "stars": 15286
+  },
   "HKUDS/ViMax": {
     "bucket": "ai",
     "covered": "2026-10-16",
@@ -78,6 +83,11 @@
     "bucket": "solutions",
     "covered": "2026-10-17",
     "stars": 21331
+  },
+  "kestra-io/kestra": {
+    "bucket": "solutions",
+    "covered": "2026-10-24",
+    "stars": 29966
   },
   "microsoft/playwright": {
     "bucket": "solutions",
