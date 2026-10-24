@@ -1,0 +1,304 @@
+{
+  "canvas": "cvs_7K8XV4ZK6F9ZABS10G8TEBM1KR",
+  "toc_page": "page-1792808231395-569479777",
+  "categories": [
+    {
+      "name": "Platforms",
+      "url": "https://github.com/sindresorhus/awesome-nodejs#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#platforms"
+    },
+    {
+      "name": "Programming Languages",
+      "url": "https://github.com/sorrycc/awesome-javascript#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#programming-languages"
+    },
+    {
+      "name": "Front-End Development",
+      "url": "https://github.com/addyosmani/es6-tools#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#front-end-development"
+    },
+    {
+      "name": "Back-End Development",
+      "url": "https://github.com/mjhea0/awesome-flask#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#back-end-development"
+    },
+    {
+      "name": "Computer Science",
+      "url": "https://github.com/prakhar1989/awesome-courses#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#computer-science"
+    },
+    {
+      "name": "Big Data",
+      "url": "https://github.com/0xnr/awesome-bigdata#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#big-data"
+    },
+    {
+      "name": "Theory",
+      "url": "https://github.com/papers-we-love/papers-we-love#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#theory"
+    },
+    {
+      "name": "Books",
+      "url": "https://github.com/EbookFoundation/free-programming-books#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#books"
+    },
+    {
+      "name": "Editors",
+      "url": "https://github.com/dreikanter/sublime-bookmarks#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#editors"
+    },
+    {
+      "name": "Gaming",
+      "url": "https://github.com/ellisonleao/magictools#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#gaming"
+    },
+    {
+      "name": "Development Environment",
+      "url": "https://github.com/sindresorhus/quick-look-plugins#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#development-environment"
+    },
+    {
+      "name": "Entertainment",
+      "url": "https://github.com/sindresorhus/awesome-scifi#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#entertainment"
+    },
+    {
+      "name": "Databases",
+      "url": "https://github.com/numetriclabz/awesome-db#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#databases"
+    },
+    {
+      "name": "Media",
+      "url": "https://github.com/brabadu/awesome-fonts#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#media"
+    },
+    {
+      "name": "Learn",
+      "url": "https://github.com/therebelrobot/awesome-workshopper#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#learn"
+    },
+    {
+      "name": "Security",
+      "url": "https://github.com/paragonie/awesome-appsec#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#security"
+    },
+    {
+      "name": "Content Management Systems",
+      "url": "https://github.com/umbraco-community/awesome-umbraco#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#content-management-systems"
+    },
+    {
+      "name": "Hardware",
+      "url": "https://github.com/Kiloreux/awesome-robotics#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#hardware"
+    },
+    {
+      "name": "Business",
+      "url": "https://github.com/opencompany/awesome-open-company#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#business"
+    },
+    {
+      "name": "Work",
+      "url": "https://github.com/matiassingers/awesome-slack#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#work"
+    },
+    {
+      "name": "Networking",
+      "url": "https://github.com/caesar0301/awesome-pcaptools#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#networking"
+    },
+    {
+      "name": "Decentralized Systems",
+      "url": "https://github.com/igorbarinov/awesome-bitcoin#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#decentralized-systems"
+    },
+    {
+      "name": "Health and Social Science",
+      "url": "https://github.com/caufieldjh/awesome-bioie#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#health-and-social-science"
+    },
+    {
+      "name": "Events",
+      "url": "https://github.com/danvoyce/awesome-creative-tech-events#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#events"
+    },
+    {
+      "name": "Testing",
+      "url": "https://github.com/TheJambo/awesome-testing#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#testing"
+    },
+    {
+      "name": "Miscellaneous",
+      "url": "https://github.com/writing-resources/awesome-scientific-writing#readme",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#miscellaneous"
+    },
+    {
+      "name": "Related",
+      "url": "https://github.com/topics/awesome",
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#related"
+    }
+  ],
+  "lessons": [
+    {
+      "title": "Đặt câu hỏi trước khi mở danh sách",
+      "chapter": 1,
+      "lesson": 1,
+      "page": "p_f",
+      "pdf_page": 7,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-01",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#make-it-clear-what-the-list-is-about",
+      "source_id": "R2"
+    },
+    {
+      "title": "Đi qua đúng ba tầng liên kết",
+      "chapter": 1,
+      "lesson": 2,
+      "page": "p_g",
+      "pdf_page": 8,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-02",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#platforms",
+      "source_id": "R1"
+    },
+    {
+      "title": "Chọn nhóm theo việc cần làm",
+      "chapter": 2,
+      "lesson": 3,
+      "page": "p_i",
+      "pdf_page": 10,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-03",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#contents",
+      "source_id": "R1"
+    },
+    {
+      "title": "Biến danh sách thành lộ trình học",
+      "chapter": 2,
+      "lesson": 4,
+      "page": "p_j",
+      "pdf_page": 11,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-04",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#learn",
+      "source_id": "R1"
+    },
+    {
+      "title": "Lập hồ sơ ứng viên",
+      "chapter": 3,
+      "lesson": 5,
+      "page": "p_l",
+      "pdf_page": 13,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-05",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#only-awesome-is-awesome",
+      "source_id": "R2"
+    },
+    {
+      "title": "So sánh và loại có lý do",
+      "chapter": 3,
+      "lesson": 6,
+      "page": "p_m",
+      "pdf_page": 14,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-06",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#only-awesome-is-awesome",
+      "source_id": "R2"
+    },
+    {
+      "title": "Viết một entry không quảng cáo",
+      "chapter": 4,
+      "lesson": 7,
+      "page": "p_o",
+      "pdf_page": 16,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-07",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+      "source_id": "R5"
+    },
+    {
+      "title": "Thử trải nghiệm của người đọc",
+      "chapter": 4,
+      "lesson": 8,
+      "page": "p_p",
+      "pdf_page": 17,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-08",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#stylize-your-list-properly",
+      "source_id": "R2"
+    },
+    {
+      "title": "Tạo README có phạm vi và mục lục",
+      "chapter": 5,
+      "lesson": 9,
+      "page": "p_r",
+      "pdf_page": 19,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-09",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/create-list.md",
+      "source_id": "R4"
+    },
+    {
+      "title": "Thêm quy tắc đóng góp và giấy phép",
+      "chapter": 5,
+      "lesson": 10,
+      "page": "p_s",
+      "pdf_page": 20,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-10",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+      "source_id": "R5"
+    },
+    {
+      "title": "Rà soát thủ công trước khi chạy công cụ",
+      "chapter": 6,
+      "lesson": 11,
+      "page": "p_u",
+      "pdf_page": 22,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-11",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+      "source_id": "R5"
+    },
+    {
+      "title": "Chạy awesome-lint và hiểu kết quả",
+      "chapter": 6,
+      "lesson": 12,
+      "page": "p_v",
+      "pdf_page": 23,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-12",
+      "source_url": "https://github.com/sindresorhus/awesome-lint/blob/4f870abda373cfa18c67822c39ee29c451ae8a70/readme.md#usage",
+      "source_id": "R6"
+    },
+    {
+      "title": "Đề xuất một tài nguyên vào danh sách có sẵn",
+      "chapter": 7,
+      "lesson": 13,
+      "page": "p_x",
+      "pdf_page": 25,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-13",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/contributing.md#adding-something-to-an-awesome-list",
+      "source_id": "R3"
+    },
+    {
+      "title": "Kiểm tra điều kiện cho một danh sách mới",
+      "chapter": 7,
+      "lesson": 14,
+      "page": "p_y",
+      "pdf_page": 26,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-14",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-pull-request",
+      "source_id": "R5"
+    },
+    {
+      "title": "Thiết kế vòng bảo trì",
+      "chapter": 8,
+      "lesson": 15,
+      "page": "p_aa",
+      "pdf_page": 28,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-15",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#accept-other-peoples-opinion",
+      "source_id": "R2"
+    },
+    {
+      "title": "Đồ án: danh sách nhỏ có bằng chứng",
+      "chapter": 8,
+      "lesson": 16,
+      "page": "p_ab",
+      "pdf_page": 29,
+      "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-16",
+      "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+      "source_id": "R5"
+    }
+  ],
+  "page_count": 33
+}

@@ -1,0 +1,1102 @@
+{
+  "title": "Awesome Atlas Lab",
+  "subtitle": "Từ bản đồ tài nguyên đến danh sách tự tuyển chọn",
+  "date": "2026-10-24",
+  "scope": "Giáo trình biên soạn riêng: bản đồ đủ 27 nhóm, 8 chương, 16 bài thực hành về dùng và xây danh sách. Không phải giáo trình chính thức của awesome và không thay thế hướng dẫn kỹ thuật của mọi repo được liên kết.",
+  "chapters": [
+    {
+      "title": "Hiểu đúng Awesome",
+      "question": "Kho này thực sự giúp mình làm việc gì?",
+      "summary": "Awesome tổ chức việc khám phá tài nguyên theo hai tầng: danh mục tổng dẫn tới danh sách chuyên ngành; danh sách chuyên ngành dẫn tới công cụ, tài liệu và dự án. Giá trị cốt lõi là tuyển chọn có lý do. Một liên kết xuất hiện ở đây là điểm khởi đầu để tìm hiểu, không phải lời bảo đảm phù hợp với mọi người. Chương này giúp bạn chuyển một mong muốn mơ hồ thành nhiệm vụ có thể hoàn thành và biết xác định mình đang ở tầng nào của hệ thống. [R1][R2]",
+      "terms": [
+        [
+          "Repository",
+          "Kho lưu trữ nội dung, mã nguồn và lịch sử thay đổi."
+        ],
+        [
+          "Curation",
+          "Tuyển chọn có chủ đích, có lý do và phạm vi."
+        ],
+        [
+          "README",
+          "Trang giới thiệu và điều hướng chính của một repo."
+        ]
+      ],
+      "sources": [
+        "R1",
+        "R2"
+      ],
+      "lessons": [
+        {
+          "title": "Đặt câu hỏi trước khi mở danh sách",
+          "goal": "Viết được một yêu cầu có đầu ra và ràng buộc rõ ràng.",
+          "explain": "Nếu bạn chỉ hỏi “có công cụ nào hay?”, danh sách càng lớn càng dễ làm bạn phân tâm. Hãy bắt đầu bằng một việc muốn làm, ai sử dụng, điều kiện hiện tại và dấu hiệu thành công. Ví dụ của người viết: “Tôi muốn chọn một tài liệu nhập môn JavaScript có bài tập, dùng trên máy đang có, rồi tự giải thích được ví dụ đầu tiên”. Câu hỏi này cho phép loại tài nguyên ngoài phạm vi. Manifesto yêu cầu danh sách có phạm vi rõ; người đọc cũng cần một phạm vi rõ để dùng danh sách hiệu quả. [R2]",
+          "steps": [
+            "Mở mẫu project-brief.md trong bộ bài tập hoặc tạo một ghi chú trống. Viết một câu về việc muốn hoàn thành, tránh dùng “học mọi thứ”.",
+            "Ghi kiến thức đang có, thiết bị, ngôn ngữ tài liệu đọc được và chi phí chấp nhận. Những gì chưa biết thì ghi “chưa xác định”.",
+            "Định nghĩa một đầu ra kiểm chứng được: một trang ghi chú, một ví dụ chạy được hoặc bảng so sánh có bằng chứng.",
+            "Viết hai điều chủ động không làm. Ví dụ: chưa chọn framework, chưa tối ưu hiệu năng khi vẫn đang học cú pháp."
+          ],
+          "output": "Một bản yêu cầu 4 mục: mục tiêu, ràng buộc, đầu ra, ngoài phạm vi.",
+          "mistake": "Đặt mục tiêu bằng tên công nghệ như “học AI” nhưng không có tác vụ. Sửa bằng một sản phẩm nhỏ hoặc một câu hỏi có thể trả lời.",
+          "question": "Tại sao “tìm thư viện nhiều sao nhất” chưa đủ làm yêu cầu?",
+          "answer": "Vì nó không xác định nhiệm vụ, ràng buộc hay cách nhận biết thư viện phù hợp.",
+          "exercise": "Viết lại mục tiêu của bạn thành một câu có động từ và đầu ra. Nhờ một người khác đọc và nói lại điều họ hiểu.",
+          "sources": [
+            "R1",
+            "R2"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-01",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#make-it-clear-what-the-list-is-about",
+          "source_id": "R2",
+          "pdf_page": 7
+        },
+        {
+          "title": "Đi qua đúng ba tầng liên kết",
+          "goal": "Phân biệt repo tổng, danh sách chuyên ngành và tài nguyên đích.",
+          "explain": "Ở repo tổng, một mục thường là liên kết tới một danh sách khác, không phải gói phần mềm để cài. Ví dụ thật: Platforms có Node.js và trỏ tới awesome-nodejs. Sau khi mở danh sách chuyên ngành, bạn mới chọn mục liên quan rồi đọc tài liệu của tài nguyên đó. Quy tắc đóng góp cũng phân biệt thêm một danh sách vào repo tổng với thêm một tài nguyên vào danh sách đang có. Nhầm hai tầng này dễ khiến bạn gửi thay đổi sai nơi hoặc tưởng mình đã đọc tài liệu chính thức trong khi mới đọc một câu giới thiệu. [R1][R3]",
+          "steps": [
+            "Mở readme.md của sindresorhus/awesome, tìm Contents và chọn Platforms.",
+            "Mở mục Node.js. Ghi URL danh sách awesome-nodejs, rồi tìm phần Contents của danh sách đó.",
+            "Chọn một mục gần yêu cầu của bài 1. Mở liên kết đích và xác định trang giới thiệu hoặc tài liệu chính thức của nó.",
+            "Ghi lại ba dòng: repo tổng → danh sách chuyên ngành → tài nguyên đích. Viết một câu mô tả vai trò của từng dòng."
+          ],
+          "output": "Một đường đi gồm ba URL thật, kèm vai trò của từng URL.",
+          "mistake": "Tải repo tổng rồi mong có toàn bộ tài liệu bên ngoài. Repo tổng chỉ lưu nội dung của chính nó và các liên kết.",
+          "question": "Muốn đề xuất một thư viện Node.js, bạn thường đọc hướng dẫn đóng góp ở đâu?",
+          "answer": "Ở danh sách Node.js đích; repo tổng chủ yếu tiếp nhận danh sách theo chủ đề.",
+          "exercise": "Lặp lại đường đi với Python trong Programming Languages. So sánh hai danh sách theo cách chia mục, chưa kết luận chất lượng thư viện.",
+          "sources": [
+            "R1",
+            "R3"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-02",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#platforms",
+          "source_id": "R1",
+          "pdf_page": 8
+        }
+      ]
+    },
+    {
+      "title": "Đọc bản đồ 27 nhóm",
+      "question": "Chọn lối vào nào cho câu hỏi của mình?",
+      "summary": "Các nhóm trong README là các lối vào khám phá, không phải thứ tự môn học. Platforms tổ chức quanh môi trường chạy; Programming Languages quanh ngôn ngữ; Front-End và Back-End quanh vai trò ứng dụng. Những nhóm như Theory, Books và Learn tổ chức quanh dạng tri thức hoặc cách học. Một tài nguyên có thể liên quan tới nhiều lối vào. Vì vậy, chọn nhóm theo nhiệm vụ rồi đối chiếu phạm vi danh sách đích sẽ hữu ích hơn việc cố tìm một nhãn duy nhất đúng tuyệt đối. [R1]",
+      "terms": [
+        [
+          "Platform",
+          "Nền tảng hoặc môi trường mà ứng dụng hoạt động."
+        ],
+        [
+          "Taxonomy",
+          "Hệ phân loại giúp chia nội dung thành nhóm."
+        ],
+        [
+          "Learning path",
+          "Lộ trình học do bạn xây từ các tài nguyên."
+        ]
+      ],
+      "sources": [
+        "R1"
+      ],
+      "lessons": [
+        {
+          "title": "Chọn nhóm theo việc cần làm",
+          "goal": "Tìm được hai lối vào hợp lý và giải thích được sự khác nhau.",
+          "explain": "Muốn làm web có thể bắt đầu từ Front-End Development, Back-End Development hoặc một ngôn ngữ quen thuộc. Muốn hiểu nền tảng thì Computer Science, Theory và Books là những cửa vào khác. Không nên coi các nhóm này là mức độ từ dễ tới khó: README không đưa ra một chương trình học bắt buộc. Hai trang bản đồ ở đầu tài liệu liệt kê đủ 27 nhóm cùng một liên kết mẫu để bạn thử. Các câu hỏi và bài tập gắn với mỗi nhóm là cách biên soạn của người viết, không phải lời hứa rằng danh sách đích sẽ dạy đầy đủ chủ đề đó. [R1]",
+          "steps": [
+            "Lấy yêu cầu bài 1 và khoanh hai nhóm có liên quan trong bản đồ 27 nhóm.",
+            "Đọc mô tả của một mục trong mỗi nhóm, rồi mở README của hai danh sách đích.",
+            "Viết phạm vi mỗi danh sách bằng một câu. Nếu không thấy phạm vi rõ, ghi đó là điểm chưa xác minh.",
+            "Chọn một đường đi chính và một đường dự phòng. Ghi lý do dựa vào mục tiêu, không dựa duy nhất vào số sao."
+          ],
+          "output": "Hai đường điều hướng và một quyết định có lý do.",
+          "mistake": "Cho rằng nhóm đứng trước trong README là kiến thức cần học trước. Thứ tự mục lục là điều hướng, không tự động là thứ tự học.",
+          "question": "Vì sao một nhu cầu có thể có hai đường đi đúng?",
+          "answer": "Vì danh mục chia theo nhiều góc nhìn: môi trường, vai trò công việc, lĩnh vực hoặc dạng tài liệu.",
+          "exercise": "Làm cùng bài tập với một nhu cầu ngoài lập trình, chẳng hạn tìm tài nguyên làm việc từ xa hoặc viết khoa học.",
+          "sources": [
+            "R1"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-03",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#contents",
+          "source_id": "R1",
+          "pdf_page": 10
+        },
+        {
+          "title": "Biến danh sách thành lộ trình học",
+          "goal": "Sắp được ba bước học có quan hệ đầu vào–đầu ra.",
+          "explain": "Một danh sách phong phú không tự tạo thành giáo trình. Bạn cần tự bổ sung thứ tự, kiến thức nền và bài kiểm tra. Đề xuất của người viết là chia thành ba bước: hiểu khái niệm, làm một tác vụ nhỏ, rồi mở rộng hoặc so sánh. Với mỗi bước, chỉ chọn một tài nguyên chính để giảm chuyển đổi liên tục. Ví dụ: đọc tài liệu nhập môn trước khi dùng một công cụ nâng cao. Các nhóm Learn, Books và Computer Science trong README hỗ trợ việc khám phá nguồn; thứ tự học và thời gian phải được điều chỉnh theo người học. [R1]",
+          "steps": [
+            "Chọn ba câu hỏi theo thứ tự: cần hiểu gì, cần làm được gì, cần tự thay đổi điều gì.",
+            "Gắn một tài nguyên chính vào mỗi câu hỏi và ghi kiến thức nền mà tài nguyên đó yêu cầu.",
+            "Đặt đầu ra cuối từng bước. Chỉ chuyển bước khi bạn có đầu ra, thay vì chỉ đánh dấu đã mở trang.",
+            "Nếu một tài nguyên quá khó, quay lại một bước nền tảng. Ghi cụ thể thuật ngữ hoặc thao tác khiến bạn mắc kẹt."
+          ],
+          "output": "Lộ trình ba bước, mỗi bước có tài nguyên, điều kiện bắt đầu và đầu ra.",
+          "mistake": "Lập một danh sách nhiều khóa học nhưng không có bài thực hành. Sửa bằng một đầu ra nhỏ cho mỗi nguồn chính.",
+          "question": "Khi nào nên đổi tài nguyên?",
+          "answer": "Khi có bằng chứng nó lệch mục tiêu hoặc thiếu kiến thức nền; không đổi chỉ vì vừa thấy một liên kết mới hấp dẫn.",
+          "exercise": "Chọn một bước và hoàn thành đầu ra trong phạm vi bạn có thể quản lý. Ghi lại điều chưa hiểu thay vì tăng thêm số tài nguyên.",
+          "sources": [
+            "R1"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-04",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#learn",
+          "source_id": "R1",
+          "pdf_page": 11
+        }
+      ]
+    },
+    {
+      "title": "Tuyển chọn bằng bằng chứng",
+      "question": "Tại sao một tài nguyên xứng đáng xuất hiện?",
+      "summary": "The awesome manifesto yêu cầu chỉ giới thiệu thứ bạn hoặc người đóng góp có thể thật sự khuyên dùng, và giải thích lợi ích của nó. Hướng dẫn danh sách còn loại tài nguyên không được duy trì, đã lưu trữ, ngừng dùng hoặc thiếu tài liệu khỏi danh sách chính; trường hợp cần giữ nên nằm trong tệp riêng. Chương này chuyển tinh thần ấy thành hồ sơ bằng chứng và bảng so sánh. Các thang điểm trong bài là công cụ ra quyết định do người viết đề xuất, không phải công thức chính thức của Awesome. [R2][R5]",
+      "terms": [
+        [
+          "Evidence",
+          "Bằng chứng có thể mở lại hoặc tái kiểm tra."
+        ],
+        [
+          "Archived",
+          "Repo được chủ dự án chuyển sang trạng thái lưu trữ."
+        ],
+        [
+          "Trade-off",
+          "Điểm đánh đổi giữa các lựa chọn."
+        ]
+      ],
+      "sources": [
+        "R2",
+        "R5"
+      ],
+      "lessons": [
+        {
+          "title": "Lập hồ sơ ứng viên",
+          "goal": "Phân biệt điều đã quan sát với điều đang suy đoán.",
+          "explain": "Một mô tả hấp dẫn chưa đủ để khuyên người khác dùng. Hãy ghi URL chính, phạm vi, người dùng phù hợp, tài liệu bắt đầu, giấy phép và tình trạng duy trì quan sát được. Mọi nhận xét cần có ngày kiểm tra và bằng chứng. Ví dụ “đã lưu trữ” phải dựa trên trạng thái repo; “dễ dùng” cần một tác vụ bạn đã thử. Không có commit gần đây chưa đủ để kết luận một dự án ngừng hoạt động, bởi một tài nguyên ổn định có thể ít thay đổi. Hướng dẫn Awesome yêu cầu chất lượng tuyển chọn; hồ sơ này là cách thực hành của người viết. [R2][R5]",
+          "steps": [
+            "Mở mẫu candidate-log.csv. Tạo một dòng cho mỗi ứng viên, ghi ngày, URL và nhiệm vụ dự định thử.",
+            "Mở tài liệu gốc và giấy phép. Chép liên kết bằng chứng; mục không tìm thấy phải ghi “chưa xác minh”.",
+            "Kiểm tra trạng thái lưu trữ, thông báo ngừng dùng và hướng dẫn bắt đầu. Tách quan sát khỏi diễn giải cá nhân.",
+            "Thử một tác vụ phù hợp với phạm vi tài nguyên. Ghi đầu vào, việc làm, kết quả và điều còn hạn chế."
+          ],
+          "output": "Hai hồ sơ ứng viên có liên kết bằng chứng và trạng thái đã thử/chưa thử.",
+          "mistake": "Điền “miễn phí, an toàn, dễ dùng” theo ấn tượng. Sửa bằng điều kiện cụ thể, nguồn gốc và kết quả thử thực tế.",
+          "question": "Bạn chưa tìm thấy giấy phép thì nên ghi gì?",
+          "answer": "Ghi chưa xác minh, rồi tìm thêm hoặc hỏi chủ dự án; không tự suy ra quyền sử dụng.",
+          "exercise": "Chọn một nhận xét của bạn và thử bác bỏ nó bằng cách tìm trường hợp không còn đúng.",
+          "sources": [
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-05",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#only-awesome-is-awesome",
+          "source_id": "R2",
+          "pdf_page": 13
+        },
+        {
+          "title": "So sánh và loại có lý do",
+          "goal": "Ra quyết định có thể giải thích lại cho người khác.",
+          "explain": "Khi có nhiều ứng viên, hãy dùng cùng một tập tiêu chí. Đề xuất của người viết gồm: phù hợp nhiệm vụ, rõ tài liệu, kết quả thử và điều kiện sử dụng. Bạn có thể chấm mỗi tiêu chí từ 0 đến 2, nhưng điểm tổng không thay thế điều kiện bắt buộc. Nếu dự án của bạn cần quyền sử dụng nhất định mà chưa xác minh được, đó là điểm chặn cho quyết định hiện tại, dù những tiêu chí khác cao. Manifesto khuyến khích bỏ bớt thay vì thêm quá nhiều; mục tiêu của so sánh là lựa chọn có lý do, không phải tạo bảng xếp hạng phổ quát. [R2]",
+          "steps": [
+            "Chọn hai ứng viên cho cùng một nhiệm vụ. Viết trước các điều kiện bắt buộc, tránh đổi tiêu chí để bên mình thích thắng.",
+            "Chấm bốn tiêu chí theo bằng chứng: 0 chưa đạt/chưa rõ, 1 đạt một phần, 2 đạt tác vụ đã xác định.",
+            "Ghi một ưu điểm, một hạn chế và một tình huống không phù hợp cho từng ứng viên.",
+            "Chọn một, hoãn một hoặc loại cả hai. Viết đoạn quyết định nêu điều kiện khiến bạn sẽ xem xét lại."
+          ],
+          "output": "Một bảng so sánh và đoạn kết luận khoảng 5 câu.",
+          "mistake": "Cộng điểm rồi bỏ qua điều kiện bắt buộc. Luôn kiểm tra điểm chặn trước khi dùng điểm tổng để hỗ trợ so sánh.",
+          "question": "Hai ứng viên cùng điểm thì làm gì?",
+          "answer": "Thử tác vụ phân biệt quan trọng nhất hoặc chọn theo ràng buộc của người dùng; không bịa độ chính xác cho điểm số.",
+          "exercise": "Đưa bảng cho người khác và hỏi họ có thể xác minh từng ô từ liên kết bạn ghi hay không.",
+          "sources": [
+            "R2"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-06",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#only-awesome-is-awesome",
+          "source_id": "R2",
+          "pdf_page": 14
+        }
+      ]
+    },
+    {
+      "title": "Viết mục giới thiệu có ích",
+      "question": "Người đọc hiểu được gì sau một dòng mô tả?",
+      "summary": "Awesome yêu cầu mô tả ngắn gọn nhưng có thông tin. Cần phân biệt câu mô tả một tài nguyên với câu mô tả chủ đề của một danh sách khi đề xuất vào repo tổng. Hướng dẫn repo tổng yêu cầu mô tả dự án/chủ đề, không dùng khẩu hiệu và không chỉ nói “một danh sách tài nguyên”. Các mục nên nhất quán về cách viết tên, dấu phân cách và dấu chấm. Chương này giúp bạn đi từ ghi chú quan sát dài tới một mô tả ngắn, rồi thử xem người khác có hiểu đúng không. [R2][R5]",
+      "terms": [
+        [
+          "Entry",
+          "Một mục gồm tên, liên kết và mô tả."
+        ],
+        [
+          "Description",
+          "Câu nêu chức năng hoặc phạm vi cụ thể."
+        ],
+        [
+          "Editorial review",
+          "Đọc lại để sửa nghĩa, cấu trúc và cách diễn đạt."
+        ]
+      ],
+      "sources": [
+        "R2",
+        "R5"
+      ],
+      "lessons": [
+        {
+          "title": "Viết một entry không quảng cáo",
+          "goal": "Viết được mô tả chức năng có thể kiểm chứng.",
+          "explain": "Một entry có ích cho biết tài nguyên làm gì và giúp người đọc quyết định có mở tiếp không. Các từ như “tốt nhất”, “cực mạnh” thường không cung cấp điều kiện để đánh giá. Theo hướng dẫn, tên và mô tả được ngăn bằng dấu gạch ngang; mô tả bắt đầu bằng chữ hoa và kết thúc bằng dấu chấm. Khi đề xuất một danh sách lên repo tổng, câu mô tả nói về chủ đề của danh sách, không quảng cáo chính danh sách. Ví dụ iOS trong hướng dẫn mô tả hệ điều hành, thay vì nói “tài nguyên và công cụ cho iOS”. [R5]",
+          "steps": [
+            "Chọn một ứng viên đã có hồ sơ bằng chứng. Viết một câu trả lời “nó cung cấp chức năng gì?”.",
+            "Xóa từ quảng cáo, nhận xét chưa thử và thông tin không liên quan tới nhiệm vụ người đọc.",
+            "Giữ đúng tên dự án, URL gốc và mô tả. Dùng đoạn mẫu entry trong bộ bài tập để hiểu cú pháp Markdown.",
+            "Đọc lại câu với tài liệu gốc. Nếu câu vượt quá điều bạn đã kiểm chứng, thu hẹp nó hoặc bổ sung bằng chứng."
+          ],
+          "output": "Hai entry cùng định dạng và mỗi entry có lý do chọn nằm trong nhật ký riêng.",
+          "mistake": "Đưa lời khen vào mô tả nhưng bỏ chức năng. Sửa bằng danh từ và động từ cụ thể có trong tài liệu gốc.",
+          "question": "Mô tả ngắn có cần kể hết tính năng không?",
+          "answer": "Không. Nó cần nêu phần chức năng hoặc phạm vi đủ để người đọc sàng lọc; chi tiết nằm ở tài nguyên đích.",
+          "exercise": "Nhờ người khác nói lại ứng viên làm gì chỉ từ entry; sửa câu nếu họ hiểu lệch.",
+          "sources": [
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-07",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+          "source_id": "R5",
+          "pdf_page": 16
+        },
+        {
+          "title": "Thử trải nghiệm của người đọc",
+          "goal": "Đo xem danh sách có giúp người mới tìm được thứ cần không.",
+          "explain": "Tuyển chọn không dừng ở kiểm tra tài nguyên. Một danh sách có mục chất lượng vẫn khó dùng nếu nhóm mơ hồ, mô tả trùng nhau hoặc không có mục lục. Manifesto yêu cầu tổ chức theo nhóm và giữ định dạng nhất quán. Bài tập của người viết là thử một nhiệm vụ tìm kiếm: đưa người đọc một câu hỏi, để họ tự chọn đường đi rồi giải thích lựa chọn. Không cần đặt một giới hạn thời gian chung cho mọi người; điều cần ghi là vị trí họ nhầm và thông tin họ thiếu. Kết quả giúp sửa cấu trúc thay vì chỉ thêm liên kết. [R2]",
+          "steps": [
+            "Chọn một câu hỏi có thể trả lời bằng các entry hiện có. Không chỉ sẵn mục cần mở.",
+            "Nhờ một người đọc thử, hoặc tự đọc lại sau khi tạm rời tài liệu. Ghi điểm họ dừng hoặc hiểu nhầm.",
+            "Hỏi vì sao họ chọn entry đó, chức năng họ mong đợi và điều kiện họ chưa biết.",
+            "Sửa một nhãn nhóm hoặc mô tả, rồi thử lại đúng nhiệm vụ để xem sự nhầm lẫn có giảm không."
+          ],
+          "output": "Một ghi chú thử đọc gồm nhiệm vụ, quan sát, thay đổi và kết quả lần thử sau.",
+          "mistake": "Đánh giá bằng câu “giao diện đẹp” mà không biết người đọc tìm được gì. Hãy quan sát một nhiệm vụ cụ thể.",
+          "question": "Người đọc chọn sai có luôn là lỗi của họ không?",
+          "answer": "Không. Có thể nhãn, mô tả hoặc cấu trúc tạo ra kỳ vọng sai; cần xem lại bằng chứng quan sát.",
+          "exercise": "Đổi một entry sang nhóm khác và giải thích vì sao vị trí mới hợp với nhiệm vụ hơn.",
+          "sources": [
+            "R2"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-08",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#stylize-your-list-properly",
+          "source_id": "R2",
+          "pdf_page": 17
+        }
+      ]
+    },
+    {
+      "title": "Tự xây danh sách của mình",
+      "question": "Một repo tuyển chọn cần những thành phần nào?",
+      "summary": "Danh sách mới cần có chủ đề rõ, tránh trùng một danh sách tốt đã tồn tại, và do người duy trì thật sự đầu tư công sức. Hướng dẫn hiện hành nêu tên repo dạng awesome-name-of-list, nhánh mặc định main, tiêu đề theo title case, mục lục Contents và hướng dẫn đóng góp. Quy tắc giấy phép khuyến nghị CC0 hoặc Creative Commons phù hợp; đây là giấy phép của danh sách, không tự thay đổi giấy phép của các dự án được liên kết. Bộ khung trong giáo trình là bài tập, chưa phải danh sách đủ điều kiện gửi lên Awesome. [R4][R5]",
+      "terms": [
+        [
+          "Scope",
+          "Ranh giới chủ đề và đối tượng của danh sách."
+        ],
+        [
+          "License",
+          "Điều kiện cho phép sử dụng nội dung."
+        ],
+        [
+          "Contribution guide",
+          "Hướng dẫn người khác đề xuất thay đổi."
+        ]
+      ],
+      "sources": [
+        "R4",
+        "R5"
+      ],
+      "lessons": [
+        {
+          "title": "Tạo README có phạm vi và mục lục",
+          "goal": "Tạo được bản nháp danh sách có cấu trúc rõ ràng.",
+          "explain": "Trước khi tạo danh sách mới, hãy tìm danh sách tương tự. create-list.md khuyên đóng góp vào danh sách tốt đã có nếu chủ đề trùng. Nếu nhu cầu thật sự khác, bạn cần mô tả sự khác biệt bằng phạm vi hoặc đối tượng, không chỉ đổi tên. Mục lục Contents là phần đầu tiên của danh sách; hướng dẫn yêu cầu ít lồng cấp và không đưa Contributing hoặc Footnotes vào mục lục. Người học có thể tạo file trên GitHub bằng trình duyệt, chưa cần Git hay Node.js. Bộ khung kèm theo chỉ chỉ ra cấu trúc để bạn tự viết nội dung. [R4][R5]",
+          "steps": [
+            "Tìm trong repo tổng và các đề xuất đang có; ghi danh sách tương tự cùng lý do phạm vi của bạn khác.",
+            "Tạo repo bài tập của riêng bạn. Nếu định theo chuẩn Awesome, dùng tên dạng awesome-ten-chu-de và nhánh main.",
+            "Tạo README với tiêu đề, mô tả chủ đề, Contents và một vài nhóm đủ rõ để phân loại ứng viên.",
+            "Tự thêm các entry đã kiểm chứng; dùng Preview để thử mục lục và liên kết. Không sao chép cả danh sách khác rồi nhận là tuyển chọn của mình."
+          ],
+          "output": "README nháp có phạm vi, mục lục và các entry do bạn tự đánh giá.",
+          "mistake": "Tạo quá nhiều nhóm rỗng hoặc một chủ đề quá rộng. Giảm phạm vi cho tới khi bạn giải thích được tiêu chí nhận và loại.",
+          "question": "Có cần tạo một repo mới cho mọi chủ đề không?",
+          "answer": "Không. Nếu đã có danh sách tốt cùng phạm vi, đóng góp vào đó có thể hữu ích hơn tạo bản trùng.",
+          "exercise": "Viết một câu “danh sách này dành cho…” và một câu “danh sách này không bao gồm…”.",
+          "sources": [
+            "R4",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-09",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/create-list.md",
+          "source_id": "R4",
+          "pdf_page": 19
+        },
+        {
+          "title": "Thêm quy tắc đóng góp và giấy phép",
+          "goal": "Giúp người khác hiểu cách đóng góp và quyền sử dụng nội dung.",
+          "explain": "Người đóng góp cần biết mục nào được chấp nhận, bằng chứng phải có và cách mô tả thay đổi. Manifesto cho phép tham khảo contributing.md của repo để điều chỉnh. Với giấy phép, hướng dẫn Awesome khuyến nghị mạnh CC0 và chấp nhận Creative Commons; các giấy phép mã nguồn như MIT hoặc GPL không phù hợp với yêu cầu danh sách của repo tổng. Điều này nói về nội dung danh sách. Một thư viện được liên kết vẫn giữ giấy phép riêng của nó. Nếu bạn chưa rõ quyền với hình ảnh hoặc phần sao chép, hãy kiểm tra nguồn thay vì gán giấy phép cho mọi thứ. [R2][R5]",
+          "steps": [
+            "Tạo contributing.md với phạm vi, tiêu chí chất lượng, định dạng entry, cách kiểm tra trùng và yêu cầu nêu lý do đề xuất.",
+            "Chọn giấy phép theo ý định sử dụng và hướng dẫn Awesome. Dùng nội dung giấy phép chuẩn từ nguồn chính thức, không tự viết lại điều khoản.",
+            "Đặt tệp LICENSE hoặc license ở gốc repo theo hướng dẫn. Kiểm tra riêng quyền của hình ảnh hoặc nội dung bên thứ ba nếu có.",
+            "Kiểm tra badge và cách đặt tiêu đề theo hướng dẫn; đừng dùng badge để tuyên bố danh sách đã được repo tổng chấp nhận."
+          ],
+          "output": "Một contributing.md rõ tiêu chí và một giấy phép đã được bạn đọc, lựa chọn.",
+          "mistake": "Cho rằng giấy phép danh sách cấp quyền dùng mọi dự án được dẫn link. Quyền của mỗi dự án cần được kiểm tra riêng.",
+          "question": "Badge Awesome có chứng minh danh sách đã được nhận vào repo tổng không?",
+          "answer": "Không. Manifesto cho phép dùng badge cả trên danh sách chưa có trong repo tổng.",
+          "exercise": "Đưa quy tắc đóng góp cho người khác và hỏi họ có biết phải nộp bằng chứng gì cho một entry mới không.",
+          "sources": [
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-10",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+          "source_id": "R5",
+          "pdf_page": 20
+        }
+      ]
+    },
+    {
+      "title": "Kiểm tra chất lượng",
+      "question": "Làm sao biết danh sách đã sẵn sàng để người khác đọc?",
+      "summary": "Kiểm tra có hai lớp: chất lượng nội dung và tính nhất quán định dạng. Người duy trì phải đánh giá phạm vi, bằng chứng, tài liệu và trạng thái dự án; công cụ có thể hỗ trợ phát hiện lỗi Markdown và quy tắc Awesome. awesome-lint là công cụ riêng, yêu cầu Node.js và Git khi dùng CLI. Một báo cáo lint sạch không chứng minh mọi tài nguyên tốt, cũng không tự vượt các yêu cầu tuổi danh sách và đầu tư thực tế. [R5][R6]",
+      "terms": [
+        [
+          "Lint",
+          "Kiểm tra tự động các quy tắc định dạng hoặc cấu trúc."
+        ],
+        [
+          "False positive",
+          "Cảnh báo công cụ đưa ra nhưng không phản ánh lỗi thực tế."
+        ],
+        [
+          "Quality gate",
+          "Điều kiện cần đạt trước khi chuyển bước."
+        ]
+      ],
+      "sources": [
+        "R5",
+        "R6"
+      ],
+      "lessons": [
+        {
+          "title": "Rà soát thủ công trước khi chạy công cụ",
+          "goal": "Phát hiện trùng lặp, entry lệch phạm vi và bằng chứng còn thiếu.",
+          "explain": "Một máy kiểm tra có thể tìm lỗi dấu câu nhưng không tự hiểu đầy đủ liệu tài nguyên có đáng được giới thiệu cho người đọc của bạn hay không. Hãy bắt đầu bằng phạm vi và hồ sơ ứng viên: mỗi mục có chức năng rõ, có lý do chọn và còn phù hợp không? Hướng dẫn yêu cầu không chứa tài nguyên đã lưu trữ, ngừng dùng, thiếu tài liệu hoặc không được duy trì trong danh sách chính. Những tài nguyên lịch sử thật sự cần giữ có thể chuyển sang tệp riêng với giải thích. Đừng dùng một con số về hoạt động commit làm tiêu chuẩn tự động duy nhất. [R2][R5]",
+          "steps": [
+            "Đọc toàn bộ entry và so với phạm vi đã viết. Đánh dấu mục không giải thích được lý do tồn tại.",
+            "Mở từng liên kết chính, kiểm tra trùng URL hoặc hai tên cùng chỉ một tài nguyên.",
+            "Đối chiếu tài liệu, trạng thái repo và nhật ký bằng chứng; ghi ngày kiểm tra để lần sau biết điều cần xem lại.",
+            "Thử mục lục ở chế độ Preview, sửa nhãn không rõ và bảo đảm Contributing, Footnotes không xuất hiện trong Contents theo yêu cầu."
+          ],
+          "output": "Checklist có trạng thái đạt/chưa đạt và việc cần sửa cho từng lỗi.",
+          "mistake": "Xóa một mục chỉ vì lâu không có commit. Tìm thêm thông báo, tình trạng tài liệu và kết quả sử dụng trước khi kết luận.",
+          "question": "Liên kết mở được có đủ chứng minh entry tốt không?",
+          "answer": "Không. Nó chỉ xác nhận truy cập; vẫn cần kiểm tra nội dung, phạm vi và khả năng sử dụng.",
+          "exercise": "Tìm một entry của chính bạn có bằng chứng yếu nhất và cải thiện hồ sơ trước khi thêm entry mới.",
+          "sources": [
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-11",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+          "source_id": "R5",
+          "pdf_page": 22
+        },
+        {
+          "title": "Chạy awesome-lint và hiểu kết quả",
+          "goal": "Dùng được công cụ kiểm tra mà không nhầm lint với đánh giá chất lượng.",
+          "explain": "README awesome-lint mô tả cách kiểm tra một repo từ URL và cách chạy trong thư mục hiện tại. CLI cần Node.js và Git. Lệnh có thể tải gói để thực thi, vì vậy người học cần xem tài liệu của công cụ trước khi chạy. Ví dụ kết quả trong README gồm thiếu badge, kiểu dấu đầu dòng và dấu gạch chéo cuối URL. Hãy đọc tên quy tắc, vị trí lỗi rồi sửa đúng nguyên nhân. Repo tổng yêu cầu chạy công cụ và xử lý lỗi; nếu có cảnh báo sai, hướng dẫn yêu cầu báo vấn đề thay vì che hết cảnh báo cho qua. [R5][R6]",
+          "steps": [
+            "Chọn cách làm phù hợp. Nếu chưa có Node.js và Git, hoàn thành bài rà soát thủ công và đánh dấu lint chưa chạy.",
+            "Khi có công cụ, mở terminal tại bản sao repo của bạn. Lệnh nguồn dùng trong thư mục hiện tại là npx awesome-lint.",
+            "Đọc từng thông báo theo tệp, dòng, cột và tên quy tắc; sửa một nhóm lỗi rồi chạy lại.",
+            "Lưu kết quả vào nhật ký. Nếu nghi cảnh báo sai, ghi ví dụ tối thiểu và đối chiếu tài liệu trước khi đề xuất thay đổi quy tắc."
+          ],
+          "output": "Một nhật ký lint nêu môi trường, lệnh, lỗi trước/sau hoặc lý do chưa thể chạy.",
+          "mistake": "Tắt toàn bộ quy tắc để có kết quả sạch. Báo cáo sạch chỉ có ý nghĩa khi các kiểm tra phù hợp vẫn hoạt động.",
+          "question": "Lint sạch có làm danh sách đủ điều kiện gửi lên repo tổng không?",
+          "answer": "Không. Còn các điều kiện về chất lượng, tuổi danh sách, chính sách nội dung và đóng góp cộng đồng.",
+          "exercise": "Giải thích một lỗi lint bằng ngôn ngữ của bạn, rồi chỉ ra thay đổi sửa nguyên nhân của nó.",
+          "sources": [
+            "R5",
+            "R6"
+          ],
+          "code": "npx awesome-lint",
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-12",
+          "source_url": "https://github.com/sindresorhus/awesome-lint/blob/4f870abda373cfa18c67822c39ee29c451ae8a70/readme.md#usage",
+          "source_id": "R6",
+          "pdf_page": 23
+        }
+      ]
+    },
+    {
+      "title": "Đóng góp đúng nơi, đúng điều kiện",
+      "question": "Khi nào và bằng cách nào nên đề xuất thay đổi?",
+      "summary": "Có hai luồng khác nhau: đề xuất một tài nguyên vào danh sách chuyên ngành và đề xuất cả một danh sách vào repo tổng. Hướng dẫn trình bày thao tác chỉnh README qua trình duyệt rồi gửi PR. Điều kiện repo tổng chặt hơn: tuổi ít nhất 30 ngày, không phải danh sách hay PR hoàn toàn do AI tạo, và yêu cầu review có nội dung cho ít nhất bốn PR khác. Phải đọc trạng thái tiếp nhận hiện tại; làm xong một bài tập không tự tạo quyền gửi thay đổi vào cộng đồng. [R3][R4][R5]",
+      "terms": [
+        [
+          "Pull request (PR)",
+          "Đề xuất thay đổi để người duy trì xem xét."
+        ],
+        [
+          "Maintainer",
+          "Người duy trì dự án và quy tắc tiếp nhận."
+        ],
+        [
+          "Review",
+          "Đọc, kiểm chứng và phản hồi cụ thể về thay đổi."
+        ]
+      ],
+      "sources": [
+        "R3",
+        "R4",
+        "R5"
+      ],
+      "lessons": [
+        {
+          "title": "Đề xuất một tài nguyên vào danh sách có sẵn",
+          "goal": "Soạn được một thay đổi nhỏ, đúng phạm vi và có lý do.",
+          "explain": "contributing.md hướng dẫn mở trang danh sách, chỉnh README qua giao diện GitHub, mô tả lý do và gửi PR. Tuy vậy, người học cần đọc hướng dẫn của chính danh sách đích: các repo khác nhau có thể có quy tắc khác. Đề xuất nên nhỏ, chỉ rõ mục thêm hoặc sửa và bằng chứng vì sao phù hợp. Nếu maintainer yêu cầu điều chỉnh, sửa cùng PR theo phản hồi. Bài học này dạy cách chuẩn bị; giáo trình không tự gửi PR tới awesome hay các danh sách bên ngoài. Khi repo tạm dừng nhận PR, giữ bản nháp của bạn và theo dõi thông báo. [R3]",
+          "steps": [
+            "Mở contributing.md của danh sách đích và kiểm tra thông báo tiếp nhận hiện tại, issue và PR để tránh trùng.",
+            "Chuẩn bị một entry hoặc sửa một lỗi có bằng chứng. Ghi vị trí và lý do, chưa mở PR khi vẫn đang hoàn thiện nội dung.",
+            "Dùng trình duyệt chỉnh README trên nhánh/fork của bạn, xem diff và Preview để bảo đảm chỉ thay đổi điều dự định.",
+            "Khi repo cho phép và bạn đã tự kiểm tra, gửi PR có mô tả rõ. Đọc phản hồi và cập nhật cùng đề xuất khi cần."
+          ],
+          "output": "Một bản diff nhỏ và mô tả PR có lý do; gửi thực tế chỉ khi đủ điều kiện.",
+          "mistake": "Thêm một công cụ vào repo tổng thay vì danh sách chuyên ngành, hoặc mở nhiều PR trùng nội dung.",
+          "question": "PR bị yêu cầu sửa có nghĩa đóng góp thất bại không?",
+          "answer": "Không. Phản hồi là một phần của việc hoàn thiện; cần xác minh và sửa hoặc giải thích bằng bằng chứng.",
+          "exercise": "Viết mô tả PR gồm điều thay đổi, lý do phù hợp và cách bạn đã kiểm chứng.",
+          "sources": [
+            "R3",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-13",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/contributing.md#adding-something-to-an-awesome-list",
+          "source_id": "R3",
+          "pdf_page": 25
+        },
+        {
+          "title": "Kiểm tra điều kiện cho một danh sách mới",
+          "goal": "Biết khi nào chưa nên gửi danh sách vào repo tổng.",
+          "explain": "create-list.md yêu cầu chờ ít nhất 30 ngày. Checklist làm rõ cách tính: từ commit thực sự đầu tiên hoặc khi công khai, lấy mốc gần hơn. Checklist cũng yêu cầu danh sách không do AI tạo, PR không hoàn toàn do AI tạo, lint đạt và review ít nhất bốn PR khác bằng phản hồi có nội dung; bình luận “looks good” không được tính. Đây là quy tắc tại thời điểm nguồn được đọc, có thể thay đổi. Bộ khung và ví dụ AI hỗ trợ trong giáo trình không phải danh sách đủ điều kiện để bạn gửi nguyên trạng. Cần công sức tuyển chọn và kiểm chứng thật của người duy trì. [R4][R5]",
+          "steps": [
+            "Mở lại checklist gốc và kiểm tra trạng thái tiếp nhận trước mọi hành động gửi.",
+            "Xác minh phạm vi không trùng, tên repo/nhánh/tiêu đề/mục lục/giấy phép/định dạng và kết quả lint theo từng yêu cầu.",
+            "Đối chiếu ngày bắt đầu thực sự và ngày công khai; không dùng một commit khung để giả lập thời gian trưởng thành.",
+            "Tự đánh giá công sức tuyển chọn và hoàn tất nghĩa vụ review theo hướng dẫn. Chỉ chuẩn bị đề xuất khi mọi điều kiện thật sự đạt."
+          ],
+          "output": "Một bảng điều kiện có bằng chứng; các mục chưa đạt phải giữ trạng thái chưa sẵn sàng.",
+          "mistake": "Coi 30 ngày là điều kiện duy nhất, hoặc tự động tạo hàng loạt PR để đủ số review.",
+          "question": "Vì sao giáo trình không tạo một danh sách AI hoàn chỉnh rồi gửi giúp bạn?",
+          "answer": "Vì chính sách nguồn yêu cầu không phải danh sách do AI tạo và cần đánh giá, đầu tư thật từ người duy trì.",
+          "exercise": "Tìm ba điều kiện mà bộ bài tập hiện tại chưa thể chứng minh. Viết kế hoạch đáp ứng chúng bằng công việc của chính bạn.",
+          "sources": [
+            "R4",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-14",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-pull-request",
+          "source_id": "R5",
+          "pdf_page": 26
+        }
+      ]
+    },
+    {
+      "title": "Duy trì và tự đánh giá",
+      "question": "Làm sao danh sách vẫn có ích sau ngày tạo?",
+      "summary": "Tài nguyên thay đổi, nhu cầu người đọc thay đổi và các liên kết có thể mất tác dụng. Một danh sách tốt cần được duy trì bằng quyết định có lý do, chứ không chỉ nhận thêm liên kết. Manifesto nhấn mạnh tôn trọng ý kiến người khác; hướng dẫn chất lượng giới hạn những tài nguyên lỗi thời trong danh sách chính. Chương cuối đề xuất nhịp kiểm tra, nhật ký quyết định và một đồ án tổng hợp. Nhịp và thang tự chấm là đề xuất học tập, không phải quy định chính thức của Awesome. [R2][R5]",
+      "terms": [
+        [
+          "Maintenance",
+          "Kiểm tra và cập nhật nội dung theo thời gian."
+        ],
+        [
+          "Decision log",
+          "Nhật ký lý do thêm, sửa, giữ hoặc loại."
+        ],
+        [
+          "Capstone",
+          "Bài thực hành tổng hợp cuối lộ trình."
+        ]
+      ],
+      "sources": [
+        "R2",
+        "R5"
+      ],
+      "lessons": [
+        {
+          "title": "Thiết kế vòng bảo trì",
+          "goal": "Có cách phát hiện và xử lý tài nguyên không còn phù hợp.",
+          "explain": "Hãy xem danh sách như một sản phẩm có người dùng. Sau mỗi phản hồi hoặc lần kiểm tra, bạn có thể thêm, sửa, giữ hoặc loại một mục; quyết định nên có ngày và bằng chứng. Người viết đề xuất ưu tiên entry được dùng nhiều, có báo lỗi hoặc có điều kiện sử dụng dễ thay đổi. Một liên kết bị lỗi một lần có thể là sự cố tạm thời, nên cần phân biệt lỗi truy cập với tài nguyên đã ngừng hoạt động. Nếu cần giữ mục lịch sử, hướng dẫn Awesome cho phép đặt các mục không phù hợp danh sách chính vào tệp riêng. [R2][R5]",
+          "steps": [
+            "Chọn lịch kiểm tra phù hợp với công sức bạn thực sự có; ghi đó là đề xuất của bạn, không phải yêu cầu Awesome.",
+            "Ưu tiên mục có phản hồi hoặc bằng chứng cũ. Mở lại URL, tài liệu và tình trạng dự án.",
+            "Ghi quyết định giữ/sửa/hoãn/loại, nêu bằng chứng và ảnh hưởng tới người đọc; kiểm tra lại khi nghi sự cố tạm thời.",
+            "Khi người khác phản đối, đối chiếu phạm vi và bằng chứng thay vì tranh luận bằng mức phổ biến. Cập nhật quy tắc nếu cần."
+          ],
+          "output": "Một bảng bảo trì và nhật ký cho ít nhất một quyết định có thể kiểm tra lại.",
+          "mistake": "Chỉ thêm tài nguyên mới mà không xem mục cũ, hoặc xóa ngay khi có một lỗi mạng đơn lẻ.",
+          "question": "Vì sao nên giữ nhật ký của một mục đã loại?",
+          "answer": "Để giải thích quyết định, tránh thêm lại cùng vấn đề và biết khi nào có lý do xem xét lại.",
+          "exercise": "Giả lập một entry thiếu tài liệu sau thay đổi. Viết quyết định tạm thời và điều kiện để đưa nó trở lại.",
+          "sources": [
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-15",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md#accept-other-peoples-opinion",
+          "source_id": "R2",
+          "pdf_page": 28
+        },
+        {
+          "title": "Đồ án: danh sách nhỏ có bằng chứng",
+          "goal": "Hoàn thành một bộ tài liệu người khác có thể dùng và kiểm chứng.",
+          "explain": "Đồ án tổng hợp không chấm bằng số entry. Mục tiêu là chứng minh bạn xác định đúng nhu cầu, tìm được tài nguyên, tự thử, viết rõ và biết giới hạn. Bộ nộp đề xuất gồm README, hồ sơ ứng viên, quy tắc đóng góp, quyết định giấy phép và nhật ký kiểm tra. Nếu chưa đủ điều kiện upstream, hãy giữ nó là dự án học tập cá nhân và ghi rõ trạng thái. Một danh sách ít mục nhưng có bằng chứng sẽ phản ánh kỹ năng tốt hơn một bản tổng hợp lớn chưa ai kiểm chứng. Kết quả này phục vụ người học; không tự động chứng minh bạn đã thành thạo mọi lĩnh vực trong 27 nhóm. [R2][R5]",
+          "steps": [
+            "Chọn phạm vi nhỏ và hoàn thành các tệp trong bộ bài tập bằng nội dung bạn tự đọc, thử và đánh giá.",
+            "Nhờ một người dùng thực hiện một nhiệm vụ tìm kiếm. Lưu điều họ hiểu sai và bản sửa sau phản hồi.",
+            "Chạy checklist nội dung và lint nếu môi trường cho phép. Giữ trung thực các mục chưa xác minh hoặc chưa chạy.",
+            "Tự chấm theo rubric cuối tài liệu, rồi viết điều đã làm được, giới hạn còn lại và lần kiểm tra tiếp theo."
+          ],
+          "output": "Một danh sách cá nhân có thể đọc, một hồ sơ bằng chứng và bản tự đánh giá.",
+          "mistake": "Tuyên bố “đạt chuẩn Awesome” chỉ vì đủ tệp mẫu. Tính đầy đủ cấu trúc khác với chất lượng và điều kiện được tiếp nhận.",
+          "question": "Dấu hiệu bạn đã học được cách dùng Awesome là gì?",
+          "answer": "Bạn tìm được đúng lối vào, tự đánh giá tài nguyên và giải thích được vì sao chọn hoặc loại một mục.",
+          "exercise": "Trình bày dự án cho một người khác mà không mở giáo trình. Sau đó dùng checklist để tìm phần bạn còn giải thích chưa rõ.",
+          "sources": [
+            "R1",
+            "R2",
+            "R5"
+          ],
+          "repo_url": "https://github.com/vohoailinh90/Github-radar/blob/main/docs/reports/awesome-handbook/report.md#bai-16",
+          "source_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md#requirements-for-your-awesome-list",
+          "source_id": "R5",
+          "pdf_page": 29
+        }
+      ]
+    }
+  ],
+  "source_sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+  "categories": [
+    {
+      "name": "Platforms",
+      "purpose": "Chọn hệ sinh thái và môi trường chạy.",
+      "examples": [
+        {
+          "name": "Node.js",
+          "url": "https://github.com/sindresorhus/awesome-nodejs#readme",
+          "description": "Async non-blocking event-driven JavaScript runtime built on Chrome's V8 JavaScript engine."
+        },
+        {
+          "name": "Frontend Development",
+          "url": "https://github.com/dypsilon/frontend-dev-bookmarks#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#platforms"
+    },
+    {
+      "name": "Programming Languages",
+      "purpose": "Tìm tài nguyên theo ngôn ngữ đang học.",
+      "examples": [
+        {
+          "name": "JavaScript",
+          "url": "https://github.com/sorrycc/awesome-javascript#readme",
+          "description": ""
+        },
+        {
+          "name": "Swift",
+          "url": "https://github.com/matteocrippa/awesome-swift#readme",
+          "description": "Apple's compiled programming language that is secure, modern, programmer-friendly, and fast."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#programming-languages"
+    },
+    {
+      "name": "Front-End Development",
+      "purpose": "Xây giao diện và trải nghiệm trên trình duyệt.",
+      "examples": [
+        {
+          "name": "ES6 Tools",
+          "url": "https://github.com/addyosmani/es6-tools#readme",
+          "description": ""
+        },
+        {
+          "name": "Web Performance Optimization",
+          "url": "https://github.com/davidsonfellipe/awesome-wpo#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#front-end-development"
+    },
+    {
+      "name": "Back-End Development",
+      "purpose": "Tổ chức dịch vụ và xử lý phía máy chủ.",
+      "examples": [
+        {
+          "name": "Flask",
+          "url": "https://github.com/mjhea0/awesome-flask#readme",
+          "description": "Python framework."
+        },
+        {
+          "name": "Docker",
+          "url": "https://github.com/veggiemonk/awesome-docker#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#back-end-development"
+    },
+    {
+      "name": "Computer Science",
+      "purpose": "Tìm nền tảng khoa học máy tính.",
+      "examples": [
+        {
+          "name": "University Courses",
+          "url": "https://github.com/prakhar1989/awesome-courses#readme",
+          "description": ""
+        },
+        {
+          "name": "Data Science",
+          "url": "https://github.com/academic/awesome-datascience#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#computer-science"
+    },
+    {
+      "name": "Big Data",
+      "purpose": "Khám phá hệ thống và nguồn dữ liệu lớn.",
+      "examples": [
+        {
+          "name": "Big Data",
+          "url": "https://github.com/0xnr/awesome-bigdata#readme",
+          "description": ""
+        },
+        {
+          "name": "Public Datasets",
+          "url": "https://github.com/awesomedata/awesome-public-datasets#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#big-data"
+    },
+    {
+      "name": "Theory",
+      "purpose": "Đọc lý thuyết, bài nghiên cứu và ý tưởng nền.",
+      "examples": [
+        {
+          "name": "Papers We Love",
+          "url": "https://github.com/papers-we-love/papers-we-love#readme",
+          "description": ""
+        },
+        {
+          "name": "Talks",
+          "url": "https://github.com/JanVanRyswyck/awesome-talks#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#theory"
+    },
+    {
+      "name": "Books",
+      "purpose": "Chọn sách theo nhu cầu và kiến thức nền.",
+      "examples": [
+        {
+          "name": "Free Programming Books",
+          "url": "https://github.com/EbookFoundation/free-programming-books#readme",
+          "description": ""
+        },
+        {
+          "name": "Go Books",
+          "url": "https://github.com/dariubs/GoBooks#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#books"
+    },
+    {
+      "name": "Editors",
+      "purpose": "Tìm trình soạn thảo và cách sử dụng.",
+      "examples": [
+        {
+          "name": "Sublime Text",
+          "url": "https://github.com/dreikanter/sublime-bookmarks#readme",
+          "description": ""
+        },
+        {
+          "name": "Vim",
+          "url": "https://github.com/mhinz/vim-galore#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#editors"
+    },
+    {
+      "name": "Gaming",
+      "purpose": "Tìm tài nguyên làm hoặc nghiên cứu game.",
+      "examples": [
+        {
+          "name": "Game Development",
+          "url": "https://github.com/ellisonleao/magictools#readme",
+          "description": ""
+        },
+        {
+          "name": "Game Talks",
+          "url": "https://github.com/hzoo/awesome-gametalks#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#gaming"
+    },
+    {
+      "name": "Development Environment",
+      "purpose": "Chuẩn bị môi trường và quy trình phát triển.",
+      "examples": [
+        {
+          "name": "Quick Look Plugins",
+          "url": "https://github.com/sindresorhus/quick-look-plugins#readme",
+          "description": "For macOS."
+        },
+        {
+          "name": "Dev Env",
+          "url": "https://github.com/jondot/awesome-devenv#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#development-environment"
+    },
+    {
+      "name": "Entertainment",
+      "purpose": "Khám phá các chủ đề giải trí.",
+      "examples": [
+        {
+          "name": "Science Fiction",
+          "url": "https://github.com/sindresorhus/awesome-scifi#readme",
+          "description": "Scifi."
+        },
+        {
+          "name": "Fantasy",
+          "url": "https://github.com/RichardLitt/awesome-fantasy#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#entertainment"
+    },
+    {
+      "name": "Databases",
+      "purpose": "Tìm công nghệ lưu trữ và truy vấn dữ liệu.",
+      "examples": [
+        {
+          "name": "Database",
+          "url": "https://github.com/numetriclabz/awesome-db#readme",
+          "description": ""
+        },
+        {
+          "name": "MySQL",
+          "url": "https://github.com/shlomi-noach/awesome-mysql#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#databases"
+    },
+    {
+      "name": "Media",
+      "purpose": "Tìm công cụ, định dạng và tài nguyên truyền thông.",
+      "examples": [
+        {
+          "name": "Fonts",
+          "url": "https://github.com/brabadu/awesome-fonts#readme",
+          "description": ""
+        },
+        {
+          "name": "Codeface",
+          "url": "https://github.com/chrissimpkins/codeface#readme",
+          "description": "Text editor fonts."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#media"
+    },
+    {
+      "name": "Learn",
+      "purpose": "Chọn cách học và bài thực hành.",
+      "examples": [
+        {
+          "name": "CLI Workshoppers",
+          "url": "https://github.com/therebelrobot/awesome-workshopper#readme",
+          "description": "Interactive tutorials."
+        },
+        {
+          "name": "Learn to Program",
+          "url": "https://github.com/karlhorky/learn-to-program#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#learn"
+    },
+    {
+      "name": "Security",
+      "purpose": "Tìm kiến thức và công cụ bảo mật đúng phạm vi.",
+      "examples": [
+        {
+          "name": "Application Security",
+          "url": "https://github.com/paragonie/awesome-appsec#readme",
+          "description": ""
+        },
+        {
+          "name": "Security",
+          "url": "https://github.com/sbilly/awesome-security#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#security"
+    },
+    {
+      "name": "Content Management Systems",
+      "purpose": "Tìm hệ quản trị nội dung.",
+      "examples": [
+        {
+          "name": "Umbraco",
+          "url": "https://github.com/umbraco-community/awesome-umbraco#readme",
+          "description": ""
+        },
+        {
+          "name": "Refinery CMS",
+          "url": "https://github.com/refinerycms-contrib/awesome-refinerycms#readme",
+          "description": "Ruby on Rails CMS."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#content-management-systems"
+    },
+    {
+      "name": "Hardware",
+      "purpose": "Khám phá tài nguyên phần cứng và thiết bị.",
+      "examples": [
+        {
+          "name": "Robotics",
+          "url": "https://github.com/Kiloreux/awesome-robotics#readme",
+          "description": ""
+        },
+        {
+          "name": "Internet of Things",
+          "url": "https://github.com/HQarroum/awesome-iot#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#hardware"
+    },
+    {
+      "name": "Business",
+      "purpose": "Tìm tài nguyên về tổ chức và kinh doanh.",
+      "examples": [
+        {
+          "name": "Open Companies",
+          "url": "https://github.com/opencompany/awesome-open-company#readme",
+          "description": ""
+        },
+        {
+          "name": "Places to Post Your Startup",
+          "url": "https://github.com/mmccaff/PlacesToPostYourStartup#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#business"
+    },
+    {
+      "name": "Work",
+      "purpose": "Tìm tài nguyên phục vụ công việc.",
+      "examples": [
+        {
+          "name": "Slack",
+          "url": "https://github.com/matiassingers/awesome-slack#readme",
+          "description": "Team collaboration."
+        },
+        {
+          "name": "Remote Jobs",
+          "url": "https://github.com/lukasz-madon/awesome-remote-job#readme",
+          "description": ""
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#work"
+    },
+    {
+      "name": "Networking",
+      "purpose": "Khám phá công cụ và kiến thức mạng.",
+      "examples": [
+        {
+          "name": "PCAPTools",
+          "url": "https://github.com/caesar0301/awesome-pcaptools#readme",
+          "description": ""
+        },
+        {
+          "name": "Real-Time Communications",
+          "url": "https://github.com/rtckit/awesome-rtc#readme",
+          "description": "Network protocols for near simultaneous exchange of media and data."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#networking"
+    },
+    {
+      "name": "Decentralized Systems",
+      "purpose": "Tìm tài nguyên về hệ thống phi tập trung.",
+      "examples": [
+        {
+          "name": "Bitcoin",
+          "url": "https://github.com/igorbarinov/awesome-bitcoin#readme",
+          "description": "Services and tools for Bitcoin software developers."
+        },
+        {
+          "name": "Ripple",
+          "url": "https://github.com/vhpoet/awesome-ripple#readme",
+          "description": "Open source distributed settlement network."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#decentralized-systems"
+    },
+    {
+      "name": "Health and Social Science",
+      "purpose": "Tìm nguồn về sức khỏe và khoa học xã hội.",
+      "examples": [
+        {
+          "name": "Biomedical Information Extraction",
+          "url": "https://github.com/caufieldjh/awesome-bioie#readme",
+          "description": "How to extract information from unstructured biomedical data and text."
+        },
+        {
+          "name": "Computational Neuroscience",
+          "url": "https://github.com/eselkin/awesome-computational-neuroscience#readme",
+          "description": "A multidisciplinary science which uses computational approaches to study the nervous system."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#health-and-social-science"
+    },
+    {
+      "name": "Events",
+      "purpose": "Tìm sự kiện phù hợp chủ đề và địa điểm.",
+      "examples": [
+        {
+          "name": "Creative Tech Events",
+          "url": "https://github.com/danvoyce/awesome-creative-tech-events#readme",
+          "description": "Events around the globe for creative coding, tech, design, music, arts and cool stuff."
+        },
+        {
+          "name": "Events in Italy",
+          "url": "https://github.com/ildoc/awesome-italy-events#readme",
+          "description": "Tech-related events in Italy."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#events"
+    },
+    {
+      "name": "Testing",
+      "purpose": "Tìm phương pháp và công cụ kiểm thử.",
+      "examples": [
+        {
+          "name": "Testing",
+          "url": "https://github.com/TheJambo/awesome-testing#readme",
+          "description": "Software testing."
+        },
+        {
+          "name": "Visual Regression Testing",
+          "url": "https://github.com/mojoaxel/awesome-regression-testing#readme",
+          "description": "Ensures changes did not break the functionality or style."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#testing"
+    },
+    {
+      "name": "Miscellaneous",
+      "purpose": "Khám phá các chủ đề không nằm ở nhóm khác.",
+      "examples": [
+        {
+          "name": "Scientific Writing",
+          "url": "https://github.com/writing-resources/awesome-scientific-writing#readme",
+          "description": "Distraction-free scientific writing with Markdown, reStructuredText and Jupyter notebooks."
+        },
+        {
+          "name": "JSON",
+          "url": "https://github.com/burningtree/awesome-json#readme",
+          "description": "Text based data interchange format."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#miscellaneous"
+    },
+    {
+      "name": "Related",
+      "purpose": "Tìm cách truy cập và khám phá hệ Awesome.",
+      "examples": [
+        {
+          "name": "All Awesome Lists",
+          "url": "https://github.com/topics/awesome",
+          "description": "All the Awesome lists on GitHub."
+        },
+        {
+          "name": "Awesome Search",
+          "url": "https://awesomelists.top",
+          "description": "Quick search for Awesome lists."
+        }
+      ],
+      "section_url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md#related"
+    }
+  ],
+  "sources": [
+    {
+      "id": "R1",
+      "title": "README: bản đồ nhóm và liên kết",
+      "repo": "sindresorhus/awesome",
+      "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "path": "readme.md",
+      "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/readme.md"
+    },
+    {
+      "id": "R2",
+      "title": "The awesome manifesto",
+      "repo": "sindresorhus/awesome",
+      "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "path": "awesome.md",
+      "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/awesome.md"
+    },
+    {
+      "id": "R3",
+      "title": "Contribution Guidelines",
+      "repo": "sindresorhus/awesome",
+      "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "path": "contributing.md",
+      "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/contributing.md"
+    },
+    {
+      "id": "R4",
+      "title": "Creating Your Own List",
+      "repo": "sindresorhus/awesome",
+      "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "path": "create-list.md",
+      "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/create-list.md"
+    },
+    {
+      "id": "R5",
+      "title": "Checklist đề xuất danh sách",
+      "repo": "sindresorhus/awesome",
+      "sha": "bc98e517ddca672f55f9857d714fc3ea3c3540b2",
+      "path": "pull_request_template.md",
+      "url": "https://github.com/sindresorhus/awesome/blob/bc98e517ddca672f55f9857d714fc3ea3c3540b2/pull_request_template.md"
+    },
+    {
+      "id": "R6",
+      "title": "awesome-lint: CLI và kiểm tra",
+      "repo": "sindresorhus/awesome-lint",
+      "sha": "4f870abda373cfa18c67822c39ee29c451ae8a70",
+      "path": "readme.md",
+      "url": "https://github.com/sindresorhus/awesome-lint/blob/4f870abda373cfa18c67822c39ee29c451ae8a70/readme.md"
+    }
+  ]
+}
