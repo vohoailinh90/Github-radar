@@ -66,6 +66,14 @@ LATE = ("import os, subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport cla
         "            subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
         "    return real(*a, **k)\n"
         "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the script with time passing in the middle of a multi-item call: at the nth fetch the clock jumps to `later` and, when `other` is a
+# checkout, that session claims `key` at the new time (legitimately, if the lease has lapsed)
+MIDWAY = ("import os, subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'fetches': 0}}\n"
+          "def flaky(*a, **k):\n    if a and a[0] == 'fetch':\n        state['fetches'] += 1\n"
+          "        if state['fetches'] == {nth}:\n            os.environ['CLAIM_NOW'] = {later!r}\n            if {other!r}:\n"
+          "                subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
+          "    return real(*a, **k)\n"
+          "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -528,6 +536,42 @@ def test_the_deadline_reported_is_the_stored_expiry_not_one_calculated_after_the
     a = clone(origin, tmp_path, "a")
     done = late(a, None, "60s", "2026-10-24T10:00:30Z")
     assert done.returncode == 0 and "until 2026-10-24T10:01:00Z" in done.stdout, (done.stdout, done.stderr)   # taken_at + ttl, not now + ttl
+
+
+def midway(a, b, later):
+    """`claim o/first o/second` with a 1 s lease; fetches 1 and 2 are o/first (read, overlap check), fetch 3 starts o/second."""
+    code = MIDWAY.format(scripts=SCRIPTS, script=SCRIPT, key="o/first", other=str(b) if b else "", later=later, nth=3)
+    return subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "--ttl", "1s", "o/first", "o/second"], cwd=a,
+                          capture_output=True, text=True, env={**ENV, "CLAIM_NOW": T0})
+
+
+def test_an_earlier_item_taken_over_while_a_later_one_was_being_taken_fails_the_whole_claim(origin, tmp_path):
+    """Codex finding (round 7): every item was checked when it was taken and none again, so a lease that lapsed while the next item was
+    being taken let another session have the first item while this command reported success for both."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    lost = midway(a, b, "2026-10-24T10:00:02Z")
+    assert lost.returncode == 1 and "HELD o/first: is held by o/first -> s-b" in lost.stdout, (lost.stdout, lost.stderr)
+    assert standing(a) == ["o/first"] and items(a)["o/first"]["session"] == "s-b"          # B's claim is left alone
+    assert items(a)["o/second"]["state"] == "released"                                      # what this call took afresh was given back
+
+
+def test_an_earlier_lease_that_ran_out_while_a_later_item_was_being_taken_fails_the_whole_claim(origin, tmp_path):
+    """The same gap with nobody in it: a success must name only claims that are live when the command returns."""
+    a = clone(origin, tmp_path, "a")
+    lost = midway(a, None, "2026-10-24T10:00:02Z")
+    assert lost.returncode == 1 and "HELD o/first: no longer yours" in lost.stdout, (lost.stdout, lost.stderr)
+    assert standing(a) == []                                                                # both given back
+
+
+def test_a_final_check_that_cannot_be_made_gives_the_claims_back_or_says_they_stand(origin, tmp_path):
+    a = clone(origin, tmp_path, "a")
+    code = FLAKY.format(scripts=SCRIPTS, nth=5, block_push=False)                           # fetches 1-4 are the two items, 5 is the final check
+    lost = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/first", "o/second"], cwd=a, capture_output=True, text=True,
+                          env={**ENV, "CLAIM_NOW": T0})
+    assert lost.returncode == 3 and "injected outage" in lost.stderr, (lost.stdout, lost.stderr)
+    assert "claims that may still stand until they expire:" in lost.stderr and "nothing was claimed" not in lost.stderr, lost.stderr
+    assert slug_of("o/first") in lost.stderr and slug_of("o/second") in lost.stderr, lost.stderr                    # both are named (by branch)
+    assert standing(a) == ["o/first", "o/second"]                                           # the fetch of the rollback failed as well: they stand
 
 
 def test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh(origin, tmp_path):

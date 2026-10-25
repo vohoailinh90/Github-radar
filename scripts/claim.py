@@ -373,26 +373,47 @@ def give_back(led: Ledger, slugs: list[str]) -> list[str]:
 
 def take_all(led: Ledger, items: list, ttl: int, note: str) -> int:
     """Claim or renew every item, or none of the new ones: what this call took afresh (a lapsed claim of ours is claimed afresh, a live
-    one is only extended) is given back when a later item cannot be had."""
+    one is only extended) is given back when a later item cannot be had, or when an earlier one was lost while the later ones were taken."""
     fresh: list[str] = []
+
+    def failed(exc: Remote, key: str):
+        stuck = give_back(led, fresh)
+        if stuck or exc.partial:
+            raise Remote(f"{exc}; claims that may still stand until they expire: {', '.join(stuck) or key}", partial=True) from exc
+        raise exc
+
+    def held(line: str) -> int:
+        stuck = give_back(led, fresh)
+        print(line)
+        if stuck:
+            print(f"claim: could not give back {', '.join(stuck)}; they stand until they expire (release them when the ledger answers)", file=sys.stderr)
+        return HELD
+
     for key, slug, segments in items:
         try:
             how, there = led.take(key, slug, segments, ttl, note)
         except Remote as exc:
-            stuck = give_back(led, fresh)
-            if stuck or exc.partial:
-                raise Remote(f"{exc}; claims that may still stand until they expire: {', '.join(stuck) or key}", partial=True) from exc
-            raise
+            failed(exc, key)
         if how in ("held", "overlap"):
-            stuck = give_back(led, fresh)
             why = "overlaps a claim of" if how == "overlap" else "is held by"
-            print(f"HELD {key}: {why} {there.key} -> {there.holder()} until {until(there)}")
-            if stuck:
-                print(f"claim: could not give back {', '.join(stuck)}; they stand until they expire (release them when the ledger answers)", file=sys.stderr)
-            return HELD
+            return held(f"HELD {key}: {why} {there.key} -> {there.holder()} until {until(there)}")
         if how != "renewed":
             fresh.append(slug)
         print(f"{how} {key} until {until(there)} (session {led.session})")
+    if len(items) > 1:
+        # The first leases kept running while the later items were taken: all of them must be ours and live at the moment we say so.
+        try:
+            ledger = led.claims()
+        except Remote as exc:
+            failed(exc, items[-1][0])
+        at = now()                                    # after the fetch: the time it took counts against the leases
+        for key, slug, _ in items:
+            mine = ledger.get(slug)
+            if mine and mine.session == led.session and mine.live(at):
+                continue
+            if mine and mine.session != led.session and mine.live(at):
+                return held(f"HELD {key}: is held by {mine.key} -> {mine.holder()} until {until(mine)}")
+            return held(f"HELD {key}: no longer yours: its lease ran out while the other items were being taken")
     return OK
 
 
