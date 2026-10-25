@@ -474,6 +474,23 @@ def test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_succe
     assert standing(a) == ["o/held", "o/new"]                                  # o/fresh (pushed, acknowledgment lost) was rolled back
 
 
+def test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh(origin, tmp_path):
+    """Codex finding (round 4): two lapsed claims renewed together; the first was claimed afresh, the second yielded to another session's
+    claim inside it, and the command exited 1 leaving the first live for two hours."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    run(a, "claim", "o/first", "docs/reports/x", "--ttl", "1h", session="s-a", now=T0)
+    assert run(b, "claim", "docs/reports/x/deck.json", session="s-b", now="2026-10-24T11:30:00Z").returncode == 0
+    lost = run(a, "renew", "o/first", "docs/reports/x", session="s-a", now="2026-10-24T11:31:00Z")
+    assert lost.returncode == 1 and "overlaps a claim of docs/reports/x/deck.json" in lost.stdout, (lost.stdout, lost.stderr)
+    assert standing(a) == ["docs/reports/x/deck.json"]                           # o/first, claimed afresh by this call, was given back
+    # a genuine renewal in the same call is not given back: only what the call took afresh is
+    run(a, "claim", "o/live", "--ttl", "5h", session="s-a", now="2026-10-24T11:40:00Z")
+    run(a, "claim", "docs/reports/y", "--ttl", "1h", session="s-a", now="2026-10-24T11:40:00Z")
+    run(b, "claim", "docs/reports/y/deck.json", session="s-b", now="2026-10-24T12:45:00Z")
+    both = run(a, "renew", "o/live", "docs/reports/y", session="s-a", now="2026-10-24T12:50:00Z")
+    assert both.returncode == 1 and standing(a) == ["docs/reports/x/deck.json", "docs/reports/y/deck.json", "o/live"]
+
+
 def test_a_claim_is_an_append_only_chain_of_empty_commits_on_one_branch(origin, tmp_path):
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
     run(a, "claim", "o/orca", session="s-a", now=T0)

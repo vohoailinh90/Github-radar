@@ -47,7 +47,7 @@ architect is not fired (architecture is 1, no signal). The one reserve is `test-
 ## Files
 
 - `scripts/claim.py` (stdlib): `claim`, `renew`, `release`, `list`, `check`, `prune`; exit 0 ok, 1 held, 2 usage, 3 remote.
-- `tests/test_claim.py` (48 tests: local bare repo, real subprocesses, races, servers with refusing hooks, a network that fails or dies mid-call), `tests/test_moda_settings.py` (4).
+- `tests/test_claim.py` (49 tests: local bare repo, real subprocesses, races, servers with refusing hooks, a network that fails or dies mid-call), `tests/test_moda_settings.py` (4).
 - `.claude/settings.json` (`permissions.allow` only, no hooks), `CLAUDE.md` (two sections, two lines), `docs/claims.md`
   (Vietnamese guide), `docs/reports/README.md` (one paragraph), this plan and `artifacts/reviews/radar-claims.md`.
 

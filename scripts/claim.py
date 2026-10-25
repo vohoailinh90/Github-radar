@@ -359,18 +359,20 @@ def give_back(led: Ledger, slugs: list[str]) -> list[str]:
     return stuck
 
 
-def cmd_claim(led: Ledger, args) -> int:
-    ttl, items, fresh = span(args.ttl, "--ttl", MAX_TTL), [normalise(k) for k in args.keys], []
+def take_all(led: Ledger, items: list, ttl: int, note: str) -> int:
+    """Claim or renew every item, or none of the new ones: what this call took afresh (a lapsed claim of ours is claimed afresh, a live
+    one is only extended) is given back when a later item cannot be had."""
+    fresh: list[str] = []
     for key, slug, segments in items:
         try:
-            how, other = led.take(key, slug, segments, ttl, args.note)
+            how, other = led.take(key, slug, segments, ttl, note)
         except Remote as exc:
             stuck = give_back(led, fresh)
             if stuck or exc.partial:
                 raise Remote(f"{exc}; claims that may still stand until they expire: {', '.join(stuck) or key}", partial=True) from exc
             raise
         if other:
-            stuck = give_back(led, fresh)            # all or nothing: give back what this call took
+            stuck = give_back(led, fresh)
             why = "overlaps a claim of" if how == "overlap" else "is held by"
             print(f"HELD {key}: {why} {other.key} -> {other.holder()} until {until(other)}")
             if stuck:
@@ -382,6 +384,10 @@ def cmd_claim(led: Ledger, args) -> int:
     return OK
 
 
+def cmd_claim(led: Ledger, args) -> int:
+    return take_all(led, [normalise(k) for k in args.keys], span(args.ttl, "--ttl", MAX_TTL), args.note)
+
+
 def cmd_renew(led: Ledger, args) -> int:
     ttl, items = span(args.ttl, "--ttl", MAX_TTL), [normalise(k) for k in args.keys]
     claims = led.claims()
@@ -390,13 +396,7 @@ def cmd_renew(led: Ledger, args) -> int:
         if not mine or mine.released or mine.session != led.session:
             print(f"NOT YOURS {key}: " + (f"held by {mine.holder()}" if mine and not mine.released else "nobody holds it"))
             return HELD
-    for key, slug, segments in items:
-        how, other = led.take(key, slug, segments, ttl, args.note)
-        if other:
-            print(f"HELD {key}: {'overlaps a claim of' if how == 'overlap' else 'is held by'} {other.key} -> {other.holder()} until {until(other)}")
-            return HELD
-        print(f"{how} {key} until {stamp(now() + dt.timedelta(seconds=ttl))}")
-    return OK
+    return take_all(led, items, ttl, args.note)
 
 
 def cmd_release(led: Ledger, args) -> int:
