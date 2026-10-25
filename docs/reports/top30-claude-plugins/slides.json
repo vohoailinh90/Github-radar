@@ -27,13 +27,13 @@
         "S18",
         "S32"
       ],
-      "notes": "1. Hầu hết là bộ \"skill\" hoặc plugin cho coding agent: văn bản hướng dẫn cộng vài script, cài bằng một hoặc hai lệnh. Một số ít là công cụ đầy đủ, ví dụ proxy nén ngữ cảnh Headroom [S17], studio video OpenMontage cài bằng `make setup` [S27] và bộ dựng PowerPoint PPT Master [S24]. 2. Có bốn cách cài khác nhau: marketplace của Claude Code, lệnh `npx skills add`, trình cài riêng của từng repo, hoặc dán một câu cho agent tự cài. Mỗi cách đòi hỏi mức tin tưởng khác nhau (phần \"Bốn cách cài\"). 3. \"All free\" ở chân ảnh đúng với mã nguồn, nhưng người viết đếm được tám repo có README nhắc thẳng một lớp trả phí hoặc dịch vụ đám mây ngay cạnh bản miễn phí, và vài repo có điều khoản giấy phép đáng đọc (phần \"Miễn phí nghĩa là gì\"). 4. Hai mục trong ảnh lệch với thực tế. `gsd-build/get-shit-done` chỉ còn một thông báo \"đã chuyển repo\" [S18]. Số sao 371k của REA trong ảnh lệch rất xa số radar đã đo ngày 17/10/2026 [S1][S32]. 5. Để học trước khi cài, …",
+      "notes": "1. Hầu hết là bộ \"skill\" hoặc plugin cho coding agent: văn bản hướng dẫn cộng vài script, cài bằng một hoặc hai lệnh. Một số ít là công cụ đầy đủ, ví dụ proxy nén ngữ cảnh Headroom [S17], studio video OpenMontage cài bằng `make setup` [S27] và bộ dựng PowerPoint PPT Master [S24]. 2. Có bốn cách cài khác nhau: marketplace của Claude Code, lệnh `npx skills add`, trình cài riêng của từng repo, hoặc dán một câu cho agent tự cài. Mỗi cách đòi hỏi mức tin tưởng khác nhau (phần \"Bốn cách cài\"). 3. \"All free\" ở chân ảnh đúng với mã nguồn, nhưng người viết đếm được tám repo có README nhắc thẳng một lớp thương mại hoặc dịch vụ đám mây do dự án hoặc tác giả cung cấp ngay cạnh bản miễn phí, và vài repo có điều khoản giấy phép đáng đọc (phần \"Miễn phí nghĩa là gì\"). 4. Hai mục trong ảnh lệch với thực tế. `gsd-build/get-shit-done` chỉ còn một thông báo \"đã chuyển repo\" [S18]. Số sao 371k của REA trong ảnh lệch rất xa số radar đã đo ngày …",
       "bullets": [
         "Hầu hết là bộ skill hoặc plugin cho coding agent, cài bằng một hoặc hai lệnh.",
         "Bốn cách cài khác nhau, mỗi cách đòi hỏi một mức tin tưởng.",
-        "\"All free\" đúng với mã nguồn, nhưng tám repo có lớp trả phí hoặc dịch vụ cạnh bên.",
+        "\"All free\" đúng với mã nguồn, nhưng tám repo có lớp thương mại hoặc dịch vụ đám mây cạnh bên.",
         "GSD chỉ còn thông báo chuyển repo; số sao 371k của REA lệch số radar đo.",
-        "Nên đọc trước ba repo nhỏ: Karpathy Skills, Humanizer, Superpowers (suy luận)."
+        "Nên đọc trước ba repo: Karpathy Skills, Humanizer, Superpowers (suy luận)."
       ]
     },
     {
@@ -61,14 +61,14 @@
         "S1",
         "S32"
       ],
-      "notes": "Kiểm tra độ tin của số sao trong ảnh bằng số radar từng đo [S32]. Người viết đếm: tám repo (Ponytail, Graphify, Career Ops, Claude-Mem, Headroom, Taste, Archify, I Have ADHD) có hai mốc đo quanh ngày 23/10, ngày 21/10 và ngày 24/10, và số làm tròn trong ảnh nằm giữa hai mốc ở cả tám repo. Ví dụ Ponytail đo được 170.154 sao ngày 21/10 và 174.930 sao ngày 24/10, ảnh ghi 174k [S32][S1]. Ba ví dụ khác: Graphify 130.545 và 133.991 sao (ảnh 133k), Career Ops 76.062 và 76.863 sao (ảnh 77k), Archify 86.603 và 88.372 sao (ảnh 88k) [S32][S1]. ECC đo được 285.034 sao ngày 21/10, ảnh ghi 287k; chênh khoảng 2.000 sao sau hai ngày, **suy luận** là hợp lý với nhịp tăng của repo [S32][S1]. REA là ngoại lệ: radar đo 293.881 sao ngày 17/10, ảnh ghi 371k, chênh 77.119 sao trong sáu ngày, lớn hơn nhiều nhịp của mọi repo khác, nên người viết không dùng số sao của REA ở bất cứ chỗ nào (người viết đếm; lý do chưa rõ) [S32][S1].",
+      "notes": "Kiểm tra độ tin của số sao trong ảnh bằng số radar từng đo [S32]. Người viết đếm: tám repo (Ponytail, Graphify, Career Ops, Claude-Mem, Headroom, Taste, Archify, I Have ADHD) có hai mốc đo quanh ngày 23/10, ngày 21/10 và ngày 24/10, và số làm tròn trong ảnh khớp với một giá trị nằm giữa hai mốc đo ở cả tám repo (ảnh không ghi giờ đọc). Ví dụ Ponytail đo được 170.154 sao ngày 21/10 và 174.930 sao ngày 24/10, ảnh ghi 174k [S32][S1]. Ba ví dụ khác: Graphify 130.545 và 133.991 sao (ảnh 133k), Career Ops 76.062 và 76.863 sao (ảnh 77k), Archify 86.603 và 88.372 sao (ảnh 88k) [S32][S1]. ECC đo được 285.034 sao ngày 21/10, ảnh ghi 287k; chênh khoảng 2.000 sao sau hai ngày, **suy luận** là hợp lý với nhịp tăng của repo [S32][S1]. REA là ngoại lệ: radar đo 293.881 sao ngày 17/10, ảnh ghi 371k, chênh khoảng 77.000 sao trong sáu ngày (hiệu của 371 nghìn và 293.881, số trong ảnh đã làm tròn đến nghìn), lớn hơn nhiều nhịp của mọi repo khác, nên người viết không dùng số sao …",
       "bullets": [
         "Ponytail: ảnh 174k; radar 170.154 (21/10) và 174.930 (24/10), khớp",
         "Graphify: ảnh 133k; radar 130.545 và 133.991, khớp",
         "Career Ops: ảnh 77k; radar 76.062 và 76.863, khớp",
         "Archify: ảnh 88k; radar 86.603 và 88.372, khớp",
         "ECC: ảnh 287k; radar 285.034 ngày 21/10, hợp lý (suy luận)",
-        "REA: ảnh 371k; radar 293.881 ngày 17/10, lệch 77.119"
+        "REA: ảnh 371k; radar 293.881 ngày 17/10, lệch khoảng 77.000"
       ]
     },
     {
@@ -1037,9 +1037,9 @@
         "S20",
         "S31"
       ],
-      "notes": "Lớp trả phí hoặc dịch vụ cạnh bản miễn phí, người viết đếm được tám repo: Superpowers có \"Commercial Services\" cho doanh nghiệp [S2]; ECC có ECC Pro, GitHub App cho repo riêng tư giá từ 19 đô la mỗi chỗ mỗi tháng [S4]; Graphify có Graphify Cloud với 14 ngày dùng thử [S9]; Claude-Mem có observer lưu trữ với 30 ngày dùng thử [S16]; Caveman có Caveman Cloud [S15]; Headroom có bản Enterprise [S17]; UI UX Pro Max có bản Premium [S20]; Marketing Skills có đối tác tài trợ và dịch vụ tư vấn của tác giả [S31]. Điều này không có gì sai, và README đều nói rõ; chỉ là \"free\" trong ảnh chưa chạm tới các lớp đó.",
+      "notes": "Lớp thương mại hoặc dịch vụ đám mây do dự án hoặc tác giả cung cấp cạnh bản miễn phí, người viết đếm được tám repo: Superpowers có \"Commercial Services\" cho doanh nghiệp [S2]; ECC có ECC Pro, GitHub App cho repo riêng tư giá từ 19 đô la mỗi chỗ mỗi tháng [S4]; Graphify có Graphify Cloud với 14 ngày dùng thử [S9]; Claude-Mem có observer lưu trữ với 30 ngày dùng thử [S16]; Caveman có Caveman Cloud, nơi README gọi việc đăng ký là miễn phí, nhắc tới \"Free plan\" và không nêu giá [S15]; Headroom có bản Enterprise [S17]; UI UX Pro Max có bản Premium [S20]; Marketing Skills có dịch vụ tư vấn của tác giả [S31]. Ngoài ra bốn README có nhà tài trợ hoặc liên kết giới thiệu: PPT Master [S24], Archify [S22], Agent Reach [S10] và Marketing Skills, nơi các đối tác tài trợ được ghi là \"fund the work\" [S31]. Điều này không có gì sai, và README đều nói rõ; chỉ là \"free\" trong ảnh chưa chạm tới các lớp đó.",
       "bullets": [
-        "Tám repo có lớp trả phí: Superpowers, ECC, Graphify, Claude-Mem, Caveman, Headroom, UI UX Pro Max, Marketing Skills.",
+        "Tám repo có lớp thương mại: Superpowers, ECC, Graphify, Claude-Mem, Caveman, Headroom, UI UX Pro Max, Marketing Skills.",
         "Giấy phép cần đọc kỹ: OpenMontage dùng GNU AGPLv3; skill tài liệu của Anthropic là source-available; hai repo không có LICENSE ở gốc.",
         "Chi phí khác: token (Taste), API video (OpenMontage), khóa và đăng nhập (Agent Reach, Last 30 Days)."
       ]
@@ -1057,7 +1057,7 @@
         "S12",
         "S19"
       ],
-      "notes": "Giấy phép cần đọc kỹ ở bốn nơi. OpenMontage dùng GNU AGPLv3 [S27]. Skills của Anthropic nói các skill tài liệu là source-available, không phải mã nguồn mở, và ở gốc repo không có file LICENSE [S26]. Karpathy Skills ghi MIT trong README nhưng gốc repo cũng không có file LICENSE (người viết đếm) [S5]. REA yêu cầu bạn tự có quyền hợp pháp với các công cụ thương mại như Hopper hay IDA [S8]. Career Ops và BMAD cũng giữ nhãn hiệu riêng cho tên của mình dù mã là MIT [S12][S19].",
+      "notes": "Giấy phép cần đọc kỹ ở sáu repo. OpenMontage dùng GNU AGPLv3 [S27]. Skills của Anthropic nói các skill tài liệu là source-available, không phải mã nguồn mở, và ở gốc repo không có file LICENSE [S26]. Karpathy Skills ghi MIT trong README nhưng gốc repo cũng không có file LICENSE (người viết đếm) [S5]. REA yêu cầu bạn tự có quyền hợp pháp với các công cụ thương mại như Hopper hay IDA [S8]. Career Ops và BMAD cũng giữ nhãn hiệu riêng cho tên của mình dù mã là MIT [S12][S19].",
       "bullets": [
         "OpenMontage: GNU AGPLv3, giấy phép copyleft mạnh",
         "Skills (Anthropic): docx, pdf, pptx, xlsx là source-available; không có LICENSE ở gốc",
@@ -1067,26 +1067,28 @@
       ]
     },
     {
-      "title": "Dữ liệu gửi đi: bốn README nói thẳng",
+      "title": "Dữ liệu gửi đi: năm README nói thẳng",
       "section": "\"Miễn phí\" nghĩa là gì ở 30 repo này",
-      "layout": "card-grid",
+      "layout": "numbered-rows",
       "tone": "light",
       "sources": [
         "S2",
         "S17",
         "S23",
-        "S15"
+        "S15",
+        "S14"
       ],
-      "notes": "Chi phí khác không nằm ở giấy phép: Taste nói một lượt dựng cần vài trăm nghìn token [S21]; OpenMontage nêu chi phí API cho video [S27]; Agent Reach và Last 30 Days cần khóa hoặc phiên đăng nhập cho nhiều nền tảng [S10][S13]. Về dữ liệu gửi đi, người viết tìm các từ khóa telemetry, beacon và analytics trong 30 README. Người viết đếm: bốn README nói thẳng một lời gọi mạng hoặc số liệu dùng được gửi mặc định, gồm Superpowers [S2], Headroom [S17], Impeccable [S23] và Caveman, nơi CLI gửi thống kê dùng kèm ID cài đặt ngẫu nhiên, hệ điều hành và IP, tắt bằng `caveman telemetry off` [S15]. gstack hỏi một lần và mặc định tắt [S14]; Graphify nói không có telemetry [S9] và Career Ops nói không gọi về máy chủ của tác giả [S12]. Các repo còn lại có thể vẫn có lời gọi mạng mà README không dùng những từ đó, nên hãy đọc mục riêng của từng README trước khi bật.",
+      "notes": "Chi phí khác không nằm ở giấy phép: Taste nói một lượt dựng cần vài trăm nghìn token [S21]; OpenMontage nêu chi phí API cho video [S27]; Agent Reach và Last 30 Days cần khóa hoặc phiên đăng nhập cho nhiều nền tảng [S10][S13]. Về dữ liệu gửi đi, người viết tìm các từ khóa telemetry, beacon và analytics trong 30 README. Người viết đếm: năm README nói thẳng một lời gọi mạng hoặc số liệu gửi đi mặc định bật, gồm Superpowers [S2], Headroom [S17], Impeccable [S23], Caveman và gstack. Caveman: CLI gửi thống kê dùng kèm ID cài đặt ngẫu nhiên, hệ điều hành và IP, tắt bằng `caveman telemetry off`; riêng chế độ Auto, chỉ khi bạn đăng nhập và chọn, gửi cho Caveman Cloud câu hỏi mới nhất kèm thứ agent đính vào như CLAUDE.md, bộ nhớ hoặc file được nhắc tên [S15]. gstack: kiểm tra phiên bản chạy mỗi lần mở một skill tương tác và mặc định bật (GitHub thấy địa chỉ IP của bạn), còn \"outside reviews\" mặc định bật sẽ gửi prompt cùng code, diff hoặc kế hoạch liên quan cho nhà …",
       "bullets": [
         "Superpowers: logo tải từ website tác giả, kèm phiên bản",
         "Headroom: beacon ẩn danh bật mặc định",
         "Impeccable: gọi API impeccable.style khi bắt đầu thiết kế",
-        "Caveman: CLI gửi thống kê dùng, tắt bằng `caveman telemetry off`"
+        "Caveman: CLI gửi thống kê dùng, tắt bằng `caveman telemetry off`",
+        "gstack: kiểm tra phiên bản và outside reviews mặc định bật; telemetry mặc định tắt"
       ]
     },
     {
-      "title": "Ba repo nhỏ nên đọc đầu tiên (suy luận)",
+      "title": "Ba repo nên đọc đầu tiên (suy luận)",
       "section": "Chọn ba repo đầu tiên",
       "layout": "flow",
       "tone": "dark",
@@ -1135,7 +1137,7 @@
         "S18",
         "S32"
       ],
-      "notes": "- Ảnh chỉ cho tên, số sao và một câu. Muốn biết thật thì đọc README, và README cũng chỉ là lời của tác giả [S1]. - Hầu hết 30 repo là bộ skill cho coding agent; ba mẫu cần phân biệt là file quy tắc (Karpathy Skills), skill đơn (Humanizer) và chuỗi skill (Superpowers) [S5][S29][S2]. - Cài một repo là chạy mã của người khác. Kiểm đúng owner và tên repo, đọc script cài, và biết lệnh nào mở trình duyệt hay đăng ký MCP [S4][S16][S8]. - \"Free\" đúng với mã nguồn; tám repo có thêm lớp trả phí, và vài repo có điều khoản giấy phép đặc biệt [S2][S4][S9][S16][S15][S17][S20][S31][S27][S26]. - Mọi số tiết kiệm token trong README là số của tác giả; đo lại trên việc của bạn trước khi tin [S6][S15][S17]. - GSD trong ảnh đã chuyển sang kho khác, và số sao của REA trong ảnh lệch so với số radar đo [S18][S32]. - Năm repo đã có bài radar riêng; 25 repo còn lại chưa có [S33].",
+      "notes": "- Ảnh chỉ cho tên, số sao và một câu. Muốn biết thật thì đọc README, và README cũng chỉ là lời của tác giả [S1]. - Hầu hết 30 repo là bộ skill cho coding agent; ba mẫu cần phân biệt là file quy tắc (Karpathy Skills), skill đơn (Humanizer) và chuỗi skill (Superpowers) [S5][S29][S2]. - Cài một repo là chạy mã của người khác. Kiểm đúng owner và tên repo, đọc script cài, và biết lệnh nào mở trình duyệt hay đăng ký MCP [S4][S16][S8]. - \"Free\" đúng với mã nguồn; tám repo có thêm lớp thương mại hoặc dịch vụ đám mây, và vài repo có điều khoản giấy phép đặc biệt [S2][S4][S9][S16][S15][S17][S20][S31][S27][S26]. - Năm README nói thẳng có lời gọi mạng hoặc số liệu gửi đi mặc định bật: Superpowers, Headroom, Impeccable, Caveman và gstack [S2][S17][S23][S15][S14]. - Mọi số tiết kiệm token trong README là số của tác giả; đo lại trên việc của bạn trước khi tin [S6][S15][S17]. - GSD trong ảnh đã chuyển sang kho khác, và số sao của REA trong ảnh lệch so với số radar đo [S18][S32]. - Năm repo đã …",
       "bullets": [
         "Mỗi lệnh cài chạy mã của người khác trên máy bạn.",
         "Kiểm đúng owner và tên repo; đọc script cài trước khi bảo agent chạy.",
