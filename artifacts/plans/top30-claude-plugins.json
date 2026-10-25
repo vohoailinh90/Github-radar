@@ -1,0 +1,557 @@
+{
+  "generated": "2026-10-25",
+  "source": {
+    "title": "Top 30 Claude Code Plugins",
+    "author": "Charlie Hills",
+    "stars_read": "2026-10-23",
+    "note": "image_stars_k is the rounded figure printed in the image, not measured here"
+  },
+  "state_ref": "main @ 568274d: state/seen.json (written), state/stars.json (scanned), digests/INDEX.md",
+  "probe": {
+    "date": "2026-10-25",
+    "method": "git clone --depth 1 --filter=blob:none --no-checkout, git ls-tree, git cat-file; public repositories, read only, nothing executed",
+    "license_hint": "read from the text of the root LICENSE file; GitHub's own licence field was not read",
+    "name_check": {
+      "stars-match": "owner/name appears in state/stars.json with a star count matching the image",
+      "exists": "git ls-remote finds the repository; the star count was not checked"
+    }
+  },
+  "groups": {
+    "senior": "Code like a senior",
+    "research": "Research and understanding",
+    "big": "Big projects, fewer tokens",
+    "design": "Design and visuals",
+    "writing": "Writing and video"
+  },
+  "flags": {
+    "license-unclear": "no root LICENSE file: the radar's licence gate may refuse it",
+    "readme-tiny": "README under 1,000 bytes: the radar has almost no facts to write from",
+    "readme-over-limit": "README over 40,000 bytes: the model sees under a third of it (readme_max_chars is 12,000 characters, cut by whole sections), so install or usage sections may be dropped",
+    "large-tree": "3,000 files or more: only top-level entries and a few children are shown to the model",
+    "copyleft": "GPL family licence: accepted by radar.yaml, but the digest's note on licensing must say so",
+    "stars-unverified": "owner/name exists but its star count has not been compared with the image"
+  },
+  "entries": [
+    {
+      "label": "ECC",
+      "group": "senior",
+      "image_stars_k": 287,
+      "repo": "affaan-m/ECC",
+      "status": "done",
+      "covered": "2026-10-21",
+      "digest": "digests/2026-10-21/ecc",
+      "note": null
+    },
+    {
+      "label": "REA",
+      "group": "research",
+      "image_stars_k": 371,
+      "repo": "morluto/rea",
+      "status": "done",
+      "covered": "2026-10-17",
+      "digest": "digests/2026-10-17-5/rea",
+      "note": "image shows 371k, radar measured 293,881 on 2026-10-17 (its only data point): check it is the same repository"
+    },
+    {
+      "label": "Agent Reach",
+      "group": "research",
+      "image_stars_k": 101,
+      "repo": "Panniantong/Agent-Reach",
+      "status": "done",
+      "covered": "2026-10-12",
+      "digest": "digests/2026-10-12/agent-reach",
+      "note": null
+    },
+    {
+      "label": "UI UX Pro Max",
+      "group": "design",
+      "image_stars_k": 139,
+      "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "status": "done",
+      "covered": "2026-10-16",
+      "digest": "digests/2026-10-16-4/ui-ux-pro-max-skill",
+      "note": null
+    },
+    {
+      "label": "Impeccable",
+      "group": "design",
+      "image_stars_k": 85,
+      "repo": "pbakaus/impeccable",
+      "status": "done",
+      "covered": "2026-10-16",
+      "digest": "digests/2026-10-16-4/impeccable",
+      "note": null
+    },
+    {
+      "label": "Superpowers",
+      "group": "senior",
+      "image_stars_k": 304,
+      "repo": "obra/superpowers",
+      "alias": null,
+      "status": "todo",
+      "wave": 1,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
+      "files": 231,
+      "skill_md": 15,
+      "readme_bytes": 14847,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Matt Pocock Skills",
+      "group": "senior",
+      "image_stars_k": 301,
+      "repo": "mattpocock/skills",
+      "alias": null,
+      "status": "todo",
+      "wave": 1,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "5beb35b040e3de97e54fa9e386d7e42d15c295c2",
+      "files": 191,
+      "skill_md": 38,
+      "readme_bytes": 16461,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Agent Skills",
+      "group": "senior",
+      "image_stars_k": 109,
+      "repo": "addyosmani/agent-skills",
+      "alias": null,
+      "status": "todo",
+      "wave": 1,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "aeac41d4d005999432bb7312f7ff06383a91d59d",
+      "files": 217,
+      "skill_md": 25,
+      "readme_bytes": 25930,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Ponytail",
+      "group": "senior",
+      "image_stars_k": 174,
+      "repo": "DietrichGebert/ponytail",
+      "alias": null,
+      "status": "todo",
+      "wave": 1,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "09c434ab73ca43761c5d8b0c5d341926c2fba710",
+      "files": 214,
+      "skill_md": 13,
+      "readme_bytes": 14578,
+      "license_hint": "MIT",
+      "flags": []
+    },
+    {
+      "label": "Karpathy Skills",
+      "group": "senior",
+      "image_stars_k": 222,
+      "repo": "forrestchang/andrej-karpathy-skills",
+      "alias": "multica-ai/andrej-karpathy-skills",
+      "status": "todo",
+      "wave": 1,
+      "hold": true,
+      "name_check": "exists",
+      "probe_commit": "2c606141936f1eeef17fa3043a72095b4765b9c2",
+      "files": 9,
+      "skill_md": 1,
+      "readme_bytes": 6198,
+      "license_hint": null,
+      "flags": [
+        "license-unclear",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Graphify",
+      "group": "research",
+      "image_stars_k": 133,
+      "repo": "Graphify-Labs/graphify",
+      "alias": null,
+      "status": "todo",
+      "wave": 2,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "92741d162b2094ffc2fed58cfbd8ee823e9da62c",
+      "files": 1101,
+      "skill_md": 0,
+      "readme_bytes": 36226,
+      "license_hint": "Apache-2.0",
+      "flags": []
+    },
+    {
+      "label": "Understand Anything",
+      "group": "research",
+      "image_stars_k": 87,
+      "repo": "Lum1104/Understand-Anything",
+      "alias": null,
+      "status": "todo",
+      "wave": 2,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "e24fcf6d371bcfa529bc110bacb1bb43de1b8d33",
+      "files": 521,
+      "skill_md": 9,
+      "readme_bytes": 20607,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Career Ops",
+      "group": "research",
+      "image_stars_k": 77,
+      "repo": "career-ops-hq/career-ops",
+      "alias": null,
+      "status": "todo",
+      "wave": 2,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "dff0d65ec613c5688a080073fa809398d0f1c39a",
+      "files": 2674,
+      "skill_md": 7,
+      "readme_bytes": 47581,
+      "license_hint": "MIT",
+      "flags": [
+        "readme-over-limit"
+      ]
+    },
+    {
+      "label": "Last 30 Days",
+      "group": "research",
+      "image_stars_k": 65,
+      "repo": "mvanhorn/last30days-skill",
+      "alias": null,
+      "status": "todo",
+      "wave": 2,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "f3cd06a620e385ce15109ed6d3b70fc20c89eccc",
+      "files": 594,
+      "skill_md": 1,
+      "readme_bytes": 31812,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Claude-Mem",
+      "group": "big",
+      "image_stars_k": 102,
+      "repo": "thedotmack/claude-mem",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "a4469fd4fc036461c05257184fe6445755f8e370",
+      "files": 2735,
+      "skill_md": 43,
+      "readme_bytes": 20457,
+      "license_hint": "Apache-2.0",
+      "flags": []
+    },
+    {
+      "label": "Headroom",
+      "group": "big",
+      "image_stars_k": 77,
+      "repo": "headroomlabs-ai/headroom",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "3fef15d376d9899f77a28464e2e91f8b99514930",
+      "files": 2684,
+      "skill_md": 0,
+      "readme_bytes": 34650,
+      "license_hint": "Apache-2.0",
+      "flags": []
+    },
+    {
+      "label": "Caveman",
+      "group": "big",
+      "image_stars_k": 114,
+      "repo": "JuliusBrussee/caveman",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "1f951fb4ad40ba63302c6e7f987147e034d599d9",
+      "files": 1793,
+      "skill_md": 28,
+      "readme_bytes": 22657,
+      "license_hint": "Apache-2.0",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "gstack",
+      "group": "big",
+      "image_stars_k": 137,
+      "repo": "garrytan/gstack",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "225a2103787c02cba0115f80e2639d76a82a675a",
+      "files": 3949,
+      "skill_md": 70,
+      "readme_bytes": 89520,
+      "license_hint": "MIT",
+      "flags": [
+        "readme-over-limit",
+        "large-tree",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "BMAD Method",
+      "group": "big",
+      "image_stars_k": 54,
+      "repo": "bmad-code-org/BMAD-METHOD",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "61e01f82644c4bb533750cfa0d6d61ab61d2cc9b",
+      "files": 584,
+      "skill_md": 35,
+      "readme_bytes": 7918,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "GSD",
+      "group": "big",
+      "image_stars_k": 64,
+      "repo": "gsd-build/get-shit-done",
+      "alias": null,
+      "status": "todo",
+      "wave": 3,
+      "hold": true,
+      "name_check": "exists",
+      "probe_commit": "bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815",
+      "files": 1854,
+      "skill_md": 0,
+      "readme_bytes": 329,
+      "license_hint": "MIT",
+      "flags": [
+        "readme-tiny",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Taste",
+      "group": "design",
+      "image_stars_k": 101,
+      "repo": "Leonxlnx/taste-skill",
+      "alias": null,
+      "status": "todo",
+      "wave": 4,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "12af471f627f866411b4bd785b19646d3672784c",
+      "files": 72,
+      "skill_md": 1,
+      "readme_bytes": 15088,
+      "license_hint": "MIT",
+      "flags": []
+    },
+    {
+      "label": "Archify",
+      "group": "design",
+      "image_stars_k": 88,
+      "repo": "tt-a1i/archify",
+      "alias": null,
+      "status": "todo",
+      "wave": 4,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "25cf37080fc8b1dbe758a4efc3935b55f3327083",
+      "files": 1174,
+      "skill_md": 5,
+      "readme_bytes": 36520,
+      "license_hint": "MIT",
+      "flags": []
+    },
+    {
+      "label": "Diagram Design",
+      "group": "design",
+      "image_stars_k": 60,
+      "repo": "cathrynlavery/diagram-design",
+      "alias": null,
+      "status": "todo",
+      "wave": 4,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "0b9b10cab3dbf695642fa1a6c4b4f60df9083689",
+      "files": 686,
+      "skill_md": 1,
+      "readme_bytes": 53859,
+      "license_hint": "MIT",
+      "flags": [
+        "readme-over-limit",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "PPT Master",
+      "group": "design",
+      "image_stars_k": 67,
+      "repo": "hugohe3/ppt-master",
+      "alias": null,
+      "status": "todo",
+      "wave": 4,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "78759bf62e9a1ef43e926ff9e50afa4cfe9a63cb",
+      "files": 13111,
+      "skill_md": 1,
+      "readme_bytes": 31156,
+      "license_hint": "MIT",
+      "flags": [
+        "large-tree",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Humanizer",
+      "group": "writing",
+      "image_stars_k": 59,
+      "repo": "blader/humanizer",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "8c307f367c91bd974002f10f2be2965d642c13df",
+      "files": 14,
+      "skill_md": 1,
+      "readme_bytes": 12926,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "I Have ADHD",
+      "group": "writing",
+      "image_stars_k": 58,
+      "repo": "ayghri/i-have-adhd",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": false,
+      "name_check": "stars-match",
+      "probe_commit": "1ecea1993b7fce257ffbd686c070948b5e07eda6",
+      "files": 74,
+      "skill_md": 2,
+      "readme_bytes": 3995,
+      "license_hint": "MIT",
+      "flags": []
+    },
+    {
+      "label": "Marketing Skills",
+      "group": "writing",
+      "image_stars_k": 56,
+      "repo": "coreyhaines31/marketingskills",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "e85f3cbc2e4a79bf33b2a12e9bdd9087d414735b",
+      "files": 770,
+      "skill_md": 52,
+      "readme_bytes": 25479,
+      "license_hint": "MIT",
+      "flags": [
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "HyperFrames",
+      "group": "writing",
+      "image_stars_k": 70,
+      "repo": "heygen-com/hyperframes",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "0289d96ac78ab827e6ae1056d2e60e3716d21e9d",
+      "files": 9167,
+      "skill_md": 26,
+      "readme_bytes": 22976,
+      "license_hint": "Apache-2.0",
+      "flags": [
+        "large-tree",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "OpenMontage",
+      "group": "writing",
+      "image_stars_k": 71,
+      "repo": "calesthio/OpenMontage",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": false,
+      "name_check": "exists",
+      "probe_commit": "e01dbf433f46eeb91d39bf905e194162921019a3",
+      "files": 2208,
+      "skill_md": 140,
+      "readme_bytes": 42901,
+      "license_hint": "GPL/AGPL/LGPL",
+      "flags": [
+        "readme-over-limit",
+        "copyleft",
+        "stars-unverified"
+      ]
+    },
+    {
+      "label": "Skills (Anthropic)",
+      "group": "writing",
+      "image_stars_k": 183,
+      "repo": "anthropics/skills",
+      "alias": null,
+      "status": "todo",
+      "wave": 5,
+      "hold": true,
+      "name_check": "exists",
+      "probe_commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+      "files": 445,
+      "skill_md": 20,
+      "readme_bytes": 5552,
+      "license_hint": null,
+      "flags": [
+        "license-unclear",
+        "stars-unverified"
+      ]
+    }
+  ]
+}
