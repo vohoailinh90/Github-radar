@@ -243,7 +243,11 @@ class Ledger:
             proc = git("push", "--porcelain", self.remote, f"{sha}:{REF}{slug}")
             if proc.returncode == 0:
                 return True
-            where = self.tip(slug)
+            try:
+                where = self.tip(slug)
+            except Remote as exc:
+                # the push failed and so does the question where the branch is now: it may have landed
+                raise Remote(f"{exc}; the outcome of the push is unknown", partial=True) from exc
             if where == sha:
                 return True                           # the server took the push and the acknowledgment got lost: it is ours
             if where != parent:

@@ -47,10 +47,13 @@ DELAYED = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport clai
            "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True,\n"
            "                       env={{**__import__('os').environ, 'CLAIM_NOW': {later!r}}})\n    return real(*a, **k)\n"
            "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
-# the script with the server accepting the first push and the acknowledgment getting lost on the way back
+# the script with the server accepting the first push and the acknowledgment getting lost on the way back; with probe_fails the question
+# where the branch is now (ls-remote) fails as well from then on
 LOST_ACK = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'n': 0}}\n"
             "def flaky(*a, **k):\n    if a and a[0] == 'push' and not state['n']:\n        state['n'] = 1\n        real(*a, **k)\n"
-            "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
+            "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n"
+            "    if a and a[0] == 'ls-remote' and state['n'] and {probe_fails!r}:\n"
+            "        return subprocess.CompletedProcess(a, 128, '', 'fatal: injected outage')\n    return real(*a, **k)\n"
             "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
@@ -463,7 +466,7 @@ def test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_succe
     """Codex finding (round 3): the branch then points at our own commit, which the lost-race rule took for somebody else's win, so the
     claim was retried as a renewal and, in a multi-claim, never rolled back when a later item was held."""
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
-    code = LOST_ACK.format(scripts=SCRIPTS)
+    code = LOST_ACK.format(scripts=SCRIPTS, probe_fails=False)
     env = {**ENV, "CLAIM_NOW": T0}
     single = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/new"], cwd=a, capture_output=True, text=True, env=env)
     assert single.returncode == 0 and single.stdout.startswith("claimed o/new"), (single.stdout, single.stderr)       # not "renewed"
@@ -472,6 +475,18 @@ def test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_succe
                           env=env)
     assert both.returncode == 1 and "HELD o/held" in both.stdout, (both.stdout, both.stderr)
     assert standing(a) == ["o/held", "o/new"]                                  # o/fresh (pushed, acknowledgment lost) was rolled back
+
+
+def test_a_failed_push_whose_outcome_cannot_be_read_back_says_the_claim_may_still_stand(origin, tmp_path):
+    """Codex finding (round 5): the push landed, the acknowledgment was lost and the question where the branch is now failed too; the command
+    said "nothing was claimed" while the claim stood."""
+    a = clone(origin, tmp_path, "a")
+    code = LOST_ACK.format(scripts=SCRIPTS, probe_fails=True)
+    lost = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/new"], cwd=a, capture_output=True, text=True,
+                          env={**ENV, "CLAIM_NOW": T0})
+    assert lost.returncode == 3, (lost.stdout, lost.stderr)
+    assert "may still stand" in lost.stderr and "o/new" in lost.stderr and "nothing was claimed" not in lost.stderr, lost.stderr
+    assert standing(a) == ["o/new"]                                              # it did land: the message must not deny it
 
 
 def test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh(origin, tmp_path):
