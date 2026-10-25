@@ -1,0 +1,236 @@
+{
+  "snapshot_date": "2026-10-25",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "Ảnh \"Top 30 Claude Code Plugins\" của Charlie Hills (số sao đọc ngày 23/10/2026), chủ repo gửi; chép lại trong artifacts/plans/top30-claude-plugins.json",
+      "url": null,
+      "pinned_url": null,
+      "commit": null
+    },
+    {
+      "id": "S2",
+      "name": "obra/superpowers — README.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/README.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S3",
+      "name": "mattpocock/skills — README.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/README.md",
+      "commit": "5beb35b040e3de97e54fa9e386d7e42d15c295c2"
+    },
+    {
+      "id": "S4",
+      "name": "affaan-m/ECC — README.md",
+      "url": "https://github.com/affaan-m/ECC/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/affaan-m/ECC/blob/90606c8315ee09cafc303515c5f33024db6b9882/README.md",
+      "commit": "90606c8315ee09cafc303515c5f33024db6b9882"
+    },
+    {
+      "id": "S5",
+      "name": "forrestchang/andrej-karpathy-skills — README.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S6",
+      "name": "DietrichGebert/ponytail — README.md",
+      "url": "https://github.com/DietrichGebert/ponytail/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/DietrichGebert/ponytail/blob/09c434ab73ca43761c5d8b0c5d341926c2fba710/README.md",
+      "commit": "09c434ab73ca43761c5d8b0c5d341926c2fba710"
+    },
+    {
+      "id": "S7",
+      "name": "addyosmani/agent-skills — README.md",
+      "url": "https://github.com/addyosmani/agent-skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/README.md",
+      "commit": "aeac41d4d005999432bb7312f7ff06383a91d59d"
+    },
+    {
+      "id": "S8",
+      "name": "morluto/rea — README.md",
+      "url": "https://github.com/morluto/rea/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/morluto/rea/blob/80673b22a46d01899718e22584cf95d9f0529ab7/README.md",
+      "commit": "80673b22a46d01899718e22584cf95d9f0529ab7"
+    },
+    {
+      "id": "S9",
+      "name": "Graphify-Labs/graphify — README.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/92741d162b2094ffc2fed58cfbd8ee823e9da62c/README.md",
+      "commit": "92741d162b2094ffc2fed58cfbd8ee823e9da62c"
+    },
+    {
+      "id": "S10",
+      "name": "Panniantong/Agent-Reach — README.md",
+      "url": "https://github.com/Panniantong/Agent-Reach/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/README.md",
+      "commit": "14c213405669414492bda0f8d52cc6531d062c45"
+    },
+    {
+      "id": "S11",
+      "name": "Lum1104/Understand-Anything — README.md",
+      "url": "https://github.com/Lum1104/Understand-Anything/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Lum1104/Understand-Anything/blob/e24fcf6d371bcfa529bc110bacb1bb43de1b8d33/README.md",
+      "commit": "e24fcf6d371bcfa529bc110bacb1bb43de1b8d33"
+    },
+    {
+      "id": "S12",
+      "name": "career-ops-hq/career-ops — README.md",
+      "url": "https://github.com/career-ops-hq/career-ops/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/career-ops-hq/career-ops/blob/95b9d507da2104c2b30577463cac16b5d1c6bc58/README.md",
+      "commit": "95b9d507da2104c2b30577463cac16b5d1c6bc58"
+    },
+    {
+      "id": "S13",
+      "name": "mvanhorn/last30days-skill — README.md",
+      "url": "https://github.com/mvanhorn/last30days-skill/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/mvanhorn/last30days-skill/blob/f3cd06a620e385ce15109ed6d3b70fc20c89eccc/README.md",
+      "commit": "f3cd06a620e385ce15109ed6d3b70fc20c89eccc"
+    },
+    {
+      "id": "S14",
+      "name": "garrytan/gstack — README.md",
+      "url": "https://github.com/garrytan/gstack/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/garrytan/gstack/blob/db87940e244fbeb82a6a9e2d02e45f73b9aa17a7/README.md",
+      "commit": "db87940e244fbeb82a6a9e2d02e45f73b9aa17a7"
+    },
+    {
+      "id": "S15",
+      "name": "JuliusBrussee/caveman — README.md",
+      "url": "https://github.com/JuliusBrussee/caveman/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/JuliusBrussee/caveman/blob/944413127101fc816451571c169dc1eeb3194bed/README.md",
+      "commit": "944413127101fc816451571c169dc1eeb3194bed"
+    },
+    {
+      "id": "S16",
+      "name": "thedotmack/claude-mem — README.md",
+      "url": "https://github.com/thedotmack/claude-mem/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/thedotmack/claude-mem/blob/a4469fd4fc036461c05257184fe6445755f8e370/README.md",
+      "commit": "a4469fd4fc036461c05257184fe6445755f8e370"
+    },
+    {
+      "id": "S17",
+      "name": "headroomlabs-ai/headroom — README.md",
+      "url": "https://github.com/headroomlabs-ai/headroom/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/headroomlabs-ai/headroom/blob/3fef15d376d9899f77a28464e2e91f8b99514930/README.md",
+      "commit": "3fef15d376d9899f77a28464e2e91f8b99514930"
+    },
+    {
+      "id": "S18",
+      "name": "gsd-build/get-shit-done — README.md",
+      "url": "https://github.com/gsd-build/get-shit-done/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/gsd-build/get-shit-done/blob/bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815/README.md",
+      "commit": "bdcaab2c752d9a33a1a1ca9acf3a3c81fb991815"
+    },
+    {
+      "id": "S19",
+      "name": "bmad-code-org/BMAD-METHOD — README.md",
+      "url": "https://github.com/bmad-code-org/BMAD-METHOD/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/bmad-code-org/BMAD-METHOD/blob/61e01f82644c4bb533750cfa0d6d61ab61d2cc9b/README.md",
+      "commit": "61e01f82644c4bb533750cfa0d6d61ab61d2cc9b"
+    },
+    {
+      "id": "S20",
+      "name": "nextlevelbuilder/ui-ux-pro-max-skill — README.md",
+      "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/d14efff8ed1faa4187f004f79926f428c8074ec7/README.md",
+      "commit": "d14efff8ed1faa4187f004f79926f428c8074ec7"
+    },
+    {
+      "id": "S21",
+      "name": "Leonxlnx/taste-skill — README.md",
+      "url": "https://github.com/Leonxlnx/taste-skill/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Leonxlnx/taste-skill/blob/12af471f627f866411b4bd785b19646d3672784c/README.md",
+      "commit": "12af471f627f866411b4bd785b19646d3672784c"
+    },
+    {
+      "id": "S22",
+      "name": "tt-a1i/archify — README.md",
+      "url": "https://github.com/tt-a1i/archify/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/tt-a1i/archify/blob/25cf37080fc8b1dbe758a4efc3935b55f3327083/README.md",
+      "commit": "25cf37080fc8b1dbe758a4efc3935b55f3327083"
+    },
+    {
+      "id": "S23",
+      "name": "pbakaus/impeccable — README.md",
+      "url": "https://github.com/pbakaus/impeccable/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/pbakaus/impeccable/blob/936867543ac2576920d663cc9803597f6044f3ac/README.md",
+      "commit": "936867543ac2576920d663cc9803597f6044f3ac"
+    },
+    {
+      "id": "S24",
+      "name": "hugohe3/ppt-master — README.md",
+      "url": "https://github.com/hugohe3/ppt-master/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/hugohe3/ppt-master/blob/78759bf62e9a1ef43e926ff9e50afa4cfe9a63cb/README.md",
+      "commit": "78759bf62e9a1ef43e926ff9e50afa4cfe9a63cb"
+    },
+    {
+      "id": "S25",
+      "name": "cathrynlavery/diagram-design — README.md",
+      "url": "https://github.com/cathrynlavery/diagram-design/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/cathrynlavery/diagram-design/blob/0b9b10cab3dbf695642fa1a6c4b4f60df9083689/README.md",
+      "commit": "0b9b10cab3dbf695642fa1a6c4b4f60df9083689"
+    },
+    {
+      "id": "S26",
+      "name": "anthropics/skills — README.md",
+      "url": "https://github.com/anthropics/skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/README.md",
+      "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+    },
+    {
+      "id": "S27",
+      "name": "calesthio/OpenMontage — README.md",
+      "url": "https://github.com/calesthio/OpenMontage/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/calesthio/OpenMontage/blob/e01dbf433f46eeb91d39bf905e194162921019a3/README.md",
+      "commit": "e01dbf433f46eeb91d39bf905e194162921019a3"
+    },
+    {
+      "id": "S28",
+      "name": "heygen-com/hyperframes — README.md",
+      "url": "https://github.com/heygen-com/hyperframes/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/heygen-com/hyperframes/blob/7bc363c87c8524e547c5b759d2471d96183b67f3/README.md",
+      "commit": "7bc363c87c8524e547c5b759d2471d96183b67f3"
+    },
+    {
+      "id": "S29",
+      "name": "blader/humanizer — README.md",
+      "url": "https://github.com/blader/humanizer/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/blader/humanizer/blob/8c307f367c91bd974002f10f2be2965d642c13df/README.md",
+      "commit": "8c307f367c91bd974002f10f2be2965d642c13df"
+    },
+    {
+      "id": "S30",
+      "name": "ayghri/i-have-adhd — README.md",
+      "url": "https://github.com/ayghri/i-have-adhd/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/ayghri/i-have-adhd/blob/1ecea1993b7fce257ffbd686c070948b5e07eda6/README.md",
+      "commit": "1ecea1993b7fce257ffbd686c070948b5e07eda6"
+    },
+    {
+      "id": "S31",
+      "name": "coreyhaines31/marketingskills — README.md",
+      "url": "https://github.com/coreyhaines31/marketingskills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/coreyhaines31/marketingskills/blob/e85f3cbc2e4a79bf33b2a12e9bdd9087d414735b/README.md",
+      "commit": "e85f3cbc2e4a79bf33b2a12e9bdd9087d414735b"
+    },
+    {
+      "id": "S32",
+      "name": "vohoailinh90/Github-radar — state/stars.json (số sao radar từng đo)",
+      "url": "https://github.com/vohoailinh90/Github-radar/blob/main/state/stars.json",
+      "pinned_url": "https://github.com/vohoailinh90/Github-radar/blob/239577ba26348f5e1516be7d576cde9a66e7b00d/state/stars.json",
+      "commit": "239577ba26348f5e1516be7d576cde9a66e7b00d"
+    },
+    {
+      "id": "S33",
+      "name": "vohoailinh90/Github-radar — artifacts/plans/top30-claude-plugins.json (kiểm repo nào đã có bài)",
+      "url": "https://github.com/vohoailinh90/Github-radar/blob/main/artifacts/plans/top30-claude-plugins.json",
+      "pinned_url": "https://github.com/vohoailinh90/Github-radar/blob/239577ba26348f5e1516be7d576cde9a66e7b00d/artifacts/plans/top30-claude-plugins.json",
+      "commit": "239577ba26348f5e1516be7d576cde9a66e7b00d"
+    }
+  ]
+}
