@@ -4,6 +4,7 @@ Every test runs the real script in a real clone of a local bare repository (git'
 races start real processes at the same moment. Nothing here needs a network or a GitHub token.
 """
 
+import importlib.util
 import json
 import os
 import stat
@@ -13,7 +14,8 @@ import time
 
 import pytest
 
-SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts", "claim.py")
+SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts")
+SCRIPT = os.path.join(SCRIPTS, "claim.py")
 T0 = "2026-10-24T10:00:00Z"
 EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 ENV = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_SYSTEM": os.devnull, "GIT_TERMINAL_PROMPT": "0"}
@@ -22,6 +24,12 @@ for var in ("CLAIM_NOW", "CLAIM_SESSION", "CLAUDE_SESSION_ID", "CODEX_SESSION_ID
 # waits for a start file, then runs the script: every racer is already running Python when the file appears
 LAUNCH = ("import os, runpy, sys, time\ngo = sys.argv[1]\nwhile not os.path.exists(go):\n    time.sleep(0.0005)\n"
           "sys.argv = sys.argv[2:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n")
+# the script with git failing as if the network went away from the nth fetch on (and, optionally, for every push after it)
+FLAKY = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, seen = claim.git, {{'fetches': 0}}\n"
+         "def flaky(*a, **k):\n    if a and a[0] == 'fetch':\n        seen['fetches'] += 1\n"
+         "    if seen['fetches'] >= {nth} and a and (a[0] == 'fetch' or (a[0] == 'push' and {block_push})):\n"
+         "        return subprocess.CompletedProcess(a, 128, '', 'fatal: injected outage')\n    return real(*a, **k)\n"
+         "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -32,6 +40,17 @@ while read old new ref; do
 done
 exit 0
 """
+
+
+_spec = importlib.util.spec_from_file_location("claim_under_test", SCRIPT)
+claim_module = importlib.util.module_from_spec(_spec)
+sys.modules[_spec.name] = claim_module          # a dataclass looks its module up here
+_spec.loader.exec_module(claim_module)
+
+
+def slug_of(key):
+    """The branch name the script gives an item: only for the tests that must put a branch of their own under that very name."""
+    return claim_module.normalise(key)[1]
 
 
 def git(cwd, *args, data=None):
@@ -81,21 +100,32 @@ def run(cwd, *args, session=None, now=None, agent="claude"):
 
 
 def ledger(cwd):
-    """{item slug: the record on its branch's tip}, read straight from git, independently of the script."""
+    """{branch name: the record on its tip, or None when the tip is not JSON}, read straight from git, independently of the script."""
     git(cwd, "fetch", "-q", "--prune", "origin", "+refs/heads/claims/*:refs/tests/claims/*")
     out = git(cwd, "for-each-ref", "--format=%(refname)%1f%(contents:subject)%1e", "refs/tests/claims/")
     rows = [r.strip("\n").split("\x1f") for r in out.split("\x1e") if r.strip("\n")]
-    return {ref.removeprefix("refs/tests/claims/"): json.loads(subject) for ref, subject in rows}
+    result = {}
+    for ref, subject in rows:
+        try:
+            result[ref.removeprefix("refs/tests/claims/")] = json.loads(subject)
+        except ValueError:
+            result[ref.removeprefix("refs/tests/claims/")] = None
+    return result
+
+
+def items(cwd):
+    """{item key: record} for every branch (a branch made by hand shows as '(<branch>)'); the names of the branches do not matter."""
+    return {(rec["key"] if rec else f"({name})"): rec for name, rec in ledger(cwd).items()}
 
 
 def standing(cwd):
     """The items whose tip says claimed (a released item keeps its branch but is not held)."""
-    return sorted(slug for slug, rec in ledger(cwd).items() if rec.get("state", "claimed") == "claimed")
+    return sorted(key for key, rec in items(cwd).items() if rec and rec.get("state", "claimed") == "claimed")
 
 
 def branches(cwd):
-    out = git(cwd, "ls-remote", "--heads", "origin", "refs/heads/claims/*")
-    return sorted(line.split("\t")[1].removeprefix("refs/heads/claims/") for line in out.splitlines())
+    """Every item that has a branch, held or not."""
+    return sorted(items(cwd))
 
 
 def listing(cwd, session="x", now=None):
@@ -106,7 +136,7 @@ def test_a_free_item_is_claimed_and_listed(origin, tmp_path):
     a = clone(origin, tmp_path, "a")
     done = run(a, "claim", "Docs/Reports/Genai-Agents", "--note", "deck", session="s-a", now=T0)
     assert done.returncode == 0 and done.stdout.startswith("claimed docs/reports/genai-agents until 2026-10-24T12:00:00Z"), done.stdout
-    assert standing(a) == ["docs-reports-genai-agents"]
+    assert standing(a) == ["docs/reports/genai-agents"]
     [row] = listing(a, "s-a", T0)
     assert (row["key"], row["state"], row["mine"], row["note"]) == ("docs/reports/genai-agents", "live", True, "deck")
     assert "s-a (claude)" == row["holder"] and row["until"] == "2026-10-24T12:00:00Z"
@@ -126,7 +156,7 @@ def test_the_same_session_renews_and_a_checkout_keeps_one_session_id(origin, tmp
     first = run(a, "claim", "o/orca", now=T0)                       # no --session: the id is made once and kept in the checkout
     second = run(a, "claim", "o/orca", now="2026-10-24T10:30:00Z")
     assert first.stdout.startswith("claimed") and second.stdout.startswith("renewed"), second.stdout
-    assert list(ledger(a)) == ["o-orca"] and git(a, "rev-list", "--count", "refs/tests/claims/o-orca") == "2\n"       # one branch, two commits
+    assert branches(a) == ["o/orca"] and git(a, "rev-list", "--count", f"refs/tests/claims/{slug_of('o/orca')}") == "2\n"       # one branch, two commits
     assert run(b, "claim", "o/orca", now="2026-10-24T10:31:00Z").returncode == 1          # another checkout is another session
     assert listing(a, "x", "2026-10-24T10:31:00Z")[0]["until"] == "2026-10-24T12:30:00Z"   # the renewal moved the end
 
@@ -135,9 +165,9 @@ def test_release_frees_the_item_and_only_the_holder_or_force_does(origin, tmp_pa
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
     run(a, "claim", "o/orca", session="s-a", now=T0)
     refused = run(b, "release", "o/orca", session="s-b", now=T0)
-    assert refused.returncode == 1 and "REFUSED" in refused.stdout and standing(a) == ["o-orca"]
+    assert refused.returncode == 1 and "REFUSED" in refused.stdout and standing(a) == ["o/orca"]
     assert run(a, "release", "o/orca", session="s-a", now=T0).stdout.startswith("released")
-    assert standing(a) == [] and branches(a) == ["o-orca"]                                  # released, and the branch stays
+    assert standing(a) == [] and branches(a) == ["o/orca"]                                  # released, and the branch stays
     assert [r["state"] for r in listing(a, "s-a", T0)] == ["released"]
     assert run(a, "release", "o/orca", session="s-a", now=T0).stdout.startswith("not held")      # idempotent
     assert run(b, "claim", "o/orca", session="s-b", now=T0).stdout.startswith("claimed")        # a released item is free at once
@@ -189,9 +219,9 @@ def test_several_items_are_all_or_nothing(origin, tmp_path):
     run(b, "claim", "o/second", session="s-b", now=T0)
     refused = run(a, "claim", "o/first", "o/second", session="s-a", now=T0)
     assert refused.returncode == 1 and "o/second" in refused.stdout
-    assert standing(a) == ["o-second"]                                 # o/first was given back (its branch stays, released)
+    assert standing(a) == ["o/second"]                                 # o/first was given back (its branch stays, released)
     assert run(a, "claim", "o/first", "o/third", session="s-a", now=T0).returncode == 0
-    assert standing(a) == ["o-first", "o-second", "o-third"]
+    assert standing(a) == ["o/first", "o/second", "o/third"]
 
 
 def test_a_failed_multi_claim_keeps_what_the_session_already_held(origin, tmp_path):
@@ -199,7 +229,7 @@ def test_a_failed_multi_claim_keeps_what_the_session_already_held(origin, tmp_pa
     run(a, "claim", "o/mine", session="s-a", now=T0)
     run(b, "claim", "o/theirs", session="s-b", now=T0)
     assert run(a, "claim", "o/mine", "o/theirs", session="s-a", now=T0).returncode == 1
-    assert standing(a) == ["o-mine", "o-theirs"]                       # a renewal is not something this call took, so it stays
+    assert standing(a) == ["o/mine", "o/theirs"]                       # a renewal is not something this call took, so it stays
 
 
 def test_a_folder_and_a_file_inside_it_overlap_in_both_orders_and_one_session_may_hold_both(origin, tmp_path):
@@ -207,11 +237,11 @@ def test_a_folder_and_a_file_inside_it_overlap_in_both_orders_and_one_session_ma
     run(a, "claim", "docs/reports/x", session="s-a", now=T0)
     refused = run(b, "claim", "docs/reports/x/report.md", session="s-b", now=T0)
     assert refused.returncode == 1 and "overlaps a claim of docs/reports/x" in refused.stdout
-    assert standing(a) == ["docs-reports-x"]                           # b yielded: its own tip says released
+    assert standing(a) == ["docs/reports/x"]                           # b yielded: its own tip says released
     run(a, "release", "docs/reports/x", session="s-a", now=T0)
     run(b, "claim", "docs/reports/x/report.md", session="s-b", now=T0)
     assert run(a, "claim", "docs/reports/x", session="s-a", now=T0).returncode == 1
-    assert standing(a) == ["docs-reports-x-report.md"]
+    assert standing(a) == ["docs/reports/x/report.md"]
     assert run(b, "claim", "docs/reports/x", session="s-b", now=T0).returncode == 0       # the same session overlaps itself freely
     assert run(a, "claim", "docs/reports/y", session="s-a", now=T0).returncode == 0       # a sibling folder is no overlap
 
@@ -223,7 +253,7 @@ def test_check_reports_without_writing(origin, tmp_path):
     free = run(b, "check", "docs/reports/z", "o/orca", session="s-b", now=T0)
     assert free.returncode == 0 and free.stdout.count("free ") == 2
     assert run(a, "check", "docs/reports/x", session="s-a", now=T0).returncode == 0      # your own claim is not in your way
-    assert branches(b) == ["docs-reports-x"]
+    assert branches(b) == ["docs/reports/x"]
 
 
 def test_an_unreachable_remote_exits_3_and_claims_nothing(origin, tmp_path):
@@ -243,21 +273,22 @@ def test_a_url_with_a_password_is_not_echoed(origin, tmp_path):
 
 def test_a_branch_made_by_hand_under_claims_is_a_held_item_not_a_crash(origin, tmp_path):
     a = clone(origin, tmp_path, "a")
-    commit = handmade(a, "junk", "hello, not json")
+    junk = slug_of("junk")
+    commit = handmade(a, junk, "hello, not json")
     [row] = listing(a, "s-a")
-    assert row["key"] == "(junk)" and row["holder"].startswith("unknown")
+    assert row["key"] == f"({junk})" and row["holder"].startswith("unknown")
     assert run(a, "claim", "junk", session="s-a").returncode == 1                         # a fresh commit of unknown origin is live
     later = run(a, "claim", "junk", session="s-a", now="2099-01-01T00:00:00Z")           # ... until the default time-to-live is over
     assert later.returncode == 0 and later.stdout.startswith("took over")
-    assert ledger(a)["junk"]["session"] == "s-a"
-    assert git(a, "rev-parse", "refs/tests/claims/junk^").strip() == commit              # built on top of the foreign commit, never over it
+    assert ledger(a)[junk]["session"] == "s-a"
+    assert git(a, "rev-parse", f"refs/tests/claims/{junk}^").strip() == commit              # built on top of the foreign commit, never over it
 
 
 def test_a_branch_deleted_by_hand_is_gone_for_every_checkout_even_one_that_saw_it(origin, tmp_path):
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
-    handmade(a, "junk", "by hand")
+    handmade(a, slug_of("junk"), "by hand")
     assert [r["state"] for r in listing(b, "s-b")] == ["live"]                       # b has now cached it
-    git(a, "push", "-q", "origin", ":refs/heads/claims/junk")                       # what the holder text tells the owner to do
+    git(a, "push", "-q", "origin", f":refs/heads/claims/{slug_of('junk')}")                       # what the holder text tells the owner to do
     assert run(b, "claim", "junk", session="s-b").stdout.startswith("claimed")      # not "held" by a claim that no longer exists
 
 
@@ -268,7 +299,7 @@ def test_prune_never_deletes_a_live_claim_however_old(origin, tmp_path):
     run(a, "release", "o/done", session="s-a", now=T0)
     done = run(a, "prune", "--older", "1s", session="s-a", now="2026-10-24T13:00:00Z")       # o/live began three hours ago and runs for 24
     assert done.returncode == 0 and "deleted o/done" in done.stdout and "o/live" not in done.stdout
-    assert branches(a) == ["o-live"] and standing(a) == ["o-live"]
+    assert branches(a) == ["o/live"] and standing(a) == ["o/live"]
 
 
 def test_a_lapsed_claim_of_your_own_is_not_a_renewal_when_someone_overlapped_it_meanwhile(origin, tmp_path):
@@ -279,7 +310,7 @@ def test_a_lapsed_claim_of_your_own_is_not_a_renewal_when_someone_overlapped_it_
     assert run(b, "claim", "docs/reports/x/deck.json", session="s-b", now="2026-10-24T02:00:00Z").returncode == 0     # A's claim has lapsed
     again = run(a, "claim", "docs/reports/x", session="s-a", now="2026-10-24T02:00:00Z")
     assert again.returncode == 1 and "overlaps a claim of docs/reports/x/deck.json" in again.stdout, again.stdout
-    assert standing(a) == ["docs-reports-x-deck.json"]                                                 # only B stands; A yielded
+    assert standing(a) == ["docs/reports/x/deck.json"]                                                 # only B stands; A yielded
     assert run(a, "renew", "docs/reports/x", session="s-a", now="2026-10-24T02:01:00Z").returncode == 1     # (and it is not A's to renew now)
 
 
@@ -304,21 +335,21 @@ def test_a_yield_the_server_refuses_leaves_a_claim_standing_and_says_so(origin, 
     hook(origin, '  [ "$new" = "$zero" ] && continue\n  git log -1 --format=%s "$new" | grep -q \'"state":"released"\' && { echo "no releases" >&2; exit 1; }')
     lost = run(b, "claim", "docs/reports/x/report.md", session="s-b", now=T0)
     assert lost.returncode == 3 and "may still stand until it expires" in lost.stderr and "nothing was claimed" not in lost.stderr, lost.stderr
-    assert standing(a) == ["docs-reports-x", "docs-reports-x-report.md"]                              # the stray claim is real, and was reported
+    assert standing(a) == ["docs/reports/x", "docs/reports/x/report.md"]                              # the stray claim is real, and was reported
     (origin / "hooks" / "pre-receive").unlink()
-    assert run(b, "release", "docs/reports/x/report.md", session="s-b", now=T0).returncode == 0 and standing(a) == ["docs-reports-x"]
+    assert run(b, "release", "docs/reports/x/report.md", session="s-b", now=T0).returncode == 0 and standing(a) == ["docs/reports/x"]
 
 
 def test_a_multi_claim_that_fails_in_the_middle_gives_back_what_it_took_or_says_what_remains(origin, tmp_path):
     a = clone(origin, tmp_path, "a")
-    hook(origin, '  case "$ref" in refs/heads/claims/o-bad) echo "refused" >&2; exit 1 ;; esac')
+    hook(origin, '  case "$ref" in refs/heads/claims/' + slug_of("o/bad") + ') echo "refused" >&2; exit 1 ;; esac')
     failed = run(a, "claim", "o/good", "o/bad", session="s-a", now=T0)
     assert failed.returncode == 3 and "nothing was claimed" in failed.stderr and standing(a) == []         # o/good was given back
-    hook(origin, '  case "$ref" in refs/heads/claims/o-bad) echo "refused" >&2; exit 1 ;; esac\n'
+    hook(origin, '  case "$ref" in refs/heads/claims/' + slug_of("o/bad") + ') echo "refused" >&2; exit 1 ;; esac\n'
                  '  [ "$new" = "$zero" ] && continue\n  git log -1 --format=%s "$new" | grep -q \'"state":"released"\' && { echo "no releases" >&2; exit 1; }')
     stuck = run(a, "claim", "o/good", "o/bad", session="s-a", now=T0)
     assert stuck.returncode == 3 and "may still stand until they expire: o-good" in stuck.stderr, stuck.stderr
-    assert standing(a) == ["o-good"]
+    assert standing(a) == ["o/good"]
 
 
 def test_prune_leaves_a_branch_made_by_hand_alone(origin, tmp_path):
@@ -328,7 +359,7 @@ def test_prune_leaves_a_branch_made_by_hand_alone(origin, tmp_path):
     run(a, "release", "o/old", session="s-a", now=T0)
     done = run(a, "prune", "--older", "1s", session="s-a", now="2099-01-01T00:00:00Z")
     assert done.returncode == 0 and "deleted o/old" in done.stdout and "junk" not in done.stdout
-    assert branches(a) == ["junk"]
+    assert branches(a) == ["(junk)"]
 
 
 def test_text_from_the_remote_is_printed_without_control_characters_and_a_bool_is_not_a_ttl(origin, tmp_path):
@@ -342,14 +373,46 @@ def test_text_from_the_remote_is_printed_without_control_characters_and_a_bool_i
     assert rows["a?[31mred"]["state"] == "live" and rows["(boolean)"]["holder"].startswith("unknown")       # ttl_s: true is not a record
 
 
+def test_two_keys_that_read_alike_are_two_items_and_neither_replaces_the_other(origin, tmp_path):
+    """Codex finding: `docs/reports/x` and `docs-reports-x` shared one branch, so the second claim 'renewed' the first and overwrote its
+    key, and a file inside the folder could then be claimed by someone else."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    assert run(a, "claim", "docs/reports/x", session="s-a", now=T0).stdout.startswith("claimed")
+    assert run(a, "claim", "docs-reports-x", session="s-a", now=T0).stdout.startswith("claimed")          # not 'renewed'
+    assert standing(a) == ["docs-reports-x", "docs/reports/x"] and len(ledger(a)) == 2
+    refused = run(b, "claim", "docs/reports/x/deck.json", session="s-b", now=T0)
+    assert refused.returncode == 1 and "docs/reports/x" in refused.stdout                                 # the folder is still protected
+    shared = "r" * 90
+    assert run(a, "claim", shared + "/one", shared + "/two", session="s-a", now=T0).returncode == 0       # one 80-character prefix, two items
+    assert len(standing(a)) == 4 and len(ledger(a)) == 5                                                    # B's refused attempt left its released branch
+    assert all(len(name) <= 91 and not name.endswith(".lock") for name in ledger(a))
+
+
+@pytest.mark.parametrize("block_push", [False, True])
+def test_a_failure_of_the_overlap_check_after_the_push_gives_the_claim_back_or_says_it_stands(origin, tmp_path, block_push):
+    """Codex finding: the push succeeded, the fetch of the overlap check did not, and the command said 'nothing was claimed' while the
+    claim stood. Now it withdraws the claim, and when even that fails it names the claim that may remain."""
+    a = clone(origin, tmp_path, "a")
+    code = FLAKY.format(scripts=SCRIPTS, nth=2, block_push=block_push)                  # fetch 1 reads the ledger, fetch 2 is the overlap check
+    lost = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/inject"], cwd=a, capture_output=True, text=True,
+                          env={**ENV, "CLAIM_NOW": T0})
+    assert lost.returncode == 3 and "injected outage" in lost.stderr, lost.stderr
+    if block_push:
+        assert "may still stand until it expires" in lost.stderr and "nothing was claimed" not in lost.stderr
+        assert standing(a) == ["o/inject"]                                                 # and it really does stand
+    else:
+        assert "nothing was claimed" in lost.stderr and standing(a) == []                  # withdrawn before giving up
+
+
 def test_a_claim_is_an_append_only_chain_of_empty_commits_on_one_branch(origin, tmp_path):
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
     run(a, "claim", "o/orca", session="s-a", now=T0)
-    first = git(a, "ls-remote", "origin", "refs/heads/claims/o-orca").split()[0]
+    orca = slug_of("o/orca")
+    first = git(a, "ls-remote", "origin", f"refs/heads/claims/{orca}").split()[0]
     run(a, "release", "o/orca", session="s-a", now=T0)
     run(b, "claim", "o/orca", session="s-b", now=T0)
     git(a, "fetch", "-q", "origin", "+refs/heads/claims/*:refs/tests/claims/*")
-    log = git(a, "rev-list", "--reverse", "--parents", "refs/tests/claims/o-orca").splitlines()
+    log = git(a, "rev-list", "--reverse", "--parents", f"refs/tests/claims/{orca}").splitlines()
     assert len(log) == 3 and log[0].split()[0] == first and len(log[0].split()) == 1                     # a root, then two children
     assert [line.split()[1] for line in log[1:]] == [log[0].split()[0], log[1].split()[0]]               # each on the one before: never rewritten
     assert {git(a, "rev-parse", c.split()[0] + "^{tree}").strip() for c in log} == {EMPTY_TREE}           # no file in any commit
@@ -372,10 +435,10 @@ def test_the_whole_cycle_works_on_a_server_that_refuses_deletes_force_pushes_tag
     run(a, "claim", "docs/reports/x", session="s-a", now=T0)
     assert run(b, "claim", "o/free", "docs/reports/x/report.md", session="s-b", now=T0).returncode == 1       # yield + roll back
     assert run(b, "claim", "docs/reports/x/report.md", session="s-b", now=T0).returncode == 1
-    assert standing(a) == ["docs-reports-x", "o-orca"]
+    assert standing(a) == ["docs/reports/x", "o/orca"]
     refused = run(a, "prune", "--older", "1s", session="s-a", now="2099-01-01T00:00:00Z")           # the server refuses deletes
     assert refused.returncode == 3 and "run prune on a machine that may delete branches" in refused.stderr
-    assert sorted(branches(a)) == ["docs-reports-x", "docs-reports-x-report.md", "o-free", "o-orca"]
+    assert branches(a) == ["docs/reports/x", "docs/reports/x/report.md", "o/free", "o/orca"]
 
 
 def test_prune_deletes_only_old_finished_claims_and_can_be_a_dry_run(origin, tmp_path):
@@ -390,10 +453,10 @@ def test_prune_deletes_only_old_finished_claims_and_can_be_a_dry_run(origin, tmp
     dry = run(a, "prune", "--older", "1d", "--dry-run", session="s-a", now=later)
     assert dry.returncode == 0 and "would delete o/old" in dry.stdout and "would delete o/lapsed" in dry.stdout
     assert "o/recent" not in dry.stdout and "o/fresh" not in dry.stdout
-    assert branches(a) == ["o-fresh", "o-lapsed", "o-old", "o-recent"]                      # a dry run deletes nothing
+    assert branches(a) == ["o/fresh", "o/lapsed", "o/old", "o/recent"]                      # a dry run deletes nothing
     done = run(a, "prune", "--older", "1d", session="s-a", now=later)
     assert done.returncode == 0 and "deleted o/old" in done.stdout and "deleted o/lapsed" in done.stdout
-    assert branches(a) == ["o-fresh", "o-recent"]
+    assert branches(a) == ["o/fresh", "o/recent"]
     assert run(a, "prune", "--older", "forever", session="s-a", now=later).returncode == 2
 
 
@@ -414,7 +477,7 @@ def test_exactly_one_of_many_simultaneous_claimants_wins(origin, tmp_path):
     for number, codes in enumerate(race(tmp_path, 4, lambda n: [(c, ["claim", f"o/item-{n}"], f"s-{i}") for i, c in enumerate(clones)])):
         assert sorted(codes) == [0, 1, 1, 1, 1, 1], (number, codes)
         winner = codes.index(0)
-        assert ledger(clones[0])[f"o-item-{number}"]["session"] == f"s-{winner}"        # the ledger names the one that got exit 0
+        assert items(clones[0])[f"o/item-{number}"]["session"] == f"s-{winner}"        # the ledger names the one that got exit 0
 
 
 def test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins(origin, tmp_path):
@@ -424,13 +487,13 @@ def test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins(origin
                        capture_output=True, env={**ENV, "CLAIM_NOW": "2026-10-24T01:00:00Z"})
     for number, codes in enumerate(race(tmp_path, 3, lambda n: [(c, ["claim", f"o/stale-{n}"], f"s-{i}") for i, c in enumerate(clones)])):
         assert sorted(codes) == [0, 1, 1, 1, 1], (number, codes)        # T0 is hours after the stale claim's end
-        assert ledger(clones[0])[f"o-stale-{number}"]["session"] == f"s-{codes.index(0)}"
+        assert items(clones[0])[f"o/stale-{number}"]["session"] == f"s-{codes.index(0)}"
 
 
 def test_a_folder_and_a_file_inside_it_never_both_stand_under_a_race(origin, tmp_path):
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
     rounds = list(race(tmp_path, 8, lambda n: [(a, ["claim", f"docs/reports/r{n}"], "s-a"), (b, ["claim", f"docs/reports/r{n}/report.md"], "s-b")]))
     for number, codes in enumerate(rounds):
-        held = [s for s in standing(a) if s.startswith(f"docs-reports-r{number}")]
+        held = [s for s in standing(a) if s.startswith(f"docs/reports/r{number}")]
         assert codes.count(0) == len(held) <= 1, (number, codes, held)           # both may yield; both can never stand
     assert len(rounds) == 8

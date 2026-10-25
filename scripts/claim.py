@@ -116,12 +116,10 @@ def normalise(key: str) -> tuple[str, str, tuple[str, ...]]:
     if not parts:
         raise Usage(f"{key[:60]!r} is not an item")
     norm = "/".join(parts)
-    slug = re.sub(r"-{2,}", "-", norm.replace("/", "-")).strip("-.")
-    if not slug or slug.endswith(".lock"):
-        raise Usage(f"{key[:60]!r} is not an item")
-    if len(slug) > 100:
-        slug = slug[:80] + "-" + hashlib.sha1(norm.encode()).hexdigest()[:12]
-    return norm, slug, parts
+    readable = re.sub(r"-{2,}", "-", norm.replace("/", "-"))[:80].strip("-.")
+    # the hash of the whole key makes the branch name unique per item: `a/b` and `a-b` read alike but are two items, and the name never
+    # ends in `.lock`. The readable part is only for people looking at the branch list.
+    return norm, "-".join(x for x in (readable, hashlib.sha1(norm.encode()).hexdigest()[:10]) if x), parts
 
 
 def overlaps(a: tuple[str, ...], b: tuple[str, ...]) -> bool:
@@ -258,7 +256,14 @@ class Ledger:
             if not self.push(slug, sha):
                 continue                       # somebody pushed first, between our read and our write: read again
             if how != "renewed":
-                rival = self.rival(slug, segments)
+                try:
+                    rival = self.rival(slug, segments)
+                except Remote as exc:                      # pushed, but could not check for overlap: that is not a claim worth having
+                    try:
+                        self.push(slug, self.make(key, 1, "withdrawn: the overlap check failed", parent=sha, state="released"))
+                    except Remote:
+                        raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
+                    raise
                 if rival:
                     try:
                         self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"))

@@ -29,7 +29,7 @@ python3 scripts/claim.py check docs/reports/genai-agents          # chỉ hỏi,
 
 ## Cách nó hoạt động (và vì sao tin được)
 
-Mỗi hạng mục là **một nhánh `claims/<tên>`** trên GitHub. Mỗi thay đổi (giữ chỗ, gia hạn, nhả, nhận lại) là một **commit mới nối vào đầu nhánh**, commit rỗng chứa thông tin giữ chỗ dạng JSON trong lời nhắn, không thêm tệp nào. Hai phiên cùng đẩy một commit con của cùng một đầu nhánh thì GitHub chỉ nhận một: đó là bảo đảm của git, không phải của script. Nhánh này chỉ nối thêm, không ai ghi đè hay xoá, nên mọi lần giữ chỗ đều còn trong lịch sử. CI chỉ chạy cho `main` và pull request nên giữ chỗ không kích hoạt lượt chạy nào.
+Mỗi hạng mục là **một nhánh `claims/<tên>-<băm>`** trên GitHub: phần đầu dễ đọc, phần cuối là 10 ký tự băm của khoá đầy đủ, nên `docs/reports/x` và `docs-reports-x` là **hai hạng mục** khác nhau, không bao giờ dùng chung một nhánh. Mỗi thay đổi (giữ chỗ, gia hạn, nhả, nhận lại) là một **commit mới nối vào đầu nhánh**, commit rỗng chứa thông tin giữ chỗ dạng JSON trong lời nhắn, không thêm tệp nào. Hai phiên cùng đẩy một commit con của cùng một đầu nhánh thì GitHub chỉ nhận một: đó là bảo đảm của git, không phải của script. Nhánh này chỉ nối thêm, không ai ghi đè hay xoá, nên mọi lần giữ chỗ đều còn trong lịch sử. CI chỉ chạy cho `main` và pull request nên giữ chỗ không kích hoạt lượt chạy nào.
 
 Thiết kế này theo đúng những gì **đo được** ở phiên Claude Code trên web: đẩy nhánh được, nhưng xoá nhánh, đẩy tag hay đẩy ref ngoài `refs/heads/` đều bị từ chối (HTTP 403). Vì vậy script không dùng force-push, không xoá và không dùng tag.
 

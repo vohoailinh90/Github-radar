@@ -25,8 +25,10 @@ architect is not fired (architecture is 1, no signal). The one reserve is `test-
    another session; that is a child commit on the tip that was read, so two sessions taking over one stale claim cannot both win.
    Release is a `released` commit (not a delete). A finished item keeps its branch; `prune` (owner, a machine that may delete) removes
    old finished ones, never a live one, with a lease on the exact tip.
-6. **Items are strings.** A repository, a report folder or a file path, normalised to a slug (lower case, `[a-z0-9._-]`, `/` becomes
-   `-`); two keys with one slug are one item (conservative). `..`, absolute, empty and over-long keys are refused: the slug is a branch name.
+6. **Items are strings.** A repository, a report folder or a file path, lower-cased, `[a-z0-9._-]` and `/` only. The branch name is a
+   readable part (at most 80 characters) plus 10 hex characters of the hash of the **whole** key, so `a/b` and `a-b` are two items on two
+   branches (a first design shared one branch for keys that read alike; review round 1 showed that a second key then overwrote the
+   first one's record). `..`, absolute, empty and over-long keys are refused: the name becomes a branch name.
 7. **Overlap by path.** A folder claim must exclude a claim on a file inside it. The push is atomic for one branch only, so after
    pushing, a claimant lists the live claims and **yields (pushes a release) whenever another session's live claim overlaps**, with no
    ordering by time (clocks differ). Both may yield and retry; both can never stand. The same session overlaps itself freely.
@@ -45,7 +47,7 @@ architect is not fired (architecture is 1, no signal). The one reserve is `test-
 ## Files
 
 - `scripts/claim.py` (stdlib): `claim`, `renew`, `release`, `list`, `check`, `prune`; exit 0 ok, 1 held, 2 usage, 3 remote.
-- `tests/test_claim.py` (39 tests: local bare repo, real subprocesses, races, servers with refusing hooks), `tests/test_moda_settings.py` (4).
+- `tests/test_claim.py` (42 tests: local bare repo, real subprocesses, races, servers with refusing hooks, a network that fails mid-call), `tests/test_moda_settings.py` (4).
 - `.claude/settings.json` (`permissions.allow` only, no hooks), `CLAUDE.md` (two sections, two lines), `docs/claims.md`
   (Vietnamese guide), `docs/reports/README.md` (one paragraph), this plan and `artifacts/reviews/radar-claims.md`.
 
