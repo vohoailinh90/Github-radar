@@ -4,5 +4,25 @@
   "built": "2026-10-25",
   "design": "Github-radar R05 / 1920x1080 / Be Vietnam Pro + Bricolage Grotesque / cream, ink, blue, amber, teal, red (docs/deck-style.md of Multiple-report)",
   "brand_kit": null,
-  "status": "drawing"
+  "slides_json_sha256": "8a2c2a636961b828dec31c1898913ac27a7a4d3b0d550baf52c9bcc9c92aa9ce",
+  "source_snapshot": "facts-snapshot.json",
+  "source_pins": "sources.json",
+  "pptx_notes": "Speaker notes from slides.json added to 24 slides of the native Moda PPTX with python-pptx; no page content or shapes changed.",
+  "drawn_text_differences": [
+    "Backticks around commands in slides.json are not drawn: the slide shows the command as plain text, in the same words.",
+    "The footer reads 'Github-radar · R05 · NN/55' instead of the Multiple-report footer label."
+  ],
+  "export_caveats": [
+    "Moda's export stamps a small moda.app badge at the bottom right of every page of the PPTX.",
+    "Fonts are referenced by name (Bricolage Grotesque, Be Vietnam Pro) and not embedded: a machine without them shows a fallback font, so line breaks can differ."
+  ],
+  "verification": {
+    "canvas_pages_screenshotted": 55,
+    "pptx_pages": 55,
+    "pptx_pages_rendered_with_libreoffice_sampled": 10
+  },
+  "artifacts": {
+    "top30-claude-plugins.pptx": "500c5a4e378c8f90c82d388b9e0187e362cc7a63d77bb30bd2ce7cf3330c59ca"
+  },
+  "status": "done"
 }

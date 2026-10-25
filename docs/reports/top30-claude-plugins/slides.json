@@ -127,7 +127,7 @@
     {
       "title": "Matt Pocock Skills: skill nhỏ, ghép được, bạn giữ quyền lái",
       "section": "Nhóm 1: Viết code như dân senior",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -174,7 +174,7 @@
     {
       "title": "Karpathy Skills: một file CLAUDE.md, bốn nguyên tắc",
       "section": "Nhóm 1: Viết code như dân senior",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "dark",
       "sources": [
         "S1",
@@ -221,7 +221,7 @@
     {
       "title": "Agent Skills: vòng đời DEFINE đến SHIP trong 9 lệnh",
       "section": "Nhóm 1: Viết code như dân senior",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -307,7 +307,7 @@
     {
       "title": "Graphify: biến code và tài liệu thành đồ thị để truy vấn",
       "section": "Nhóm 2: Nghiên cứu và hiểu",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -354,7 +354,7 @@
     {
       "title": "Understand Anything: đồ thị tri thức cho dự án mới",
       "section": "Nhóm 2: Nghiên cứu và hiểu",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "dark",
       "sources": [
         "S1",
@@ -401,7 +401,7 @@
     {
       "title": "Last 30 Days: nghiên cứu theo lượt thích và tiền thật",
       "section": "Nhóm 2: Nghiên cứu và hiểu",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -490,7 +490,7 @@
     {
       "title": "Caveman: câu trả lời ngắn, mã vẫn chính xác",
       "section": "Nhóm 3: Dự án lớn, ít token hơn",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -537,7 +537,7 @@
     {
       "title": "Headroom: nén thứ agent đọc trước khi tới mô hình",
       "section": "Nhóm 3: Dự án lớn, ít token hơn",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "dark",
       "sources": [
         "S1",
@@ -584,7 +584,7 @@
     {
       "title": "BMAD Method: phát triển bằng AI theo kiểu agile",
       "section": "Nhóm 3: Dự án lớn, ít token hơn",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -672,7 +672,7 @@
     {
       "title": "Taste: định hướng nghệ thuật, tự kiểm trên trình duyệt",
       "section": "Nhóm 4: Thiết kế và hình ảnh",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -719,7 +719,7 @@
     {
       "title": "Impeccable: ngôn ngữ thiết kế và quy tắc bắt dấu hiệu AI",
       "section": "Nhóm 4: Thiết kế và hình ảnh",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "dark",
       "sources": [
         "S1",
@@ -766,7 +766,7 @@
     {
       "title": "Diagram Design: 45 kiểu sơ đồ, một file HTML kèm SVG",
       "section": "Nhóm 4: Thiết kế và hình ảnh",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -853,7 +853,7 @@
     {
       "title": "OpenMontage: xưởng video AI, có đường không cần khóa API",
       "section": "Nhóm 5: Viết lách và video",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
@@ -900,7 +900,7 @@
     {
       "title": "Humanizer: 26 mẫu để bỏ giọng \"AI viết\"",
       "section": "Nhóm 5: Viết lách và video",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "dark",
       "sources": [
         "S1",
@@ -947,7 +947,7 @@
     {
       "title": "Marketing Skills: 52 skill cho người làm marketing kỹ thuật",
       "section": "Nhóm 5: Viết lách và video",
-      "layout": "card-grid",
+      "layout": "lookup-table",
       "tone": "light",
       "sources": [
         "S1",
