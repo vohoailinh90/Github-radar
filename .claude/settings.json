@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Moda_-_Slides_and_Designs__moda_bootstrap",
+      "mcp__Moda_-_Slides_and_Designs__load_skill",
+      "mcp__Moda_-_Slides_and_Designs__ask_expert",
+      "mcp__Moda_-_Slides_and_Designs__canvas_create",
+      "mcp__Moda_-_Slides_and_Designs__canvas_apply_markup",
+      "mcp__Moda_-_Slides_and_Designs__canvas_edit",
+      "mcp__Moda_-_Slides_and_Designs__canvas_read",
+      "mcp__Moda_-_Slides_and_Designs__canvas_list",
+      "mcp__Moda_-_Slides_and_Designs__canvas_search",
+      "mcp__Moda_-_Slides_and_Designs__canvas_screenshot",
+      "mcp__Moda_-_Slides_and_Designs__export",
+      "mcp__Moda_-_Slides_and_Designs__task_status",
+      "mcp__Moda_-_Slides_and_Designs__template_list",
+      "mcp__Moda_-_Slides_and_Designs__template_search",
+      "mcp__Moda_-_Slides_and_Designs__brand_list",
+      "mcp__Moda_-_Slides_and_Designs__brand_show"
+    ]
+  }
+}
