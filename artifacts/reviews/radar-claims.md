@@ -36,6 +36,15 @@ between A's read and A's push, at B's later clock). Fix: the overlap check runs 
 renewal the claim is not withdrawn (it was ours already), the error says it stands. Test `test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap`
 (`renew` and `claim`) fails on the previous script. `renew` now words an overlap like `claim` does.
 
+## Codex review, round 3 (head 26a64c4): one P2 finding, reproduced, fixed
+
+The lost-race rule added for the CI failure took a branch that already pointed at **our own** commit for somebody else's win: the server
+accepted the push and only the acknowledgment was lost. Reproduced with a wrapper that performs the real push and then reports a transport
+failure: `claim o/new o/held` retried `o/new` as a renewal and, `o/held` being held, exited 1 with `o/new` left live and not rolled back,
+which broke the all-or-nothing rule. Fix: a tip equal to the proposed commit is a success, checked before the lost-race test. Test
+`test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_success` (single claim, and a multi-claim that rolls back); it
+fails on the previous script.
+
 ## CI failure on f7d5555 (git 2.55 on the hosted runner)
 
 `test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins` failed in CI in its first round: codes `[1, 1, 3, 0, 3]`, two losers
@@ -60,9 +69,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1184 passed, 1 skipped. `tests/test_claim.py` 47 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1185 passed, 1 skipped. `tests/test_claim.py` 48 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 31 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the three Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
+- Mutation check: 32 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the four Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 

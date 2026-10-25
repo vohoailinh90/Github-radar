@@ -236,13 +236,17 @@ class Ledger:
 
         Who won is decided by where the branch is now, not by what git called the refusal (that text differs between git versions and
         servers, and a server that dies on a lock says nothing at all): if the branch is no longer where we built on it, we lost. Only a
-        refusal with the branch unmoved (a hook, a policy, an outage) is an error, and it gets one more try first."""
+        refusal with the branch unmoved (a hook, a policy, an outage) is an error, and it gets one more try first. A branch that already
+        points at our own commit means the push landed and only its acknowledgment was lost: that is a success."""
         reason = "git push failed"
         for attempt in range(2):
             proc = git("push", "--porcelain", self.remote, f"{sha}:{REF}{slug}")
             if proc.returncode == 0:
                 return True
-            if self.tip(slug) != parent:
+            where = self.tip(slug)
+            if where == sha:
+                return True                           # the server took the push and the acknowledgment got lost: it is ours
+            if where != parent:
                 return False
             try:
                 if not settle(proc):

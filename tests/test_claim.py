@@ -47,6 +47,11 @@ DELAYED = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport clai
            "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True,\n"
            "                       env={{**__import__('os').environ, 'CLAIM_NOW': {later!r}}})\n    return real(*a, **k)\n"
            "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the script with the server accepting the first push and the acknowledgment getting lost on the way back
+LOST_ACK = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'n': 0}}\n"
+            "def flaky(*a, **k):\n    if a and a[0] == 'push' and not state['n']:\n        state['n'] = 1\n        real(*a, **k)\n"
+            "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
+            "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -452,6 +457,21 @@ def test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap(origin, tmp_path
                              env={**ENV, "CLAIM_NOW": "2026-10-24T10:59:59Z"})
     assert crossed.returncode == 1 and "overlaps a claim of docs/reports/x/deck.json" in crossed.stdout, (crossed.stdout, crossed.stderr)
     assert standing(a) == ["docs/reports/x/deck.json"]                                                              # B keeps the file; A yielded
+
+
+def test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_success(origin, tmp_path):
+    """Codex finding (round 3): the branch then points at our own commit, which the lost-race rule took for somebody else's win, so the
+    claim was retried as a renewal and, in a multi-claim, never rolled back when a later item was held."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    code = LOST_ACK.format(scripts=SCRIPTS)
+    env = {**ENV, "CLAIM_NOW": T0}
+    single = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/new"], cwd=a, capture_output=True, text=True, env=env)
+    assert single.returncode == 0 and single.stdout.startswith("claimed o/new"), (single.stdout, single.stderr)       # not "renewed"
+    run(b, "claim", "o/held", session="s-b", now=T0)
+    both = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/fresh", "o/held"], cwd=a, capture_output=True, text=True,
+                          env=env)
+    assert both.returncode == 1 and "HELD o/held" in both.stdout, (both.stdout, both.stderr)
+    assert standing(a) == ["o/held", "o/new"]                                  # o/fresh (pushed, acknowledgment lost) was rolled back
 
 
 def test_a_claim_is_an_append_only_chain_of_empty_commits_on_one_branch(origin, tmp_path):
