@@ -35,10 +35,12 @@ TRANSIENT = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport cl
              "def flaky(*a, **k):\n    if a and a[0] == {command!r} and a[0] not in failed:\n        failed.add(a[0])\n"
              "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
              "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
-# the same, but another session's claim lands just before the push that "dies": the loser of a real race that got no explanation
+# the same, but another session's claim lands just before the push that "dies": the loser of a real race that got no explanation;
+# with `always` the server keeps dying on every push after it, so a retry cannot turn the silence into a plain refusal
 HANGUP = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'pushed': False}}\n"
-          "def flaky(*a, **k):\n    if a and a[0] == 'push' and not state['pushed']:\n        state['pushed'] = True\n"
-          "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
+          "def flaky(*a, **k):\n    if a and a[0] == 'push' and (not state['pushed'] or {always!r}):\n"
+          "        if not state['pushed']:\n            state['pushed'] = True\n"
+          "            subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
           "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
           "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # the script with another session's claim landing, at its own later clock, just before the push: time passing between reading and writing
@@ -447,11 +449,12 @@ def test_one_transient_failure_of_a_push_or_a_fetch_is_retried(origin, tmp_path,
     assert standing(a) == ["o/x"]
 
 
-def test_a_push_that_dies_without_a_reason_after_somebody_else_won_is_a_lost_race_not_an_outage(origin, tmp_path):
+@pytest.mark.parametrize("always", [False, True])
+def test_a_push_that_dies_without_a_reason_after_somebody_else_won_is_a_lost_race_not_an_outage(origin, tmp_path, always):
     """Found by CI (git 2.55): two of five simultaneous takeovers exited 3 'cannot be used' instead of 1 'held'. What git says about a
     refused push differs between versions and a server that dies on a lock says nothing, so who won is decided by where the branch is."""
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
-    code = HANGUP.format(scripts=SCRIPTS, script=SCRIPT, key="o/x", other=str(b))
+    code = HANGUP.format(scripts=SCRIPTS, script=SCRIPT, key="o/x", other=str(b), always=always)
     lost = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/x"], cwd=a, capture_output=True, text=True,
                           env={**ENV, "CLAIM_NOW": T0})
     assert lost.returncode == 1 and "HELD o/x" in lost.stdout and "s-b (unknown)" in lost.stdout, (lost.stdout, lost.stderr)

@@ -93,9 +93,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1190 passed, 1 skipped. `tests/test_claim.py` 53 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1191 passed, 1 skipped. `tests/test_claim.py` 54 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 39 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the Codex fixes of rounds 1 to 6, the three of the CI fix, and others); the result of the final run is in the pull request.
+- Mutation check: 39 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the Codex fixes of rounds 1 to 6, the three of the CI fix, and others); all 39 caught on the final code. One survived at first (the retry masked the rule that a moved branch is a lost race, so a single injected hang-up never reached it); the hang-up test now also runs against a server that keeps dying.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 
