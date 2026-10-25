@@ -283,21 +283,24 @@ class Ledger:
                 how = "took over"
             if not self.push(slug, sha, seen.sha if seen else None):
                 continue                       # somebody pushed first, between our read and our write: read again
-            if how != "renewed":
+            # Always checked, a renewal too: time passes between reading our claim and pushing, and a claim that lapses in that gap
+            # lets another session legitimately take an item inside or around ours.
+            try:
+                rival = self.rival(slug, segments)
+            except Remote as exc:
+                if how == "renewed":                       # the claim was ours already and still is: only the check is missing
+                    raise Remote(f"{exc}; the claim on {key} stands until it expires", partial=True) from exc
+                try:                                       # pushed, but could not check for overlap: that is not a claim worth having
+                    self.push(slug, self.make(key, 1, "withdrawn: the overlap check failed", parent=sha, state="released"), sha)
+                except Remote:
+                    raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
+                raise
+            if rival:
                 try:
-                    rival = self.rival(slug, segments)
-                except Remote as exc:                      # pushed, but could not check for overlap: that is not a claim worth having
-                    try:
-                        self.push(slug, self.make(key, 1, "withdrawn: the overlap check failed", parent=sha, state="released"), sha)
-                    except Remote:
-                        raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
-                    raise
-                if rival:
-                    try:
-                        self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"), sha)
-                    except Remote as exc:
-                        raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
-                    return "overlap", rival
+                    self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"), sha)
+                except Remote as exc:
+                    raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
+                return "overlap", rival
             return how, None
         raise Remote("the ledger kept changing under this claim; try again")
 
@@ -386,7 +389,7 @@ def cmd_renew(led: Ledger, args) -> int:
     for key, slug, segments in items:
         how, other = led.take(key, slug, segments, ttl, args.note)
         if other:
-            print(f"HELD {key}: {other.key} -> {other.holder()}")
+            print(f"HELD {key}: {'overlaps a claim of' if how == 'overlap' else 'is held by'} {other.key} -> {other.holder()} until {until(other)}")
             return HELD
         print(f"{how} {key} until {stamp(now() + dt.timedelta(seconds=ttl))}")
     return OK

@@ -41,6 +41,12 @@ HANGUP = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim
           "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
           "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
           "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the script with another session's claim landing, at its own later clock, just before the push: time passing between reading and writing
+DELAYED = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'pushed': False}}\n"
+           "def flaky(*a, **k):\n    if a and a[0] == 'push' and not state['pushed']:\n        state['pushed'] = True\n"
+           "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True,\n"
+           "                       env={{**__import__('os').environ, 'CLAIM_NOW': {later!r}}})\n    return real(*a, **k)\n"
+           "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -433,6 +439,19 @@ def test_a_push_that_dies_without_a_reason_after_somebody_else_won_is_a_lost_rac
                           env={**ENV, "CLAIM_NOW": T0})
     assert lost.returncode == 1 and "HELD o/x" in lost.stdout and "s-b (unknown)" in lost.stdout, (lost.stdout, lost.stderr)
     assert standing(a) == ["o/x"] and items(a)["o/x"]["session"] == "s-b"                 # the winner's claim is untouched
+
+
+@pytest.mark.parametrize("verb", ["renew", "claim"])
+def test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap(origin, tmp_path, verb):
+    """Codex finding (round 2): A reads its live claim just before it lapses, B legitimately claims a file inside it after it lapsed, then
+    A's push goes through. A renewal skipped the overlap check, so both stood."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    run(a, "claim", "docs/reports/x", "--ttl", "1h", session="s-a", now=T0)                                       # lapses at 11:00:00
+    code = DELAYED.format(scripts=SCRIPTS, script=SCRIPT, key="docs/reports/x/deck.json", other=str(b), later="2026-10-24T11:00:01Z")
+    crossed = subprocess.run([sys.executable, "-c", code, verb, "--session", "s-a", "docs/reports/x"], cwd=a, capture_output=True, text=True,
+                             env={**ENV, "CLAIM_NOW": "2026-10-24T10:59:59Z"})
+    assert crossed.returncode == 1 and "overlaps a claim of docs/reports/x/deck.json" in crossed.stdout, (crossed.stdout, crossed.stderr)
+    assert standing(a) == ["docs/reports/x/deck.json"]                                                              # B keeps the file; A yielded
 
 
 def test_a_claim_is_an_append_only_chain_of_empty_commits_on_one_branch(origin, tmp_path):

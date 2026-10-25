@@ -28,6 +28,14 @@ untouched; the new sections do not contradict "Drafts only", the pull request li
 | The overlap check after a successful push can fail on the network, and the command said "nothing was claimed" while the claim stood. | Injected an outage at the second fetch: exit 3, and `list` still showed the claim live. | `take` now withdraws the claim (a `released` commit) and, when even that push fails, reports that it may still stand (`partial`). Test `..._gives_the_claim_back_or_says_it_stands` (both branches, with a network that fails mid-call). |
 | Distinct keys shared one branch (`docs/reports/x` and `docs-reports-x`): the second claim was a "renewal" that replaced the first's key, and a file inside the folder could then be claimed by another session. | Reproduced: the second command printed `renewed`, B's claim on `docs/reports/x/deck.json` succeeded. | Every branch name carries 10 hex characters of the hash of the whole key. Test `test_two_keys_that_read_alike_are_two_items_and_neither_replaces_the_other` (also two keys with one 80-character prefix). |
 
+## Codex review, round 2 (head 228c63e): one P2 finding, reproduced, fixed
+
+A renewal skipped the overlap check because `how` was decided before the push: A reads its live claim just before it lapses, B legitimately
+claims a file inside it once it has lapsed, A's delayed push then succeeds and both stand (reproduced with a wrapper that lets B claim
+between A's read and A's push, at B's later clock). Fix: the overlap check runs after every push, a renewal included; when it fails for a
+renewal the claim is not withdrawn (it was ours already), the error says it stands. Test `test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap`
+(`renew` and `claim`) fails on the previous script. `renew` now words an overlap like `claim` does.
+
 ## CI failure on f7d5555 (git 2.55 on the hosted runner)
 
 `test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins` failed in CI in its first round: codes `[1, 1, 3, 0, 3]`, two losers
@@ -52,9 +60,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1182 passed, 1 skipped. `tests/test_claim.py` 45 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1184 passed, 1 skipped. `tests/test_claim.py` 47 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 30 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the two Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
+- Mutation check: 31 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the three Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 
