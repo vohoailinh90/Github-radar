@@ -120,6 +120,7 @@ hạn mức; dự trù khoảng 3 bài bị giữ cần chạy lại (12% của 
 ### 3.3 Các bước
 
 0. Merge PR này.
+   Trước mỗi lượt chạy thật hoặc báo cáo viết tay, tra repo (không phân biệt hoa thường) trong `state/seen.json` ở `main` mới nhất, `digests/<lượt>/<repo>/`, `docs/reports/` và các PR `radar/scan-*` đang mở: thấy ở đâu là đã viết, không viết lại (luật "một repo, một bài" trong `CLAUDE.md`). Không chạy lượt thật khi còn một PR quét đang mở.
 1. **Chạy thử không tốn quota cho cả 25 repo** (cần `GITHUB_TOKEN`; phiên viết kế hoạch này không có):
    ```bash
    for r in $(python3 -c "import json;print(' '.join(e['repo'] for e in json.load(open('artifacts/plans/top30-claude-plugins.json'))['entries'] if e['status']=='todo'))"); do

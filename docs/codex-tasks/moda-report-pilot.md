@@ -34,6 +34,9 @@ or any test. No PDF. No image generation. No post for the studio.
 
 ## Input: the studied repository
 
+- Before you write anything: the repository rule "one repository, one digest" (`CLAUDE.md`, exceptions) applies to a report written by hand. Look `blader/humanizer` up, ignoring case,
+  in `state/seen.json` on the latest `main`, in `digests/*/*/`, in `docs/reports/` and in the open pull requests whose head starts with `radar/scan-`. At the time this order was written it was in none of them.
+  If you find it in any, stop and report; do not write it again.
 - Repository: `https://github.com/blader/humanizer`, public, MIT as read from its LICENSE file by the person who wrote this order.
 - Commit to study, **pinned**: `8c307f367c91bd974002f10f2be2965d642c13df` (2026-10-25). At that commit the tree has 14 files and
   the README is 12,926 bytes. Clone it read only (`git clone --filter=blob:none` then `git checkout 8c307f3…`), and read every file. Nothing else is a source:
