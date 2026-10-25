@@ -49,6 +49,41 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   or argv. `radar/handoff.py` passes the token through git's `GIT_CONFIG_*` environment only.
 - Writer and checker models must be different families (`radar.yaml`, `python3 radar.py doctor`).
 
+## Shared work: several Claude or Codex sessions
+
+Sessions work in separate checkouts and cannot see each other, so two of them can start the same item. `scripts/claim.py` is the ledger that
+prevents it (`docs/claims.md`): one branch `claims/<slug>` per item on the remote and a new commit on it for every change, so the server lets
+exactly one of any simultaneous claimants through. An item is a repository (`owner/name`), a report folder (`docs/reports/<name>`) or a file path.
+
+- **Claim before you start, release when you stop.** `python3 scripts/claim.py claim <item> --agent claude|codex --note "<what>"`. Exit 0: it is
+  yours for the TTL (2 h; `renew` for longer work). Exit 1: another live session holds it, or something inside or around it: take a different
+  item, never work this one, and say which. Exit 3: the ledger cannot be reached: do not work the item unclaimed, report it once.
+- **Claim at the granularity of the work**: a report is its folder, not the files in it. A folder and a file inside it overlap.
+- **A claim does not replace the lookup above.** First find out whether the repository is already covered (`state/seen.json`, `digests/`,
+  `docs/reports/`), then claim, then work: a claim says who is working, `seen.json` says what is done.
+- **Two sessions in one checkout** (a worktree, a second terminal) share one session id: give each its own with `--session` or `CLAIM_SESSION`.
+- A `claims/*` branch is an append-only record: never merge, rebase, force-push or edit one. A finished item keeps its branch; the owner clears
+  old ones with `python3 scripts/claim.py prune` from a machine that may delete branches (a Claude Code session on the web cannot).
+- Never `release --force` another session's claim: that is the owner's call.
+
+## Moda reports
+
+The owner has given Claude **full authority to create reports in Moda**. Decide the name, size, template, page count and layout yourself and make
+the report; do not ask for confirmation before or between Moda calls, and do not stop to ask which of several valid options to take. Ask only for a
+genuine blocker (Moda unreachable or signed out, or the requirement itself changes).
+
+- **The authority is also a permission.** The questions come from Claude Code's tool prompts, so `.claude/settings.json` lists the Moda tools that
+  create, edit, read, screenshot and export a report canvas; `tests/test_moda_settings.py` pins the list. A tool that still prompts is outside
+  the grant: see the next point.
+- **Not covered, still the owner's decision:** deleting a canvas, sharing or publishing it, flagging it as a team template (`canvas_update`), AI
+  image generation and handing the work to Moda's own agent (both spend credits), organizing the drive, changing brand kits, `upload`. Create
+  canvases with `visibility="private"`.
+- **One canvas per report.** `deck.json` holds the canvas link: when it exists, edit that canvas (`canvas_read`, `canvas_apply_markup`,
+  `canvas_screenshot`) and never create a second one; when you create the canvas, write the link to `deck.json` at once.
+- Claim the report folder first (above), so two sessions do not each build one.
+- The pipeline's own pictures are still drawn by scripts and never through Moda (Content rules); this section is about the hand-written reports
+  under `docs/reports/`.
+
 ## Vendored skill: impeccable
 
 `.claude/skills/impeccable/`, `.claude/agents/impeccable-*.md` and `docs/third-party/impeccable/` are an unmodified copy of
@@ -58,7 +93,7 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   `.claude/skills/impeccable.lock.json` and `tests/test_vendored_impeccable.py` fail on any drift.
 - It is not part of the radar pipeline: do not invoke it for work here. The Content rules still hold: pictures are drawn by scripts,
   never designed by a model.
-- Its hooks are **not wired** (no `.claude/settings.json` calls them), and its launcher downloads the engine binary on first run
+- Its hooks are **not wired** (`.claude/settings.json` holds permissions only, no hooks), and its launcher downloads the engine binary on first run
   (`docs/impeccable.md`). Do not wire either here without the owner asking.
 - The four `impeccable-*` agents belong to the skill, not to the routing roster in `agent-routing/policy.yaml`.
 
@@ -79,6 +114,7 @@ python3 radar.py slides <run>/<repo> [...]             # draw slides-<lang>.pptx
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
+python3 scripts/claim.py list                          # who is working on what (the claims ledger on the remote)
 python3 scripts/vendor_impeccable.py check             # the vendored impeccable skill still matches its lock (also run by pytest)
 ```
 
