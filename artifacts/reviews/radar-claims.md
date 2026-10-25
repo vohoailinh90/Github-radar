@@ -60,6 +60,15 @@ When a push failed and the follow-up question where the branch is now (`ls-remot
 the claim may still stand and names it, and a multi-claim reports every claim that may stand. Test
 `test_a_failed_push_whose_outcome_cannot_be_read_back_says_the_claim_may_still_stand`; it fails on b2c7e8c's script.
 
+## Codex review, round 6 (head ddb5638): one P2 finding, reproduced, fixed
+
+The check after a push left out the item's own branch, so a lease that lapsed during a slow call let another session take the item over
+while the first command still returned 0 with a deadline calculated after the call (reproduced: `--ttl 1s`, the clock moves two seconds at the
+overlap check, B takes the item over: A exits 0, the ledger names B). Fix: the same fetch now also checks that the tip of the item is still
+ours and live; if not, the loop reads again (which reports whoever holds it, or claims afresh a lease that merely lapsed), and a success
+prints the stored expiry of the claim in the ledger, not `now + ttl`. The clock is read after the fetch. Tests: three, in
+`tests/test_claim.py` (taken over during the call, lapsed during the call, stored expiry); all fail on ddb5638's script.
+
 ## CI failure on f7d5555 (git 2.55 on the hosted runner)
 
 `test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins` failed in CI in its first round: codes `[1, 1, 3, 0, 3]`, two losers
@@ -84,9 +93,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1187 passed, 1 skipped. `tests/test_claim.py` 50 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1190 passed, 1 skipped. `tests/test_claim.py` 53 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 34 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the six Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
+- Mutation check: 39 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the Codex fixes of rounds 1 to 6, the three of the CI fix, and others); the result of the final run is in the pull request.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 

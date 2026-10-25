@@ -277,7 +277,7 @@ class Ledger:
         return self.push(c.slug, self.make(c.record["key"] if c.record else c.slug, 1, note, parent=c.sha, state="released"), c.sha)
 
     def take(self, key: str, slug: str, segments: tuple[str, ...], ttl: int, note: str) -> tuple[str, Claim | None]:
-        """('claimed' | 'renewed' | 'took over', None) or ('held' | 'overlap', the claim in the way)."""
+        """('claimed' | 'renewed' | 'took over', our claim as the ledger holds it) or ('held' | 'overlap', the claim in the way)."""
         for _ in range(RETRIES):
             seen, at = self.claims().get(slug), now()
             if seen and seen.session != self.session and seen.live(at):
@@ -294,7 +294,7 @@ class Ledger:
             # Always checked, a renewal too: time passes between reading our claim and pushing, and a claim that lapses in that gap
             # lets another session legitimately take an item inside or around ours.
             try:
-                rival = self.rival(slug, segments)
+                mine, rival = self.look(slug, segments)
             except Remote as exc:
                 if how == "renewed":                       # the claim was ours already and still is: only the check is missing
                     raise Remote(f"{exc}; the claim on {key} stands until it expires", partial=True) from exc
@@ -303,22 +303,30 @@ class Ledger:
                 except Remote:
                     raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
                 raise
+            if mine is None:
+                continue                       # the lease lapsed during the call and the item is no longer ours: read again, which names whoever holds it now
             if rival:
                 try:
                     self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"), sha)
                 except Remote as exc:
                     raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
                 return "overlap", rival
-            return how, None
+            return how, mine
         raise Remote("the ledger kept changing under this claim; try again")
 
-    def rival(self, slug: str, segments: tuple[str, ...]) -> Claim | None:
-        at = now()
-        for other in self.claims().values():
+    def look(self, slug: str, segments: tuple[str, ...]) -> tuple[Claim | None, Claim | None]:
+        """After a push: (our claim as the ledger holds it now, None if it is no longer ours and live; a live claim of another session
+        inside or around it)."""
+        ledger = self.claims()
+        at = now()                                    # after the fetch: the time it took counts against the lease
+        mine = ledger.get(slug)
+        if not mine or mine.session != self.session or not mine.live(at):
+            return None, None
+        for other in ledger.values():
             if other.slug != slug and other.session != self.session and other.live(at) \
                     and other.segments and overlaps(segments, other.segments):
-                return other
-        return None
+                return mine, other
+        return mine, None
 
 
 def session_id(given: str | None) -> str:
@@ -369,22 +377,22 @@ def take_all(led: Ledger, items: list, ttl: int, note: str) -> int:
     fresh: list[str] = []
     for key, slug, segments in items:
         try:
-            how, other = led.take(key, slug, segments, ttl, note)
+            how, there = led.take(key, slug, segments, ttl, note)
         except Remote as exc:
             stuck = give_back(led, fresh)
             if stuck or exc.partial:
                 raise Remote(f"{exc}; claims that may still stand until they expire: {', '.join(stuck) or key}", partial=True) from exc
             raise
-        if other:
+        if how in ("held", "overlap"):
             stuck = give_back(led, fresh)
             why = "overlaps a claim of" if how == "overlap" else "is held by"
-            print(f"HELD {key}: {why} {other.key} -> {other.holder()} until {until(other)}")
+            print(f"HELD {key}: {why} {there.key} -> {there.holder()} until {until(there)}")
             if stuck:
                 print(f"claim: could not give back {', '.join(stuck)}; they stand until they expire (release them when the ledger answers)", file=sys.stderr)
             return HELD
         if how != "renewed":
             fresh.append(slug)
-        print(f"{how} {key} until {stamp(now() + dt.timedelta(seconds=ttl))} (session {led.session})")
+        print(f"{how} {key} until {until(there)} (session {led.session})")
     return OK
 
 

@@ -55,6 +55,15 @@ LOST_ACK = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport cla
             "    if a and a[0] == 'ls-remote' and state['n'] and {probe_fails!r}:\n"
             "        return subprocess.CompletedProcess(a, 128, '', 'fatal: injected outage')\n    return real(*a, **k)\n"
             "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the script with time passing between its push and the overlap check that follows: the clock jumps to `later` at that fetch and, when
+# `other` is a checkout, that session claims the same item at the new time (legitimately, if the lease has lapsed)
+LATE = ("import os, subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'pushed': False, 'done': False}}\n"
+        "def flaky(*a, **k):\n    if a and a[0] == 'push':\n        state['pushed'] = True\n"
+        "    elif a and a[0] == 'fetch' and state['pushed'] and not state['done']:\n        state['done'] = True\n"
+        "        os.environ['CLAIM_NOW'] = {later!r}\n        if {other!r}:\n"
+        "            subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
+        "    return real(*a, **k)\n"
+        "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -487,6 +496,35 @@ def test_a_failed_push_whose_outcome_cannot_be_read_back_says_the_claim_may_stil
     assert lost.returncode == 3, (lost.stdout, lost.stderr)
     assert "may still stand" in lost.stderr and "o/new" in lost.stderr and "nothing was claimed" not in lost.stderr, lost.stderr
     assert standing(a) == ["o/new"]                                              # it did land: the message must not deny it
+
+
+def late(a, b, ttl, later, verb="claim", key="o/x"):
+    code = LATE.format(scripts=SCRIPTS, script=SCRIPT, key=key, other=str(b) if b else "", later=later)
+    return subprocess.run([sys.executable, "-c", code, verb, "--session", "s-a", "--ttl", ttl, key], cwd=a, capture_output=True, text=True,
+                          env={**ENV, "CLAIM_NOW": T0})
+
+
+def test_a_claim_taken_over_while_the_call_was_still_running_is_not_reported_as_held(origin, tmp_path):
+    """Codex finding (round 6): the lease lapsed between the push and the overlap check, another session took the item over, and the check
+    left out the item's own branch, so the command told its session it held an item the ledger names someone else for."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    lost = late(a, b, "1s", "2026-10-24T10:00:02Z")
+    assert lost.returncode == 1 and "HELD o/x" in lost.stdout and "s-b" in lost.stdout, (lost.stdout, lost.stderr)
+    assert items(a)["o/x"]["session"] == "s-b" and items(a)["o/x"]["state"] == "claimed"                       # B's claim was left alone
+
+
+def test_a_lease_that_lapsed_before_the_call_returned_is_taken_again_not_reported(origin, tmp_path):
+    """The same gap with nobody in it: a success must name a claim that is live when the command returns."""
+    a = clone(origin, tmp_path, "a")
+    again = late(a, None, "1s", "2026-10-24T10:00:02Z")
+    assert again.returncode == 0 and again.stdout.startswith("claimed o/x until 2026-10-24T10:00:03Z"), (again.stdout, again.stderr)
+    assert items(a)["o/x"]["taken_at"] == "2026-10-24T10:00:02Z"                                              # a new lease, not the lapsed one
+
+
+def test_the_deadline_reported_is_the_stored_expiry_not_one_calculated_after_the_call(origin, tmp_path):
+    a = clone(origin, tmp_path, "a")
+    done = late(a, None, "60s", "2026-10-24T10:00:30Z")
+    assert done.returncode == 0 and "until 2026-10-24T10:01:00Z" in done.stdout, (done.stdout, done.stderr)   # taken_at + ttl, not now + ttl
 
 
 def test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh(origin, tmp_path):
