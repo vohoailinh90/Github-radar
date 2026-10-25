@@ -28,56 +28,21 @@ untouched; the new sections do not contradict "Drafts only", the pull request li
 | The overlap check after a successful push can fail on the network, and the command said "nothing was claimed" while the claim stood. | Injected an outage at the second fetch: exit 3, and `list` still showed the claim live. | `take` now withdraws the claim (a `released` commit) and, when even that push fails, reports that it may still stand (`partial`). Test `..._gives_the_claim_back_or_says_it_stands` (both branches, with a network that fails mid-call). |
 | Distinct keys shared one branch (`docs/reports/x` and `docs-reports-x`): the second claim was a "renewal" that replaced the first's key, and a file inside the folder could then be claimed by another session. | Reproduced: the second command printed `renewed`, B's claim on `docs/reports/x/deck.json` succeeded. | Every branch name carries 10 hex characters of the hash of the whole key. Test `test_two_keys_that_read_alike_are_two_items_and_neither_replaces_the_other` (also two keys with one 80-character prefix). |
 
-## Codex review, round 2 (head 228c63e): one P2 finding, reproduced, fixed
+## Codex review, rounds 2 to 8: one P2 finding each, every one reproduced, fixed, answered on its thread
 
-A renewal skipped the overlap check because `how` was decided before the push: A reads its live claim just before it lapses, B legitimately
-claims a file inside it once it has lapsed, A's delayed push then succeeds and both stand (reproduced with a wrapper that lets B claim
-between A's read and A's push, at B's later clock). Fix: the overlap check runs after every push, a renewal included; when it fails for a
-renewal the claim is not withdrawn (it was ours already), the error says it stands. Test `test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap`
-(`renew` and `claim`) fails on the previous script. `renew` now words an overlap like `claim` does.
+Each test below fails on the previous script, and each part of each fix has a mutation in the manifest.
 
-## Codex review, round 3 (head 26a64c4): one P2 finding, reproduced, fixed
+| Round (head) | Finding, as reproduced | Fix and test |
+|---|---|---|
+| 2 (228c63e) | A renewal skipped the overlap check: A reads its live claim just before it lapses, B claims a file inside it once it has, A's delayed push lands; both stood. | The check follows every push, a renewal included; if it cannot be made for a renewal the error says the claim stands. `test_a_renewal_that_crosses_its_own_expiry_rechecks_overlap`. |
+| 3 (26a64c4) | The lost-race rule read a branch already at **our** commit (push accepted, acknowledgment lost) as somebody else's win: `claim o/new o/held` left `o/new` live, not rolled back. | A tip equal to the pushed commit is a success, checked before the lost-race test. `test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_success`. |
+| 4 (d59703b) | `renew` of several lapsed claims did not give back the first when the second yielded. | `claim` and `renew` share one loop (`take_all`) with the rollback; a genuine renewal is not given back. `test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh`. |
+| 5 (b2c7e8c) | A failed push followed by a failed `ls-remote` said "nothing was claimed" while the claim stood. | That case is `partial`: the claim may still stand and is named. `test_a_failed_push_whose_outcome_cannot_be_read_back_says_the_claim_may_still_stand`. |
+| 6 (ddb5638) | `--ttl 1s`, the clock moves at the overlap check, B takes the item over: A exited 0 with a deadline calculated after the call. | The same fetch checks the item's own tip is still ours and live (clock read after the fetch); else read again. A success prints the stored expiry. Three tests (taken over, lapsed, stored expiry). |
+| 7 (7b1e1cf) | Two items, `--ttl 1s`, the clock moves at the second item, B takes the first: both exited 0. | A call with several items fetches once more and every item must be ours and live; else what it took afresh is given back, exit 1. A single item pays nothing. Three tests (taken over, ran out, final check unreachable). |
+| 8 (b2b65e8) | `prune --older 1h` selected a 24 h claim one second after it expired: the retention was counted from the acquisition. | It counts from the release, or from the expiry of a lease that lapsed. `test_prune_counts_the_retention_from_when_a_claim_ended_not_from_when_it_began`. |
 
-The lost-race rule added for the CI failure took a branch that already pointed at **our own** commit for somebody else's win: the server
-accepted the push and only the acknowledgment was lost. Reproduced with a wrapper that performs the real push and then reports a transport
-failure: `claim o/new o/held` retried `o/new` as a renewal and, `o/held` being held, exited 1 with `o/new` left live and not rolled back,
-which broke the all-or-nothing rule. Fix: a tip equal to the proposed commit is a success, checked before the lost-race test. Test
-`test_a_push_the_server_accepted_but_whose_acknowledgment_was_lost_is_a_success` (single claim, and a multi-claim that rolls back); it
-fails on the previous script.
-
-## Codex review, round 4 (head d59703b): one P2 finding, reproduced, fixed
-
-`renew` of several items did not give back what it had claimed afresh when a later item failed: two lapsed claims renewed together, the
-first claimed afresh, the second yielded to a claim inside it, exit 1 with the first live for two hours (reproduced). Fix: `claim` and
-`renew` share one loop (`take_all`) with the rollback; a genuine renewal of a live claim is not given back, only what the call took afresh.
-Test `test_renewing_several_items_is_all_or_nothing_for_the_ones_it_has_to_claim_afresh` (both halves); it fails on the previous script.
-
-## Codex review, round 5 (head b2c7e8c): one P2 finding, reproduced, fixed
-
-When a push failed and the follow-up question where the branch is now (`ls-remote`) failed too, `Ledger.push` raised a `Remote` that was not
-`partial`, so the command said "nothing was claimed" although the push may have landed (reproduced: the push accepted, the acknowledgment lost,
-`ls-remote` down: exit 3 with the claim live in `list`). Fix: that case is `partial` ("the outcome of the push is unknown"), so the message says
-the claim may still stand and names it, and a multi-claim reports every claim that may stand. Test
-`test_a_failed_push_whose_outcome_cannot_be_read_back_says_the_claim_may_still_stand`; it fails on b2c7e8c's script.
-
-## Codex review, round 6 (head ddb5638): one P2 finding, reproduced, fixed
-
-The check after a push left out the item's own branch, so a lease that lapsed during a slow call let another session take the item over
-while the first command still returned 0 with a deadline calculated after the call (reproduced: `--ttl 1s`, the clock moves two seconds at the
-overlap check, B takes the item over: A exits 0, the ledger names B). Fix: the same fetch now also checks that the tip of the item is still
-ours and live; if not, the loop reads again (which reports whoever holds it, or claims afresh a lease that merely lapsed), and a success
-prints the stored expiry of the claim in the ledger, not `now + ttl`. The clock is read after the fetch. Tests: three, in
-`tests/test_claim.py` (taken over during the call, lapsed during the call, stored expiry); all fail on ddb5638's script.
-
-## Review of 7b1e1cf (round 7): one P2 finding, reproduced, fixed
-
-`take_all` checked each item when it was taken and none afterwards, so a lease that ran out while the next item was being taken let another
-session have the first item while the command reported success for both (reproduced: two items, `--ttl 1s`, the clock moves two seconds at
-the second item, B takes the first: both exit 0). Fix: a call with more than one item fetches once more at the end and every item must be ours
-and live then; otherwise what the call took afresh is given back and the command exits 1 naming the item (and its new holder); a final fetch
-that fails is reported like the other partial failures. A single item is already checked by the fetch after its push, so it pays nothing.
-Tests: three (taken over, ran out, final check unreachable); all fail on 7b1e1cf's script. This review reached the PR under the owner's
-account, the standard review requested on 0bcaf79 having shown "running" for over an hour.
+Round 7 reached the PR under the owner's account: the standard review requested on 0bcaf79 showed "running" for over an hour and delivered nothing.
 
 ## CI failure on f7d5555 (git 2.55 on the hosted runner)
 
@@ -103,9 +68,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1194 passed, 1 skipped. `tests/test_claim.py` 57 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1195 passed, 1 skipped. `tests/test_claim.py` 58 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 44 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the Codex fixes of rounds 1 to 7, the three of the CI fix, and others); all 44 caught on the final code. One survived at first (the retry masked the rule that a moved branch is a lost race, so a single injected hang-up never reached it); the hang-up test now also runs against a server that keeps dying.
+- Mutation check: 46 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the Codex fixes of rounds 1 to 8, the three of the CI fix, and others); all 46 caught on the final code. One survived at first (the retry masked the rule that a moved branch is a lost race, so a single injected hang-up never reached it); the hang-up test now also runs against a server that keeps dying.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 

@@ -647,6 +647,25 @@ def test_prune_deletes_only_old_finished_claims_and_can_be_a_dry_run(origin, tmp
     assert run(a, "prune", "--older", "forever", session="s-a", now=later).returncode == 2
 
 
+def test_prune_counts_the_retention_from_when_a_claim_ended_not_from_when_it_began(origin, tmp_path):
+    """Codex finding (round 8): `--older` was measured from the acquisition, so a claim taken for 24 h was selected one second after it
+    expired by `--older 1h`; it counts from the expiry of a claim that lapsed and from the release of one that was released."""
+    a = clone(origin, tmp_path, "a")
+    run(a, "claim", "o/long", "--ttl", "24h", session="s-a", now=T0)                        # ends 2026-10-25T10:00:00Z
+    run(a, "claim", "o/rel", "--ttl", "24h", session="s-a", now=T0)
+    run(a, "release", "o/rel", session="s-a", now="2026-10-24T11:00:00Z")
+
+    def dry(now):
+        done = run(a, "prune", "--older", "1h", "--dry-run", session="s-a", now=now)
+        assert done.returncode == 0, done.stderr
+        return done.stdout
+
+    assert dry("2026-10-24T11:30:00Z") == ""                                                # released 30 min ago; the other is live
+    assert "would delete o/rel (released since 2026-10-24T11:00:00Z)" in dry("2026-10-24T12:00:01Z")
+    assert "o/long" not in dry("2026-10-25T10:00:01Z")                                      # expired one second ago, not 24 h and 1 s
+    assert "would delete o/long (expired since 2026-10-25T10:00:00Z)" in dry("2026-10-25T11:00:01Z")
+
+
 def race(tmp_path, rounds, jobs):
     """`jobs(round)` is a list of (clone, argv tail, session); all of one round start together. Yields each round's exit codes."""
     for number in range(rounds):

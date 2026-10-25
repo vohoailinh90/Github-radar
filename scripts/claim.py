@@ -484,7 +484,7 @@ def cmd_prune(led: Ledger, args) -> int:
     """Delete the branch of every item that was released or expired at least `--older` ago. Needs a machine that may delete branches."""
     older, at, code = span(args.older, "--older", 365 * 86400, units="smhd"), now(), OK
     for c in sorted(led.claims().values(), key=lambda c: c.slug):
-        since = c.taken()
+        since = c.taken() if c.released else c.expires()          # when it ended: its release, or the expiry of a lease that lapsed
         if c.record is None or c.live(at) or since is None or (at - since).total_seconds() < older:
             continue                                  # a branch someone made by hand under claims/ is theirs to delete
         if args.dry_run:
