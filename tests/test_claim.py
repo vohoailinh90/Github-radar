@@ -30,6 +30,17 @@ FLAKY = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\
          "    if seen['fetches'] >= {nth} and a and (a[0] == 'fetch' or (a[0] == 'push' and {block_push})):\n"
          "        return subprocess.CompletedProcess(a, 128, '', 'fatal: injected outage')\n    return real(*a, **k)\n"
          "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the script with the first call of one git command failing as a dying server would, with no reason given
+TRANSIENT = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, failed = claim.git, set()\n"
+             "def flaky(*a, **k):\n    if a and a[0] == {command!r} and a[0] not in failed:\n        failed.add(a[0])\n"
+             "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
+             "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
+# the same, but another session's claim lands just before the push that "dies": the loser of a real race that got no explanation
+HANGUP = ("import subprocess, sys\nsys.path.insert(0, {scripts!r})\nimport claim\nreal, state = claim.git, {{'pushed': False}}\n"
+          "def flaky(*a, **k):\n    if a and a[0] == 'push' and not state['pushed']:\n        state['pushed'] = True\n"
+          "        subprocess.run([sys.executable, {script!r}, 'claim', '--session', 's-b', {key!r}], cwd={other!r}, check=True, capture_output=True)\n"
+          "        return subprocess.CompletedProcess(a, 128, '', 'fatal: the remote end hung up unexpectedly')\n    return real(*a, **k)\n"
+          "claim.git = flaky\nsys.exit(claim.main(sys.argv[1:]))\n")
 # what Claude Code on the web was measured to do to a push: branches only, no delete, no tag, no other ref, no force
 STRICT_SERVER = """#!/bin/sh
 zero=0000000000000000000000000000000000000000
@@ -404,6 +415,26 @@ def test_a_failure_of_the_overlap_check_after_the_push_gives_the_claim_back_or_s
         assert "nothing was claimed" in lost.stderr and standing(a) == []                  # withdrawn before giving up
 
 
+@pytest.mark.parametrize("command", ["push", "fetch"])
+def test_one_transient_failure_of_a_push_or_a_fetch_is_retried(origin, tmp_path, command):
+    a = clone(origin, tmp_path, "a")
+    done = subprocess.run([sys.executable, "-c", TRANSIENT.format(scripts=SCRIPTS, command=command), "claim", "--session", "s-a", "o/x"],
+                          cwd=a, capture_output=True, text=True, env={**ENV, "CLAIM_NOW": T0})
+    assert done.returncode == 0 and done.stdout.startswith("claimed"), (done.stdout, done.stderr)
+    assert standing(a) == ["o/x"]
+
+
+def test_a_push_that_dies_without_a_reason_after_somebody_else_won_is_a_lost_race_not_an_outage(origin, tmp_path):
+    """Found by CI (git 2.55): two of five simultaneous takeovers exited 3 'cannot be used' instead of 1 'held'. What git says about a
+    refused push differs between versions and a server that dies on a lock says nothing, so who won is decided by where the branch is."""
+    a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
+    code = HANGUP.format(scripts=SCRIPTS, script=SCRIPT, key="o/x", other=str(b))
+    lost = subprocess.run([sys.executable, "-c", code, "claim", "--session", "s-a", "o/x"], cwd=a, capture_output=True, text=True,
+                          env={**ENV, "CLAIM_NOW": T0})
+    assert lost.returncode == 1 and "HELD o/x" in lost.stdout and "s-b (unknown)" in lost.stdout, (lost.stdout, lost.stderr)
+    assert standing(a) == ["o/x"] and items(a)["o/x"]["session"] == "s-b"                 # the winner's claim is untouched
+
+
 def test_a_claim_is_an_append_only_chain_of_empty_commits_on_one_branch(origin, tmp_path):
     a, b = clone(origin, tmp_path, "a"), clone(origin, tmp_path, "b")
     run(a, "claim", "o/orca", session="s-a", now=T0)
@@ -469,13 +500,15 @@ def race(tmp_path, rounds, jobs):
                                   env={**ENV, "CLAIM_NOW": T0}) for cwd, args, session in jobs(number)]
         time.sleep(0.4)                                                  # every racer is waiting on the start file by now
         go.write_text("go")
-        yield [p.wait(timeout=120) for p in procs]
+        codes = [p.wait(timeout=120) for p in procs]
+        race.errors = [p.stderr.read() for p in procs]            # what the racers said, for the message of a failing assertion
+        yield codes
 
 
 def test_exactly_one_of_many_simultaneous_claimants_wins(origin, tmp_path):
     clones = [clone(origin, tmp_path, f"c{i}") for i in range(6)]
     for number, codes in enumerate(race(tmp_path, 4, lambda n: [(c, ["claim", f"o/item-{n}"], f"s-{i}") for i, c in enumerate(clones)])):
-        assert sorted(codes) == [0, 1, 1, 1, 1, 1], (number, codes)
+        assert sorted(codes) == [0, 1, 1, 1, 1, 1], (number, codes, race.errors)
         winner = codes.index(0)
         assert items(clones[0])[f"o/item-{number}"]["session"] == f"s-{winner}"        # the ledger names the one that got exit 0
 
@@ -486,7 +519,7 @@ def test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins(origin
         subprocess.run([sys.executable, SCRIPT, "claim", "--session", "old", "--ttl", "1m", f"o/stale-{n}"], cwd=clones[0], check=True,
                        capture_output=True, env={**ENV, "CLAIM_NOW": "2026-10-24T01:00:00Z"})
     for number, codes in enumerate(race(tmp_path, 3, lambda n: [(c, ["claim", f"o/stale-{n}"], f"s-{i}") for i, c in enumerate(clones)])):
-        assert sorted(codes) == [0, 1, 1, 1, 1], (number, codes)        # T0 is hours after the stale claim's end
+        assert sorted(codes) == [0, 1, 1, 1, 1], (number, codes, race.errors)        # T0 is hours after the stale claim's end
         assert items(clones[0])[f"o/stale-{number}"]["session"] == f"s-{codes.index(0)}"
 
 
@@ -495,5 +528,5 @@ def test_a_folder_and_a_file_inside_it_never_both_stand_under_a_race(origin, tmp
     rounds = list(race(tmp_path, 8, lambda n: [(a, ["claim", f"docs/reports/r{n}"], "s-a"), (b, ["claim", f"docs/reports/r{n}/report.md"], "s-b")]))
     for number, codes in enumerate(rounds):
         held = [s for s in standing(a) if s.startswith(f"docs/reports/r{number}")]
-        assert codes.count(0) == len(held) <= 1, (number, codes, held)           # both may yield; both can never stand
+        assert codes.count(0) == len(held) <= 1, (number, codes, held, race.errors)           # both may yield; both can never stand
     assert len(rounds) == 8

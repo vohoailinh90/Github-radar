@@ -28,6 +28,20 @@ untouched; the new sections do not contradict "Drafts only", the pull request li
 | The overlap check after a successful push can fail on the network, and the command said "nothing was claimed" while the claim stood. | Injected an outage at the second fetch: exit 3, and `list` still showed the claim live. | `take` now withdraws the claim (a `released` commit) and, when even that push fails, reports that it may still stand (`partial`). Test `..._gives_the_claim_back_or_says_it_stands` (both branches, with a network that fails mid-call). |
 | Distinct keys shared one branch (`docs/reports/x` and `docs-reports-x`): the second claim was a "renewal" that replaced the first's key, and a file inside the folder could then be claimed by another session. | Reproduced: the second command printed `renewed`, B's claim on `docs/reports/x/deck.json` succeeded. | Every branch name carries 10 hex characters of the hash of the whole key. Test `test_two_keys_that_read_alike_are_two_items_and_neither_replaces_the_other` (also two keys with one 80-character prefix). |
 
+## CI failure on f7d5555 (git 2.55 on the hosted runner)
+
+`test_exactly_one_of_many_simultaneous_takeovers_of_a_stale_claim_wins` failed in CI in its first round: codes `[1, 1, 3, 0, 3]`, two losers
+exited 3 ("the ledger cannot be used") instead of 1 ("held"). It did not reproduce locally (git 2.43; 8 parallel copies; pinned to one
+core). Cause class, reproduced with a wrapper that makes a push die with "the remote end hung up unexpectedly" just after another session's
+claim landed: the script read **what git said** about a refused push, and a loser whose push is refused without a "!" line was taken for
+an outage. It is not an outage when the branch is no longer where the loser built on it.
+
+Fix: `Ledger.push(slug, sha, parent)` decides by the branch's tip (`ls-remote`): moved means a lost race, whatever git called it; only a
+refusal with the tip unmoved (a hook, a policy, an outage) is an error, after one more try. `fetch` also gets one retry. The three new
+tests fail on the old script with the same exit 3, pass on the new one, and each new branch of the logic has a mutation. The race tests
+now print the racers' stderr when an assertion fails, so a recurrence explains itself. Not reproduced on git 2.55 itself (its source could
+not be downloaded here), so the claim is: same failure class, same exit codes, fixed by a rule that does not depend on the wording.
+
 ## Moda grant (`.claude/settings.json`)
 
 The reviewer could judge by name only. The tool descriptions were read when the list was made: `canvas_edit` is a sandboxed JS batch edit
@@ -38,9 +52,9 @@ to the team), `canvas_edit_image` and `task_delegate` (credits), `drive_*`, `bra
 
 ## Verification (final head)
 
-- `python3 -m pytest -q`: 1179 passed, 1 skipped. `tests/test_claim.py` 42 and `tests/test_moda_settings.py` 4 are among them.
+- `python3 -m pytest -q`: 1182 passed, 1 skipped. `tests/test_claim.py` 45 and `tests/test_moda_settings.py` 4 are among them.
 - CI's blocking lint (`flake8 --select=E9,F63,F7,F82`): 0. The non-blocking style report has long lines in the new script, as the repo does elsewhere (586 in all).
-- Mutation check: 27 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the two Codex fixes, and others), all caught.
+- Mutation check: 30 breakages of the script in scratch copies (the 16 of the first build, the reverse of each fix above, the two Codex fixes, the three of the CI fix, and others); the result of the final run is in the pull request.
 - Real remote, once, before the review: a throwaway branch went through take over, held, renew, release, claim, release as fast-forward pushes.
 - `python3 scripts/layout_check.py`, `python3 radar.py check`, `python3 scripts/vendor_impeccable.py check`, `team_onboard.py apply --check`: clean.
 

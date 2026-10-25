@@ -43,6 +43,7 @@ import re
 import secrets
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 
 REF = "refs/heads/claims/"
@@ -204,6 +205,9 @@ class Ledger:
         """The tip of every item's branch, freshly fetched."""
         fetched = git("fetch", "-q", "--no-tags", "--prune", self.remote, f"+{REF}*:{CACHE}*")
         if fetched.returncode:
+            time.sleep(0.3)                           # a server busy with another push can drop one request: ask once more
+            fetched = git("fetch", "-q", "--no-tags", "--prune", self.remote, f"+{REF}*:{CACHE}*")
+        if fetched.returncode:
             raise Remote(failure(fetched))
         listed = git("for-each-ref", "--format=%(refname)%1f%(objectname)%1f%(committerdate:unix)%1f%(contents:subject)%1e", CACHE)
         out: dict[str, Claim] = {}
@@ -219,11 +223,35 @@ class Ledger:
             out[ref[len(CACHE):]] = Claim(ref[len(CACHE):], sha, record if valid(record) else None, int(when) if when.isdigit() else None)
         return out
 
-    def push(self, slug: str, sha: str) -> bool:
-        """A fast-forward push (or the first push of the branch). True: done. False: the tip is no longer the one we built on, or the
-        branch appeared first: somebody else won. Remote: the server refused for another reason, or could not be reached."""
-        proc = git("push", "--porcelain", self.remote, f"{sha}:{REF}{slug}")
-        return True if proc.returncode == 0 else settle(proc)
+    def tip(self, slug: str) -> str | None:
+        """Where the branch is on the remote right now (None: there is none)."""
+        out = git("ls-remote", self.remote, f"{REF}{slug}")
+        if out.returncode:
+            raise Remote(failure(out))
+        return out.stdout.split()[0] if out.stdout.strip() else None
+
+    def push(self, slug: str, sha: str, parent: str | None) -> bool:
+        """A fast-forward push of `sha`, built on `parent` (None: the first push of the branch). True: done. False: somebody else won
+        the race. Remote: the server refused for another reason, or could not be reached.
+
+        Who won is decided by where the branch is now, not by what git called the refusal (that text differs between git versions and
+        servers, and a server that dies on a lock says nothing at all): if the branch is no longer where we built on it, we lost. Only a
+        refusal with the branch unmoved (a hook, a policy, an outage) is an error, and it gets one more try first."""
+        reason = "git push failed"
+        for attempt in range(2):
+            proc = git("push", "--porcelain", self.remote, f"{sha}:{REF}{slug}")
+            if proc.returncode == 0:
+                return True
+            if self.tip(slug) != parent:
+                return False
+            try:
+                if not settle(proc):
+                    return False                      # git itself says it lost a race, and nothing contradicts it
+            except Remote as exc:
+                reason = str(exc)
+            if attempt == 0:
+                time.sleep(0.3)
+        raise Remote(reason)
 
     def make(self, key: str, ttl: int, note: str, parent: str | None = None, state: str = "claimed") -> str:
         record = {"v": 1, "key": key, "session": self.session, "agent": self.agent, "taken_at": stamp(now()), "ttl_s": ttl,
@@ -238,7 +266,7 @@ class Ledger:
 
     def let_go(self, c: Claim, note: str) -> bool:
         """Release (or yield) by pushing a `released` commit on the tip we read."""
-        return self.push(c.slug, self.make(c.record["key"] if c.record else c.slug, 1, note, parent=c.sha, state="released"))
+        return self.push(c.slug, self.make(c.record["key"] if c.record else c.slug, 1, note, parent=c.sha, state="released"), c.sha)
 
     def take(self, key: str, slug: str, segments: tuple[str, ...], ttl: int, note: str) -> tuple[str, Claim | None]:
         """('claimed' | 'renewed' | 'took over', None) or ('held' | 'overlap', the claim in the way)."""
@@ -253,20 +281,20 @@ class Ledger:
                 how = "renewed" if seen.live(at) else "claimed"     # a lapsed claim of ours is not a renewal: somebody may have overlapped it since
             else:
                 how = "took over"
-            if not self.push(slug, sha):
+            if not self.push(slug, sha, seen.sha if seen else None):
                 continue                       # somebody pushed first, between our read and our write: read again
             if how != "renewed":
                 try:
                     rival = self.rival(slug, segments)
                 except Remote as exc:                      # pushed, but could not check for overlap: that is not a claim worth having
                     try:
-                        self.push(slug, self.make(key, 1, "withdrawn: the overlap check failed", parent=sha, state="released"))
+                        self.push(slug, self.make(key, 1, "withdrawn: the overlap check failed", parent=sha, state="released"), sha)
                     except Remote:
                         raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
                     raise
                 if rival:
                     try:
-                        self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"))
+                        self.push(slug, self.make(key, 1, "yielded: overlaps another claim", parent=sha, state="released"), sha)
                     except Remote as exc:
                         raise Remote(f"{exc}; the claim on {key} may still stand until it expires", partial=True) from exc
                     return "overlap", rival
