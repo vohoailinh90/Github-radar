@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-28](2026-10-28/README.md) — peach
 - [2026-10-24](2026-10-24/README.md) — kestra, opengym
 - [2026-10-21](2026-10-21/README.md) — ecc
 - [2026-10-17-7](2026-10-17-7/README.md) — agency-agents-zh

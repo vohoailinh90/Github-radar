@@ -1,0 +1,81 @@
+id: 01-peach
+status: draft
+format: portrait
+series: Radar GitHub · 2026-10-28
+link: 01-peach
+slides:
+- layout: cover
+  emoji: 🧰
+  eyebrow: Radar GitHub · Phần mềm
+  title: 'Peach: Trình quản lý và cào siêu dữ liệu video cục bộ'
+  subtitle: Peach là trình cào siêu dữ liệu video và quản lý phương tiện truyền thông mang tính cục bộ
+    (local-first).
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '13.062'
+  label: sao trên GitHub
+  caption: AGPL-3.0 · Python
+- layout: quote
+  text: Người dùng có kho video lớn trên ổ cứng hoặc đám mây thường gặp khó khăn trong việc sắp xếp, tìm
+    kiếm thông tin diễn viên, bìa phim và theo dõi lịch sử xem. Việc quản lý thủ công rất mất thời gian
+    và thiếu sự đồng bộ.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Cào siêu dữ liệu: Nhận diện mã video, đọc tệp NFO và tự động điền tiêu đề, diễn viên, hãng
+      sản xuất cùng ảnh bìa từ nhiều nguồn khác nhau.'
+  - text: 'Quản lý thư viện: Hỗ trợ duyệt ổ đĩa cục bộ, mạng SMB, lưu trữ đám mây và PikPak, đồng thời
+      lưu trữ lịch sử xem cục bộ.'
+  - text: 'Phát lại và theo dõi: Cung cấp trình phát web hoặc tích hợp trình phát ngoài với các tính năng
+      phụ đề, tốc độ phát và bản xem trước dòng thời gian.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Metadata Scraper
+    text: Nhận diện mã video và lấy thông tin chi tiết từ nhiều nguồn.
+  - emoji: ⚙️
+    title: Media Manager
+    text: Quản lý thư viện cục bộ và đám mây, thẻ tag và lịch sử xem.
+  - emoji: 🔌
+    title: Video Player
+    text: Hỗ trợ phát video qua web hoặc trình phát ngoài với phụ đề và xem trước.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cách tổ chức kho phương tiện truyền thông kỹ thuật số với kiến trúc local-first.
+  - Tự động hóa việc lấy siêu dữ liệu và hình ảnh bìa cho video.
+  - Quản lý và phát video kết hợp giữa ổ cứng cục bộ và lưu trữ đám mây.
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Bản dựng thử nghiệm trên máy tính để bàn chưa được ký mã nguồn và các bản macOS chưa được công
+      chứng.
+  - emoji: ⚠️
+    text: Peach không cung cấp tài nguyên video hoặc quyền truy cập vào nội dung trả phí.
+  - emoji: ⚠️
+    text: Người dùng phải tự chịu trách nhiệm về bản quyền và tuân thủ pháp luật đối với nội dung quản
+      lý.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Quản lý kho video cá nhân và tự động cào thông tin phim cực dễ với Peach!
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Peach
+    - MediaManager
+    - LocalFirst
+    - Python
+    - OpenSource
