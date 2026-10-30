@@ -19,6 +19,7 @@ Each report is a folder:
 | [awesome-handbook](awesome-handbook/report.md) | [sindresorhus/awesome](https://github.com/sindresorhus/awesome) | `bc98e51`; 8 chapters / 16 lessons (2026-10-24) |
 | [top30-claude-plugins](top30-claude-plugins/report.md) | the 30 repos of the "Top 30 Claude Code Plugins" image | READMEs read 2026-10-25; [source pins](top30-claude-plugins/sources.json); 55-page deck |
 | [archify](archify/report.md) | [tt-a1i/archify](https://github.com/tt-a1i/archify) | `51a2917` (2026-10-25); 48-page deck |
+| [graphify](graphify/report.md) | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) | `0a8cd4e` (2026-10-27); 32-page deck; not yet reviewed by the VPS team |
 
 Before starting or changing a report, claim its folder (`python3 scripts/claim.py claim docs/reports/<name>`, see [`docs/claims.md`](../claims.md)): several Claude or Codex sessions can work here at once, and the claim is what keeps two of them from building the same report, or two Moda canvases for it. `deck.json` holds the canvas link: edit that canvas, never create a second.
 

@@ -1,0 +1,13 @@
+{
+  "canvas": "https://moda.app/canvas/3748b6d3-e321-4a88-9288-f9ddcedabf92",
+  "pages": 32,
+  "slides_json_sha256": "73d3f333badf1dd93a5332bcece89d1a767d95d6027d07fa4ce1c3977a4402ed",
+  "built": "2026-10-30",
+  "brand_kit": null,
+  "source": {
+    "repo": "https://github.com/Graphify-Labs/graphify",
+    "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+  },
+  "drawn_from_slides_json_sha256": "73d3f333badf1dd93a5332bcece89d1a767d95d6027d07fa4ce1c3977a4402ed",
+  "changes_since_drawing": "none"
+}
