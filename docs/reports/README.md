@@ -29,3 +29,5 @@ Before starting or changing a report, claim its folder (`python3 scripts/claim.p
 
 The format follows [vohoailinh90/Multiple-report](https://github.com/vohoailinh90/Multiple-report): a lesson, a slide plan and a Moda deck,
 checked by a structure gate (sections in order, every `[Sn]` listed and used, slide layouts and text sizes).
+
+| [superpowers](superpowers/report.md) | [obra/superpowers](https://github.com/obra/superpowers) | `2ce8aa1` (2026-10-21); 26-page deck; dedicated report, the repo is also one of the 30 in top30-claude-plugins |

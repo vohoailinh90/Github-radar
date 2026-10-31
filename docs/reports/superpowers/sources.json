@@ -1,0 +1,241 @@
+{
+  "snapshot_date": "2026-10-31",
+  "repo": "https://github.com/obra/superpowers",
+  "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
+  "branch": "main",
+  "commit_date": "2026-10-21",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "obra/superpowers — README.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/README.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S2",
+      "name": "obra/superpowers — skills/using-superpowers/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/using-superpowers/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/using-superpowers/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S3",
+      "name": "obra/superpowers — hooks/session-start",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/hooks/session-start",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/hooks/session-start",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S4",
+      "name": "obra/superpowers — hooks/hooks.json",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/hooks/hooks.json",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/hooks/hooks.json",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S5",
+      "name": "obra/superpowers — skills/brainstorming/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/brainstorming/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/brainstorming/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S6",
+      "name": "obra/superpowers — skills/brainstorming/builder-check-prompt.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/brainstorming/builder-check-prompt.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/brainstorming/builder-check-prompt.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S7",
+      "name": "obra/superpowers — skills/writing-plans/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/writing-plans/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/writing-plans/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S8",
+      "name": "obra/superpowers — skills/subagent-driven-development/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/subagent-driven-development/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S9",
+      "name": "obra/superpowers — skills/subagent-driven-development/references/fix-loop.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/subagent-driven-development/references/fix-loop.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/references/fix-loop.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S10",
+      "name": "obra/superpowers — skills/subagent-driven-development/references/final-review.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/subagent-driven-development/references/final-review.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/references/final-review.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S11",
+      "name": "obra/superpowers — skills/subagent-driven-development/references/preflight.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/subagent-driven-development/references/preflight.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/references/preflight.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S12",
+      "name": "obra/superpowers — skills/executing-plans/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/executing-plans/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/executing-plans/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S13",
+      "name": "obra/superpowers — skills/test-driven-development/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/test-driven-development/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/test-driven-development/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S14",
+      "name": "obra/superpowers — skills/systematic-debugging/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/systematic-debugging/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/systematic-debugging/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S15",
+      "name": "obra/superpowers — skills/verification-before-completion/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/verification-before-completion/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/verification-before-completion/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S16",
+      "name": "obra/superpowers — skills/requesting-code-review/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/requesting-code-review/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/requesting-code-review/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S17",
+      "name": "obra/superpowers — skills/receiving-code-review/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/receiving-code-review/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/receiving-code-review/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S18",
+      "name": "obra/superpowers — skills/using-git-worktrees/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/using-git-worktrees/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/using-git-worktrees/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S19",
+      "name": "obra/superpowers — skills/finishing-a-development-branch/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/finishing-a-development-branch/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/finishing-a-development-branch/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S20",
+      "name": "obra/superpowers — skills/writing-skills/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/writing-skills/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/writing-skills/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S21",
+      "name": "obra/superpowers — AGENTS.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/AGENTS.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/AGENTS.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S22",
+      "name": "obra/superpowers — RELEASE-NOTES.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/RELEASE-NOTES.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/RELEASE-NOTES.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S23",
+      "name": "obra/superpowers — .version-bump.json",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/.version-bump.json",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/.version-bump.json",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S24",
+      "name": "obra/superpowers — tests/skill-size/test-skill-size.sh",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/tests/skill-size/test-skill-size.sh",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/tests/skill-size/test-skill-size.sh",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S25",
+      "name": "obra/superpowers — skills/brainstorming/scripts/server.cjs",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/brainstorming/scripts/server.cjs",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/brainstorming/scripts/server.cjs",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S26",
+      "name": "obra/superpowers — skills/diagnosing-superpowers/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/diagnosing-superpowers/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/diagnosing-superpowers/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S27",
+      "name": "obra/superpowers — docs/testing.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/docs/testing.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/docs/testing.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S28",
+      "name": "obra/superpowers — .claude-plugin/plugin.json",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/.claude-plugin/plugin.json",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/.claude-plugin/plugin.json",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S29",
+      "name": "obra/superpowers — skills/dispatching-parallel-agents/SKILL.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/dispatching-parallel-agents/SKILL.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/dispatching-parallel-agents/SKILL.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S30",
+      "name": "obra/superpowers — package.json",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/package.json",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/package.json",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S31",
+      "name": "obra/superpowers — skills/brainstorming/visual-companion.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/brainstorming/visual-companion.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/brainstorming/visual-companion.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S32",
+      "name": "obra/superpowers — GEMINI.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/GEMINI.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/GEMINI.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    },
+    {
+      "id": "S33",
+      "name": "obra/superpowers — skills/subagent-driven-development/task-reviewer-prompt.md",
+      "url": "https://github.com/obra/superpowers/blob/HEAD/skills/subagent-driven-development/task-reviewer-prompt.md",
+      "pinned_url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/task-reviewer-prompt.md",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+    }
+  ]
+}

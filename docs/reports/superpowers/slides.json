@@ -1,0 +1,519 @@
+{
+  "title": "Superpowers: skill tự kích hoạt cho agent lập trình",
+  "subtitle": "Báo cáo đọc repo obra/superpowers ở commit 2ce8aa1",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S4"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Superpowers ép agent lập trình đi đúng quy trình bằng skill tự kích hoạt: thiết kế, kế hoạch, TDD, review",
+        "15 skill, một hook, 16 môi trường agent; đọc ở commit 2ce8aa1 ngày 21/10/2026",
+        "Người viết đọc mã, chưa chạy"
+      ],
+      "notes": "Mở bài bằng câu hỏi: Superpowers là gì và dùng thế nào. README gọi nó là một phương pháp phát triển phần mềm cho agent lập trình, dựng trên bộ skill ghép được. Nhìn vào tệp thì đó là mười lăm tệp SKILL.md, một hook chạy lúc mở phiên và nhiều tệp khai báo cho mười sáu môi trường. Người viết đọc commit hai ba hai chữ c, ngày hai mươi mốt tháng mười, và chưa chạy gì."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S5",
+        "S14",
+        "S15",
+        "S21",
+        "S22",
+        "S24"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Ép quy trình bằng cổng chặn: không xây khi chưa duyệt thiết kế, không sửa khi chưa tìm nguyên nhân gốc",
+        "Khó nhất là giữ quy tắc qua nén ngữ cảnh: mỗi SKILL.md phải dưới 20.000 byte",
+        "Nhiều con số hiệu quả do dự án tự nêu, không kiểm độc lập được từ repo"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: các cổng chặn, không xây khi chưa duyệt thiết kế, không sửa lỗi khi chưa có nguyên nhân gốc, không báo xong khi chưa có bằng chứng. Hai: phần khó là giữ quy tắc sống sót qua nén ngữ cảnh, nên mỗi tệp skill bị canh dưới hai mươi nghìn byte. Ba: tỷ lệ chín mươi tư phần trăm PR bị từ chối hay con số hai tư trên hai tư đều do dự án tự nêu."
+    },
+    {
+      "title": "Hồ sơ nhanh của Superpowers",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S21",
+        "S22",
+        "S28"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền trước khi đi vào cơ chế. Ba nhãn xuyên suốt bài: nguồn repo là đọc từ tệp, người viết đếm là con số tính bằng lệnh trên bản đã tải, suy luận là nhận định của người viết. Nhấn mạnh bài không nêu số sao vì nguồn duy nhất là tệp ở commit đã ghim, và rằng số 94 phần trăm PR bị từ chối là dự án tự nêu.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Plugin 15 skill + hook SessionStart + manifest cho từng harness"
+        },
+        {
+          "label": "Phiên bản",
+          "text": "7.0.1 ngày 21/10/2026; giấy phép MIT"
+        },
+        {
+          "label": "Môi trường",
+          "text": "16 mục cài đặt trong README"
+        },
+        {
+          "label": "Quy mô",
+          "text": "231 tệp: 84 trong skills, 70 trong tests, 31 trong docs"
+        },
+        {
+          "label": "Văn bản skill",
+          "text": "21.816 từ trong 15 tệp SKILL.md"
+        },
+        {
+          "label": "Đóng góp",
+          "text": "PR vào nhánh dev; tự nêu 94% PR bị từ chối"
+        }
+      ]
+    },
+    {
+      "title": "Bảy bước thành năm chặng",
+      "section": "Bảy bước từ ý tưởng đến nhánh",
+      "sources": [
+        "S1",
+        "S5",
+        "S7",
+        "S8",
+        "S12",
+        "S18",
+        "S19"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Brainstorming: thiết kế được duyệt",
+        "Worktree: không gian cô lập",
+        "Kế hoạch: từng bước kiểm được",
+        "Thực thi: subagent hoặc inline, TDD, review",
+        "Kết thúc: gộp, PR hoặc giữ"
+      ],
+      "notes": "README liệt kê bảy skill chạy lần lượt. Ở đây gộp thành năm chặng cho dễ nhìn: brainstorming, worktree, kế hoạch, thực thi kèm TDD và review, rồi kết thúc nhánh. Mỗi skill tự gọi tên skill kế tiếp, nên chuỗi này là một đường ống chứ không phải thực đơn. Đây là suy luận của người viết từ các câu REQUIRED SUB-SKILL trong skill kế hoạch."
+    },
+    {
+      "title": "Mỗi bước có một cổng",
+      "section": "Bảy bước từ ý tưởng đến nhánh",
+      "sources": [
+        "S5",
+        "S7",
+        "S8",
+        "S18",
+        "S19"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Brainstorming: Không mã sản phẩm khi tài liệu thiết kế chưa được duyệt",
+        "Worktree: Phát hiện cô lập trước, hỏi xin phép, kiểm .gitignore",
+        "Kế hoạch: Mỗi bước một hành động có kết quả kiểm được",
+        "Thực thi: Review sau mỗi nhiệm vụ, hoặc một review cuối nhánh",
+        "Kết thúc: Test phải xanh trước khi hiện menu lựa chọn"
+      ],
+      "notes": "Mỗi bước đặt một cổng riêng. Brainstorming có đoạn HARD-GATE cấm viết mã sản phẩm, dựng khung hay cài phụ thuộc cho tới khi tài liệu thiết kế được duyệt. Worktree phải phát hiện không gian cô lập có sẵn, xin phép và kiểm thư mục đã bị gitignore. Kế hoạch chia bước kiểm được. Thực thi có review. Kết thúc nhánh chỉ hiện menu sau khi toàn bộ test qua."
+    },
+    {
+      "title": "Kết thúc nhánh: lựa chọn của bạn",
+      "section": "Bảy bước từ ý tưởng đến nhánh",
+      "sources": [
+        "S19"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "1. Gộp cục bộ: merge về nhánh gốc rồi kiểm test lại",
+        "2. Đẩy và tạo PR: đẩy nhánh, mở pull request",
+        "3. Giữ nguyên: nhánh và worktree còn đó",
+        "HEAD tách rời: chỉ hai lựa chọn, PR hoặc giữ"
+      ],
+      "notes": "Skill kết thúc nhánh đưa đúng ba lựa chọn với repo thường: gộp cục bộ, đẩy và tạo PR, hoặc giữ nguyên. Với HEAD tách rời chỉ còn hai lựa chọn. Việc bỏ công việc chỉ xảy ra khi người dùng tự yêu cầu và vẫn phải xác nhận trước. Quyết định tích hợp là của người dùng, agent chỉ trình bày menu nguyên văn rồi chờ câu trả lời."
+    },
+    {
+      "title": "Một phiên mới khởi động thế nào",
+      "section": "Skill tự kích hoạt: bootstrap và một repo cho nhiều harness",
+      "sources": [
+        "S2",
+        "S3",
+        "S4"
+      ],
+      "layout": "sequence-diagram",
+      "tone": "light",
+      "bullets": [
+        "Mở phiên (startup, clear, compact) chạy hook",
+        "Đọc tệp SKILL.md của bootstrap",
+        "In JSON đúng trường của môi trường",
+        "Nhét nội dung vào ngữ cảnh đầu phiên",
+        "Kiểm skill trước mọi việc, kể cả câu hỏi"
+      ],
+      "notes": "Hook SessionStart được đăng ký cho ba lần startup, clear và compact, chạy đồng bộ. Script đọc skill using-superpowers rồi in JSON. Dạng JSON đổi theo biến môi trường của Cursor, Claude Code hay Copilot, và chỉ phát đúng một trường vì Claude Code đọc cả hai mà không khử trùng. Chỉ skill bootstrap được nhét sẵn, các skill khác nạp khi cần."
+    },
+    {
+      "title": "Một bộ skill, nhiều môi trường",
+      "section": "Skill tự kích hoạt: bootstrap và một repo cho nhiều harness",
+      "sources": [
+        "S2",
+        "S3",
+        "S23",
+        "S28"
+      ],
+      "layout": "connection-diagram",
+      "tone": "dark",
+      "bullets": [
+        "8 thư mục khai báo riêng (Claude, Codex, Cursor...)",
+        "Hook đổi dạng JSON theo biến môi trường",
+        "7 tệp tham chiếu đổi tên công cụ",
+        "12 tệp giữ số phiên bản đồng bộ"
+      ],
+      "notes": "Cùng một bộ skill cài lên mười sáu môi trường nhờ bốn mảnh ghép. Tám thư mục khai báo riêng cho Claude, Codex, Cursor, Devin, Kimi, Antigravity, Muse và Hermes. Hook đổi dạng JSON theo biến môi trường. Bảy tệp tham chiếu giúp agent dịch tên công cụ của Claude sang công cụ sẵn có. Và mười hai tệp mang số phiên bản được giữ đồng bộ bằng một danh sách. Các con số này do người viết đếm."
+    },
+    {
+      "title": "Bốn skill mang luật sắt",
+      "section": "Kỷ luật bằng luật sắt và bảng viện cớ",
+      "sources": [
+        "S13",
+        "S14",
+        "S15",
+        "S20",
+        "S21"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "TDD, gỡ lỗi, xác minh và viết skill đều có mục Iron Law",
+        "AGENTS.md cấm sửa các bảng viện cớ nếu thiếu bằng chứng cải thiện"
+      ],
+      "notes": "Người viết tìm chuỗi Iron Law trong các tệp Markdown và thấy bốn skill: test-driven-development, systematic-debugging, verification-before-completion và writing-skills. Đây là con số người viết đếm. Mục luật sắt phát biểu một quy tắc không thương lượng bằng một câu in hoa. AGENTS.md dặn không sửa các bảng Red Flags và rationalization nếu không có bằng chứng thay đổi đó cải thiện kết quả."
+    },
+    {
+      "title": "Ba luật sắt",
+      "section": "Kỷ luật bằng luật sắt và bảng viện cớ",
+      "sources": [
+        "S13",
+        "S14",
+        "S15"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Test trước: Không mã sản phẩm khi chưa có test thất bại; viết trước thì xóa",
+        "Nguyên nhân gốc trước: Không sửa khi chưa điều tra; thử 3 cách hỏng thì bàn lại kiến trúc",
+        "Bằng chứng trước: Không báo xong khi chưa chạy lệnh kiểm và đọc đầu ra"
+      ],
+      "notes": "Ba luật sắt. TDD: không mã sản phẩm nào mà không có test thất bại trước, viết mã trước thì xóa. Gỡ lỗi: không sửa khi chưa điều tra nguyên nhân gốc; nếu đã thử ba cách sửa mà vẫn hỏng thì cấm thử cách thứ tư và phải bàn lại kiến trúc với người cộng tác. Xác minh: hàm cổng năm bước, chạy lệnh, đọc đầu ra, đối chiếu rồi mới tuyên bố."
+    },
+    {
+      "title": "Bảng viện cớ là văn bản hành vi",
+      "section": "Kỷ luật bằng luật sắt và bảng viện cớ",
+      "sources": [
+        "S13",
+        "S14",
+        "S15",
+        "S21"
+      ],
+      "layout": "explainer",
+      "tone": "light",
+      "bullets": [
+        "Red Flags: Câu tự nhủ báo hiệu sắp phá luật",
+        "Rationalizations: Lời viện cớ kèm phản bác",
+        "Đừng hiểu nhầm: Không sửa nếu thiếu bằng chứng cải thiện"
+      ],
+      "notes": "Giải thích vì sao các bảng này quan trọng. Chúng không phải tài liệu giải thích mà là văn bản định hình hành vi, nhắm vào cách một mô hình hay tự miễn trừ. Con số mười một tệp là người viết đếm. Nhận định về mục đích là suy luận của người viết.",
+      "body": "Mỗi skill kỷ luật có hai bảng: **Red Flags** liệt kê câu tự nhủ báo hiệu sắp phá luật, còn **Common Rationalizations** ghép từng lời viện cớ với phản bác [S13] [S14] [S15].\n\nCó 11 tệp dưới skills/ chứa chữ này (người viết đếm). Suy luận: các bảng nhắm vào kiểu lập luận một mô hình hay dùng để tự miễn trừ, nên chúng định hình hành vi chứ không chỉ giải thích. AGENTS.md cấm sửa chúng nếu không có bằng chứng cải thiện [S21]."
+    },
+    {
+      "title": "Hai đường thực thi",
+      "section": "Giao việc cho subagent",
+      "sources": [
+        "S8",
+        "S12"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Subagent-driven: Mỗi nhiệm vụ một subagent mới, review sau mỗi nhiệm vụ, review toàn nhánh cuối. Tốn một ngữ cảnh mới mỗi lượt.",
+        "Executing-plans: Agent tự làm từng nhiệm vụ trong một phiên, một reviewer mới xem cả nhánh ở cuối. Rẻ hơn.",
+        "Cả hai không dừng hỏi giữa các nhiệm vụ"
+      ],
+      "notes": "Hai skill tự so sánh chi phí. Subagent-driven development trả một ngữ cảnh mới cho mỗi nhiệm vụ và mỗi lượt review. Executing-plans chỉ trả một ngữ cảnh cộng một reviewer ở cuối. Cả hai cùng chạy liên tục, không hỏi người dùng giữa các nhiệm vụ, và đều dùng chung sổ cái. Chọn đường nào là quyết định ở bước bàn giao kế hoạch."
+    },
+    {
+      "title": "Vòng sửa tối đa năm vòng",
+      "section": "Giao việc cho subagent",
+      "sources": [
+        "S9",
+        "S10"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Review cuối: một subagent sửa cả danh sách, một lượt review lại",
+        "Bộ ngắt sau vòng 5: điều phối viên tự phân xử, ghi phán quyết",
+        "Vòng 4-5: bên cài đặt mới, mô hình mạnh hơn một bậc",
+        "Vòng 1-3: gọi lại chính bên cài đặt cũ"
+      ],
+      "notes": "Vòng sửa của SDD có trần năm vòng. Vòng một đến ba gọi lại chính bên cài đặt vì nó còn nguyên ngữ cảnh. Vòng bốn và năm giao cho bên cài đặt mới trên mô hình mạnh hơn một bậc. Nếu vòng năm vẫn còn lỗi, bộ ngắt buộc điều phối viên tự phân xử từng lỗi. Review cuối chỉ có một đợt sửa, không có đợt thứ hai."
+    },
+    {
+      "title": "Một nhiệm vụ đi qua đâu",
+      "section": "Giao việc cho subagent",
+      "sources": [
+        "S8"
+      ],
+      "layout": "timeline",
+      "tone": "dark",
+      "bullets": [
+        "Brief: trích nhiệm vụ ra tệp",
+        "Cài đặt: subagent mới, báo cáo ra tệp",
+        "Gói review: diff từ BASE đã ghi",
+        "Review: khớp spec và chất lượng",
+        "Sổ cái: ghi dòng hoàn thành"
+      ],
+      "notes": "Một nhiệm vụ đi qua năm điểm. Brief được trích ra tệp để làm nguồn yêu cầu duy nhất. Bên cài đặt là subagent mới và ghi báo cáo ra tệp. Gói review chứa diff tính từ BASE đã ghi trước khi giao, không bao giờ HEAD trừ một. Reviewer trả hai phán quyết, khớp spec và chất lượng. Cuối cùng điều phối viên ghi dòng hoàn thành vào sổ cái."
+    },
+    {
+      "title": "Bốn việc duy nhất làm kế hoạch dừng",
+      "section": "Giao việc cho subagent",
+      "sources": [
+        "S8"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Thao tác không thể hoàn tác hoặc phá hủy",
+        "Hành động nhạy cảm về bảo mật",
+        "Tác dụng phụ ngoài worktree: merge, đẩy lên nhánh dùng chung, xuất bản",
+        "Kế hoạch hỏng đến mức mọi đường đều là đoán"
+      ],
+      "notes": "SDD ra lệnh không dừng hỏi giữa các nhiệm vụ. Chỉ bốn việc làm nó dừng: thao tác không hoàn tác được, hành động nhạy cảm về bảo mật, tác dụng phụ ngoài worktree như merge hay đẩy lên nhánh dùng chung, và kế hoạch hỏng đến mức mọi đường đều là đoán. Mọi xung đột khác phải được phán quyết và ghi vào sổ cái theo mẫu có ba phần."
+    },
+    {
+      "title": "Mốc byte của mỗi SKILL.md",
+      "section": "Giữ quy tắc qua nén ngữ cảnh",
+      "sources": [
+        "S22",
+        "S24"
+      ],
+      "layout": "one-big-number",
+      "tone": "dark",
+      "bullets": [
+        "Sau nén ngữ cảnh, Claude Code cắt skill ở 20.000 ký tự",
+        "Bài kiểm tra đo byte và thất bại khi một SKILL.md đạt mốc"
+      ],
+      "notes": "Release notes giải thích vấn đề: sau khi nén, Claude Code gắn lại mỗi skill đã gọi nhưng cắt ở hai mươi nghìn ký tự, nên phần quá mốc biến mất đến hết phiên. Dự án thêm bài kiểm tra đo byte, nghiêm hơn ký tự với chữ không ASCII, và dời nội dung chỉ cần đôi khi sang thư mục references để đọc từ đĩa đúng bước cần."
+    },
+    {
+      "title": "Còn cách mốc bao nhiêu byte",
+      "section": "Giữ quy tắc qua nén ngữ cảnh",
+      "sources": [
+        "S24",
+        "S22"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "subagent-driven-development: 19.506 byte, còn 494",
+        "executing-plans: 18.103 byte, còn 1.897",
+        "writing-skills: 16.738 byte, còn 3.262",
+        "brainstorming: 13.602 byte, còn 6.398"
+      ],
+      "notes": "Số byte do người viết đo trên bản đã tải. Skill giao việc cho subagent chỉ còn bốn trăm chín mươi bốn byte trước mốc. Suy luận của người viết: mọi quy tắc mới thêm vào đó buộc phải dời sang references, và đó là lý do các điều khoản quan trọng của nó nằm ngoài tệp chính. Chính skill dặn đọc lại tệp vòng sửa trước mỗi vòng vì ký ức không sống qua nén."
+    },
+    {
+      "title": "Điều AGENTS.md không nhận",
+      "section": "Viết và đóng góp skill",
+      "sources": [
+        "S21"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Phụ thuộc bên thứ ba: plugin không phụ thuộc theo thiết kế",
+        "Sửa skill cho \"tuân thủ\": cần bằng chứng đánh giá",
+        "PR sửa lỗi người khác báo: thêm vào issue có sẵn",
+        "PR hàng loạt hoặc suy đoán: bị đóng"
+      ],
+      "notes": "AGENTS.md mở đầu bằng phần dành cho agent AI và nêu tỷ lệ chín mươi tư phần trăm PR bị từ chối, do dự án tự nêu. Danh sách không nhận gồm phụ thuộc bên thứ ba, thay đổi nhằm tuân thủ hướng dẫn viết skill của Anthropic nếu thiếu bằng chứng, cấu hình riêng, PR sửa lỗi do người khác báo và PR hàng loạt. PR phải nhắm nhánh dev."
+    },
+    {
+      "title": "Viết skill như viết test",
+      "section": "Viết và đóng góp skill",
+      "sources": [
+        "S20"
+      ],
+      "layout": "flow",
+      "tone": "light",
+      "bullets": [
+        "RED: chạy kịch bản áp lực khi chưa có skill",
+        "Ghi lại lời viện cớ của agent",
+        "GREEN: viết skill chặn đúng các vi phạm đó",
+        "REFACTOR: bịt lỗ hổng mới và kiểm lại"
+      ],
+      "notes": "Skill writing-skills phát biểu viết skill là TDD áp cho tài liệu quy trình. Ca kiểm thử là kịch bản gây áp lực với subagent. RED là agent vi phạm khi chưa có skill. Sau đó ghi lại đúng lời viện cớ, viết skill nhắm vào các vi phạm đó, rồi bịt các lỗ hổng mới. Ràng buộc cơ học thực thi được bằng kiểm tra thì nên tự động hóa."
+    },
+    {
+      "title": "Quyền riêng tư và an toàn",
+      "section": "An toàn và quyền riêng tư",
+      "sources": [
+        "S1",
+        "S3",
+        "S5",
+        "S25",
+        "S31"
+      ],
+      "layout": "profile-card",
+      "tone": "dark",
+      "bullets": [],
+      "notes": "Bốn điểm. Hook chỉ đọc một tệp skill rồi in JSON, người viết không thấy lệnh mạng trong tệp đó, nhưng đây là đọc mã chưa chạy. Máy chủ mockup nghe trên 127.0.0.1 với khóa ngẫu nhiên mỗi phiên. Logo tải từ website kèm số phiên bản và tắt được bằng ba biến môi trường. Visual companion chỉ mở sau khi hỏi người dùng.",
+      "facts": [
+        {
+          "label": "Hook",
+          "text": "Chỉ đọc một tệp skill rồi in JSON; không thấy lệnh mạng (đọc mã, chưa chạy)"
+        },
+        {
+          "label": "Máy chủ mockup",
+          "text": "Nghe 127.0.0.1, khóa ngẫu nhiên 32 byte mỗi phiên, kiểm nguồn WebSocket"
+        },
+        {
+          "label": "Telemetry",
+          "text": "Ảnh logo từ website kèm số phiên bản; tắt bằng ba biến môi trường"
+        },
+        {
+          "label": "Bạn quyết",
+          "text": "Visual companion chỉ mở sau khi hỏi người dùng"
+        }
+      ]
+    },
+    {
+      "title": "Bốn chỗ README và skill lệch nhau",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S7",
+        "S8",
+        "S16",
+        "S22",
+        "S33"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "2-5 phút: README còn ghi; skill đã đổi sang một hành động kiểm được",
+        "HEAD~1: ví dụ review dùng, SDD cấm vì rơi commit",
+        "Thứ tự worktree: README bước 2, skill đặt lúc thực thi",
+        "Hai giai đoạn review: mẫu reviewer đọc một lần, hai phán quyết"
+      ],
+      "notes": "Bốn chỗ hai tệp của chính repo nói không giống nhau. README còn ghi nhiệm vụ hai đến năm phút trong khi skill kế hoạch và release notes đã đổi sang một hành động kiểm được. Ví dụ review dùng HEAD trừ một còn SDD cấm. README đặt worktree ở bước hai còn skill đặt lúc thực thi. README nói review hai giai đoạn, mẫu reviewer đọc diff một lần. Báo, không chọn bên."
+    },
+    {
+      "title": "Số liệu do dự án tự nêu",
+      "section": "Phản biện",
+      "sources": [
+        "S21",
+        "S22",
+        "S27"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Cái gì: 94%, 24/24 rồi 3/24, 18 vòng sửa",
+        "Ở đâu: AGENTS.md và RELEASE-NOTES.md",
+        "Đừng hiểu nhầm: Chưa phải đo lường độc lập"
+      ],
+      "notes": "Ba con số nổi bật đều do dự án nêu. Người viết không kiểm độc lập được vì đánh giá hành vi nằm ở kho riêng superpowers-evals, không có trong commit này. Kết luận là suy luận của người viết: đây là bằng chứng nội bộ, đáng tham khảo nhưng chưa phải đo lường độc lập.",
+      "body": "Ba con số đáng chú ý đều do dự án nêu: 94% PR bị từ chối trong AGENTS.md [S21], bỏ qua tài liệu thiết kế 24 trên 24 lần trước thay đổi và 3 trên 24 sau đó trong một kịch bản thử [S22], và một phiên chạy 18 vòng sửa cho một nhiệm vụ [S22].\n\nĐánh giá hành vi nằm ở kho riêng superpowers-evals, không có trong commit này [S21] [S27]. Suy luận: đây là bằng chứng nội bộ, chưa phải đo lường độc lập."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S2",
+        "S8",
+        "S13",
+        "S14",
+        "S15",
+        "S22"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Thư viện skill cộng một hook, không phải ứng dụng",
+        "Thiết kế được duyệt, kế hoạch, thực thi có review, rồi chọn cách kết thúc",
+        "Ba luật sắt: test trước, nguyên nhân gốc trước, bằng chứng trước",
+        "SDD: sổ cái, phán quyết ghi sổ, năm vòng sửa, một đợt sửa cuối",
+        "Đọc README với chút nghi ngờ; số đo hiệu quả là tự nêu"
+      ],
+      "notes": "Năm điều cần nhớ. Superpowers là thư viện skill và một hook chứ không phải ứng dụng. Quy trình mặc định đi từ thiết kế được duyệt đến kế hoạch, thực thi có review, rồi chọn cách kết thúc nhánh. Ba luật sắt đi cùng bảng viện cớ. SDD đáng học nhất cho ai giao việc cho nhiều agent. Và đọc README với chút nghi ngờ vì có chỗ lệch khỏi skill."
+    },
+    {
+      "title": "Lưu ý",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S28"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Đọc mã, chưa chạy: bài là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt",
+        "Clone nông ở commit 2ce8aa1, nhánh main, ngày 21/10/2026",
+        "Không nêu số sao; giấy phép MIT theo README và plugin.json"
+      ],
+      "notes": "Giới hạn của bài. Người viết đọc bản clone nông ở commit hai ba hai chữ c ngày hai mươi mốt tháng mười, không cài, không chạy hook, máy chủ hay test nào. Bài không nêu số sao hay lịch sử issue vì chúng không nằm trong commit. Giấy phép MIT theo README và plugin.json, người viết không đọc tệp LICENSE. Nội dung skill là chỉ dẫn cho agent, ở đây chỉ là đối tượng mô tả."
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: using-superpowers",
+        "S3: session-start",
+        "S4: hooks.json",
+        "S5: brainstorming",
+        "S6: builder-check-prompt.md",
+        "S7: writing-plans",
+        "S8: subagent-driven-development",
+        "S9: fix-loop.md",
+        "S10: final-review.md",
+        "S11: preflight.md",
+        "S12: executing-plans",
+        "S13: test-driven-development",
+        "S14: systematic-debugging",
+        "S15: verification-before-completion",
+        "S16: requesting-code-review",
+        "S17: receiving-code-review",
+        "S18: using-git-worktrees",
+        "S19: finishing-a-development-branch",
+        "S20: writing-skills",
+        "S21: AGENTS.md",
+        "S22: RELEASE-NOTES.md",
+        "S23: .version-bump.json",
+        "S24: test-skill-size.sh",
+        "S25: server.cjs",
+        "S26: diagnosing-superpowers",
+        "S27: testing.md",
+        "S28: plugin.json",
+        "S29: dispatching-parallel-agents",
+        "S30: package.json",
+        "S31: visual-companion.md",
+        "S32: GEMINI.md",
+        "S33: task-reviewer-prompt.md"
+      ],
+      "notes": ""
+    }
+  ]
+}
