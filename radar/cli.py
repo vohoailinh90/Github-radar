@@ -28,10 +28,11 @@ def _github(cfg) -> GitHub:
 
 
 def cmd_scan(args, cfg) -> int:
-    from . import discover, facts
+    from . import discover, facts, reports
     gh = _github(cfg)
     seen = facts.load_seen(ROOT / "state" / "seen.json")
-    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date), history.load(ROOT / "state" / "stars.json"))
+    ranked, dropped = discover.candidates(gh, cfg, seen, _date(args.date), history.load(ROOT / "state" / "stars.json"),
+                                          reports.covered(ROOT))          # the same filters as a real run
     print("score    bucket       stars   stars/30d  repo   (* = measured from stored snapshots, else the lifetime average)")
     for c in ranked[:20]:
         mark = "*" if c["velocity"]["source"] == "measured" else " "

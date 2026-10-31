@@ -89,3 +89,14 @@ def test_a_scan_skips_what_a_report_covers_and_never_writes_it_into_the_seen_lis
     assert top[0] not in picked and again["dropped"][discover.REPORT_COVERED] >= 1
     seen = json.loads((tmp_path / "state" / "seen.json").read_text())
     assert top[0] not in seen and set(seen) == {w["repo"] for w in again["written"]}
+
+
+def test_the_trial_scan_command_uses_the_same_report_filter_as_a_real_run(tmp_path, servers, monkeypatch, capsys):
+    from radar import cli
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    assert cli.main(["scan", "--date", "2026-10-14"]) == 0
+    top = capsys.readouterr().out.split("\n")[1].split()[-1]               # the best-ranked repository of the trial scan
+    report(tmp_path, "demo", **{"sources.json": [{"repo": top}]})
+    cli.main(["scan", "--date", "2026-10-14"])
+    out = capsys.readouterr().out
+    assert top not in out and discover.REPORT_COVERED in out
