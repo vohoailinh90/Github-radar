@@ -1,0 +1,290 @@
+{
+  "title": "Karpathy Skills: bốn nguyên tắc trong một tệp",
+  "subtitle": "Báo cáo đọc repo forrestchang/andrej-karpathy-skills ở commit 2c60614",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Bốn nguyên tắc ngắn cho agent lập trình, đóng gói thành CLAUDE.md, skill và quy tắc Cursor",
+        "Đọc ở commit 2c60614 ngày 20/04/2026; chín tệp, không có mã chạy",
+        "Người viết đọc mã, chưa chạy"
+      ],
+      "notes": "Mở bài bằng câu hỏi repo này là gì và có gì để học. README mô tả một tệp CLAUDE.md nhằm cải thiện hành vi của Claude Code, rút từ quan sát của Karpathy về lỗi khi mô hình viết mã. Thực chất là bốn nguyên tắc ứng xử viết thành chỉ dẫn cho agent, đóng gói ba kiểu. Người viết đọc commit hai c sáu không sáu một bốn ngày hai mươi tháng tư, mở cả chín tệp, và chưa chạy gì."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S4",
+        "S6"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Phần cốt lõi chỉ khoảng 360 từ: đọc hết trong vài phút",
+        "Mỗi nguyên tắc có một phép thử dùng được khi review diff",
+        "Chưa có bằng chứng đo được rằng chúng giúp ích"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: bộ nguyên tắc rất ngắn, phần cốt lõi khoảng ba trăm sáu mươi từ do người viết đếm. Hai: mỗi nguyên tắc đi kèm một phép thử cụ thể, ví dụ mỗi dòng đổi phải truy được tới yêu cầu của người dùng, nên dùng làm tiêu chí review. Ba: repo không có phép đo nào, phần cách biết nó có tác dụng chỉ là bốn dấu hiệu định tính."
+    },
+    {
+      "title": "Hồ sơ nhanh",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S3",
+        "S6",
+        "S7",
+        "S8"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền. Ba nhãn xuyên suốt: nguồn repo là đọc từ tệp, người viết đếm là con số tính bằng lệnh trên bản đã tải, suy luận là nhận định của người viết. Nhấn mạnh giấy phép MIT được ghi ở ba nơi nhưng repo không có tệp LICENSE, và bài này không nêu số sao vì nguồn duy nhất là các tệp ở commit đã ghim.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Bốn nguyên tắc ứng xử cho agent lập trình"
+        },
+        {
+          "label": "Phiên bản",
+          "text": "1.0.0 (plugin và marketplace)"
+        },
+        {
+          "label": "Giấy phép",
+          "text": "MIT ở README, plugin.json, SKILL.md; không có tệp LICENSE"
+        },
+        {
+          "label": "Quy mô",
+          "text": "9 tệp, 37.694 byte"
+        },
+        {
+          "label": "Cốt lõi",
+          "text": "358 từ (CLAUDE.md), 371 (SKILL.md), 393 (.mdc)"
+        },
+        {
+          "label": "Ví dụ",
+          "text": "9 ví dụ, mỗi cái một cặp sai và đúng"
+        }
+      ]
+    },
+    {
+      "title": "Bốn nguyên tắc",
+      "section": "Bốn nguyên tắc",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "1. Nghĩ trước khi viết mã: nêu giả định, hỏi khi mơ hồ",
+        "2. Đơn giản trước tiên: mã tối thiểu, không suy đoán",
+        "3. Thay đổi như phẫu thuật: chỉ chạm cái cần chạm",
+        "4. Thực thi theo mục tiêu: tiêu chí kiểm chứng được"
+      ],
+      "notes": "Bốn nguyên tắc đáp lại ba lỗi README trích từ Karpathy: giả định thay người dùng rồi chạy tiếp, làm phức tạp mã, và sửa thứ không liên quan. Một: nghĩ trước khi viết mã. Hai: đơn giản trước tiên. Ba: thay đổi như phẫu thuật. Bốn: thực thi theo mục tiêu. Người viết không mở bài đăng gốc của Karpathy; các trích dẫn chỉ được tin theo lời README."
+    },
+    {
+      "title": "Phép thử của mỗi nguyên tắc",
+      "section": "Bốn nguyên tắc",
+      "sources": [
+        "S2"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Nghĩ trước: Nhiều cách hiểu thì trình bày, đừng chọn lặng lẽ",
+        "Đơn giản: Kỹ sư senior có bảo quá phức tạp không?",
+        "Phẫu thuật: Mỗi dòng đổi truy được tới yêu cầu",
+        "Mục tiêu: Có cách kiểm để lặp tới khi qua không?"
+      ],
+      "notes": "Mỗi nguyên tắc đi kèm một câu hỏi tự kiểm tra. Với nguyên tắc nghĩ trước, nếu có nhiều cách hiểu thì trình bày chứ không chọn lặng lẽ. Với đơn giản, hỏi liệu một kỹ sư senior có bảo quá phức tạp không, và nếu hai trăm dòng có thể là năm mươi thì viết lại. Với phẫu thuật, mỗi dòng đã đổi phải truy được tới yêu cầu. Với mục tiêu, tiêu chí mạnh cho phép agent tự lặp."
+    },
+    {
+      "title": "Từ việc mơ hồ đến mục tiêu",
+      "section": "Bốn nguyên tắc",
+      "sources": [
+        "S2"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Thay vì: Thêm validation. Sửa lỗi. Refactor X.",
+        "Chuyển thành: Test cho đầu vào sai. Test tái hiện lỗi. Test qua trước và sau.",
+        "Tiêu chí mạnh cho phép agent tự lặp; tiêu chí yếu như làm cho nó chạy thì đòi hỏi hỏi lại"
+      ],
+      "notes": "Nguyên tắc thứ tư biến việc mệnh lệnh thành mục tiêu kiểm chứng được. Thêm validation thành viết test cho đầu vào sai rồi làm cho chúng qua. Sửa lỗi thành viết test tái hiện lỗi rồi làm cho nó qua. Refactor thành bảo đảm test qua trước và sau. Với việc nhiều bước, nêu kế hoạch ngắn gồm bước và cách kiểm. Tiêu chí mạnh cho phép agent tự lặp; tiêu chí yếu thì đòi hỏi hỏi lại liên tục."
+    },
+    {
+      "title": "Số ví dụ sai và đúng",
+      "section": "Chín ví dụ trong EXAMPLES.md",
+      "sources": [
+        "S6"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "Mỗi ví dụ có một khối mô hình hay làm sai và một khối nên làm",
+        "Kịch bản minh họa tự đặt; các con số ước tính không phải số đo"
+      ],
+      "notes": "Tệp EXAMPLES minh họa bốn nguyên tắc bằng chín ví dụ: hai cho nghĩ trước, hai cho đơn giản, hai cho phẫu thuật và ba cho mục tiêu. Số chín do người viết đếm từ tiêu đề và các ký hiệu sai đúng. Các ví dụ là kịch bản dựng sẵn; những con số như ước tính hai giờ hay năm trăm mili giây trong đó là minh họa, không phải số đo."
+    },
+    {
+      "title": "Sai ở đâu trong từng ví dụ",
+      "section": "Chín ví dụ trong EXAMPLES.md",
+      "sources": [
+        "S6"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Nghĩ trước: Xuất dữ liệu, tìm kiếm nhanh hơn: nhiều cách hiểu",
+        "Đơn giản: Giảm giá bọc mẫu Strategy, hơn 30 dòng thiết lập",
+        "Phẫu thuật: Sửa một lỗi nhưng tiện tay refactor, đổi nháy",
+        "Mục tiêu: Sửa xác thực mơ hồ so với mục tiêu kiểm chứng được"
+      ],
+      "notes": "Bốn ví dụ tiêu biểu. Yêu cầu xuất dữ liệu người dùng hay làm tìm kiếm nhanh hơn có nhiều cách hiểu mà mô hình chọn lặng lẽ. Hàm tính giảm giá bị bọc trong mẫu Strategy và cần hơn ba mươi dòng thiết lập. Sửa một lỗi nhưng tiện tay refactor và đổi kiểu nháy. Sửa hệ thống xác thực là mơ hồ so với mục tiêu viết test rồi làm cho qua. Phần Key Insight nói vấn đề là thời điểm, không phải hình thức."
+    },
+    {
+      "title": "Ba bản sao một nội dung",
+      "section": "Ba bản sao một nội dung",
+      "sources": [
+        "S2",
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "layout": "connection-diagram",
+      "tone": "light",
+      "bullets": [
+        "CLAUDE.md: tệp cho từng dự án",
+        "SKILL.md: skill của plugin",
+        "karpathy-guidelines.mdc: quy tắc Cursor luôn bật",
+        "Giữ đồng bộ bằng tay, theo CURSOR.md"
+      ],
+      "notes": "Cùng một bộ bốn nguyên tắc nằm ở ba tệp. Người viết so sánh bằng script: ba tệp có cùng bốn đề mục theo cùng thứ tự và phần thân giống nhau từng ký tự. Khác biệt chỉ ở phần đầu như frontmatter. CURSOR.md dặn người bảo trì giữ CLAUDE.md và quy tắc mdc đồng bộ. Suy luận của người viết: đây là ba nguồn sự thật phải sửa tay, không thấy script kiểm tra trong repo."
+    },
+    {
+      "title": "Hai cách cài cho Claude Code",
+      "section": "Cài đặt và đóng gói",
+      "sources": [
+        "S1",
+        "S7",
+        "S8"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Thêm marketplace karpathy-skills",
+        "Cài plugin andrej-karpathy-skills",
+        "Skill karpathy-guidelines có mặt ở mọi dự án",
+        "Hoặc chép CLAUDE.md vào dự án"
+      ],
+      "notes": "README khuyến nghị cài bằng plugin: thêm marketplace bằng lệnh plugin marketplace add với forrestchang và tên repo, rồi cài plugin andrej-karpathy-skills từ marketplace karpathy-skills. Khai báo marketplace đặt phiên bản một chấm không chấm không. Cách thứ hai là chép hoặc nối CLAUDE.md vào từng dự án bằng curl. Cursor dùng tệp quy tắc mdc riêng vì mặc định nó không đọc CLAUDE.md. Người viết không chạy các lệnh này."
+    },
+    {
+      "title": "Bốn chỗ cần dè dặt",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S3",
+        "S7"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Tên repo: andrej-karpathy, README nói Karpathy-Inspired",
+        "Một tệp: README nói một CLAUDE.md, repo có 4 đường phát hành",
+        "Giấy phép: MIT ở ba nơi, không có tệp LICENSE",
+        "Chưa có phép đo: chỉ bốn dấu hiệu định tính"
+      ],
+      "notes": "Bốn chỗ cần dè dặt. Tên repo nghe như bản chính chủ nhưng README chỉ nói cảm hứng từ quan sát của Karpathy. README tự gọi là một tệp CLAUDE.md trong khi repo có plugin, skill, quy tắc Cursor và bản dịch tiếng Trung. Giấy phép MIT được nêu ở ba nơi nhưng không có tệp LICENSE. Và phần cách biết nó có tác dụng chỉ có bốn dấu hiệu định tính, không số liệu hay bài kiểm thử."
+    },
+    {
+      "title": "Ranh giới của việc nhỏ",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S2",
+        "S5"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Hai lời dặn: Hỏi khi mơ hồ; tự phán đoán với việc nhỏ",
+        "Hệ quả: Agent tự đoán ranh giới",
+        "Đồng bộ: Ba bản sao sửa tay cùng lúc"
+      ],
+      "notes": "Phản biện về ranh giới. Nguyên tắc nghĩ trước dặn hỏi khi chưa rõ, còn ghi chú đánh đổi dặn tự phán đoán với việc nhỏ như sửa lỗi chính tả. Repo không định nghĩa ranh giới, nên chính agent phải đoán. Đây là suy luận của người viết. Thêm vào đó, ba bản sao nội dung phải sửa tay cùng lúc theo CURSOR.md.",
+      "body": "Nguyên tắc 1 dặn dừng và hỏi khi có điều chưa rõ [S2]. Nhưng ghi chú đánh đổi dặn rằng với việc nhỏ như sửa lỗi chính tả hay một dòng hiển nhiên thì tự phán đoán [S1] [S2].\n\nRepo không định nghĩa ranh giới giữa hai trường hợp, nên chính agent phải tự đoán (suy luận). Ngoài ra, ba bản sao phải được sửa tay cùng lúc để không lệch nhau [S5]."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S2",
+        "S4",
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Bốn nguyên tắc ngắn, viết cho agent, đóng gói ba kiểu",
+        "Nghĩ trước, đơn giản, chạm đúng chỗ, mục tiêu kiểm chứng được",
+        "Mỗi nguyên tắc có một phép thử dùng được khi review diff",
+        "Chín ví dụ là kịch bản minh họa, không phải số đo",
+        "Chưa có bằng chứng định lượng; tên repo dễ gây hiểu nhầm về nguồn"
+      ],
+      "notes": "Năm điều cần nhớ. Một bộ bốn nguyên tắc ngắn đóng gói ba kiểu. Bốn nguyên tắc là nghĩ trước, đơn giản, chạm đúng chỗ và mục tiêu kiểm chứng được. Mỗi cái có phép thử dùng được khi review diff. Chín ví dụ là kịch bản minh họa chứ không phải số đo. Cuối cùng, chưa có bằng chứng định lượng và tên repo dễ bị đọc thành bản chính chủ nên cần dè dặt."
+    },
+    {
+      "title": "Lưu ý",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S7"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Đọc mã, chưa chạy: bài là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt",
+        "Clone nông ở commit 2c60614, ngày 20/04/2026",
+        "Không nêu số sao; MIT theo README và plugin.json, không có tệp LICENSE"
+      ],
+      "notes": "Giới hạn của bài. Người viết đọc bản clone nông ở commit hai c sáu không sáu một bốn, mở cả chín tệp nhưng chỉ đọc tiêu đề của README tiếng Trung và phần sau của EXAMPLES. Không cài plugin, không thử lệnh curl, không chạy agent nào. Không nêu số sao. Giấy phép MIT theo README và plugin.json nhưng không có tệp LICENSE. Các trích dẫn Karpathy là lời README, người viết không kiểm bài đăng gốc."
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: CLAUDE.md",
+        "S3: SKILL.md",
+        "S4: karpathy-guidelines.mdc",
+        "S5: CURSOR.md",
+        "S6: EXAMPLES.md",
+        "S7: .claude-plugin/plugin.json",
+        "S8: marketplace.json",
+        "S9: README.zh.md"
+      ],
+      "notes": ""
+    }
+  ]
+}
