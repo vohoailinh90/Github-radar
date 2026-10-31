@@ -1,0 +1,280 @@
+{
+  "draft": {
+    "analogy": "Giống như việc thuê một trợ lý riêng: không chỉ làm việc theo lệnh, trợ lý này còn tự rút kinh nghiệm sau mỗi nhiệm vụ và luôn sẵn sàng nghe điện thoại từ bất cứ đâu.",
+    "caveats": [
+      "Trình cài đặt yêu cầu quyền thực thi lệnh hệ thống trên máy tính",
+      "Một số trình diệt virus có thể nhận diện nhầm gói quản lý phụ thuộc (uv.exe) trên Windows"
+    ],
+    "facebook": {
+      "caption": "Tự tạo trợ lý AI tự học trên máy tính với Hermes Agent! 🤖",
+      "hashtags": [
+        "#HermesAgent",
+        "#AI",
+        "#Developer",
+        "#VanPhong",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Giao diện người dùng dựa trên văn bản chạy ngay trong cửa sổ terminal",
+        "term": "TUI"
+      },
+      {
+        "meaning": "Tiến trình trung gian kết nối trợ lý AI với các nền tảng nhắn tin bên ngoài",
+        "term": "Gateway"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Chạy hermes model để chọn nhà cung cấp LLM và mô hình",
+        "Chạy hermes gateway để bắt đầu kết nối nhắn tin Telegram, Discord",
+        "Chạy hermes setup --portal để dùng gói Nous Portal không cần thu thập nhiều khóa API"
+      ],
+      "outcome": "Cài đặt thành công Hermes Agent trên máy tính, tải lại cấu hình shell và khởi động giao diện dòng lệnh trò chuyện với trợ lý AI.",
+      "requirements": [
+        {
+          "detail": "Môi trường dòng lệnh Unix để chạy lệnh cài đặt nhanh",
+          "evidence": "README",
+          "item": "Hệ điều hành Linux, macOS hoặc WSL2 trên Windows",
+          "link_ref": null
+        },
+        {
+          "detail": "Dùng PowerShell để cài đặt trực tiếp trên Windows",
+          "evidence": "README",
+          "item": "Hệ điều hành Windows nguyên bản (tuỳ chọn)",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash"
+          ],
+          "do": [
+            "Mở terminal trên Linux/macOS/WSL2 và chạy lệnh cài đặt curl."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt Hermes Agent",
+          "why": "Tải xuống và cài đặt toàn bộ công cụ, môi trường Python và giao diện dòng lệnh cho Hermes."
+        },
+        {
+          "commands": [
+            "source ~/.bashrc"
+          ],
+          "do": [
+            "Chạy lệnh tải lại tệp cấu hình bashrc trên terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tải lại cấu hình shell",
+          "why": "Cập nhật biến môi trường để hệ thống nhận diện lệnh hermes vừa cài đặt."
+        },
+        {
+          "commands": [
+            "hermes"
+          ],
+          "do": [
+            "Gõ lệnh hermes trên terminal và bắt đầu trò chuyện."
+          ],
+          "evidence": "README",
+          "expect": "Hiển thị giao diện dòng lệnh TUI để bắt đầu trò chuyện với trợ lý.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Khởi động Hermes Agent",
+          "why": "Bắt đầu cuộc trò chuyện đầu tiên với trợ lý AI trong giao diện dòng lệnh tương tác."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Đây là cảnh báo giả đối với gói quản lý Python written in Rust của Astral. Hãy làm theo hướng dẫn xác thực hoặc thêm thư mục vào danh sách ngoại trừ.",
+          "problem": "Windows Defender hoặc phần mềm diệt virus báo nhầm uv.exe là mã độc"
+        }
+      ],
+      "verify": "Gõ lệnh hermes trên terminal hiển thị giao diện tương tác và cho phép bắt đầu trò chuyện."
+    },
+    "hook": "Tạo một trợ lý AI tự học, kết nối Telegram và chạy tự động với Hermes Agent ngay hôm nay.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "terminal",
+          "name": "Terminal Interface",
+          "role": "Giao diện TUI tương tác trực tiếp với người dùng trên dòng lệnh."
+        },
+        {
+          "evidence": "README",
+          "icon": "server",
+          "name": "Messaging Gateway",
+          "role": "Cổng kết nối các nền tảng nhắn tin như Telegram, Discord, Slack."
+        },
+        {
+          "evidence": "README",
+          "icon": "brain",
+          "name": "Learning Loop",
+          "role": "Vòng lặp học tập tự động tạo và cải thiện kỹ năng từ kinh nghiệm thực tế."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Trình cài đặt tự động thiết lập Python, Node.js và các phụ thuộc cần thiết.",
+          "title": "Khởi tạo môi trường"
+        },
+        {
+          "evidence": "README",
+          "text": "Cung cấp giao diện dòng lệnh đầy đủ tính năng chỉnh sửa đa dòng và lịch sử hội thoại.",
+          "title": "Giao diện TUI"
+        },
+        {
+          "evidence": "README",
+          "text": "Kết nối tập trung từ Telegram, Discord, Slack và các nền tảng khác vào một tiến trình.",
+          "title": "Cổng thông điệp"
+        }
+      ]
+    },
+    "learn": [
+      "Cách cài đặt một công cụ AI dòng lệnh tiên tiến bằng một dòng lệnh duy nhất",
+      "Cách quản lý cấu hình mô hình và nhà cung cấp AI linh hoạt",
+      "Cách sử dụng giao diện tương tác dòng lệnh (TUI) để trò chuyện và tra cứu lịch sử"
+    ],
+    "one_liner": "Hermes Agent là trợ lý AI tự cải thiện có vòng lặp học tập tích hợp, hỗ trợ đa nền tảng và chạy được trên mọi hạ tầng.",
+    "problem": "Dân văn phòng và lập trình viên mới thường gặp khó khăn khi phải cấu hình nhiều công cụ AI rời rạc, không nhớ ngữ cảnh cũ và thiếu kết nối với các ứng dụng nhắn tin hàng ngày như Telegram. Việc quản lý nhiều khóa API phức tạp cũng làm mất nhiều thời gian.",
+    "title": "Cài Đặt và Sử Dụng Hermes Agent trên Máy Tính",
+    "who_for": [
+      "Dân văn phòng muốn tự động hóa công việc hàng ngày bằng AI",
+      "Lập trình viên mới tìm kiếm một trợ lý AI có khả năng tự học và ghi nhớ ngữ cảnh",
+      "Người dùng muốn trò chuyện với trợ lý AI qua Telegram hoặc giao diện dòng lệnh"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 56924,
+    "full_name": "NousResearch/hermes-agent",
+    "language": "Python",
+    "license": "MIT",
+    "links": [
+      [
+        "hermes-agent.nousresearch.com",
+        "https://hermes-agent.nousresearch.com/install.sh"
+      ],
+      [
+        "file issues",
+        "https://github.com/NousResearch/hermes-agent/issues"
+      ],
+      [
+        "hermes-agent.nousresearch.com",
+        "https://hermes-agent.nousresearch.com/install.ps1"
+      ],
+      [
+        "installation methods",
+        "https://hermes-agent.nousresearch.com/docs/getting-started/installation"
+      ],
+      [
+        "Termux guide",
+        "https://hermes-agent.nousresearch.com/docs/getting-started/termux"
+      ],
+      [
+        "github.com",
+        "https://github.com/astral-sh/uv/releases/download/$ver/uv-x86_64-pc-windows-msvc.zip"
+      ],
+      [
+        "astral-sh/uv#13553",
+        "https://github.com/astral-sh/uv/issues/13553"
+      ],
+      [
+        "astral-sh/uv#15011",
+        "https://github.com/astral-sh/uv/issues/15011"
+      ],
+      [
+        "astral-sh/uv#10079",
+        "https://github.com/astral-sh/uv/issues/10079"
+      ],
+      [
+        "Tool Gateway docs page",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/features/tool-gateway"
+      ],
+      [
+        "CLI guide",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli"
+      ],
+      [
+        "Messaging Gateway guide",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/messaging"
+      ],
+      [
+        "Hermes Agent",
+        "https://hermes-agent.nousresearch.com/"
+      ],
+      [
+        "hermes-agent.nousresearch.com",
+        "https://hermes-agent.nousresearch.com/docs/"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/NousResearch"
+      ],
+      [
+        "github.com",
+        "https://github.com/NousResearch/hermes-agent/blob/main/LICENSE"
+      ],
+      [
+        "nousresearch.com",
+        "https://nousresearch.com"
+      ],
+      [
+        "Nous Portal",
+        "https://portal.nousresearch.com"
+      ],
+      [
+        "many others",
+        "https://hermes-agent.nousresearch.com/docs/integrations/providers"
+      ],
+      [
+        "Honcho",
+        "https://github.com/plastic-labs/honcho"
+      ],
+      [
+        "agentskills.io",
+        "https://agentskills.io"
+      ]
+    ],
+    "scanned": "2026-10-31",
+    "shells": {
+      "$uv = \"$env:LOCALAPPDATA\\hermes\\bin\\uv.exe\"": "powershell",
+      "$ver = (& $uv --version).Split(' ')[1]": "powershell",
+      "$zip = \"$env:TEMP\\uv.zip\"": "powershell",
+      "(Get-FileHash \"$env:TEMP\\uv_x\\uv.exe\").Hash -eq (Get-FileHash $uv).Hash": "powershell",
+      "Expand-Archive $zip \"$env:TEMP\\uv_x\" -Force": "powershell",
+      "Invoke-WebRequest \"https://github.com/astral-sh/uv/releases/download/$ver/uv-x86_64-pc-windows-msvc.zip\" -OutFile $zip -UseBasicParsing": "powershell",
+      "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12": "powershell",
+      "gh attestation verify $zip --repo astral-sh/uv": "powershell",
+      "gh auth login": "powershell",
+      "iex (irm https://hermes-agent.nousresearch.com/install.ps1)": "powershell",
+      "winget install --id GitHub.cli": "powershell"
+    },
+    "stars": 258944,
+    "url": "https://github.com/NousResearch/hermes-agent"
+  },
+  "lang": "vi",
+  "position": 1
+}

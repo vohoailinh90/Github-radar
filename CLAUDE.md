@@ -72,12 +72,12 @@ The owner has given Claude **full authority to create reports in Moda**. Decide 
 the report; do not ask for confirmation before or between Moda calls, and do not stop to ask which of several valid options to take. Ask only for a
 genuine blocker (Moda unreachable or signed out, or the requirement itself changes).
 
-- **The authority is also a permission.** The questions come from Claude Code's tool prompts, so `.claude/settings.json` lists the Moda tools that
-  create, edit, read, screenshot and export a report canvas; `tests/test_moda_settings.py` pins the list. A tool that still prompts is outside
-  the grant: see the next point.
-- **Not covered, still the owner's decision:** deleting a canvas, sharing or publishing it, flagging it as a team template (`canvas_update`), AI
-  image generation and handing the work to Moda's own agent (both spend credits), organizing the drive, changing brand kits, `upload`. Create
-  canvases with `visibility="private"`.
+- **The authority is also a permission.** The questions come from Claude Code's tool prompts, so `.claude/settings.json` allows the Moda and Canva
+  MCP servers as a whole (`mcp__Moda_-_Slides_and_Designs`, `mcp__Canva`), by the owner's decision; `tests/test_moda_settings.py` pins the file.
+- **The grant now reaches every tool of those servers, so the limits are on Claude, not on a prompt.** Still the owner's decision, never taken
+  without asking: deleting a canvas or design, sharing or publishing it, flagging it as a team template (`canvas_update`), AI image generation
+  and handing the work to Moda's own agent (both spend credits), organizing the drive, changing brand kits, `upload`. Create canvases with
+  `visibility="private"`.
 - **One canvas per report.** `deck.json` holds the canvas link: when it exists, edit that canvas (`canvas_read`, `canvas_apply_markup`,
   `canvas_screenshot`) and never create a second one; when you create the canvas, write the link to `deck.json` at once.
 - Claim the report folder first (above), so two sessions do not each build one.

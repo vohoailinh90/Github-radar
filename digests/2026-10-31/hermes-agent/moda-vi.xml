@@ -1,0 +1,52 @@
+<!-- radar: Moda canvas 1200x1578; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Cài Đặt và Sử Dụng Hermes Agent trên Máy Tính</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Tạo một trợ lý AI tự học, kết nối Telegram và chạy tự động với Hermes Agent ngay hôm nay.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="172" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Terminal Interface</text>
+<text x="80" y="632" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Giao diện TUI tương tác trực tiếp với người dùng trên dòng lệnh.</text>
+<rectangle x="460" y="545" width="280" height="172" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Messaging Gateway</text>
+<text x="480" y="632" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cổng kết nối các nền tảng nhắn tin như Telegram, Discord, Slack.</text>
+<rectangle x="860" y="545" width="280" height="172" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Learning Loop</text>
+<text x="880" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Vòng lặp học tập tự động tạo và cải thiện kỹ năng từ kinh nghiệm thực tế.</text>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="631" x2="860" y2="631" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="799" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="865" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="887" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="887" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Khởi tạo môi trường</text>
+<text x="154" y="923" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Trình cài đặt tự động thiết lập Python, Node.js và các phụ thuộc cần thiết.</text>
+<line x1="584" y1="939" x2="616" y2="939" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="865" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="887" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="887" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Giao diện TUI</text>
+<text x="714" y="923" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Cung cấp giao diện dòng lệnh đầy đủ tính năng chỉnh sửa đa dòng và lịch sử hội thoại.</text>
+<rectangle x="60" y="1037" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1059" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1059" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Cổng thông điệp</text>
+<text x="154" y="1095" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Kết nối tập trung từ Telegram, Discord, Slack và các nền tảng khác vào một tiến trình.</text>
+<text x="60" y="1267" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1333" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1373.8" x2="97.6" y2="1381" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1381" x2="110" y2="1365.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1353" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách cài đặt một công cụ AI dòng lệnh tiên tiến bằng một dòng lệnh duy nhất</text>
+<rectangle x="430" y="1333" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1373.8" x2="467.6" y2="1381" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1381" x2="480" y2="1365.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1353" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách quản lý cấu hình mô hình và nhà cung cấp AI linh hoạt</text>
+<rectangle x="800" y="1333" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1373.8" x2="837.6" y2="1381" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1381" x2="850" y2="1365.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1353" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách sử dụng giao diện tương tác dòng lệnh (TUI) để trò chuyện và tra cứu lịch sử</text>
+<text x="60" y="1515" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: NousResearch/hermes-agent · Giấy phép: MIT · 258.944 sao · Quét ngày 2026-10-31</text>
+</content>
