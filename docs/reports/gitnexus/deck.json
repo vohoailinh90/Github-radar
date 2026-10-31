@@ -1,0 +1,29 @@
+{
+  "canvas": "https://moda.app/canvas/23141662-33a0-46eb-bb14-298c16d1d4a9?source=agent",
+  "pages": 14,
+  "built": "2026-10-24",
+  "revised": "2026-10-31",
+  "brand_kit": null,
+  "format": "A4 portrait document (794 x 1123), not a 16:9 slide deck; no slides.json",
+  "source": {
+    "repo": "https://github.com/abhigyanpatwari/GitNexus",
+    "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+  },
+  "revision_note": "Page 13: gitnexus/test line count corrected from 501.503 (.ts only) to 501.873 (.ts and .tsx, the method used for the other two directories); the sentence introducing the figures now names the method. PDF and PPTX re-exported from the corrected canvas.",
+  "export_caveats": [
+    "Moda's PDF export shipped 1 page as pixels (text not selectable on that page); all content visible.",
+    "The PPTX was exported from the A4 document, so its slides are A4 portrait; it was checked for slide count and text only, not opened in PowerPoint.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "numbers_rechecked_against_clone": "2026-10-31: version, AGENTS.md self-reported counts, 20 phases (22 registered, 2 only with --pdg), 35 node tables, 33 relation types, 18 languages, 19 MCP tools (17 + 2), 10 resources, test/src/web line counts, test file counts, 32 workflows, 12 skills, 7 personas",
+    "canvas_pages_screenshotted": "page 13 after the fix (1 of 14); the other pages were not looked at again on 2026-10-31",
+    "pptx_pages": 14,
+    "pdf_pages": 14
+  },
+  "artifacts": {
+    "gitnexus.pptx": "4ef9b315d363c8e687651010b8d5496b36b6ec97aef21fa2e10552390d063449",
+    "gitnexus.pdf": "901553d0f29b9fb9d4f10f032ab368352a8b23f7acc343cdc4c619bb10050c65"
+  },
+  "status": "done"
+}
