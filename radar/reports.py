@@ -13,26 +13,30 @@ from pathlib import Path
 
 REPORTS_DIR = Path("docs") / "reports"
 FILES = ("deck.json", "sources.json")                 # the report metadata that lists the studied repositories
-_URL = re.compile(r"github\.com/([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)")
+_URL = re.compile(r"(?<![A-Za-z0-9.-])github\.com/([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)")   # not notgithub.com
+RESERVED = {"topics", "orgs", "sponsors", "search", "marketplace", "features", "settings", "collections", "apps", "users"}   # github.com/<this>/<x> is no repository
 _NAME = re.compile(r"^([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)$")
 
 
-def _pair(owner: str, name: str) -> str:
-    return f"{owner}/{name.removesuffix('.git')}".lower()
+def _pair(owner: str, name: str) -> str | None:
+    name = name.rstrip(".").removesuffix(".git").rstrip(".")           # "github.com/a/b." at the end of a sentence is a/b
+    if owner.lower() in RESERVED or not name:
+        return None
+    return f"{owner}/{name}".lower()
 
 
 def _names(node) -> set[str]:
     """Every `owner/name` a JSON value points at: a GitHub URL in any string, or a `repo` field written as owner/name."""
     found: set[str] = set()
     if isinstance(node, str):
-        found.update(_pair(*m.groups()) for m in _URL.finditer(node))
+        found.update(p for m in _URL.finditer(node) if (p := _pair(*m.groups())))
     elif isinstance(node, list):
         for item in node:
             found |= _names(item)
     elif isinstance(node, dict):
         for key, value in node.items():
-            if key == "repo" and isinstance(value, str) and (m := _NAME.match(value)):
-                found.add(_pair(*m.groups()))
+            if key == "repo" and isinstance(value, str) and (m := _NAME.match(value)) and (p := _pair(*m.groups())):
+                found.add(p)
             found |= _names(value)
     return found
 

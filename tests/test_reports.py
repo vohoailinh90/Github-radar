@@ -27,6 +27,12 @@ def test_covered_reads_the_repositories_a_report_lists_whatever_the_file_shape(t
     assert reports.covered(tmp_path) == {"org-a/tool-one": "one", "org-b/tool-two": "two", "org-c/tool-three": "three"}
 
 
+def test_extraction_edge_cases(tmp_path):
+    text = ("see https://notgithub.com/x/y, then github.com/Foo/Bar. and https://github.com/topics/ai, "
+            "https://github.com/orgs/acme/people and (https://github.com/a/b.js).")
+    assert reports._names(text) == {"foo/bar", "a/b.js"}
+
+
 def test_a_missing_folder_or_a_broken_file_covers_nothing_and_does_not_raise(tmp_path):
     assert reports.covered(tmp_path) == {}
     report(tmp_path, "broken", **{"deck.json": "{not json", "sources.json": "[]"})
