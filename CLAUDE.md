@@ -49,6 +49,41 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   or argv. `radar/handoff.py` passes the token through git's `GIT_CONFIG_*` environment only.
 - Writer and checker models must be different families (`radar.yaml`, `python3 radar.py doctor`).
 
+## Shared work: several Claude or Codex sessions
+
+Sessions work in separate checkouts and cannot see each other, so two of them can start the same item. `scripts/claim.py` is the ledger that
+prevents it (`docs/claims.md`): one branch `claims/<slug>` per item on the remote and a new commit on it for every change, so the server lets
+exactly one of any simultaneous claimants through. An item is a repository (`owner/name`), a report folder (`docs/reports/<name>`) or a file path.
+
+- **Claim before you start, release when you stop.** `python3 scripts/claim.py claim <item> --agent claude|codex --note "<what>"`. Exit 0: it is
+  yours for the TTL (2 h; `renew` for longer work). Exit 1: another live session holds it, or something inside or around it: take a different
+  item, never work this one, and say which. Exit 3: the ledger cannot be reached: do not work the item unclaimed, report it once.
+- **Claim at the granularity of the work**: a report is its folder, not the files in it. A folder and a file inside it overlap.
+- **A claim does not replace the lookup above.** First find out whether the repository is already covered (`state/seen.json`, `digests/`,
+  `docs/reports/`), then claim, then work: a claim says who is working, `seen.json` says what is done.
+- **Two sessions in one checkout** (a worktree, a second terminal) share one session id: give each its own with `--session` or `CLAIM_SESSION`.
+- A `claims/*` branch is an append-only record: never merge, rebase, force-push or edit one. A finished item keeps its branch; the owner clears
+  old ones with `python3 scripts/claim.py prune` from a machine that may delete branches (a Claude Code session on the web cannot).
+- Never `release --force` another session's claim: that is the owner's call.
+
+## Moda reports
+
+The owner has given Claude **full authority to create reports in Moda**. Decide the name, size, template, page count and layout yourself and make
+the report; do not ask for confirmation before or between Moda calls, and do not stop to ask which of several valid options to take. Ask only for a
+genuine blocker (Moda unreachable or signed out, or the requirement itself changes).
+
+- **The authority is also a permission.** The questions come from Claude Code's tool prompts, so `.claude/settings.json` lists the Moda tools that
+  create, edit, read, screenshot and export a report canvas; `tests/test_moda_settings.py` pins the list. A tool that still prompts is outside
+  the grant: see the next point.
+- **Not covered, still the owner's decision:** deleting a canvas, sharing or publishing it, flagging it as a team template (`canvas_update`), AI
+  image generation and handing the work to Moda's own agent (both spend credits), organizing the drive, changing brand kits, `upload`. Create
+  canvases with `visibility="private"`.
+- **One canvas per report.** `deck.json` holds the canvas link: when it exists, edit that canvas (`canvas_read`, `canvas_apply_markup`,
+  `canvas_screenshot`) and never create a second one; when you create the canvas, write the link to `deck.json` at once.
+- Claim the report folder first (above), so two sessions do not each build one.
+- The pipeline's own pictures are still drawn by scripts and never through Moda (Content rules); this section is about the hand-written reports
+  under `docs/reports/`.
+
 ## Vendored skill: impeccable
 
 `.claude/skills/impeccable/`, `.claude/agents/impeccable-*.md` and `docs/third-party/impeccable/` are an unmodified copy of
@@ -58,7 +93,7 @@ Same policy as `vohoailinh90/claude-agent-routing-template` (the upstream; copie
   `.claude/skills/impeccable.lock.json` and `tests/test_vendored_impeccable.py` fail on any drift.
 - It is not part of the radar pipeline: do not invoke it for work here. The Content rules still hold: pictures are drawn by scripts,
   never designed by a model.
-- Its hooks are **not wired** (no `.claude/settings.json` calls them), and its launcher downloads the engine binary on first run
+- Its hooks are **not wired** (`.claude/settings.json` holds permissions only, no hooks), and its launcher downloads the engine binary on first run
   (`docs/impeccable.md`). Do not wire either here without the owner asking.
 - The four `impeccable-*` agents belong to the skill, not to the routing roster in `agent-routing/policy.yaml`.
 
@@ -79,6 +114,7 @@ python3 radar.py slides <run>/<repo> [...]             # draw slides-<lang>.pptx
 python3 scripts/studio_contract.py diff <studio>       # the vendored contract still matches the studio
 python3 scripts/studio_contract.py verify <studio> export/studio   # the studio's own `check` on the bundle (needs a studio checkout)
 python3 scripts/layout_check.py                        # repository layout
+python3 scripts/claim.py list                          # who is working on what (the claims ledger on the remote)
 python3 scripts/vendor_impeccable.py check             # the vendored impeccable skill still matches its lock (also run by pytest)
 ```
 
@@ -118,13 +154,18 @@ If you are Claude Code or Codex working on this repository directly (a spec, an 
 
 - When your work here is ready to ship, open the pull request yourself; do not wait to be asked, unless the user asked for a local change only or this repository's own rules say a pull request is opened only on request.
 - As soon as it is open, ask Codex for a review with one comment on the PR: `@codex review` (add `@codex security review` where this repository's rules, or the change itself, call for one: authentication, authorization, secrets, payments, personal data). Codex never reviews on its own here. Ask once per head commit for each review command, never while a request is unanswered, and never mention Codex in the PR description or a commit message. Where the repository has `scripts/codex_round_count.py`, run it before each request.
-- Check each finding against the code. Confirmed: fix it with a regression test, push, and ask again on the new head. Wrong: answer on its thread with the evidence. There is no cap on rounds; a rejected P2/P3 stands and blocks nothing; a P0/P1 you cannot settle goes to the repository owner and the PR is not merged.
-- Merge it yourself, without waiting for approval, once all of these hold on the current head: every review you requested of that exact commit has no finding left (a bare thumbs-up is not a review, unless this repository's own rules accept one for that exact request), CI is green, there is no merge conflict, and the base branch's protection (or a merge queue) requires branches to be up to date and applies to admins. Immediately before merging, re-read the PR head and the base head: if the PR head moved, review it again; if the base moved, merge it in and re-validate. Merge scoped to the validated head SHA. If that protection is missing, do not merge: leave the PR open, say it is clean and why it was not merged, and tell the owner.
+- Check each finding against the code. Confirmed: fix it, with a regression test where the defect has testable behavior (a prose-only fix keeps the repository's normal checks instead), push, and ask again on the new head. Wrong: answer on its thread with the evidence. There is no cap on rounds; a rejected P2/P3 stands and blocks nothing; a P0/P1 you cannot settle goes to the repository owner and the PR is not merged.
+- Merge it yourself, without waiting for approval, once all of these hold on the current head: every review this change requires (the standard review, plus the security review where it touches authentication, authorization, secrets, payments or personal data) has been requested of that exact commit and has no finding left (a bare thumbs-up is not a review, unless this repository's own rules accept one for that exact request), CI is green, there is no merge conflict, and the base branch's protection (or a merge queue) requires branches to be up to date and applies to admins, and the identity that merges has no bypass of it (ruleset bypass list, custom role or app privilege). Immediately before merging, re-read the PR head and the base head: if the PR head moved, review it again; if the base moved, merge it in and re-validate. Merge scoped to the validated head SHA. If that protection is missing, do not merge: leave the PR open, say it is clean and why it was not merged, and tell the owner.
 - If Codex gives no sign of life within 10 minutes, retry once per head; an explicit error or usage-limit reply needs no wait before that one retry. If it acknowledges but never delivers a review, or its task fails, do not retry: the PR is BLOCKED. The PR is also BLOCKED when the retry gets no answer. A BLOCKED PR stays open and is reported once; never merge it unreviewed, and never use another route (API, CLI, Action) to get a review.
 
 Exceptions in this repository, which replace the matching rule above:
 
 - Generated content (digests/, export/studio/, state/) is committed by the scheduled run, not by a pull request from an agent. The draft pull requests that `radar.py handoff` opens in tool-marketing-studio are the owner's to approve and merge (CLAUDE.md "Pull request lifecycle"); never review-and-merge them with this process.
+- One repository, one digest and one set of draft posts. A scheduled scan skips a covered repository only because its GitHub full name is in state/seen.json (eligible() in radar/discover.py, pinned by tests/test_discover.py), so before any non-dry `radar.py run`, any --repo run or any report written by hand about a repository, look it up, ignoring case, in state/seen.json on the latest main, in digests/<run>/<repo>/, in docs/reports/ and, when you can read them, in the open pull requests whose head starts with radar/scan- (title "radar: scan <date>"). Found in any of them means covered: do not write it again, unless the owner asks for a rewrite (see below).
+- Never start a non-dry scan, or run the workflow with the repo input, while an earlier scan pull request is open. seen.json and stars.json are read from main, so an unmerged scan is covered again (docs/branch-protection.md): merge the oldest scan pull request first, or ask the owner whether to close it (the repositories of a closed scan are examined again).
+- To check a change to the pipeline use `radar.py run --dry-run` (discover and rank only) or the fake servers of the test suite (python3 -m pytest -q), never a live run: a live run writes seen.json, a digest and a studio campaign, and the workflow then hands that campaign to tool-marketing-studio as a draft pull request, so a trial becomes a post.
+- A covered repository is written again only when the owner names that repository in the current request and asks for a new post. The warning "already covered on <date>: written again" of --repo (and of the workflow repo input) only reports; it is not that permission. A rewrite is a second campaign and a second draft in the studio, so tell the owner which earlier campaign it replaces and never close, merge or delete the earlier draft or campaign yourself: the owner decides which one stays.
+- Do not make a covered repository eligible again by deleting its seen.json entry, its digest or its campaign, and do not weaken the "already covered" drop in radar/discover.py or the rule in radar/pipeline.py that records a repository in seen.json only after its studio bundle passed the contract: a change to either keeps a test that fails when the behavior is removed, and forgetting a repository is the owner's decision, never an agent's.
 
 Where this repository documents its own rule for one of these steps elsewhere (who merges, what gates a merge, how the review is requested, a cap on rounds), that rule governs that step; this process covers whatever the repository leaves unsaid.
 <!-- team-onboarding:end -->

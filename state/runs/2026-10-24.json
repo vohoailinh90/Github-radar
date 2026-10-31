@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-24",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 285,
+  "dropped": {
+    "already covered": 25,
+    "licence noassertion is not on the free list": 61,
+    "licence none is not on the free list": 10,
+    "licence cc-by-4.0 is not on the free list": 1,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "DuarteSantos8/openGym",
+      "bucket": "software",
+      "score": 15.2484,
+      "stars": 15286,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 10170,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.7955,
+      "stars": 201104,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 9583,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "kestra-io/kestra",
+      "bucket": "solutions",
+      "score": 14.7967,
+      "stars": 29966,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 1071,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "DietrichGebert/ponytail",
+      "bucket": "ai",
+      "score": 18.338,
+      "stars": 174930,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "NousResearch/hermes-agent",
+      "bucket": "ai",
+      "score": 17.9598,
+      "stars": 256579,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Graphify-Labs/graphify",
+      "bucket": "ai",
+      "score": 17.9025,
+      "stars": 133991,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.7722,
+      "stars": 194745,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.3166,
+      "stars": 106665,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 331,
+    "measured": 272
+  },
+  "written": [
+    {
+      "repo": "DuarteSantos8/openGym",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 7,
+        "used": 5
+      }
+    },
+    {
+      "repo": "kestra-io/kestra",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 3,
+        "used": 1
+      }
+    }
+  ],
+  "held": [
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'gpg --verify SHA2-256SUMS.sig SHA2-256SUMS'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: 'gpg --verify SHA2-512SUMS.sig SHA2-512SUMS'"
+      ],
+      "blockers": [
+        {
+          "severity": "blocker",
+          "field": "guide.steps[0].link_ref",
+          "problem": "link_ref points to block index 1, which is not a download URL",
+          "fact": "blocks[1] is a comment, not a release link"
+        }
+      ]
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.0
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 5.4,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.2,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 2.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.3,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.3,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.3,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.1,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 0.9,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 2.6,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-24"
+}

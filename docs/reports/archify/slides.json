@@ -1,0 +1,878 @@
+{
+  "title": "Archify: kỹ năng agent vẽ sơ đồ HTML có kiểm chứng",
+  "subtitle": "Báo cáo đọc repo tt-a1i/archify ở commit 51a2917, ngày 25/10/2026",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S5"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Archify là gì, có đáng tin để dùng không, và cần cẩn thận chỗ nào?",
+        "Kỹ năng cho agent lập trình: JSON có kiểu đi vào, một tệp HTML tương tác đi ra",
+        "Đọc ở commit 51a2917 ngày 25/10/2026, bản ổn định 3.2.0"
+      ],
+      "notes": "Mở bài bằng câu hỏi thay vì định nghĩa. Archify là một kỹ năng cho agent lập trình, không phải thư viện để import và không phải ứng dụng vẽ. Nó gồm một tệp hướng dẫn SKILL.md cho agent và một công cụ dòng lệnh Node.js. Công cụ nhận mô tả hệ thống dạng JSON có kiểu và trả về một tệp HTML đứng riêng chứa sơ đồ tương tác. Có mười loại sơ đồ, và từ bản 3.2.0 có thêm trang trả lời một trang. Nhắc người nghe rằng mọi con số đến từ việc đọc repo ở một commit cụ thể, nên có thể đã đổi khi họ xem."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S4",
+        "S11",
+        "S12",
+        "S13",
+        "S14"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Agent quyết định bố cục và ngữ nghĩa, công cụ chỉ kiểm tra và vẽ; tác giả bỏ bố cục tự động sau một thí nghiệm kém",
+        "Hợp lệ là chuyện cơ học, đẹp và đúng thì chưa: chỉ 8 trên 15 lượt agent tạo ra sơ đồ dùng được ngay",
+        "Xem giấy phép đúng bản, tắt kiểm tra cập nhật nếu cần, ghim phiên bản vì dự án đổi rất nhanh"
+      ],
+      "notes": "Ba ý này là phần cô đọng của cả bài. Một: Archify đặt cược vào việc agent tự đặt tọa độ, còn công cụ kiểm tra và vẽ, và tác giả đã thử bố cục tự động rồi bỏ. Hai: các cổng kiểm tra là chuyện cơ học, nên trong bộ đo duy nhất có kết quả, chỉ tám trên mười lăm lượt dùng được ngay, còn bộ đo trên repo thật thì chưa có kết quả nào. Ba: giấy phép vừa đổi vào đúng ngày 25 tháng 10, kiểm tra cập nhật có gọi mạng, và 842 commit trong 25 ngày đầu tháng 10 nghĩa là bản bạn đọc hôm nay sẽ khác bản tuần sau."
+    },
+    {
+      "title": "Hồ sơ nhanh của Archify",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S2",
+        "S5",
+        "S14",
+        "S17",
+        "S18"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Agent skill kèm CLI Node.js: JSON có kiểu vào, tệp HTML đứng riêng ra"
+        },
+        {
+          "label": "Bản ổn định",
+          "text": "3.2.0, ngày 18/10/2026; chạy trên Node.js 18 trở lên"
+        },
+        {
+          "label": "Giấy phép",
+          "text": "Apache-2.0 từ commit 25/10/2026; trước đó là MIT"
+        },
+        {
+          "label": "Sao và fork",
+          "text": "88,9 nghìn sao, 6,0 nghìn fork (trang GitHub, 25/10/2026)"
+        },
+        {
+          "label": "Lịch sử",
+          "text": "1.744 commit từ 15/4/2026, 24 tag, 104 tên tác giả"
+        },
+        {
+          "label": "Quy mô",
+          "text": "1.180 tệp; khoảng 52 nghìn dòng mã chạy, 84 nghìn dòng kiểm thử"
+        }
+      ],
+      "notes": "Slide này gom những con số và dữ kiện nền trước khi đi vào cơ chế. Ba nhãn xuyên suốt bài: nguồn repo là đọc từ tệp, người viết đếm là tính bằng script, và suy luận là nhận xét của người viết. Số sao và fork lấy từ trang GitHub công khai ngày 25 tháng 10, không ghim được vào commit. Số commit, tag và tên tác giả đếm bằng git log trên bản sao đầy đủ lịch sử. Hãy nhấn mạnh hai dòng dễ bỏ sót: giấy phép đã đổi từ MIT sang Apache-2.0 trong chính ngày đọc, và quy mô mã kiểm thử lớn hơn mã chạy."
+    },
+    {
+      "title": "Làm gì và không làm gì",
+      "section": "Repo này là gì",
+      "sources": [
+        "S1",
+        "S3",
+        "S4"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Làm: biến mô tả, mã nguồn hoặc Mermaid thành sơ đồ tương tác, kiểm chứng được, nằm trong một tệp HTML",
+        "Không làm: trình vẽ đa dụng, theme Mermaid, phân tích Mermaid tự động, bố cục tự động, chia sẻ lưu trữ, trình soạn WYSIWYG",
+        "Người dùng cốt lõi: kỹ sư, kiến trúc sư, người rà soát và chính các agent lập trình"
+      ],
+      "notes": "Có hai lớp về điều Archify không làm. Lớp thứ nhất nằm ngay trong README: không phải trình vẽ đa dụng, không phải một theme cho Mermaid, và ngoài phạm vi là phân tích Mermaid tự động, bố cục tự động, chia sẻ lưu trữ trên máy chủ và trình soạn WYSIWYG. Lớp thứ hai là danh sách Not planned trong ROADMAP, ghi lý do từng mục bị từ chối. Về người dùng, PRODUCT.md nêu đối tượng cốt lõi là kỹ sư, kiến trúc sư, trưởng nhóm kỹ thuật, người rà soát và các agent lập trình, cộng thêm người ngoài ngành cần vẽ kế hoạch hay quy trình."
+    },
+    {
+      "title": "Sáu nguyên tắc thiết kế",
+      "section": "Repo này là gì",
+      "sources": [
+        "S3"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Sự thật trước màn trình diễn: tiêu điểm, tuyến đường, nguồn đều lấy từ dữ liệu đã khai báo hoặc đã kiểm chứng",
+        "Một câu chuyện không gian: đường chính đọc được trước, quan hệ phụ sau",
+        "Tiết lộ dần: giữ khung vẽ làm chủ, dùng lại công cụ thay vì thêm bảng điều khiển",
+        "Chuyển động có một chủ: hữu hạn, do người đọc điều khiển, bản xuất không mang theo",
+        "Mang theo được: tệp tự đứng, kiểm chứng xác định, không cần máy chủ",
+        "Nhận diện không lệch nghĩa: biểu tượng chỉ định danh, không thay loại nút hay quan hệ"
+      ],
+      "notes": "Sáu nguyên tắc trong PRODUCT.md giải thích nhiều lựa chọn về sau. Sự thật đứng trước màn trình diễn nghĩa là mọi tiêu điểm, phạm vi thượng hạ nguồn, tuyến đường và liên kết nguồn phải suy ra từ dữ liệu đã khai báo. Chuyển động chỉ có một chủ, hữu hạn và do người đọc điều khiển. Kết quả mang theo được, không cần máy chủ. DESIGN.md cụ thể hóa thành bảy tín hiệu màu ngữ nghĩa cố định và một họ phông đơn là JetBrains Mono. PRODUCT.md cũng liệt kê các phản mẫu như công cụ chỉ làm đẹp Mermaid hay biểu tượng được đoán theo tên sản phẩm."
+    },
+    {
+      "title": "Ba bước từ cài đặt đến sơ đồ",
+      "section": "Bắt đầu nhanh",
+      "sources": [
+        "S1"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Cài: npx skills add tt-a1i/archify -g",
+        "Mô tả: nói với agent bằng ngôn ngữ thường; không cần có repo",
+        "Tinh chỉnh: thêm xác thực, làm nổi đường cache miss, chuyển sang giao diện sáng"
+      ],
+      "notes": "README đưa ra một lệnh cài duy nhất cho đa số người dùng: npx skills add tt-a1i/archify -g. Sau đó bạn nói với agent bằng ngôn ngữ thường, ví dụ mô tả một yêu cầu web đi qua Redis rồi PostgreSQL. Không cần có repo: có thể bắt đầu từ một đoạn mô tả, hoặc nhờ agent đọc một repo để vẽ kiến trúc có dẫn chứng nguồn. Bước ba là tinh chỉnh bằng hội thoại: thêm xác thực, làm nổi đường cache miss hay đổi giao diện. Lệnh cài tường minh cho Cursor cũng có sẵn trong README."
+    },
+    {
+      "title": "Cài ở đâu",
+      "section": "Bắt đầu nhanh",
+      "sources": [
+        "S1"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Claude Code: ~/.claude/skills/ hoặc .claude/skills/",
+        "Codex CLI: ~/.agents/skills/ hoặc .agents/skills/",
+        "OpenCode: ~/.config/opencode/skills/",
+        "Claude.ai: tải archify.zip lên Settings, Capabilities, Skills; phụ thuộc sandbox có Node.js",
+        "Project Knowledge: dự phòng chỉ dựa vào prompt",
+        "Hermes Agent, DeepSeek Harness: tích hợp cộng đồng, không phải sản phẩm chính thức"
+      ],
+      "notes": "Bảng này lấy từ mục Installation options của README. Claude Code, Codex CLI và OpenCode đều có thư mục kỹ năng riêng. Claude.ai nhận tệp archify.zip qua phần Skills, nhưng chạy được hay không phụ thuộc việc sandbox có Node.js. Project Knowledge nhận cùng tệp ở chế độ dự phòng chỉ dựa vào prompt. Hermes và DeepSeek Harness là hai tích hợp cộng đồng, không phải sản phẩm chính thức của Nous hay DeepSeek. Nhắc người nghe: gói kỹ năng chạy với số phụ thuộc ngoài bằng không, nên cài đặt chủ yếu là đặt đúng thư mục."
+    },
+    {
+      "title": "Từ mô tả đến tệp HTML: năm chặng",
+      "section": "Một sơ đồ ra đời như thế nào",
+      "sources": [
+        "S1",
+        "S2",
+        "S8"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Mô tả, mã nguồn hoặc Mermaid",
+        "Agent đọc nguồn, chọn loại sơ đồ, tự đặt tọa độ, viết JSON có kiểu",
+        "finalize chạy bốn cổng và dừng ở cổng đầu tiên không đạt",
+        "Đạt: tệp HTML cùng biên nhận delivery.json",
+        "Không đạt: mã lỗi, đối tượng, số đo và cách sửa; sửa rồi chạy lại"
+      ],
+      "notes": "Đây là luồng chuẩn trong SKILL.md và README, được người viết tóm tắt thành năm chặng. Agent đọc nguồn rồi viết một tệp ứng viên JSON có kiểu. Một lệnh finalize chạy liên tiếp bốn cổng và dừng ở cổng đầu tiên không đạt. Nếu đạt, bạn nhận tệp HTML kèm biên nhận. Nếu không đạt, biên nhận nêu mã quy tắc ổn định, đối tượng bị lỗi, số đo và những cách sửa được hỗ trợ. Agent sửa đúng vùng lân cận rồi chạy lại, với giới hạn hai vòng sửa tập trung cho cùng một lỗi."
+    },
+    {
+      "title": "Bốn cổng của finalize",
+      "section": "Một sơ đồ ra đời như thế nào",
+      "sources": [
+        "S1",
+        "S2",
+        "S8"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "1. validate: schema, bố cục, định tuyến, khoảng cách giữa nhãn và đường nối",
+        "2. deliver: dựng HTML trong cùng thư mục, thay tệp cũ bằng thao tác nguyên tử",
+        "3. check: kiểm tra nghiêm ngặt chính tệp HTML vừa giao",
+        "4. browser-check: mở bằng Chrome thật, đo tràn khung và cỡ chữ"
+      ],
+      "notes": "Bốn cổng được báo riêng biệt, nên bạn biết sơ đồ hỏng ở đâu. Validate kiểm schema, bố cục, định tuyến và khoảng cách giữa nhãn với đường nối. Deliver dựng HTML trong cùng thư mục rồi mới thay tệp đích. Check kiểm tra nghiêm ngặt chính tệp vừa giao. Browser-check mở Chrome thật để đo tràn khung và cỡ chữ. Tài liệu giao hàng nhấn mạnh một biên nhận chỉ có bốn kiểm tra tệp mới là kiểm tra cơ bản, chưa phải nghiệm thu showcase; cần đủ chín kiểm tra, không lỗi bố cục và không cảnh báo."
+    },
+    {
+      "title": "Giao hàng nguyên tử",
+      "section": "Một sơ đồ ra đời như thế nào",
+      "sources": [
+        "S8"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Ở đâu: ngay cạnh tệp HTML được giao",
+        "Làm gì: giữ bản tốt gần nhất khi lưu dở hoặc bản mới hỏng",
+        "Cái giá: các lần giao khác tên vào cùng thư mục cũng phải xếp hàng"
+      ],
+      "body": "Tệp đích chỉ bị thay khi bản mới đã qua mọi cổng, nên một lần lưu dở không làm mất **bản tốt gần nhất** [S8]. Mỗi tệp giao có hai tệp phụ: delivery.json ghi lần thử hoàn tất gần nhất và delivery-pending.json là nhật ký phục hồi [S8].\n\nMột khóa cấp thư mục làm các lần giao vào cùng thư mục vật lý chạy tuần tự, kể cả khi tên khác nhau do hoa thường, chuẩn hóa Unicode, tên ngắn Windows hay liên kết mềm [S8]. Cái giá được tài liệu thừa nhận: các lần giao khác tên vào cùng thư mục cũng phải xếp hàng [S8].",
+      "notes": "Điểm khéo của delivery là nó không bao giờ để lại một tệp hỏng. Hai tệp phụ ghi lần thử gần nhất và nhật ký phục hồi, còn một khóa cấp thư mục làm các lần giao chạy tuần tự. Hãy nói thẳng cái giá mà chính tài liệu thừa nhận: giao hai tệp khác tên vào cùng một thư mục cũng phải xếp hàng, đổi lại không có chuyện hai tiến trình cùng tin mình sở hữu một vị trí vật lý."
+    },
+    {
+      "title": "Mười loại sơ đồ (1): kiến trúc đến vòng đời",
+      "section": "Mười loại sơ đồ và trang trả lời một trang",
+      "sources": [
+        "S2",
+        "S7"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "architecture: thành phần, dịch vụ, kho lưu trữ, ranh giới",
+        "workflow: CI/CD, cổng duyệt, gọi công cụ, runbook",
+        "sequence: chuỗi gọi API, bất đồng bộ, trả về",
+        "dataflow: pipeline, ETL, truy vết dữ liệu, PII",
+        "lifecycle: trạng thái, thử lại, trạng thái kết thúc"
+      ],
+      "notes": "Năm loại đầu tiên có từ trước bản 3.1.0. Mỗi loại có một schema riêng với các mảng cấu trúc riêng: kiến trúc có components, boundaries và connections; quy trình có lanes, phases, groups, mainPath, nodes và edges; tuần tự có participants, segments, messages và activations; luồng dữ liệu có stages, nodes và flows; vòng đời có mainPath, states và transitions. Khi chưa chắc nên chọn loại nào, lệnh guide nhận một kịch bản và đề xuất loại kèm prompt mẫu."
+    },
+    {
+      "title": "Mười loại sơ đồ (2): dữ liệu, kiểu và thời gian",
+      "section": "Mười loại sơ đồ và trang trả lời một trang",
+      "sources": [
+        "S2",
+        "S5",
+        "S7"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "erd: bảng, cột, khóa chính, khóa ngoại, bản số quan hệ",
+        "class: lớp, giao diện, thành viên chọn lọc, quan hệ giữa các kiểu",
+        "tree: phân cấp một cha, như cây thư mục hay phân rã năng lực",
+        "timeline: sự kiện theo mốc thời gian, mỗi nguồn một làn",
+        "waterfall: thời gian đi đâu trong một yêu cầu hay một lượt chạy agent"
+      ],
+      "notes": "Năm loại còn lại được thêm ở bản 3.1.0 ngày 14 tháng 10, nâng tổng số từ năm lên mười. ERD giữ bảng, mọi cột, khóa và bản số quan hệ cùng nhau. Sơ đồ lớp cho thấy hợp đồng, thành viên chọn lọc và quan hệ phụ thuộc hay hiện thực. Cây dành cho phân cấp một cha. Dòng thời gian và thác thời gian dùng dữ liệu minh họa trong ví dụ; README dặn chỉ coi mốc giờ hay thời lượng là thật khi chúng đến từ log hoặc trace."
+    },
+    {
+      "title": "Bốn điều cần biết về schema và so sánh",
+      "section": "Mười loại sơ đồ và trang trả lời một trang",
+      "sources": [
+        "S1",
+        "S7"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Chặt: additionalProperties là false ở mọi cấp, trường lạ bị từ chối",
+        "Giao diện: classic, signal-flow, blueprint, editorial; chỉ đổi kiểu trình bày",
+        "Ngôn ngữ: sáu catalog sẵn là en, zh-CN, zh-TW, es, ko, ar",
+        "So sánh: compare dựng Architecture Delta, không suy ra tác động hay rủi ro"
+      ],
+      "notes": "Schema được viết chặt để mô hình sinh ra JSON không thể lẫn trường lạ: additionalProperties là false ở mọi cấp. Bốn bộ giao diện chỉ đổi kiểu trình bày, không đổi ID hay hình học. Sáu ngôn ngữ giao diện có sẵn; ngôn ngữ khác phải cấp translations hoặc rơi về tiếng Anh và có công bố. Lệnh compare dựng Architecture Delta: đặt hai ảnh chụp đã kiểm chứng cạnh nhau với biên nhận máy đọc được. README nhấn mạnh nó không suy ra tác động, rủi ro hay độ an toàn khi gộp."
+    },
+    {
+      "title": "Bản đồ thư mục",
+      "section": "Mã nguồn nằm ở đâu",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "archify/: gói kỹ năng, gồm SKILL.md, bin, renderers, schemas, explainer; 206 tệp",
+        "test/: bộ kiểm thử Node cùng dữ liệu golden; 314 tệp",
+        "docs/: thư viện mẫu, các ca thật, bằng chứng đọc, thiết kế; 203 tệp",
+        "website/: trang web Astro, React, TypeScript; 108 tệp",
+        "viewer/: nguồn trình xem, sinh ra template.html; 18 tệp",
+        "experiments/ và journal/: thí nghiệm và ghi chép nghiên cứu; 77 và 62 tệp"
+      ],
+      "notes": "Số tệp đếm bằng git ls-files: tổng 1.180 tệp được theo dõi, người viết đếm trên bản sao đầy đủ lịch sử. Thư mục archify chứa gói kỹ năng thật sự được phân phối. Viewer chứa mã nguồn của trình xem, từ đó sinh ra template.html. Thư mục test lớn nhất repo với 314 tệp. Thư mục journal có 62 ghi chép nghiên cứu, trong đó 48 vòng được đặt tên visual evolution. Còn có benchmarks, integrations, community, tools, scripts, thư mục .agents và .github."
+    },
+    {
+      "title": "Phụ thuộc ngoài lúc chạy",
+      "section": "Mã nguồn nằm ở đâu",
+      "sources": [
+        "S17"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "Gói kỹ năng chỉ import các module có sẵn của Node.js",
+        "Ngoại lệ duy nhất là hai script sinh mã lúc phát triển: ajv và simple-icons",
+        "Trình kiểm tra schema và dữ liệu biểu tượng được sinh sẵn rồi commit kèm"
+      ],
+      "notes": "Con số không này đáng dừng lại. Người viết đếm các câu import trong thư mục archify: chỉ có module có sẵn của Node, ngoại lệ là hai script sinh mã chạy lúc phát triển. Điều đó khớp với việc doctor và finalize chạy được trên một bản sao chưa cài gói nào. Trình kiểm tra schema và dữ liệu biểu tượng được sinh sẵn rồi commit kèm. Nhắc người nghe: số không này chỉ áp dụng cho gói kỹ năng; bộ kiểm thử ở thư mục gốc cần chạy npm ci trước, nếu chưa cài thì báo lỗi thiếu module parse5."
+    },
+    {
+      "title": "Quy mô mã, người viết đếm",
+      "section": "Mã nguồn nằm ở đâu",
+      "sources": [
+        "S17"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Mã chạy: khoảng 52 nghìn dòng trong archify/, gồm bin, renderers, explainer, delta, scripts",
+        "Kiểm thử: 84.260 dòng trong 246 tệp, nhiều hơn mã chạy khoảng 1,6 lần",
+        "Dùng chung: renderers/shared 12.680 dòng; quy trình 6.222 dòng",
+        "Một tệp lớn: bin/archify.mjs dài 7.289 dòng"
+      ],
+      "notes": "Các con số này do người viết đếm bằng script trên bản đã tải, tính dòng của tệp mjs, js, css, astro và ts, không tính thư mục vendor. Mã kiểm thử nhiều hơn mã chạy khoảng một phẩy sáu lần; đây là suy luận từ phép đếm, và có lẫn vài nghìn dòng tệp sinh tự động như dữ liệu biểu tượng. Một tệp CLI bảy nghìn dòng là điểm cần lưu ý nếu bạn định đọc hoặc sửa nó. Không nên đọc con số này như thước đo chất lượng, chỉ như thước đo quy mô."
+    },
+    {
+      "title": "Thí nghiệm ngày 16/4/2026",
+      "section": "Triết lý: để agent đặt tọa độ",
+      "sources": [
+        "S4"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "A và B: Mermaid thường và dagre cộng CSS Archify; cả hai bị chấm không đẹp, B không hơn A đáng kể",
+        "C: Archify do agent đặt tay được chấm đẹp",
+        "Hệ quả: các giai đoạn P1, P3, P4 bị hủy",
+        "Cảnh báo: chỉ một người chấm; hai trong năm đầu vào bị gỡ vì giấy phép"
+      ],
+      "notes": "Dự án dựng năm sơ đồ Mermaid thật ở ba phiên bản, xáo thứ tự và để chủ dự án chấm mù. Phiên bản C do agent đặt tay được chấm đẹp; A và B đều không đẹp, và B không tốt hơn A đáng kể. Cả hai tiêu chí đạt đều trượt, nên trình phân tích Mermaid, đường ống trọn vẹn và xuất ngược sang Mermaid bị hủy. Hai cảnh báo từ chính ROADMAP: chỉ có một người chấm, và hai trong năm đầu vào đã bị gỡ vì repo nguồn không có giấy phép phân phối lại, nên thí nghiệm không còn tái hiện đầy đủ. Hãy coi đây là quan điểm thiết kế có dữ liệu minh họa."
+    },
+    {
+      "title": "Vì sao không dùng bố cục tự động",
+      "section": "Triết lý: để agent đặt tọa độ",
+      "sources": [
+        "S4",
+        "S9"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Ở đâu: ROADMAP và tài liệu authoring-defaults",
+        "Làm gì: giữ agent trong vòng quyết định bố cục",
+        "Đổi lại: chất lượng bản nháp phụ thuộc agent"
+      ],
+      "body": "Ba lần rà soát độc lập đều chỉ ra **bố cục tự động** là rủi ro chính cho nét riêng của Archify: bọc CSS lên kết quả dagre chỉ đi được khoảng ba mươi phần trăm quãng đường từ Mermaid thường đến Archify đặt tay [S4].\n\nLuận điểm là thẩm mỹ chính là các quyết định bố cục, nên loại người hay **agent** khỏi việc bố cục là loại chính điểm khác biệt [S4]. Tài liệu hướng dẫn nói rõ: bộ định tuyến không thể sắp xếp lại các ô, nên vị trí đặt quyết định đường nối có thẳng hay không [S9].",
+      "notes": "Đây là quyết định cốt lõi của dự án. Ba lần rà soát độc lập đều chỉ ra bố cục tự động là rủi ro chính cho nét riêng của Archify. Lập luận là thẩm mỹ chính là các quyết định bố cục, như nhà cung cấp xác thực nằm ngoài vùng AWS hay S3 nằm dưới CloudFront để ngụ ý quan hệ phục vụ. Tài liệu hướng dẫn nói thẳng rằng bộ định tuyến không sắp xếp lại các ô. Mặt trái, theo suy luận của người viết: vì agent giữ vai trò bố cục nên chất lượng phụ thuộc agent, và phần đo chất lượng của bài sẽ cho thấy điều đó."
+    },
+    {
+      "title": "Mặc định bố cục cho kiến trúc",
+      "section": "Triết lý: để agent đặt tọa độ",
+      "sources": [
+        "S9"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Đường chính: các nút kề nhau theo thứ tự đọc",
+        "Nhánh hoặc kho: ngay trên hoặc dưới nút sở hữu, căn giữa để cạnh là một đoạn thẳng",
+        "Đường trả về: nguồn nằm ở phía không có nhánh",
+        "Lối vào thứ hai: đặt nguồn để vào nút từ một cạnh khác",
+        "Tỏa nhánh: k quan hệ cần ít nhất 32 + 14 × (k − 1) px",
+        "Khung vẽ: tối đa 1240 px rộng, hoặc 1790 px khi rộng gấp 1,55 lần cao trở lên"
+      ],
+      "notes": "Tài liệu authoring-defaults chỉ cho agent phân loại từng quan hệ trước khi đặt tọa độ: đường chính, nhánh hoặc kho, đường trả về, lối vào thứ hai và tỏa nhánh. Quy tắc tỏa nhánh có công thức cụ thể, bốn quan hệ cần bảy mươi bốn px. Nhãn giữa hai ô cạnh nhau cần khoảng trống tính theo độ dài chữ; khung kiến trúc nên không rộng quá 1240 px, nếu không chữ nhãn rơi xuống dưới ngưỡng đọc được trên máy tính. Tài liệu cũng dặn không có hạn ngạch số nút hay số cạnh."
+    },
+    {
+      "title": "Lỗi cố ý và biên nhận sửa lỗi",
+      "section": "Kiểm chứng trước khi giao",
+      "sources": [
+        "S1"
+      ],
+      "layout": "sequence-diagram",
+      "tone": "dark",
+      "bullets": [
+        "Đổi cạnh đầu tiên của ví dụ web-app sang nút ghost-node",
+        "validate kiến trúc với --quality showcase --json",
+        "Thoát mã 1, mã lỗi architecture/unknown-endpoint",
+        "Kèm đường dẫn /connections/0/to và các ID nút có thật",
+        "supportedFixes: đặt thành api, auth hoặc cache"
+      ],
+      "notes": "Đây là thí nghiệm người viết tự chạy trên bản sao cô lập. Người viết sửa một cạnh trỏ tới nút không tồn tại. Lệnh validate thoát với mã một, biên nhận nêu mã architecture slash unknown-endpoint, đường dẫn /connections/0/to, danh sách các ID nút có thật và ba cách sửa. Biên nhận còn một chẩn đoán thứ hai, layout/constraint, với danh sách cách sửa rỗng, nghĩa là không phải mọi chẩn đoán đều có cách sửa kèm. Đúng là hình dạng repair receipt mà README tuyên bố."
+    },
+    {
+      "title": "Tệp HTML đầu ra có và không có gì",
+      "section": "Kiểm chứng trước khi giao",
+      "sources": [
+        "S1"
+      ],
+      "layout": "explainer",
+      "tone": "light",
+      "bullets": [
+        "Có: 4 thẻ script, 3 khối style, 1 href ngoài trỏ về GitHub của dự án",
+        "Không có: fetch, XMLHttpRequest, WebSocket hay sendBeacon",
+        "Chưa rõ: localStorage được tham chiếu 11 lần, chưa kiểm lưu gì"
+      ],
+      "body": "Một sơ đồ kiến trúc 10 nút ra tệp **845.929 byte**, gồm 4 thẻ script và 3 khối style. Không có thẻ link stylesheet, không có lời gọi fetch, XMLHttpRequest, WebSocket hay sendBeacon (người viết đếm).\n\nChỉ có một thuộc tính href ngoài, trỏ về GitHub của dự án; các chuỗi http khác nằm trong văn bản giấy phép nhúng sẵn và khai báo namespace SVG. Mã tham chiếu **localStorage** 11 lần và người viết chưa kiểm nó lưu gì. Điều này khớp với tuyên bố một tệp HTML đứng riêng, không cần Archify để mở [S1].",
+      "notes": "Người viết đếm trên tệp deliver của ví dụ kiến trúc mười nút. Tệp nặng khoảng 846 nghìn byte, chủ yếu là trình xem và kiểu dáng nhúng. Không có thẻ link stylesheet và không có lời gọi mạng nào trong mã. Chỉ có một thuộc tính href ngoài, trỏ về GitHub của dự án; các chuỗi http khác nằm trong văn bản giấy phép nhúng sẵn và khai báo namespace SVG. Mã tham chiếu localStorage mười một lần; người viết chưa kiểm nó lưu gì, nhiều khả năng là tùy chọn của người xem."
+    },
+    {
+      "title": "Cổng tự động không thay được mắt",
+      "section": "Kiểm chứng trước khi giao",
+      "sources": [
+        "S2",
+        "S8"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Cả bốn cổng đạt, nhưng ví dụ của chính tác giả vẫn kèm khuyến nghị xem tuyến đường bằng mắt",
+        "Tín hiệu routesOverSuggestedBends bằng 1; visualReview là not-requested",
+        "Câu trả lời đúng cho câu đã kiểm chưa: các kiểm tra tự động đạt, chưa xem bằng mắt"
+      ],
+      "notes": "Khi chạy finalize với Chrome thật trên ví dụ web-app, bốn cổng validate, deliver, check và browser-check đều đạt sau khoảng sáu phẩy năm giây, và visualReview là not-requested. Cùng biên nhận kèm khuyến nghị inspect-route-readability với tín hiệu routesOverSuggestedBends bằng một. Nói cách khác, ngay trên ví dụ do tác giả làm, công cụ tự nói rằng cổng tự động không thay được việc nhìn. SKILL.md dặn agent phân biệt kiểm tra tệp, bằng chứng trình duyệt, ảnh chụp và đánh giá bằng mắt thật."
+    },
+    {
+      "title": "Quy trình đọc mã có bằng chứng",
+      "section": "Bằng chứng nguồn: sơ đồ trỏ về dòng mã",
+      "sources": [
+        "S9"
+      ],
+      "layout": "flow",
+      "tone": "light",
+      "bullets": [
+        "Đóng băng danh tính repo: commit, URL gốc đã gỡ thông tin đăng nhập",
+        "Vạch một lát cắt nhỏ từ điểm vào",
+        "Theo dõi quyền sở hữu qua vị trí gọi thật của hành động",
+        "Ghi dòng bằng chứng ngay khi đọc",
+        "Ghi điều chưa biết thay vì biến nhãn thành sự thật"
+      ],
+      "notes": "Đây là tính năng đáng giá nhất cho ai dùng Archify để hiểu một repo. Tài liệu Repository authoring bắt agent đóng băng danh tính repo trước tiên. Sau đó agent vạch một lát cắt nhỏ từ điểm vào thay vì quét cả repo, theo dõi quyền sở hữu qua vị trí gọi thật, ghi dòng bằng chứng ngay khi đọc, và ghi lại điều chưa biết. Một hàm xuất ra nhưng không được đường chính gọi chỉ là khả năng tùy chọn, không phải cạnh bắt buộc."
+    },
+    {
+      "title": "Công cụ xác minh bằng git",
+      "section": "Bằng chứng nguồn: sơ đồ trỏ về dòng mã",
+      "sources": [
+        "S13",
+        "S9"
+      ],
+      "layout": "layers",
+      "tone": "dark",
+      "bullets": [
+        "Đọc đối tượng đã ghim bằng git cat-file, không dùng bản thay thế cục bộ",
+        "Không cần đường truyền nào: GIT_ALLOW_PROTOCOL để rỗng",
+        "Mỗi nguồn tối đa 16 MiB",
+        "Kiểm thư mục gốc, nguồn gốc, commit, blob, đường dẫn và số dòng",
+        "Đọc byte đã commit, không đọc bản sửa chưa commit"
+      ],
+      "notes": "Mã repository-evidence đọc đối tượng git đã ghim bằng git cat-file với tùy chọn no-replace-objects, đặt GIT_ALLOW_PROTOCOL rỗng nên không cần đường truyền, và giới hạn mỗi nguồn ở 16 MiB. Nó kiểm thư mục gốc Git, nguồn gốc khớp, commit, blob, đường dẫn không thoát khỏi repo và số dòng trong biên. Giới hạn, theo suy luận của người viết: cơ chế chứng minh trích dẫn khớp với tệp và dòng ở commit đã ghim, chứ không chứng minh agent hiểu đúng đoạn mã đó."
+    },
+    {
+      "title": "Phím tắt chính của trình xem",
+      "section": "Trình xem: đọc, tìm, lần vết, chia sẻ",
+      "sources": [
+        "S1"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "?: mở hướng dẫn sơ đồ thật của chính tệp đó",
+        "/: tìm và tập trung một nút",
+        "R: dò đường có hướng giữa hai nút (PATH)",
+        "L: so sánh một hay hai vai ngữ nghĩa (LENS)",
+        "M: mở radar tổng quan (MAP)",
+        "F: vào chế độ trình chiếu"
+      ],
+      "notes": "Bảng phím tắt lấy từ README. Dấu hỏi mở hướng dẫn sơ đồ, gạch chéo tìm và tập trung một nút, R dò đường có hướng, L so sánh vai ngữ nghĩa, M mở radar tổng quan và F vào chế độ trình chiếu. Ngoài ra S đổi kiểu, T đổi sáng tối, E mở xuất bản và các phím cộng, trừ, không để thu phóng. Nguyên tắc trung thực: tiêu điểm, phạm vi thượng hạ nguồn, tuyến đường và so sánh vai trò đều dùng lại các nút và quan hệ do tác giả khai báo, không bịa topo và không tuyên bố tác động lúc chạy."
+    },
+    {
+      "title": "Chia sẻ và xuất bản",
+      "section": "Trình xem: đọc, tìm, lần vết, chia sẻ",
+      "sources": [
+        "S1",
+        "S5",
+        "S15"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Liên kết ổn định: #focus, #relation, #route, #lens khôi phục đúng trạng thái",
+        "Xuất: PNG vào clipboard, định dạng tĩnh và chuyển động",
+        "Thẻ chia sẻ: Route Card 1200×630 và Reach Card đúng phạm vi",
+        "Trang trả lời: ảnh dài PNG, WebP, JPG hoặc in ra PDF"
+      ],
+      "notes": "Các liên kết ổn định khôi phục tiêu điểm, phạm vi thượng hạ nguồn, quan hệ, tuyến đường và lens. Menu Export sao chép PNG vào clipboard và tải các định dạng tĩnh hoặc chuyển động. Route Share Card xuất đường đi đã vạch thành PNG 1200 nhân 630 và giữ toàn sơ đồ làm ngữ cảnh; Reach Share Card chụp đúng phạm vi thượng hạ nguồn. Chuyển động tôn trọng prefers-reduced-motion và không có trong bản xuất chuẩn. CI có một job giải mã WebM thật và từ chối các khung tĩnh."
+    },
+    {
+      "title": "Trang trả lời một trang",
+      "section": "Trang trả lời một trang (explainer)",
+      "sources": [
+        "S1",
+        "S10",
+        "S2",
+        "S5"
+      ],
+      "layout": "explainer",
+      "tone": "light",
+      "bullets": [
+        "Ở đâu: vào bản 3.2.0, PR 993, có bốn trang ví dụ",
+        "Làm gì: kết luận trước, mỗi panel trả lời một câu hỏi",
+        "Đừng hiểu nhầm: chỉ dùng khi xin một trang hoặc bật chế độ chủ động"
+      ],
+      "body": "Khi bạn yêu cầu trả lời bằng một trang, Archify dựng trang có **kết luận** ở đầu, rồi mỗi panel trả lời một câu hỏi bằng văn xuôi, bảng so sánh, các bước, biểu đồ, mã và sơ đồ đã kiểm [S1].\n\nBản nháp là một tệp Markdown: đoạn đầu là kết luận, danh sách ngay sau cho tối đa bốn lý do, mỗi tiêu đề hai dấu thăng mở một panel [S10]. Lệnh finalize explainer kiểm tra và giao nguyên tử, còn patch explainer thay đúng một panel theo ID [S2] [S5].",
+      "notes": "Explainer là tính năng mới nhất của bản 3.2.0. Khi bạn yêu cầu trả lời bằng một trang, Archify dựng trang có kết luận ở đầu, rồi mỗi panel trả lời một câu hỏi. Bản nháp là một tệp Markdown với ngôn ngữ chỉ thị dạng bảng. SKILL.md chỉ cho dùng trang khi người dùng xin một trang, hoặc khi dòng quy tắc archify explainer proactive hay always-on được bật trong tệp quy tắc toàn cục. Đây là một cách kỹ năng ảnh hưởng đến hành vi mặc định của agent, theo suy luận của người viết."
+    },
+    {
+      "title": "Chạy thử với ví dụ TLS",
+      "section": "Trang trả lời một trang (explainer)",
+      "sources": [
+        "S10"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Kết quả: finalize explainer báo ok; ba cổng validate, deliver, check đạt",
+        "Thời gian: 1,33 giây",
+        "Đầu ra: một tệp HTML 505.526 byte",
+        "Còn thiếu: cổng browser-check ghi not-run trong lần gọi mặc định này"
+      ],
+      "notes": "Người viết trích đúng ví dụ TLS trong tài liệu: hai panel, một sơ đồ tuần tự, một danh sách bước và một bảng so sánh, rồi chạy finalize explainer. Kết quả là ok, ba cổng đạt, mất khoảng một phẩy ba giây và ra tệp 505.526 byte. Cổng browser-check ghi not-run trong lần gọi mặc định. Việc tệp explainer/browser-check.mjs tồn tại gợi ý có đường chạy riêng, nhưng người viết chưa thử, nên đừng suy rộng ra cho trang trả lời."
+    },
+    {
+      "title": "Ba bộ đo của dự án",
+      "section": "Đo chất lượng: ba bộ benchmark",
+      "sources": [
+        "S11",
+        "S12"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "ordinary-model-floor: agent thường có tạo được sơ đồ dùng ngay ở lần thử đầu không",
+        "repair-rounds: biên nhận giúp hội tụ nhanh đến đâu, bằng tám lớp lỗi tiêm tự động",
+        "real-repo-generation: so sánh trước sau trên năm repo thật; chưa có kết quả nào"
+      ],
+      "notes": "Ba bộ đo trả lời ba câu hỏi khác nhau, và người đọc cần phân biệt. Ordinary-model-floor hỏi agent thường có tạo được sơ đồ dùng ngay hay không, qua ba cổng: ngữ nghĩa, CLI thật và đánh giá thị giác. Repair-rounds đo hiệu quả của biên nhận bằng tám lớp lỗi tiêm tự động, và README tự nhận đó là kiểm tra hồi quy tổng hợp, người sửa là bộ luật chứ không phải agent thật. Real-repo-generation là giao thức thí điểm với năm dự án công khai, và dòng trạng thái ghi rõ chưa có lượt chạy hay kết quả chất lượng nào."
+    },
+    {
+      "title": "8 trên 15 lượt dùng được ngay",
+      "section": "Đo chất lượng: ba bộ benchmark",
+      "sources": [
+        "S11"
+      ],
+      "layout": "one-big-number",
+      "tone": "dark",
+      "bullets": [
+        "53,3% lượt dùng được ngay; tác nhân pi, ba mô hình, năm tác vụ",
+        "Theo tác vụ: tuần tự 3/3, kiến trúc 3/3, vòng đời 1/3, quy trình 1/3, luồng dữ liệu 0/3",
+        "Kết luận của bản ghi: không đo được cải thiện tổng thể giữa ba cấu hình"
+      ],
+      "notes": "Bản ghi ngày 26 tháng 7 có mười lăm lượt: tác nhân pi, ba mô hình là minimax-m3, qwen3.7-plus và deepseek-v4-flash, năm tác vụ. Tám trên mười lăm lượt dùng được ngay. Theo mô hình: ba trên năm, ba trên năm và hai trên năm. Theo tác vụ, tuần tự và kiến trúc đều ba trên ba, còn luồng dữ liệu không lượt nào. Kết luận của chính bản ghi là không đo được mức cải thiện tổng thể giữa ba cấu hình cơ sở, sau sửa và ưu tiên chất lượng, đều đạt tám trên mười lăm."
+    },
+    {
+      "title": "Đọc con số 53% cho đúng",
+      "section": "Đo chất lượng: ba bộ benchmark",
+      "sources": [
+        "S11",
+        "S12"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Nói được: mức sàn của agent thường trong một ma trận 15 lượt, một tác nhân, ba mô hình không thuộc họ Claude hay GPT",
+        "Không nói được: xác suất agent của bạn tạo sơ đồ tốt; lượt đo còn gồm các lần tự sửa trong một lần gọi",
+        "Bộ real-repo-generation: chưa có lượt chạy nào"
+      ],
+      "notes": "Đây là phần dễ bị đọc sai nhất. Mẫu nhỏ, chỉ một tác nhân, bản ghi không có lượt nào của mô hình Claude hay GPT, và không có chạy lặp để ước lượng độ biến thiên. Con số 53% là mức sàn của agent thường trong một ma trận, không phải xác suất bạn nhận sơ đồ tốt từ agent của bạn. Cũng cần nhớ dùng được ngay ở đây tính cho cả lượt gọi agent, trong đó agent được phép tự chạy CLI để sửa, nên đây không phải tỉ lệ đúng ở bản nháp đầu. Bộ đo trên repo thật mới là giao thức."
+    },
+    {
+      "title": "Các mốc phiên bản",
+      "section": "Dự án được làm như thế nào",
+      "sources": [
+        "S5",
+        "S14"
+      ],
+      "layout": "timeline",
+      "tone": "dark",
+      "bullets": [
+        "15/4/2026: tag v2.0.0",
+        "28/9/2026: v3.0.0",
+        "14/10/2026: v3.1.0, thêm năm loại sơ đồ",
+        "18/10/2026: v3.2.0, trang trả lời một trang",
+        "25/10/2026: chuyển giấy phép sang Apache-2.0"
+      ],
+      "notes": "Dòng thời gian này gồm các mốc đọc được từ tag, CHANGELOG và NOTICE. Có 22 tag phiên bản từ v2.0.0 ngày 15 tháng 4 đến v3.2.0 ngày 18 tháng 10, cộng hai tag của bản bọc DeepSeek Harness. Bản 3.0.0 ngày 28 tháng 9 đổi bố cục trình xem. Bản 3.1.0 thêm năm loại sơ đồ. Bản 3.2.0 thêm trang trả lời một trang. Ngày 25 tháng 10, đúng ngày người viết đọc, dự án chuyển giấy phép sang Apache-2.0 trong khi giữ các quyền MIT lịch sử."
+    },
+    {
+      "title": "842 commit trong 25 ngày",
+      "section": "Dự án được làm như thế nào",
+      "sources": [],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "Tháng 10/2026, tính đến ngày 25: 842 commit",
+        "Tháng 9: 674; tháng 8: 104; tháng 7: 82",
+        "Tổng 1.744 commit từ 15/4/2026; tt-a1i đứng tên khoảng 65%"
+      ],
+      "notes": "Các con số này người viết đếm bằng git log trên bản sao đầy đủ lịch sử. Chia đều thì gần 34 commit mỗi ngày trong 25 ngày đầu tháng 10. Hệ quả thực tế, theo suy luận của người viết: bản bạn đọc hôm nay sẽ khác bản tuần sau, nên hãy ghim phiên bản hoặc commit khi dựa vào nó. Bản bọc DeepSeek Harness đã chậm hai phiên bản so với bản ổn định, một ví dụ cho việc các tích hợp khó theo kịp nhịp này."
+    },
+    {
+      "title": "Dấu vết dùng AI và chính sách",
+      "section": "Dự án được làm như thế nào",
+      "sources": [
+        "S6"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Ở đâu: lời nhắn commit và tên nhánh trong git log",
+        "Làm gì: ghi công đồng tác giả; chính sách yêu cầu khai báo AI",
+        "Đừng hiểu nhầm: đây không phải tỉ lệ mã do AI viết"
+      ],
+      "body": "Trong lời nhắn commit có 132 dòng Co-Authored-By tên Devin, vài chục dòng tên các mô hình Claude và 10 dòng Cursor; trong các commit gộp có 132 nhánh bắt đầu bằng codex (người viết đếm). Đây chỉ là số dòng ghi công và tên nhánh, **không đo** tỉ lệ mã do AI viết.\n\nCONTRIBUTING yêu cầu mọi PR khai báo có dùng AI hay không, nêu công cụ và phần việc; một người thật chịu trách nhiệm phải rà soát, hiểu và giải thích được; dự án không đoán việc dùng AI từ văn phong [S6].",
+      "notes": "Người viết chỉ đếm dòng ghi công và tên nhánh, nên không suy ra tỉ lệ mã do AI viết. Điều có thật trong tài liệu là chính sách: CONTRIBUTING có hẳn mục về hỗ trợ AI và trách nhiệm của người đóng góp. Mọi PR phải khai báo có dùng AI hay không, nêu công cụ, mô hình nếu biết và phần việc nào. Một người thật chịu trách nhiệm phải rà soát, hiểu và giải thích được. Mô tả do AI sinh ra phải kiểm tra tính chính xác, và dự án không đoán việc dùng AI từ văn phong."
+    },
+    {
+      "title": "CI theo phạm vi tác động",
+      "section": "Dự án được làm như thế nào",
+      "sources": [
+        "S15",
+        "S6"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Phân loại: job scope phân loại đường dẫn; đường dẫn lạ thì chạy đầy đủ",
+        "Hồi quy: hai mảnh trên Node 22; tương thích Node 18, 20, 24",
+        "Trình duyệt và WebM: hai mảnh Chrome thật, giải mã WebM thật",
+        "Đóng gói: dựng lại archify.zip và so từng byte; khói trên ubuntu, macOS, Windows"
+      ],
+      "notes": "CI chọn mức kiểm tra theo phạm vi tác động thay vì chạy mọi thứ cho mọi thay đổi. Một job scope phân loại đường dẫn thay đổi; đường dẫn lạ, so sánh rỗng hay không có nhánh gốc thì chọn kiểm tra đầy đủ, và tên job bắt buộc luôn có mặt nên phân loại hỏng không thể biến thành bỏ qua thành công. Có kiểm tra ZIP dựng lại archify.zip và so từng byte, kiểm tra manifest cập nhật công khai, và khói đóng gói trên ba hệ điều hành. Cả 60 dòng uses trong workflow đều ghim bằng mã SHA."
+    },
+    {
+      "title": "Hệ sinh thái quanh Archify",
+      "section": "Hệ sinh thái xung quanh",
+      "sources": [
+        "S16",
+        "S1",
+        "S5"
+      ],
+      "layout": "connection-diagram",
+      "tone": "dark",
+      "bullets": [
+        "DeepSeek Harness: gói npm 1.0.0, bọc Archify 3.0.1, chậm hai phiên bản",
+        "Hermes Agent: tích hợp chỉ có kỹ năng, cần Node.js 18 trở lên",
+        "Danh mục cộng đồng: gói độc lập, không có API plugin trong tiến trình",
+        "Trang web: Astro, thư viện mẫu Proof Lab, trang chọn agent"
+      ],
+      "notes": "Bốn thứ quanh Archify. Gói DeepSeek Harness bọc Archify 3.0.1 và hỗ trợ đúng một bản host; tệp cordis.patch.yml dùng biểu thức !!js chạy trong tiến trình host, ngoài sandbox của agent, và tài liệu thừa nhận điều đó. Hermes là tích hợp chỉ có kỹ năng, không đăng ký công cụ gốc, không đo từ xa. Danh mục cộng đồng là sổ đăng ký metadata, hiện có hai mục, và tài liệu nói rõ không có API plugin chạy trong tiến trình và không dự định có. Trang web là dự án Astro riêng."
+    },
+    {
+      "title": "Mạng, quyền riêng tư và an toàn",
+      "section": "Mạng, quyền riêng tư và an toàn",
+      "sources": [
+        "S13",
+        "S1",
+        "S16"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Kiểm tra cập nhật: GET một manifest cố định, khoảng 24 giờ một lần, không gửi phiên bản hay dữ liệu dự án",
+        "Tắt: đặt ARCHIFY_UPDATE_CHECK_DISABLED=1",
+        "Bắt biểu tượng: chặn địa chỉ riêng, thông tin đăng nhập, cổng lạ; ghim IP chống DNS rebinding",
+        "Xem thử cục bộ: chỉ nghe 127.0.0.1, cổng ngẫu nhiên",
+        "Gói DSH: biểu thức !!js chạy trong tiến trình host, ngoài sandbox của agent",
+        "HTML đầu ra: không có lời gọi mạng trong ví dụ người viết đã kiểm"
+      ],
+      "notes": "Kiểm tra cập nhật chỉ GET một manifest cố định, mã từ chối mọi URL khác. Thành công thì chờ khoảng 24 giờ cộng trừ hai mươi phần trăm, thất bại thì thử lại sau 6 rồi 24 giờ. Máy chủ chỉ thấy siêu dữ liệu HTTP bình thường như IP và thời gian. Nó không bao giờ tự tải hay cài, và biến môi trường ARCHIFY_UPDATE_CHECK_DISABLED bằng một tắt cả mạng lẫn việc ghi trạng thái. Phía agent, SKILL.md yêu cầu giữ một thông báo cập nhật gọn ở câu trả lời cuối cho đến khi người dùng hoãn hoặc bỏ qua. Rủi ro khi đọc mã không tin cậy vẫn như thường, vì Archify không thêm sandbox riêng."
+    },
+    {
+      "title": "Giấy phép đổi vào hôm nay",
+      "section": "Giấy phép, thương hiệu và tài trợ",
+      "sources": [
+        "S14",
+        "S1"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Trước chuyển đổi: MIT, đến hết commit 25cf3708 ngày 19/10/2026; các bản đã phát hành giữ giấy phép cũ",
+        "Từ commit 25/10/2026: Apache-2.0, giữ các quyền MIT lịch sử, không tuyên bố cấp phép bằng sáng chế mới thay cho cộng tác viên lịch sử",
+        "Biểu tượng bên thứ ba: Vue.js CC-BY-NC-SA-4.0, Rust CC-BY-SA-4.0, Jenkins CC-BY-SA-3.0",
+        "Giấy phép phần mềm không cấp quyền thương hiệu Archify"
+      ],
+      "notes": "NOTICE ghi rằng Archify phân phối theo Apache License 2.0, trừ khi một tệp hay thông báo bên thứ ba nói khác. Mã và đóng góp nhận theo MIT đến hết commit trước chuyển đổi vẫn giữ nguyên điều khoản gốc, và các bản đã phát hành giữ giấy phép cũ. Suy luận của người viết: bản v3.2.0 phát hành ngày 18 tháng 10 nhiều khả năng vẫn ở giấy phép MIT, nên nếu giấy phép là điều kiện bắt buộc, hãy đọc LICENSE của đúng bản bạn lấy chứ đừng dựa vào huy hiệu README. Biểu tượng Vue có điều kiện phi thương mại và chia sẻ tương tự vẫn áp dụng. Phần này chỉ là tóm tắt, không phải tư vấn pháp lý."
+    },
+    {
+      "title": "Quảng cáo và tuyên bố chưa kiểm chứng",
+      "section": "Giấy phép, thương hiệu và tài trợ",
+      "sources": [
+        "S1"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "README liệt kê bảy nhà tài trợ; phần lớn liên kết mang tham số giới thiệu",
+        "Giá khuyến mãi là lời của nhà tài trợ, báo cáo không đánh giá",
+        "Huy hiệu 130K+ installs là huy hiệu tĩnh viết tay, không phải số đếm sống",
+        "Hạng nhất xu hướng tuần, QbitAI, midudev: liên kết ngoài, người viết chưa mở"
+      ],
+      "notes": "Mục Sponsors liệt kê Kimi Work, Supercode, OpenLux, PackyCode, AICodeMirror, Infistar.cc và EverMind. Phần lớn liên kết mang tham số giới thiệu và nêu giá khuyến mãi do nhà tài trợ tự công bố; báo cáo này không đánh giá các mức giá đó và không trích lại liên kết giới thiệu. README cũng nói rõ phần mềm miễn phí còn dịch vụ trả phí của bên thứ ba do bên đó vận hành. Huy hiệu 130K installs là huy hiệu tĩnh, không phải số đếm sống. Mục cộng đồng và ghi nhận nêu hạng nhất bảng xu hướng tuần và các bài báo, bằng liên kết ngoài mà người viết chưa mở."
+    },
+    {
+      "title": "Người viết đã chạy gì",
+      "section": "Người viết đã chạy gì",
+      "sources": [
+        "S1",
+        "S8"
+      ],
+      "layout": "profile-card",
+      "tone": "dark",
+      "bullets": [],
+      "facts": [
+        {
+          "label": "doctor",
+          "text": "27 mục ok, kết thúc bằng dòng Archify is ready"
+        },
+        {
+          "label": "validate, showcase",
+          "text": "ok là true; đủ chín kiểm tra tệp đạt"
+        },
+        {
+          "label": "finalize, Chrome thật",
+          "text": "Bốn cổng đạt trong 6,56 giây; vẫn khuyến nghị xem tuyến đường bằng mắt"
+        },
+        {
+          "label": "Bộ khói lõi",
+          "text": "19 trên 19 đạt trong 15,6 giây, sau khi chạy npm ci ở thư mục gốc"
+        },
+        {
+          "label": "Bộ đầy đủ",
+          "text": "Chưa có kết luận: môi trường không tương đương CI, lượt chạy lại bị từ chối quyền"
+        }
+      ],
+      "notes": "Mọi lệnh chạy trong một thư mục cô lập: bản sao của gói archify, môi trường sạch, tắt kiểm tra cập nhật, Node 22. Không chạy tác nhân nào, nên chưa có lượt agent thật vẽ sơ đồ. Doctor báo 27 mục ok. Validate showcase đạt đủ chín kiểm tra. Finalize với Chromium đạt bốn cổng trong khoảng sáu phẩy năm giây. Bộ khói lõi đạt 19 trên 19. Bộ kiểm thử đầy đủ chưa có kết luận: lượt chạy duy nhất diễn ra trong môi trường không tương đương CI, và lượt chạy lại trong môi trường sạch không được cấp quyền thực thi. Bài này vì vậy không khẳng định bộ kiểm thử đầy đủ đạt hay trượt."
+    },
+    {
+      "title": "Điểm mạnh",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S2",
+        "S8",
+        "S9",
+        "S4",
+        "S15"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Agent quyết định, máy kiểm: biên nhận lỗi máy đọc được, hai vòng sửa, giao hàng nguyên tử",
+        "Kết quả là một tệp HTML đứng riêng, không có lời gọi mạng trong ví dụ đã kiểm",
+        "Bằng chứng nguồn ghim commit buộc sơ đồ kiến trúc trỏ về dòng mã",
+        "Tài liệu ghi cả điều đã từ chối và thí nghiệm thất bại",
+        "Bộ kiểm thử lớn, CI phân tầng, kiểm tra ZIP từng byte"
+      ],
+      "notes": "Năm điểm mạnh, tất cả là suy luận của người viết từ các bằng chứng đã trình bày. Ý tưởng agent quyết định máy kiểm được làm đến nơi: biên nhận lỗi máy đọc được, giới hạn sửa và giao hàng nguyên tử. Kết quả là một tệp HTML đứng riêng. Bằng chứng nguồn ghim commit là cách hiếm thấy để buộc sơ đồ kiến trúc trỏ về dòng mã. Tác giả để lại dấu vết lý do thiết kế, kể cả thí nghiệm thất bại và danh sách đã từ chối. Cuối cùng là bộ kiểm thử lớn và CI phân tầng."
+    },
+    {
+      "title": "Điểm yếu và rủi ro",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S11",
+        "S12",
+        "S1",
+        "S17",
+        "S16",
+        "S8"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Phụ thuộc agent: mức sàn đo được là 8/15; luồng dữ liệu 0/3",
+        "Cổng tự động không thay mắt: ví dụ của tác giả vẫn kèm khuyến nghị xem tuyến đường",
+        "Đo trên repo thật: bộ benchmark mới là giao thức, chưa có kết quả",
+        "Tài liệu lệch: README ghi 11 kịch bản, manifest thư viện mẫu có 12 mục",
+        "Nhịp đổi rất cao: 842 commit trong 25 ngày; bản bọc DSH chậm hai phiên bản",
+        "Một tệp CLI 7.289 dòng; thư viện mẫu chỉ có 6 trong 10 loại sơ đồ"
+      ],
+      "notes": "Điểm yếu, kèm bằng chứng. Chất lượng phụ thuộc agent, và mức sàn đo được là tám trên mười lăm. Cổng tự động không thay mắt. Bộ đo trên repo thật chưa có số. Tài liệu lệch nhau ở vài con số: README ghi mười một kịch bản trong Proof Lab, còn manifest có mười hai mục, và thư viện mẫu chỉ có sáu trong mười loại. Nhịp thay đổi rất cao. Một tệp CLI rất lớn. Ngoài ra còn giấy phép vừa đổi, biểu tượng có điều kiện riêng và quảng cáo trong README. Và hạn chế của chính bài này: chưa chạy agent, chưa xác nhận bộ kiểm thử đầy đủ."
+    },
+    {
+      "title": "Nên dùng khi nào",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Phù hợp: hiểu hoặc trình bày kiến trúc một repo có sẵn; tài liệu thiết kế, runbook, lược đồ dữ liệu dạng HTML gửi được",
+        "Không phù hợp: sơ đồ chính xác từng pixel, UML hoặc C4 đầy đủ, hay cần chất lượng đồng đều từ mô hình nhỏ mà không ai xem lại",
+        "Môi trường siết mạng: đặt ARCHIFY_UPDATE_CHECK_DISABLED=1",
+        "Cần giấy phép rõ: đọc LICENSE của đúng bản và các biểu tượng bên thứ ba"
+      ],
+      "notes": "Phù hợp nhất khi bạn cần hiểu hoặc trình bày kiến trúc của một repo có sẵn và chấp nhận kiểm lại các cạnh quan trọng, vì bằng chứng nguồn ghim commit giúp kiểm nhanh. Cũng phù hợp với tài liệu thiết kế, runbook và lược đồ dữ liệu dạng tệp HTML gửi được. Không phù hợp khi cần sơ đồ chính xác từng pixel hay theo chuẩn mô hình hóa đầy đủ, vì công cụ không phải trình soạn và không phân tích Mermaid. Với môi trường siết mạng, dùng biến môi trường tắt kiểm tra cập nhật. Đây là suy luận của người viết, không phải khuyến nghị cài đặt."
+    },
+    {
+      "title": "Cách học trong một buổi",
+      "section": "Cách học trong một buổi",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "10 phút: đọc README đến phần Choose the right diagram và SKILL.md",
+        "10 phút: chạy doctor, guide và validate; nhìn tận mắt biên nhận JSON",
+        "10 phút: phá một tệp ví dụ rồi đọc diagnostics và supportedFixes",
+        "15 phút: giao một sơ đồ bằng deliver, thử các phím / R L M T E",
+        "15 phút: đọc mục Not planned của ROADMAP và thí nghiệm bị loại",
+        "30 phút: cài vào agent, vẽ kiến trúc một repo nhỏ, tự kiểm ba cạnh bất kỳ so với mã"
+      ],
+      "notes": "Lộ trình một buổi, mỗi bước lấy lệnh từ README hoặc SKILL.md; thời lượng là ước tính của người viết. Bắt đầu bằng việc đọc, rồi chạy ba lệnh không cần agent để nhìn biên nhận JSON. Bước phá một tệp ví dụ rất đáng làm vì nó cho bạn thấy diagnostics và supportedFixes. Sau đó giao một sơ đồ thật và thử các phím tắt. Phần đọc mục Not planned giúp bạn tự trả lời: bạn đồng ý với lý do chưa. Bước cuối là cài vào agent của bạn, thử một repo nhỏ và ghi lại số vòng sửa."
+    },
+    {
+      "title": "Năm điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S2",
+        "S4",
+        "S8",
+        "S9",
+        "S11",
+        "S14",
+        "S13"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Kỹ năng và CLI cho agent: JSON có kiểu đi vào, một tệp HTML đứng riêng đi ra",
+        "Giá trị lớn nhất: cổng kiểm tra, biên nhận lỗi máy đọc được, bằng chứng nguồn ghim commit",
+        "Chưa đồng nghĩa sơ đồ nào cũng đẹp và đúng: mức sàn 8/15 và khuyến nghị xem bằng mắt",
+        "Giấy phép đổi ngày 25/10/2026; biểu tượng có điều kiện riêng; README có quảng cáo",
+        "Cần tắt mạng thì đặt ARCHIFY_UPDATE_CHECK_DISABLED=1; ghim phiên bản vì dự án đổi nhanh"
+      ],
+      "notes": "Năm điều cần mang đi. Một: Archify là kỹ năng và công cụ dòng lệnh cho agent, biến JSON có kiểu thành HTML đứng riêng; agent đặt bố cục, công cụ kiểm tra và vẽ. Hai: giá trị lớn nhất là cổng kiểm tra, biên nhận lỗi máy đọc được và bằng chứng nguồn ghim commit. Ba: điều đó chưa đồng nghĩa sơ đồ nào cũng đẹp và đúng, vì mức sàn đo được là tám trên mười lăm. Bốn: giấy phép đổi sang Apache-2.0 ngày 25 tháng 10, biểu tượng bên thứ ba có điều kiện riêng. Năm: tắt mạng bằng biến môi trường và ghim phiên bản."
+    },
+    {
+      "title": "Giới hạn của bài đọc này",
+      "section": "Lưu ý",
+      "sources": [
+        "S18"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Bài chưa dùng Archify qua agent thật và chưa xác nhận bộ kiểm thử đầy đủ",
+        "Số sao, fork, issue lấy từ trang GitHub, không ghim được vào commit",
+        "Phần giấy phép chỉ là tóm tắt, không phải tư vấn pháp lý"
+      ],
+      "notes": "Phần Lưu ý nêu giới hạn nguồn. Bài đọc bản sao đầy đủ lịch sử của repo ở commit 51a2917 ngày 25 tháng 10 năm 2026. Mọi con số người viết đếm lấy từ bản đó và sẽ đổi khi repo cập nhật. Số sao, fork, người theo dõi, issue và pull request mở lấy từ trang GitHub công khai qua một công cụ đọc web có tóm tắt, nên là số xấp xỉ. Người viết chưa dùng Archify qua agent thật, chưa chạy preview, visual-check, kiểm thử WebM, DSH hay Hermes, và chưa mở các liên kết ngoài. Repo đang cập nhật thường xuyên nên có thể đã khác khi bạn đọc."
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md: giới thiệu, cài đặt, mười loại sơ đồ, trình xem, tài trợ",
+        "S2: archify/SKILL.md: định nghĩa kỹ năng, bộ định tuyến, finalize",
+        "S3: PRODUCT.md và DESIGN.md: người dùng, nguyên tắc, hệ màu",
+        "S4: ROADMAP.md: JSON IR, thí nghiệm thất bại, danh sách không làm",
+        "S5: CHANGELOG.md: các bản 3.0.0 đến 3.2.0, hạn chế đã biết",
+        "S6: CONTRIBUTING.md, REVIEWING.md, AGENTS.md: quy trình, chính sách AI",
+        "S7: archify/schemas/README.md: hợp đồng schema, meta, locale",
+        "S8: archify/references/delivery-contract.md: finalize, giao nguyên tử",
+        "S9: repository-authoring.md và authoring-defaults.md: bằng chứng, bố cục",
+        "S10: archify/references/explainer-authoring.md: ngôn ngữ bản nháp trang",
+        "S11: benchmarks/ordinary-model-floor: README và kết quả 15 lượt",
+        "S12: benchmarks/real-repo-generation và repair-rounds: hai README",
+        "S13: repository-evidence.mjs, check-update.mjs, brand-marks.mjs: mã",
+        "S14: NOTICE, THIRD_PARTY_NOTICES.md, SECURITY.md: giấy phép, an ninh",
+        "S15: .github/workflows/ci.yml và CODEOWNERS: các job CI",
+        "S16: integrations (DSH, Hermes) và community/README.md",
+        "S17: package.json, bin/archify.mjs, gallery manifest, catalog biểu tượng",
+        "S18: Trang GitHub của repo: sao, fork, issue (không ghim được commit)"
+      ],
+      "notes": "Mười tám nhãn nguồn, mỗi nhãn là một hoặc vài tệp của repo ở commit 51a291770851ad27a400cca73c753c166b5e0c65, trừ S18 là trang GitHub không ghim được vào commit. Danh sách đầy đủ kèm đường dẫn ghim nằm trong report.md."
+    }
+  ]
+}

@@ -1,0 +1,571 @@
+{
+  "title": "Graphify: biến thư mục mã và tài liệu thành đồ thị tri thức để agent truy vấn",
+  "subtitle": "Báo cáo đọc repo Graphify-Labs/graphify ở commit 0a8cd4e (27/10/2026), bản 0.9.97, đọc ngày 30/10/2026",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S4"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Graphify là gì, tiết kiệm được bao nhiêu cho agent lập trình, và con số nào đáng tin?",
+        "Kỹ năng cho trợ lý AI: thư mục mã và tài liệu đi vào, đồ thị tri thức truy vấn được đi ra",
+        "Đọc ở commit 0a8cd4e ngày 27/10/2026, bản 0.9.97"
+      ],
+      "notes": "Mở bài bằng câu hỏi. Graphify là một kỹ năng cho trợ lý lập trình AI kèm thư viện Python. Gõ /graphify trong Claude Code, Codex hay Cursor, nó đọc cả thư mục rồi dựng đồ thị tri thức để hỏi đáp thay vì lục từng tệp. Mã được phân tích cục bộ bằng tree-sitter, không cần mô hình; chỉ tài liệu, PDF và ảnh mới cần mô hình. Nhắc người nghe rằng mọi số đến từ việc đọc repo ở một commit cụ thể."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S2",
+        "S3",
+        "S7"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Đồ thị có nhãn tin cậy trên từng cạnh thay cho vector: biết cạnh nào đọc thẳng, cạnh nào suy ra",
+        "Số đo công khai thật nhưng nhỏ và tự đo; con số giảm 80% token không có bảng đo đỡ",
+        "Đổi cực nhanh: hai bản trong hai ngày, 240 mục phiên bản; ghim phiên bản trước khi dùng"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: lựa chọn kiến trúc là đồ thị với nhãn EXTRACTED, INFERRED, AMBIGUOUS, không embedding. Hai: các bảng đo có mẫu nhỏ, sáu câu hỏi trên ERPNext, năm mươi câu LongMemEval, mười hai cạnh kiểm tay, do chính dự án chạy; con số tám mươi phần trăm gắn với sản phẩm Cloud và không có bảng đo trong BENCHMARKS. Ba: dự án trước 1.0 phát hành gần như mỗi ngày."
+    },
+    {
+      "title": "Hồ sơ nhanh của Graphify",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S7",
+        "S8",
+        "S10",
+        "S11"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền trước khi đi vào cơ chế. Ba nhãn xuyên suốt: nguồn repo là đọc từ tệp, người viết đếm là tính bằng lệnh trên bản đã tải, dữ liệu radar là số sao từ state của GitHub Radar. Nhấn mạnh tên gói PyPI có hai chữ y.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Skill cho trợ lý AI + thư viện Python + CLI graphify; gói PyPI tên graphifyy"
+        },
+        {
+          "label": "Bản hiện tại",
+          "text": "0.9.97, ngày 27/10/2026; Python 3.10 trở lên"
+        },
+        {
+          "label": "Giấy phép",
+          "text": "Apache-2.0; phần đóng góp trước đó theo MIT, giữ trong LICENSE-MIT"
+        },
+        {
+          "label": "Số sao",
+          "text": "137.165 (28/10/2026); thêm 9.413 sao trong 11 ngày kể từ 17/10"
+        },
+        {
+          "label": "Quy mô",
+          "text": "1.118 tệp; 90.797 dòng Python trong graphify/; 143.000 dòng tests"
+        },
+        {
+          "label": "Tích hợp",
+          "text": "16 tệp skill sinh sẵn; MCP có 10 công cụ và 6 tài nguyên"
+        }
+      ]
+    },
+    {
+      "title": "Ba lời hứa của README",
+      "section": "Repo này là gì",
+      "sources": [
+        "S1"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Mã dựng miễn phí, cục bộ: tree-sitter AST, tất định, không mô hình, không gửi gì ra ngoài",
+        "Mỗi cạnh có giải thích: EXTRACTED là nói thẳng trong nguồn, INFERRED là Graphify suy ra",
+        "Không phải chỉ mục vector: không embedding, không kho vector, là đồ thị thật để duyệt",
+        "Hỏi, lần đường, giải thích: query, path, explain chạy trên graph.json"
+      ],
+      "notes": "Bốn thẻ này là lời hứa trung tâm. Hai thẻ đầu về chi phí và quyền riêng tư của phần mã. Thẻ ba về lựa chọn kiến trúc, đồ thị thay vì vector. Thẻ bốn về cách dùng. Mọi lời hứa này là tuyên bố của README; phần sau sẽ xem có số đo nào đỡ."
+    },
+    {
+      "title": "Bảng khả năng",
+      "section": "Repo này là gì",
+      "sources": [
+        "S1"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Nút thần: các khái niệm nhiều kết nối nhất, để thấy mọi thứ chảy qua đâu",
+        "Cộng đồng: chia đồ thị thành hệ con bằng Leiden, nhãn không cần mô hình",
+        "Liên kết chéo tệp: calls, imports, inherits, mixes_in trên khoảng 40 ngôn ngữ",
+        "Ghi chú lý do: # NOTE:, # WHY: và trích dẫn ADR/RFC thành nút liên kết với mã",
+        "Ngoài mã: tài liệu, PDF, ảnh, âm thanh, video vào cùng một đồ thị",
+        "Cục bộ trước: chỉ lượt ngữ nghĩa trên tài liệu mới gọi mô hình, và chỉ khi bạn cấu hình"
+      ],
+      "notes": "Đây là bảng Graphify làm được gì trong README, rút gọn. Lưu ý con số khoảng bốn mươi ngôn ngữ là của README; tài liệu how-it-works lại ghi hai mươi lăm. Sẽ quay lại ở phần phản biện."
+    },
+    {
+      "title": "Cài hai lệnh, gõ một lệnh",
+      "section": "Bắt đầu nhanh",
+      "sources": [
+        "S1"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Cài: uv tool install graphifyy (hoặc pipx install graphifyy)",
+        "Đăng ký: graphify install, tự nhận ra trợ lý bạn dùng",
+        "Chạy: /graphify . trong trợ lý (Codex dùng $graphify)",
+        "Nhận: graph.html, GRAPH_REPORT.md và graph.json trong graphify-out/"
+      ],
+      "notes": "Bốn bước từ cài đến kết quả. Nhắc kỹ chuyện tên gói: PyPI chính thức là graphifyy với hai chữ y, README cảnh báo các gói graphify khác không liên quan. graphify install --project ghi skill vào thư mục dự án để commit. Người viết chưa chạy các lệnh này trong phiên làm bài."
+    },
+    {
+      "title": "Đường ống bảy bước",
+      "section": "Đường ống từ thư mục đến đồ thị",
+      "sources": [
+        "S2"
+      ],
+      "layout": "flow",
+      "tone": "light",
+      "bullets": [
+        "detect: quét thư mục, gom tệp theo loại, đếm từ",
+        "extract: danh sách tệp thành nút và cạnh",
+        "build và cluster: gộp thành đồ thị rồi chia cộng đồng",
+        "analyze và report: nút thần, kết nối bất ngờ, câu hỏi gợi ý, GRAPH_REPORT.md",
+        "export: graph.json, graph.html, Obsidian, SVG, GraphML, Cypher"
+      ],
+      "notes": "Đường ống trong ARCHITECTURE: detect, extract, build, cluster, phân tích, report, export. Mỗi bước một module, trao đổi bằng dict thuần và đồ thị NetworkX. analyze và export là tập các hàm anh em, không có một hàm vào duy nhất. ARCHITECTURE có kiểm thử import mọi ký hiệu được nêu nên bảng này khó lệch khỏi mã."
+    },
+    {
+      "title": "Ba lượt xử lý",
+      "section": "Đường ống từ thư mục đến đồ thị",
+      "sources": [
+        "S4"
+      ],
+      "layout": "layers",
+      "tone": "dark",
+      "bullets": [
+        "Lượt 1, mã: tree-sitter lấy lớp, hàm, import, đồ thị gọi; miễn phí, không API",
+        "Lượt 2, video và âm thanh: phiên âm cục bộ bằng faster-whisper, mồi bằng các nút thần",
+        "Lượt 3, tài liệu, PDF, ảnh: tác tử mô hình chạy song song, mỗi tác tử trả một mảnh JSON",
+        "Thư mục chỉ có mã thì bỏ hẳn lượt 3, nên không tốn token"
+      ],
+      "notes": "Đây là chỗ phân biệt cái nào tốn tiền. Lượt một và hai chạy cục bộ. Lượt ba mới tốn token và chỉ khi có tài liệu hoặc ảnh. Với kho chỉ có mã thì không có chi phí mô hình. Lưu ý how-it-works gọi lượt ba là Claude subagents trong khi README nói dùng mô hình của trợ lý hoặc khoá API cấu hình."
+    },
+    {
+      "title": "Song song và cache",
+      "section": "Đường ống từ thư mục đến đồ thị",
+      "sources": [
+        "S4",
+        "S2"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Song song: ProcessPoolExecutor trích mã bằng nhiều tiến trình, tránh GIL",
+        "Cache SHA256: tệp không đổi thì bỏ qua, cache nằm ở graphify-out/cache/",
+        "Gọi từ mã riêng: luôn truyền root cho extract(), nếu không mã nút mang đường dẫn máy khác",
+        "Kiểm lược đồ: validate.py kiểm đầu ra mọi bộ trích trước khi build() dùng"
+      ],
+      "notes": "Bốn chi tiết kỹ thuật làm đường ống chạy lại được. Chi tiết về root là lời dặn đáng nhớ nếu bạn gọi thư viện từ mã riêng. Phần lược đồ cho thấy Graphify không tin đầu ra của chính bộ trích."
+    },
+    {
+      "title": "Ba nhãn tin cậy",
+      "section": "Độ tin cậy của từng cạnh",
+      "sources": [
+        "S2",
+        "S4"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "EXTRACTED: nói thẳng trong nguồn, như câu import hay lời gọi trực tiếp; điểm luôn 1,0",
+        "INFERRED: suy luận hợp lý; điểm 0,95, 0,85, 0,75, 0,65 hoặc 0,55 theo thang rời rạc",
+        "AMBIGUOUS: không chắc, đánh dấu để người xem lại trong GRAPH_REPORT.md",
+        "Hướng cạnh: đồ thị lưu theo thứ tự cung, không theo thứ tự đỉnh trong tệp"
+      ],
+      "notes": "Đây là ý tưởng khác biệt nhất. Mỗi quan hệ có nhãn và INFERRED có thang điểm rời rạc từ chín mươi lăm xuống năm mươi lăm. Dòng cuối là chi tiết dễ vấp khi đọc graph.json: tệp ghi directed false nhưng hướng nằm ở thứ tự cung, nên cần nạp qua paths.load_node_link_graph."
+    },
+    {
+      "title": "Luật đóng góp biến nhãn thành kỷ luật",
+      "section": "Độ tin cậy của từng cạnh",
+      "sources": [
+        "S6",
+        "S7"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Giữ suy luận tách khỏi sự thật đã trích; không biến mơ hồ thành chắc chắn vì kết quả giàu hơn",
+        "Ưu tiên đóng khi nghi ngờ hơn đoán quan hệ",
+        "Bản ghi có nguồn thật không được thua nút giả giàu thông tin nhưng không có nguồn",
+        "Ví dụ ở 0.9.96: run() không còn nối nhầm vào _run(); nhãn extracted viết thường vẫn bị kiểm bằng chứng"
+      ],
+      "notes": "CONTRIBUTING nêu mười lăm giá trị. Ba giá trị liên quan nhãn tin cậy được trích ở đây. Dòng cuối cho thấy luật đi vào mã: hai sửa lỗi trong bản 0.9.96. Đây là bằng chứng gián tiếp rằng nhãn không chỉ là trang trí."
+    },
+    {
+      "title": "Truy vấn không cần trợ lý",
+      "section": "Dùng đồ thị: truy vấn, MCP, luôn bật",
+      "sources": [
+        "S1"
+      ],
+      "layout": "sequence-diagram",
+      "tone": "dark",
+      "bullets": [
+        "Hỏi bằng lời: /graphify query với một câu hỏi như thứ nối xác thực với cơ sở dữ liệu",
+        "Lần đường: path A B ra đường ngắn nhất, ví dụ FastAPI đến ModelField 3 bước",
+        "Giải thích: explain APIRouter cho nguồn, cộng đồng, bậc và danh sách kết nối",
+        "Mã thoát: 0 là có đáp án, 3 là tên mơ hồ (kèm ứng viên), 4 là không có nút khớp"
+      ],
+      "notes": "Sau khi có graph.json bạn truy vấn thẳng từ dòng lệnh. Ví dụ trong README chạy trên mã FastAPI. Điểm đáng chú ý là mã thoát: kịch bản có thể đọc kết quả từ exit code, ba là tên mơ hồ, bốn là không có nút khớp. Tên khớp nhiều nút không bị đoán mà bị từ chối kèm danh sách."
+    },
+    {
+      "title": "Đưa đồ thị vào agent",
+      "section": "Dùng đồ thị: truy vấn, MCP, luôn bật",
+      "sources": [
+        "S1",
+        "S10"
+      ],
+      "layout": "connection-diagram",
+      "tone": "light",
+      "bullets": [
+        "Hook: Claude Code và Gemini CLI có hook chạy trước lệnh tìm kiếm, nhắc agent dùng đồ thị",
+        "Tệp chỉ dẫn: Codex, OpenCode, Cursor nhận AGENTS.md hoặc .cursor/rules/",
+        "MCP: serve.py mở 10 công cụ, như query_graph, shortest_path, god_nodes, get_pr_impact",
+        "Nhóm prs: bảng điều khiển PR, tác động đồ thị và các PR dùng chung cộng đồng"
+      ],
+      "notes": "Ba đường đưa đồ thị vào agent: hook, tệp chỉ dẫn và máy chủ MCP. Mười công cụ MCP do người viết đếm trong serve.py. Nhóm công cụ về pull request là phần ít được nhắc: xếp hạng hàng đợi review và cảnh báo thứ tự gộp. README nói rõ không có quy tắc ưu tiên chung khi dùng cả CLI lẫn MCP, nên hãy chọn một đường chính."
+    },
+    {
+      "title": "Bản đồ thư mục",
+      "section": "Mã nguồn nằm ở đâu",
+      "sources": [
+        "S6",
+        "S2"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "graphify/: gói chính, 96 tệp Python, 90.797 dòng; 234 tệp được git theo dõi",
+        "graphify/extractors/: 37 module, mỗi ngôn ngữ hoặc định dạng một tệp",
+        "tests/: 595 tệp theo dõi, 468 tệp test_*.py, 7.155 hàm test_",
+        "tools/skillgen/: phân mảnh nguồn của các tệp skill; đây là nguồn chính thức",
+        "worked/: 5 ví dụ có sẵn đầu vào và đầu ra, như httpx và mixed-corpus",
+        "docs/: how-it-works, RFC tóm tắt nút, 31 bản dịch README"
+      ],
+      "notes": "Bản đồ thư mục, số liệu là người viết đếm bằng find, wc, grep và git ls-files. Điều đáng nhớ: các tệp skill ở graphify/ là sinh ra từ tools/skillgen, không được sửa tay, và CI có job skillgen-check bắt việc đó."
+    },
+    {
+      "title": "Quy mô mã, người viết đếm",
+      "section": "Mã nguồn nằm ở đâu",
+      "sources": [
+        "S9",
+        "S6"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Tests và mã: tests nhiều hơn mã chạy khoảng 1,6 lần, 143.000 so với 90.797 dòng",
+        "Ba tệp lớn nhất: extract.py 11.513, cli.py 5.480, serve.py 3.136 dòng",
+        "Skill sinh sẵn: 16 tệp skill cho các nền tảng khác nhau",
+        "Kỷ luật CI: bắt tệp sinh bị sửa tay hoặc quên chạy bộ sinh"
+      ],
+      "notes": "Một vài con số quy mô. Tệp extract.py dài hơn mười một nghìn dòng là điểm đáng chú ý về nợ cấu trúc, và thư mục extractors là nỗ lực tách dần: ARCHITECTURE nói extract.py re-export các module trong khi ngôn ngữ cũ được chuyển ra. Tests nhiều hơn mã chạy là dấu hiệu kỷ luật kiểm thử."
+    },
+    {
+      "title": "0,497",
+      "section": "Đo hiệu quả: các bộ benchmark",
+      "sources": [
+        "S3"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "recall@10 trên LOCOMO (n=300); BM25 0,362, supermemory 0,149, mem0 0,048",
+        "QA chính xác 45,3%, thấp hơn supermemory 49,7% nhưng nạp rẻ khoảng 11 lần (1,40 so với 15,67 USD)",
+        "Dựng đồ thị tốn 0 tín dụng LLM; mọi hệ chạy cùng harness, cùng Kimi K2.6"
+      ],
+      "notes": "Số lớn của bài: recall mười trên LOCOMO. Đọc cả cột đối chiếu. Về QA, supermemory cao hơn và README bảng chính có ghi, kèm lưu ý recall của supermemory bị nhiễu do embedder khác. Điểm mạnh là chi phí nạp: khoảng một đô bốn mươi so với mười lăm đô sáu mươi bảy. Nhớ rằng harness do chính dự án viết."
+    },
+    {
+      "title": "Các bộ đo khác",
+      "section": "Đo hiệu quả: các bộ benchmark",
+      "sources": [
+        "S3"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "LongMemEval-S (n=50): QA 76%, ngang RAG vector dày 76%; recall 0,844 so với 0,848",
+        "ERPNext cross-tool (n=6): độ phủ dữ kiện 82,0% so với cơ sở grep và đọc 70,8%",
+        "Theo thời gian: 689 điểm hằng tuần 2011 đến 2026, nút từ 3.069 lên 22.620",
+        "Cạnh INFERRED trên FastAPI: kiểm tay 12 cạnh chéo tệp, cả 12 đúng, ngày 5/10/2026",
+        "Người chấm: Kimi K2.6, đồng thuận 90,6% với người chấm thứ hai, kappa 0,81"
+      ],
+      "notes": "Các bộ còn lại. Chú ý cột kích thước mẫu: năm mươi, sáu, mười hai. Đó là lý do bài này gọi các số đo là thật nhưng nhỏ. Mười hai cạnh đúng là kiểm tay một mẫu rất nhỏ, và tài liệu nói rõ đây là kiểm tra ngày cụ thể chứ không phải chỉ số đo liên tục."
+    },
+    {
+      "title": "Giảm token phụ thuộc quy mô",
+      "section": "Đo hiệu quả: các bộ benchmark",
+      "sources": [
+        "S4"
+      ],
+      "layout": "timeline",
+      "tone": "light",
+      "bullets": [
+        "6 tệp (httpx): khoảng 1 lần, vì đã nằm gọn trong cửa sổ ngữ cảnh",
+        "4 tệp (mã Graphify và bài báo Transformer): 5,4 lần",
+        "52 tệp (repo Karpathy, 5 bài báo, 4 ảnh): 71,5 lần ít token mỗi truy vấn",
+        "Tài liệu: giảm token tăng theo quy mô kho; ở 6 tệp lợi ích chỉ là rõ cấu trúc"
+      ],
+      "notes": "Con số có đo về token nằm ở how-it-works. Lợi ích tăng theo quy mô: một lần, 5,4 lần, 71,5 lần. Tài liệu tự nói sáu tệp đã nằm gọn trong cửa sổ ngữ cảnh. Đây là con số trung thực hơn khẩu hiệu 80% và nó cũng cho thấy lần chạy đầu vẫn tốn token để dựng đồ thị tài liệu."
+    },
+    {
+      "title": "Năm vector tấn công và cách chặn",
+      "section": "An toàn và quyền riêng tư",
+      "sources": [
+        "S5"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "SSRF: chỉ http và https, chặn IP riêng, loopback, địa chỉ metadata, kiểm lại chuyển hướng",
+        "Tải lớn: dừng ở 50 MB (safe_fetch) và 10 MB (safe_fetch_text)",
+        "Duyệt đường dẫn ở MCP: đường dẫn phải nằm trong graphify-out/",
+        "Prompt injection: mỗi tệp bọc trong khối untrusted_source kèm băm SHA256",
+        "Lộ khoá: redact_secrets() che chuỗi giống thông tin đăng nhập trước khi ghi graph.json"
+      ],
+      "notes": "SECURITY.md có bảng bề mặt tấn công khá cụ thể. Mô hình đe dọa là công cụ cục bộ. Điểm đáng học là khối untrusted_source với băm SHA256: dữ liệu nguồn là văn bản do kẻ tấn công kiểm soát trộn vào ngữ cảnh mô hình, và Graphify gọi đúng tên nguy cơ đó."
+    },
+    {
+      "title": "Điều gửi đi, điều ở lại",
+      "section": "An toàn và quyền riêng tư",
+      "sources": [
+        "S1",
+        "S5",
+        "S9"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Ở lại máy: mã (tree-sitter), video và âm thanh (faster-whisper cục bộ); không telemetry",
+        "Đi ra ngoài: tài liệu, PDF, ảnh gửi mô hình của trợ lý hoặc khoá API bạn cấu hình",
+        "Log truy vấn: mọi query, path, explain ghi vào ~/.cache/graphify-queries.log; tắt bằng GRAPHIFY_QUERY_LOG_DISABLE=1",
+        "CI quét: bandit và pip-audit --strict; không dùng shell=True, không chạy mã trong nguồn"
+      ],
+      "notes": "Hai cột: điều ở lại máy và điều đi ra. Lưu ý log truy vấn: README nói không telemetry, và log chỉ ghi cục bộ, nhưng câu hỏi của bạn vẫn được lưu thành tệp trong cache. Tắt bằng biến môi trường nếu câu hỏi nhạy cảm."
+    },
+    {
+      "title": "Nhịp phát hành",
+      "section": "Dự án được làm như thế nào",
+      "sources": [
+        "S7"
+      ],
+      "layout": "timeline",
+      "tone": "dark",
+      "bullets": [
+        "3/4/2026: bản 0.1.0, mục đầu tiên của changelog",
+        "23/10/2026: 0.9.95",
+        "25/10/2026: 0.9.96, nâng sàn Pillow và pypdf, hàng chục sửa lỗi theo ngôn ngữ",
+        "27/10/2026: 0.9.97, che thông tin đăng nhập ở một điểm và nâng sàn anyio vì lỗ hổng CVSS 9,3",
+        "Tổng cộng: 240 mục phiên bản trong changelog"
+      ],
+      "notes": "Changelog cho thấy nhịp: 240 mục phiên bản từ ngày 3 tháng 4 đến 27 tháng 10 năm 2026, ba bản liên tiếp trong bốn ngày cuối. Bản 0.9.97 có cả vá bảo mật và hàng chục sửa lỗi riêng ngôn ngữ, nhiều dòng ghi công người đóng góp bên ngoài. Hệ quả thực tế: ghim phiên bản."
+    },
+    {
+      "title": "CI và kỷ luật đóng góp",
+      "section": "Dự án được làm như thế nào",
+      "sources": [
+        "S9",
+        "S6"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "skillgen-check: tệp sinh phải khớp phân mảnh nguồn; kiểm lược đồ file_type; khứ hồi với v8",
+        "Ma trận kiểm thử: pytest trên Python 3.10, 3.12, 3.13, 3.14 với uv --frozen",
+        "Bộ bảo vệ Pi: job riêng chạy bằng bun",
+        "Luật đóng góp: sửa lỗi phải có test hồi quy chứng minh lỗi cũ; PR nhỏ; không sửa tay tệp sinh"
+      ],
+      "notes": "Bốn mảnh nói về kỷ luật. Ba mảnh đầu từ ci.yml, mảnh cuối từ CONTRIBUTING. Điểm đáng học cho team: kiểm tra tệp sinh bằng CI để không ai sửa tay, và yêu cầu test hồi quy chứng minh lỗi cũ chứ không chỉ test cho đường chạy đúng."
+    },
+    {
+      "title": "Giấy phép, nhãn hiệu và Cloud",
+      "section": "Giấy phép, thương hiệu và sản phẩm trả tiền",
+      "sources": [
+        "S1",
+        "S8"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Giấy phép: Apache-2.0; phần đóng góp trước khi đổi giấy phép vẫn theo MIT",
+        "Nhãn hiệu: dự án có chữ graphify trong tên phải ghi rõ là cộng đồng làm",
+        "Cloud: đồ thị sống xuyên nhiều repo, kiểm chứng hình thức, đầu nối Sentry và Jira",
+        "Quảng cáo: lời mời dùng thử 14 ngày ở đầu README, khung ghi chú, khung mẹo và cuối trang"
+      ],
+      "notes": "Phần lõi miễn phí, cục bộ. Cloud là lớp trả tiền luôn bật, và README dùng nó làm dòng đầu tiên. Không có điều khoản nào trong README ép phải dùng Cloud. Với repo này, giấy phép và nhãn hiệu là hai thứ cần đọc nếu bạn định làm công cụ phái sinh."
+    },
+    {
+      "title": "Giảm 80% token: bằng chứng ở đâu",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S3",
+        "S4"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Ở đâu: README, 3 lần, đều gắn với Graphify Cloud",
+        "Thiếu gì: không có bảng đo trong BENCHMARKS hay how-it-works",
+        "Có đo gì: 71,5 lần trên 52 tệp, khoảng 1 lần trên 6 tệp"
+      ],
+      "notes": "Phản biện đầu tiên và quan trọng nhất cho người định dùng. Khẩu hiệu tám mươi phần trăm xuất hiện ba lần và đều gắn với Cloud. Trong hai tài liệu kỹ thuật không có con số đó. Con số có đo là bảy mươi mốt phẩy năm lần ở năm mươi hai tệp, và khoảng một lần ở sáu tệp. Không nói là sai, chỉ nói là chưa có bảng đỡ.",
+      "body": "Cụm **giảm 80% token** xuất hiện ba lần trong README: dòng đầu trang, khung mẹo và mục Cloud, đều trong ngữ cảnh sản phẩm Cloud [S1]. Tìm 80% trong BENCHMARKS và how-it-works không thấy gì (người viết đếm) [S3] [S4].\n\nCon số có đo là **71,5 lần** trên kho 52 tệp, và chính tài liệu nói lợi ích biến mất ở kho nhỏ [S4]. Đọc: lợi ích thật nhưng phụ thuộc quy mô; 80% là tuyên bố tiếp thị chưa có bảng đỡ."
+    },
+    {
+      "title": "Số đo nhỏ, người đo là chính dự án",
+      "section": "Phản biện",
+      "sources": [
+        "S3"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Mẫu: 6 câu hỏi ERPNext, 50 câu LongMemEval-S, 12 cạnh kiểm tay trên FastAPI",
+        "Harness: của Graphify; mem0 và supermemory chạy như adapter bên trong",
+        "LOCOMO QA: supermemory cao hơn (49,7% so với 45,3%); dự án có nói thẳng",
+        "Lưu ý recall: recall của supermemory bị nhiễu do embedder khác, dự án có chú thích",
+        "Kết luận: đo trung thực, chưa phải đánh giá độc lập"
+      ],
+      "notes": "Điểm cộng: BENCHMARKS công bố cả nơi đối thủ thắng, nêu cả lưu ý về embedder, và công bố độ đồng thuận người chấm. Điểm trừ: mẫu nhỏ và harness do chính dự án viết. Muốn kết luận mạnh cần người ngoài chạy lại bằng lệnh tái lập trong tài liệu."
+    },
+    {
+      "title": "Tài liệu tự mâu thuẫn",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S3",
+        "S4"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Ngôn ngữ: README nói khoảng 40, how-it-works nói 25",
+        "Ngày: BENCHMARKS ghi cập nhật 5/7/2026 nhưng chứa phép kiểm ngày 5/10/2026",
+        "Lượt 3: how-it-works nói Claude subagents, README nói mô hình của trợ lý hoặc khoá API",
+        "Hệ quả: khó biết con số nào còn đúng; coi mã và CHANGELOG là nguồn mới nhất"
+      ],
+      "notes": "Ba chỗ lệch tài liệu mà người viết tìm thấy. Không phải lỗi mã, nhưng với dự án đổi hằng ngày thì tài liệu lệch là chuyện tự nhiên. Khuyến nghị thực tế: khi hai tài liệu khác nhau, tin mã và CHANGELOG hơn, rồi kiểm lại bằng lần chạy thật."
+    },
+    {
+      "title": "Điểm yếu và rủi ro",
+      "section": "Điểm yếu và có nên dùng không",
+      "sources": [
+        "S1",
+        "S3",
+        "S5",
+        "S7"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Trước 1.0: SECURITY.md chỉ hỗ trợ latest 0.9.x; ghim phiên bản graphifyy",
+        "Cạnh INFERRED: nhiễu hơn ở mã kiểm thử có hàm trùng tên",
+        "Hook: đặt chữ vào ngữ cảnh agent; từng bị coi là prompt injection và phải đổi lời",
+        "CLI cộng MCP: không có quy tắc ưu tiên chung; chọn một đường truy vấn chính",
+        "Kho rất nhỏ: gần như không lợi; tài liệu và PDF đi qua mô hình bạn cấu hình",
+        "Đồ thị tươi xuyên repo: đó là chỗ Cloud bán, không phải bản miễn phí"
+      ],
+      "notes": "Tổng hợp rủi ro. Nên thử nếu bạn làm việc với repo vừa và lớn cùng một trợ lý lập trình và chấp nhận công cụ trước 1.0. Cẩn thận nếu cần số đo độc lập, hành vi ổn định giữa các bản, hoặc đồ thị tươi xuyên nhiều repo."
+    },
+    {
+      "title": "Cách học trong một buổi",
+      "section": "Cách học trong một buổi",
+      "sources": [
+        "S1",
+        "S2",
+        "S3",
+        "S4"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "15 phút: đọc đầu README và bảng khả năng; ghi một câu hỏi grep không trả lời được",
+        "20 phút: đọc ARCHITECTURE, vẽ lại đường ống bảy bước",
+        "15 phút: đọc how-it-works và bảng nhãn tin cậy",
+        "20 phút: đọc BENCHMARKS có chủ đích phản biện, ghi cỡ mẫu và người đo",
+        "30 phút: cài ghim phiên bản vào repo nhỏ, chạy /graphify ., tự kiểm ba cạnh INFERRED",
+        "Tuỳ chọn: mở worked/httpx/review.md xem kiểm định có sẵn"
+      ],
+      "notes": "Một buổi khoảng một tiếng rưỡi đến hai tiếng. Bước năm là bước bạn thật sự kiểm: chạy trên repo nhỏ của bạn và đối chiếu ba cạnh suy luận với mã. Đó là cách duy nhất biết nhãn tin cậy có đáng tin với mã của bạn."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S6",
+        "S7"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Đồ thị từ mã bằng tree-sitter (tất định, miễn phí) và từ tài liệu bằng mô hình của bạn",
+        "Giá trị khác biệt: nhãn tin cậy từng cạnh và luật đóng khi nghi ngờ",
+        "Số đo công khai thật nhưng nhỏ và tự đo",
+        "Con số 80% không có bảng đỡ; con số có đo là 71,5 lần ở 52 tệp",
+        "Ghim phiên bản, tắt log truy vấn nếu cần, nhớ gói tên graphifyy"
+      ],
+      "notes": "Năm điều cô đọng. Kết thúc bằng khuyến nghị thực hành: ghim phiên bản graphifyy bằng đúng tên có hai chữ y, tắt log truy vấn nếu câu hỏi nhạy cảm, và tự kiểm ba cạnh trước khi tin vào đồ thị."
+    },
+    {
+      "title": "Giới hạn của bài",
+      "section": "Lưu ý",
+      "sources": [
+        "S1"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Đọc bản sao nông (độ sâu 1) ở commit 0a8cd4e ngày 27/10/2026; không đếm được commit hay tag",
+        "Người viết không cài và không chạy Graphify; mọi mô tả hành vi từ tài liệu và mã",
+        "Vòng phản biện của team VPS chưa được thực hiện: các phản biện ở trên là của người viết"
+      ],
+      "notes": "Nói thẳng ba giới hạn. Một: bản sao nông. Hai: chưa chạy công cụ, vì lệnh cài gói ngoài bị chặn trong phiên làm bài. Ba: team VPS chưa duyệt vì phiên chạy trên container đám mây không có đường tới VPS. Bài cần được team VPS hoặc người có quyền duyệt trước khi coi là cuối cùng."
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: ARCHITECTURE.md",
+        "S3: BENCHMARKS.md",
+        "S4: docs/how-it-works.md",
+        "S5: SECURITY.md",
+        "S6: CONTRIBUTING.md và AGENTS.md",
+        "S7: CHANGELOG.md",
+        "S8: pyproject.toml và NOTICE",
+        "S9: .github/workflows/ci.yml",
+        "S10: graphify/serve.py",
+        "S11: state/stars.json của GitHub Radar (số sao 17/10 đến 28/10/2026)"
+      ],
+      "notes": "Mười nguồn ghim theo commit 0a8cd4e, nguồn S11 là dữ liệu radar không ghim được. Mọi khẳng định trong bài có nhãn nguồn tương ứng."
+    }
+  ]
+}

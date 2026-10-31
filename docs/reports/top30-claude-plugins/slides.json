@@ -1,0 +1,1183 @@
+{
+  "title": "Top 30 Claude Code Plugins: bản đồ 30 repo",
+  "subtitle": "Đọc README của 30 repo ở commit ghim ngày 25/10/2026",
+  "slides": [
+    {
+      "title": "30 repo, năm nhóm, một ảnh",
+      "section": "Tóm tắt",
+      "layout": "one-big-number",
+      "tone": "light",
+      "sources": [
+        "S1"
+      ],
+      "notes": "Báo cáo này đọc một ảnh chụp có tên \"Top 30 Claude Code Plugins\" của Charlie Hills: 30 repo GitHub xếp thành năm nhóm, mỗi nhóm sáu repo, kèm số sao đọc ngày 23/10/2026 và một dòng mô tả cho từng repo (nguồn: ảnh [S1]). Ảnh chỉ cho tên, số sao và một câu. Để biết mỗi repo thật sự là gì, cài thế nào và cần cẩn thận điều gì, người viết đã đọc file README của cả 30 repo ở một commit ghim ngày 25/10/2026, chỉ đọc, không chạy lệnh nào của các repo đó [S1].",
+      "bullets": [
+        "repo GitHub trong ảnh \"Top 30 Claude Code Plugins\" của Charlie Hills",
+        "5 nhóm, mỗi nhóm 6 repo; số sao đọc ngày 23/10/2026 (nguồn: ảnh)",
+        "README của cả 30 repo được đọc ở commit ghim ngày 25/10/2026; không chạy lệnh nào"
+      ]
+    },
+    {
+      "title": "Năm điều rút ra sau khi đọc 30 README",
+      "section": "Tóm tắt",
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S18",
+        "S32"
+      ],
+      "notes": "1. Hầu hết là bộ \"skill\" hoặc plugin cho coding agent: văn bản hướng dẫn cộng vài script, cài bằng một hoặc hai lệnh. Một số ít là công cụ đầy đủ, ví dụ proxy nén ngữ cảnh Headroom [S17], studio video OpenMontage cài bằng `make setup` [S27] và bộ dựng PowerPoint PPT Master [S24]. 2. Có bốn cách cài khác nhau: marketplace của Claude Code, lệnh `npx skills add`, trình cài riêng của từng repo, hoặc dán một câu cho agent tự cài. Mỗi cách đòi hỏi mức tin tưởng khác nhau (phần \"Bốn cách cài\"). 3. \"All free\" ở chân ảnh đúng với mã nguồn, nhưng người viết đếm được tám repo có README nhắc thẳng một lớp thương mại hoặc dịch vụ đám mây do dự án hoặc tác giả cung cấp ngay cạnh bản miễn phí, và vài repo có điều khoản giấy phép đáng đọc (phần \"Miễn phí nghĩa là gì\"). 4. Hai mục trong ảnh lệch với thực tế. `gsd-build/get-shit-done` chỉ còn một thông báo \"đã chuyển repo\" [S18]. Số sao 371k của REA trong ảnh lệch rất xa số radar đã đo ngày …",
+      "bullets": [
+        "Hầu hết là bộ skill hoặc plugin cho coding agent, cài bằng một hoặc hai lệnh.",
+        "Bốn cách cài khác nhau, mỗi cách đòi hỏi một mức tin tưởng.",
+        "\"All free\" đúng với mã nguồn, nhưng tám repo có lớp thương mại hoặc dịch vụ đám mây cạnh bên.",
+        "GSD chỉ còn thông báo chuyển repo; số sao 371k của REA lệch số radar đo.",
+        "Nên đọc trước ba repo: Karpathy Skills, Humanizer, Superpowers (suy luận)."
+      ]
+    },
+    {
+      "title": "Bốn nhãn để đọc báo cáo",
+      "section": "Ảnh nói gì, report đọc thế nào",
+      "layout": "card-grid",
+      "tone": "light",
+      "sources": [
+        "S1"
+      ],
+      "notes": "Ba nhãn dùng xuyên suốt. **Nguồn: repo** là điều đọc thẳng từ README ở commit ghim, luôn kèm nhãn nguồn như [S2]. **Người viết đếm** là con số do người viết tự đếm bằng script trên cây thư mục hoặc trên README, và câu đó nói rõ đã đếm gì. **Suy luận** là nhận định của người viết, không phải lời của tác giả repo. Số sao và dòng mô tả trong ảnh là **nguồn: ảnh**, người viết không đo lại chúng.",
+      "bullets": [
+        "Nguồn repo: đọc thẳng từ README ở commit ghim",
+        "Nguồn ảnh: số sao và dòng mô tả trong ảnh, chưa đo lại",
+        "Người viết đếm: số tự đếm bằng script, nói rõ đã đếm gì",
+        "Suy luận: nhận định của người viết, không phải lời tác giả"
+      ]
+    },
+    {
+      "title": "Ảnh có đáng tin không? Đối chiếu số sao với số radar đo",
+      "section": "Ảnh nói gì, report đọc thế nào",
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S32"
+      ],
+      "notes": "Kiểm tra độ tin của số sao trong ảnh bằng số radar từng đo [S32]. Người viết đếm: tám repo (Ponytail, Graphify, Career Ops, Claude-Mem, Headroom, Taste, Archify, I Have ADHD) có hai mốc đo quanh ngày 23/10, ngày 21/10 và ngày 24/10, và số làm tròn trong ảnh khớp với một giá trị nằm giữa hai mốc đo ở cả tám repo (ảnh không ghi giờ đọc). Ví dụ Ponytail đo được 170.154 sao ngày 21/10 và 174.930 sao ngày 24/10, ảnh ghi 174k [S32][S1]. Ba ví dụ khác: Graphify 130.545 và 133.991 sao (ảnh 133k), Career Ops 76.062 và 76.863 sao (ảnh 77k), Archify 86.603 và 88.372 sao (ảnh 88k) [S32][S1]. ECC đo được 285.034 sao ngày 21/10, ảnh ghi 287k; chênh khoảng 2.000 sao sau hai ngày, **suy luận** là hợp lý với nhịp tăng của repo [S32][S1]. REA là ngoại lệ: radar đo 293.881 sao ngày 17/10, ảnh ghi 371k, chênh khoảng 77.000 sao trong sáu ngày (hiệu của 371 nghìn và 293.881, số trong ảnh đã làm tròn đến nghìn), lớn hơn nhiều nhịp của mọi repo khác, nên người viết không dùng số sao …",
+      "bullets": [
+        "Ponytail: ảnh 174k; radar 170.154 (21/10) và 174.930 (24/10), khớp",
+        "Graphify: ảnh 133k; radar 130.545 và 133.991, khớp",
+        "Career Ops: ảnh 77k; radar 76.062 và 76.863, khớp",
+        "Archify: ảnh 88k; radar 86.603 và 88.372, khớp",
+        "ECC: ảnh 287k; radar 285.034 ngày 21/10, hợp lý (suy luận)",
+        "REA: ảnh 371k; radar 293.881 ngày 17/10, lệch khoảng 77.000"
+      ]
+    },
+    {
+      "title": "Nhóm 1: sáu cách kéo agent về kỷ luật",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "notes": "Sáu repo cùng giải một bài toán: agent viết code nhanh nhưng làm sai thói quen của kỹ sư giỏi, như đoán ý, làm quá tay, quên kiểm tra. Mỗi repo chọn một cách khác nhau để kéo agent về kỷ luật, từ một file quy tắc đến cả một quy trình.",
+      "bullets": [
+        "Superpowers: quy trình phát triển hoàn chỉnh, 15 skill ghép nhau",
+        "Matt Pocock Skills: skill nhỏ, ghép được, không sở hữu quy trình",
+        "ECC: hệ thống 71 agent, 311 skill, 97 lệnh cho agent",
+        "Karpathy Skills: một file CLAUDE.md với bốn nguyên tắc",
+        "Ponytail: ít code nhất mà vẫn giữ kiểm tra và bảo mật",
+        "Agent Skills: 25 skill theo vòng đời, 9 lệnh gạch chéo"
+      ]
+    },
+    {
+      "title": "Superpowers: cả quy trình, từ hỏi ý đến review",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Plans, tests and checks its work\" · 304k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Phương pháp phát triển gồm các skill ghép nhau: hỏi ý, spec, kế hoạch, subagent."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`/plugin install superpowers@claude-plugins-official`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Logo tải từ website tác giả kèm phiên bản; tắt bằng `SUPERPOWERS_DISABLE_TELEMETRY`."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Matt Pocock Skills: skill nhỏ, ghép được, bạn giữ quyền lái",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S3"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Grills your plan, then builds with tests\" · 301k sao",
+        "Là gì: Skill tác giả dùng hằng ngày cho real engineering, không phải vibe coding.",
+        "Cài bằng: `claude plugin install mattpocock-skills@claude-plugins-official`, rồi `/setup-matt-pocock-skills`",
+        "Cẩn thận: Chọn một đường cài; cài cả plugin lẫn chép file thì mỗi skill có hai lần."
+      ]
+    },
+    {
+      "title": "ECC: hệ thống lớn nhất nhóm, đọc kỹ trước khi cài",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "profile-card",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S4"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Skills, memory and security in one\" · 287k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Hệ thống cho agent: kế hoạch, test, review, ghi nhớ; 71 agent, 311 skill, 97 lệnh."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`/plugin marketplace add https://github.com/affaan-m/ECC` rồi `/plugin install ecc@ecc`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "README cảnh báo bản sao có thể chứa mã độc; có ECC Pro cho repo riêng tư, từ $19/seat/mo."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Karpathy Skills: một file CLAUDE.md, bốn nguyên tắc",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S5"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"One CLAUDE.md for better code\" · 222k sao",
+        "Là gì: Một file `CLAUDE.md` rút ra từ quan sát của Karpathy về lỗi của LLM khi viết code.",
+        "Cài bằng: `/plugin marketplace add forrestchang/andrej-karpathy-skills`",
+        "Cẩn thận: Repo có 9 file, không có file LICENSE dù README ghi MIT; cùng commit với một repo khác tên."
+      ]
+    },
+    {
+      "title": "Ponytail: viết đúng thứ cần, không hơn",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S6"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Less code. The simplest fix wins\" · 174k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Bắt agent viết ít code nhất mà vẫn giữ kiểm tra, xử lý lỗi, bảo mật; có `/ponytail-review`."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`/plugin marketplace add DietrichGebert/ponytail`, rồi `/plugin install ponytail@ponytail`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Số 53% code và 98% test là của tác giả; chỉ cài từ `DietrichGebert/ponytail`."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Agent Skills: vòng đời DEFINE đến SHIP trong 9 lệnh",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S7"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Senior engineering habits, step by step\" · 109k sao",
+        "Là gì: 25 skill mã hóa thói quen senior theo sáu bước DEFINE, PLAN, BUILD, VERIFY, REVIEW, SHIP.",
+        "Cài bằng: `npx skills add addyosmani/agent-skills`",
+        "Cẩn thận: `/review` trùng lệnh có sẵn của Claude Code, nên gọi `/agent-skills:review`."
+      ]
+    },
+    {
+      "title": "Superpowers và Matt Pocock: hai cách nghĩ về quy trình",
+      "section": "Nhóm 1: Viết code như dân senior",
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "sources": [
+        "S2",
+        "S3"
+      ],
+      "notes": "Sáu repo cùng giải một bài toán: agent viết code nhanh nhưng làm sai thói quen của kỹ sư giỏi, như đoán ý, làm quá tay, quên kiểm tra. Mỗi repo chọn một cách khác nhau để kéo agent về kỷ luật, từ một file quy tắc đến cả một quy trình.",
+      "bullets": [
+        "Superpowers: Quy trình hoàn chỉnh; skill tự kích hoạt khi agent thấy bạn đang xây thứ gì.",
+        "Matt Pocock Skills: Skill nhỏ, dễ sửa; README chê các khung sở hữu quy trình làm bạn mất kiểm soát.",
+        "Cả hai cài qua marketplace tên `claude-plugins-official`"
+      ]
+    },
+    {
+      "title": "Nhóm 2: sáu cách cho agent nhìn xa hơn",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S8",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "notes": "Sáu repo cho agent \"mắt\" và \"trí nhớ ngoài\": dịch ngược một ứng dụng, biến mã nguồn thành đồ thị, đọc những nơi agent bình thường không vào được, hoặc nghiên cứu một chủ đề từ nhiều nền tảng.",
+      "bullets": [
+        "REA: dịch ngược ứng dụng bằng một MCP chạy trên máy bạn",
+        "Graphify: đồ thị tri thức từ code, tài liệu, PDF, ảnh",
+        "Agent Reach: 14 kênh web, video, nền tảng cần đăng nhập",
+        "Understand Anything: đồ thị và bảng điều khiển cho dự án lạ",
+        "Career Ops: chấm tin tuyển dụng theo CV, bạn tự bấm gửi",
+        "Last 30 Days: nghiên cứu một chủ đề từ nhiều nền tảng"
+      ]
+    },
+    {
+      "title": "REA: cho agent công cụ dịch ngược phần mềm",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S8"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Shows how any app really works\" · 371k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Một MCP dịch ngược: file nhị phân, ứng dụng Electron, .NET, website; phân tích chạy trên máy bạn."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`npx rea-agents setup`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Dành cho phần mềm bạn sở hữu hoặc được phép xem xét; số sao 371k lệch số radar đo."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Graphify: biến code và tài liệu thành đồ thị để truy vấn",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S9"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Turns docs and code into a map\" · 133k sao",
+        "Là gì: `/graphify` lập đồ thị tri thức; cạnh gắn nhãn `EXTRACTED` hoặc `INFERRED`.",
+        "Cài bằng: `uv tool install graphifyy`, `graphify install`, rồi `/graphify .`",
+        "Cẩn thận: Tên gói có hai chữ y; có Graphify Cloud, dùng thử 14 ngày."
+      ]
+    },
+    {
+      "title": "Agent Reach: cho agent vào những nơi nó không tự vào được",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "profile-card",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S10"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Reads X, Reddit and YouTube free\" · 101k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "14 kênh: 5 mặc định, 6 tùy chọn, 3 thử nghiệm; README viết bằng tiếng Trung."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "Đưa agent câu yêu cầu cài từ `docs/install.md` trên GitHub."
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Sao chép phiên đăng nhập từ Chrome sang trình duyệt riêng; README khuyên dùng tài khoản phụ."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Understand Anything: đồ thị tri thức cho dự án mới",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S11"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Explains any codebase visually\" · 87k sao",
+        "Là gì: Plugin Claude Code dựng đồ thị mọi file, hàm, lớp, phụ thuộc kèm bảng điều khiển.",
+        "Cài bằng: `/plugin marketplace add Egonex-AI/Understand-Anything`, rồi `/understand`",
+        "Cẩn thận: README nêu `Egonex-AI`, repo đọc nằm ở `Lum1104/Understand-Anything`: kiểm tên chủ."
+      ]
+    },
+    {
+      "title": "Career Ops: chấm tin tuyển dụng, bạn tự bấm gửi",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S12"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Scores job ads against your CV\" · 77k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Dán một tin tuyển dụng: kiểm còn mở không, chấm độ hợp với CV, soạn CV và câu trả lời."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`npx @santifer/career-ops init`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Không tự nộp đơn hay gửi email; 740 tin, 68 lần nộp, 12 phỏng vấn là lời tác giả."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Last 30 Days: nghiên cứu theo lượt thích và tiền thật",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S13"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Researches Reddit, X, YouTube and more\" · 65k sao",
+        "Là gì: Tìm song song Reddit, HN, Polymarket, GitHub rồi chấm theo mức tương tác của người thật.",
+        "Cài bằng: `/plugin marketplace add mvanhorn/last30days-skill` rồi `/plugin install last30days`",
+        "Cẩn thận: X, YouTube, TikTok cần khóa hoặc đăng nhập; chỉ gửi dữ liệu đi khi bạn đặt khóa mô hình."
+      ]
+    },
+    {
+      "title": "Bốn thứ agent không tự nhìn thấy (suy luận)",
+      "section": "Nhóm 2: Nghiên cứu và hiểu",
+      "layout": "connection-diagram",
+      "tone": "dark",
+      "sources": [
+        "S8",
+        "S9",
+        "S10",
+        "S13"
+      ],
+      "notes": "Sáu repo cho agent \"mắt\" và \"trí nhớ ngoài\": dịch ngược một ứng dụng, biến mã nguồn thành đồ thị, đọc những nơi agent bình thường không vào được, hoặc nghiên cứu một chủ đề từ nhiều nền tảng.",
+      "bullets": [
+        "REA: ứng dụng đã biên dịch",
+        "Graphify: cả dự án thành đồ thị",
+        "Agent Reach: nơi cần đăng nhập",
+        "Last 30 Days: cộng đồng và thị trường"
+      ]
+    },
+    {
+      "title": "Nhóm 3: sáu cách giữ dự án lớn trong tầm tay",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19"
+      ],
+      "notes": "Sáu repo xử lý hai nỗi đau của dự án lớn: ngữ cảnh đắt và quy trình trôi. Ba repo giảm token (Caveman, Headroom, Claude-Mem), hai repo là khung quy trình (BMAD, GSD) và gstack là cả đội ảo.",
+      "bullets": [
+        "gstack: đội kỹ thuật ảo, hai mươi ba chuyên gia và tám công cụ",
+        "Caveman: agent nói ít, đọc ít, mã giữ nguyên",
+        "Claude-Mem: ghi nhớ giữa các phiên làm việc",
+        "Headroom: nén ngữ cảnh trước khi tới mô hình",
+        "GSD: chỉ còn thông báo, dự án chuyển sang gsd-core",
+        "BMAD Method: quy trình agile cho AI, v6.12 ổn định"
+      ]
+    },
+    {
+      "title": "gstack: cả đội kỹ thuật ảo trong lệnh gạch chéo",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S14"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"A CEO, designer and QA team\" · 137k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Garry Tan biến Claude Code thành đội: CEO, kỹ thuật, thiết kế, QA, bảo mật, phát hành."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "Agent chạy `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git` rồi `./setup`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Cài bằng cách bảo agent chạy script: đọc script trước; telemetry mặc định tắt."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Caveman: câu trả lời ngắn, mã vẫn chính xác",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S15"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Shorter replies, fewer tokens\" · 114k sao",
+        "Là gì: Làm agent nói ít, đọc ít; ví dụ 63 token còn 20, mã giữ nguyên.",
+        "Cài bằng: `npx @caveman-ai/cli@latest`, cần Node.js 22.13+",
+        "Cẩn thận: CLI gửi thống kê dùng mặc định; tắt bằng `caveman telemetry off`."
+      ]
+    },
+    {
+      "title": "Claude-Mem: nhớ lại những gì đã làm ở phiên trước",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "profile-card",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S16"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Remembers past sessions\" · 102k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Tự ghi quan sát về lần dùng công cụ, tạo tóm tắt ngữ nghĩa và đưa cho phiên sau."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`npx claude-mem install`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Bộ cài mời đăng nhập, dùng thử 30 ngày; bỏ qua bằng `--provider` hoặc `CLAUDE_MEM_ONLINE_OPTIN=false`."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Headroom: nén thứ agent đọc trước khi tới mô hình",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S17"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Shrinks files before Claude reads them\" · 77k sao",
+        "Là gì: Nén kết quả công cụ, log, RAG, file, lịch sử; chạy trên máy bạn; `headroom wrap claude`.",
+        "Cài bằng: `uv tool install --python 3.13 \"headroom-ai[all]\"`",
+        "Cẩn thận: Tiết kiệm 21% đến 57% tùy kịch bản; beacon ẩn danh bật mặc định (`HEADROOM_TELEMETRY=off`)."
+      ]
+    },
+    {
+      "title": "GSD: repo trong ảnh chỉ còn thông báo chuyển nhà",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S18"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Plans big builds so nothing drifts\" · 64k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "README 329 byte \"GSD Has Moved\": dự án tiếp tục ở `open-gsd/gsd-core`."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "README này không có lệnh cài; dùng kho được chỉ tới."
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Báo cáo chưa đọc kho mới nên không mô tả tính năng; số sao 64k gắn với repo cũ."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "BMAD Method: phát triển bằng AI theo kiểu agile",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S19"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"An agile team of AI agents\" · 54k sao",
+        "Là gì: \"Agile Ai Driven Development\": việc nhỏ đi thẳng tới build, việc phức tạp được đào sâu.",
+        "Cài bằng: `npx bmad-method install` (v6.12), cần Node.js 20.12+ và Python 3.10+",
+        "Cẩn thận: README hẹn V7 ngày 16/10/2026 nhưng vẫn gọi là alpha; \"BMad\" là nhãn hiệu."
+      ]
+    },
+    {
+      "title": "Ba đòn bẩy giảm token (suy luận)",
+      "section": "Nhóm 3: Dự án lớn, ít token hơn",
+      "layout": "layers",
+      "tone": "dark",
+      "sources": [
+        "S17",
+        "S15",
+        "S16"
+      ],
+      "notes": "Sáu repo xử lý hai nỗi đau của dự án lớn: ngữ cảnh đắt và quy trình trôi. Ba repo giảm token (Caveman, Headroom, Claude-Mem), hai repo là khung quy trình (BMAD, GSD) và gstack là cả đội ảo.",
+      "bullets": [
+        "Đọc ít hơn: Headroom nén thứ agent đọc",
+        "Nói ít hơn: Caveman rút gọn câu trả lời",
+        "Nhớ lâu hơn: Claude-Mem mang ngữ cảnh sang phiên sau",
+        "Mọi số tiết kiệm là số của tác giả: hãy đo trên việc của bạn"
+      ]
+    },
+    {
+      "title": "Nhóm 4: sáu cách dạy agent thẩm mỹ",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S20",
+        "S21",
+        "S22",
+        "S23",
+        "S24",
+        "S25"
+      ],
+      "notes": "Sáu repo dạy agent những thứ nó hay làm xấu: giao diện, định hướng thẩm mỹ, sơ đồ và slide. Điểm chung là cố ép đầu ra khỏi \"mặt trung bình\" của mô hình.",
+      "bullets": [
+        "UI UX Pro Max: sinh hệ thống thiết kế từ yêu cầu dự án",
+        "Taste: định hướng nghệ thuật, ảnh thật, tự kiểm trình duyệt",
+        "Archify: sơ đồ và trang giải thích từ một mô tả",
+        "Impeccable: 24 lệnh và 62 quy tắc cho giao diện",
+        "PPT Master: PowerPoint gốc từ tài liệu bất kỳ",
+        "Diagram Design: 45 kiểu sơ đồ trong một file HTML"
+      ]
+    },
+    {
+      "title": "UI UX Pro Max: bộ sinh hệ thống thiết kế cho dự án",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S20"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"A designer's eye for apps and sites\" · 139k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Phân tích yêu cầu rồi sinh hệ thống thiết kế; 192 loại sản phẩm, 79 kiểu giao diện."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`npm install -g ui-ux-pro-max-cli` rồi `uipro init --ai claude`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Repo là bản Basic; bản Premium thêm logo, ảnh AI, design token cho đội lớn."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Taste: định hướng nghệ thuật, tự kiểm trên trình duyệt",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S21"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Gives Claude art direction\" · 101k sao",
+        "Là gì: Dựng web và màn hình ứng dụng từ một brief, với ảnh thật có ghi nguồn.",
+        "Cài bằng: `npx skills add https://github.com/Leonxlnx/taste-skill --skill \"design-taste-frontend\"`",
+        "Cẩn thận: Một lượt dựng khoảng 30 đến 45 phút và vài trăm nghìn token; cần Node 22+ và Chrome."
+      ]
+    },
+    {
+      "title": "Archify: mô tả một ý, nhận sơ đồ và trang giải thích",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "profile-card",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S22"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Turns any idea into a diagram\" · 88k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Agent vẽ sơ đồ từ mô tả hoặc từ repo; xuất một file HTML, ảnh PNG, WebP, JPG hoặc PDF."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`npx skills add tt-a1i/archify -g`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Dịch vụ trực tuyến bên thứ ba và gói trả phí không thuộc dự án, theo README."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Impeccable: ngôn ngữ thiết kế và quy tắc bắt dấu hiệu AI",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S23"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"A design language for Claude\" · 85k sao",
+        "Là gì: 1 skill, 24 lệnh, 62 quy tắc phát hiện xác định cho giao diện do AI sinh.",
+        "Cài bằng: `npx impeccable install`, rồi `/impeccable init`",
+        "Cẩn thận: Bắt đầu thiết kế là gọi API impeccable.style; bản ghi ẩn danh gửi đi trừ khi bạn từ chối."
+      ]
+    },
+    {
+      "title": "PPT Master: PowerPoint gốc, chỉnh sửa được",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S24"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Real, editable PowerPoint decks\" · 67k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Tạo PowerPoint từ tài liệu bất kỳ với slide master, hình gốc, biểu đồ và bảng có dữ liệu."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "Cần Python 3.10+, rồi `pip install -r requirements.txt`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "README nhiều lời mời và liên kết giới thiệu `aff=`; repo có 13.111 file, lớn nhất trong 30."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Diagram Design: 45 kiểu sơ đồ, một file HTML kèm SVG",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S25"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Clean editorial diagrams\" · 60k sao",
+        "Là gì: Vẽ sơ đồ thành một file HTML kèm SVG tự chứa, theo thương hiệu của bạn.",
+        "Cài bằng: `npx skills add cathrynlavery/diagram-design`",
+        "Cẩn thận: Bản chính thức chỉ từ repo này; `PRIVACY.md` liệt kê những gì skill gửi qua mạng."
+      ]
+    },
+    {
+      "title": "Ba cách ép giao diện khỏi \"mặt trung bình\"",
+      "section": "Nhóm 4: Thiết kế và hình ảnh",
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "sources": [
+        "S20",
+        "S21",
+        "S23"
+      ],
+      "notes": "Sáu repo dạy agent những thứ nó hay làm xấu: giao diện, định hướng thẩm mỹ, sơ đồ và slide. Điểm chung là cố ép đầu ra khỏi \"mặt trung bình\" của mô hình.",
+      "bullets": [
+        "UI UX Pro Max: sinh một hệ thống thiết kế riêng cho dự án",
+        "Taste: chọn một hướng nghệ thuật, dựng, tự xem ảnh chụp và sửa tối đa ba vòng",
+        "Impeccable: bắt các dấu hiệu quen thuộc như Inter cho mọi thứ, gradient tím sang xanh"
+      ]
+    },
+    {
+      "title": "Nhóm 5: sáu việc ngoài code",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S26",
+        "S27",
+        "S28",
+        "S29",
+        "S30",
+        "S31"
+      ],
+      "notes": "Sáu repo mở rộng agent ra ngoài code: viết sạch hơn, trả lời gọn hơn, làm marketing, làm video và học cách Anthropic tự viết skill. Người viết đếm số file của sáu repo: Skills của Anthropic 445, OpenMontage 2.208, HyperFrames 9.179, Humanizer 14, I Have ADHD 74 và Marketing Skills 770, nên hai xưởng video là hai repo nặng nhất nhóm [S26][S27][S28][S29][S30][S31].",
+      "bullets": [
+        "Skills (Anthropic): ví dụ chính thức, gồm skill tài liệu",
+        "OpenMontage: xưởng video AI, giấy phép AGPLv3",
+        "HyperFrames: HTML thành video MP4 xác định",
+        "Humanizer: 26 mẫu để bỏ giọng AI viết",
+        "I Have ADHD: đáp án trước, mười quy tắc",
+        "Marketing Skills: 52 skill cho marketing"
+      ]
+    },
+    {
+      "title": "Skills của Anthropic: ví dụ chính thức và skill tài liệu",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S26"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Word, Excel, PowerPoint and PDF\" · 183k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "19 thư mục skill từ nghệ thuật đến kiểm thử web và MCP; mỗi skill có file `SKILL.md`."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`/plugin marketplace add anthropics/skills`, rồi `/plugin install example-skills@anthropic-agent-skills`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "docx, pdf, pptx, xlsx là source-available; không có LICENSE ở gốc; chỉ để minh họa."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "OpenMontage: xưởng video AI, có đường không cần khóa API",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S27"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"A full AI video studio\" · 71k sao",
+        "Là gì: Mô tả bằng lời, agent lo nghiên cứu, kịch bản, tài nguyên, dựng và ghép cuối.",
+        "Cài bằng: `git clone https://github.com/calesthio/OpenMontage.git`, `cd OpenMontage`, `make setup`",
+        "Cẩn thận: Giấy phép GNU AGPLv3, copyleft mạnh; ví dụ dùng API trả phí hết 1,33 đến khoảng 4 đô la."
+      ]
+    },
+    {
+      "title": "HyperFrames: HTML thành video MP4 xác định",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "profile-card",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S28"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Turns HTML into video\" · 70k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Khung mã nguồn mở của HeyGen dựng HTML, CSS, media, hoạt ảnh tua được thành MP4."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "`claude plugin marketplace add heygen-com/hyperframes`, rồi `claude plugin install hyperframes@hyperframes`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Có mục so sánh với Remotion; repo có 9.179 file; giấy phép Apache 2.0."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Humanizer: 26 mẫu để bỏ giọng \"AI viết\"",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S29"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Strips the AI tells from writing\" · 59k sao",
+        "Là gì: Viết lại văn bản AI cho giống người viết, không đổi ý, dựa trên Signs of AI writing của Wikipedia.",
+        "Cài bằng: `/plugin marketplace add blader/humanizer`, rồi `/plugin install humanizer@humanizer`",
+        "Cẩn thận: Qua mặt bộ phát hiện AI không phải mục tiêu; 16 trên 16 là thử mù của tác giả."
+      ]
+    },
+    {
+      "title": "I Have ADHD: đáp án trước, mười quy tắc",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "profile-card",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S30"
+      ],
+      "notes": "",
+      "facts": [
+        {
+          "label": "Ảnh ghi",
+          "text": "\"Puts the answer first\" · 58k sao"
+        },
+        {
+          "label": "Là gì",
+          "text": "Bắt agent nêu hành động trước, đánh số bước, bỏ mở bài, tóm tắt và câu chốt."
+        },
+        {
+          "label": "Cài bằng",
+          "text": "Dán cho agent câu yêu cầu cài từ `https://github.com/ayghri/i-have-adhd`, xem `AGENTS.md`"
+        },
+        {
+          "label": "Cẩn thận",
+          "text": "Là cách định dạng câu trả lời, không phải công cụ y tế; repo có 74 file."
+        }
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Marketing Skills: 52 skill cho người làm marketing kỹ thuật",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "lookup-table",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S31"
+      ],
+      "notes": "",
+      "bullets": [
+        "Ảnh ghi: \"Copywriting, SEO and CRO skills\" · 56k sao",
+        "Là gì: Skill cho chuyển đổi, quảng cáo, SEO, đo lường, tăng trưởng; chia thành 9 nhóm.",
+        "Cài bằng: `npx skills add coreyhaines31/marketingskills`, thêm `--list` để xem trước",
+        "Cẩn thận: Miễn phí và MIT, nhưng có Verified Partners tài trợ và dịch vụ tư vấn của tác giả."
+      ]
+    },
+    {
+      "title": "Nhóm 5: hai xưởng video là hai repo nặng nhất",
+      "section": "Nhóm 5: Viết lách và video",
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "sources": [
+        "S28",
+        "S27"
+      ],
+      "notes": "Sáu repo mở rộng agent ra ngoài code: viết sạch hơn, trả lời gọn hơn, làm marketing, làm video và học cách Anthropic tự viết skill. Người viết đếm số file của sáu repo: Skills của Anthropic 445, OpenMontage 2.208, HyperFrames 9.179, Humanizer 14, I Have ADHD 74 và Marketing Skills 770, nên hai xưởng video là hai repo nặng nhất nhóm [S26][S27][S28][S29][S30][S31].",
+      "bullets": [
+        "Hai xưởng video là hai repo nặng nhất nhóm 5, và cả hai có điều kiện đáng đọc trước khi dùng.",
+        "HyperFrames có 9.179 file, OpenMontage có 2.208 file (người viết đếm)",
+        "OpenMontage dùng GNU AGPLv3; HyperFrames dùng Apache 2.0",
+        "OpenMontage cũng dùng HyperFrames như một đường dựng"
+      ]
+    },
+    {
+      "title": "Bốn cách cài",
+      "section": "Bốn cách cài và điều chúng đòi hỏi",
+      "layout": "card-grid",
+      "tone": "light",
+      "sources": [
+        "S2",
+        "S7",
+        "S8",
+        "S10",
+        "S14",
+        "S30"
+      ],
+      "notes": "Cách một, marketplace của Claude Code: `/plugin marketplace add <owner>/<repo>` rồi `/plugin install <plugin>@<marketplace>`. Dùng ở Ponytail [S6], Karpathy Skills [S5], Humanizer [S29], Diagram Design [S25], Last 30 Days [S13], Understand Anything [S11] và ECC [S4]. Superpowers [S2] và Matt Pocock Skills [S3] còn cài qua marketplace tên `claude-plugins-official`, và HyperFrames dùng dạng `claude plugin marketplace add` [S28]. Ưu điểm: Claude Code quản lý cập nhật. Cách hai, `npx skills add <owner>/<repo>`: trình cài dùng chung cho nhiều agent. Dùng ở Agent Skills [S7], Taste [S21], Archify [S22], Marketing Skills [S31], Diagram Design [S25], HyperFrames [S28], Last 30 Days [S13] và BMAD V7 [S19]. Ưu điểm: một lệnh cho nhiều agent. Cách ba, trình cài riêng: `npx rea-agents setup` [S8], `npx @santifer/career-ops init` [S12], `npx claude-mem install` [S16], `npx @caveman-ai/cli@latest` [S15], `npx bmad-method install` [S19], `npx impeccable install` [S23], `uv tool install graphifyy` [S9], `npm install -g ui-ux-pro-max-cli` [S20], `make setup` [S27]. Mỗi trình cài làm nhiều việc hơn một lệnh ghi file: có cái mở trình duyệt để đăng nhập [S16], có cái đăng ký một máy chủ MCP [S8]. Cách bốn, dán một câu cho agent tự cài: …",
+      "bullets": [
+        "Marketplace: `/plugin marketplace add` rồi `/plugin install`",
+        "Trình cài chung: `npx skills add` cho nhiều agent",
+        "Trình cài riêng: `npx rea-agents setup`, `make setup`, `uv tool install`",
+        "Dán cho agent: Agent Reach, I Have ADHD, gstack; ít kiểm soát nhất (suy luận)"
+      ]
+    },
+    {
+      "title": "Tám README cảnh báo bản sao không chính thức",
+      "section": "Bốn cách cài và điều chúng đòi hỏi",
+      "layout": "one-big-number",
+      "tone": "dark",
+      "sources": [
+        "S4",
+        "S6",
+        "S8",
+        "S9",
+        "S10",
+        "S22",
+        "S24",
+        "S25"
+      ],
+      "notes": "Điểm chung đáng chú ý: người viết đếm tám README có câu cảnh báo về bản sao không chính thức hoặc đòi cài từ đúng nguồn, gồm ECC [S4], Ponytail [S6], REA [S8], Graphify [S9], Agent Reach [S10], Archify [S22], PPT Master [S24] và Diagram Design [S25]. **Suy luận**: repo nổi tiếng thu hút bản sao giả, nên việc đầu tiên là kiểm đúng owner và tên repo. Hai ví dụ trong chính danh sách này là hai repo cùng một commit cho Karpathy Skills [S5] và hai tên chủ khác nhau của Understand Anything [S11].",
+      "bullets": [
+        "ECC, Ponytail, REA, Graphify",
+        "Agent Reach, Archify, PPT Master, Diagram Design",
+        "Việc đầu tiên: kiểm đúng owner và tên repo (suy luận)"
+      ]
+    },
+    {
+      "title": "\"All free\" đúng với mã nguồn, chưa đúng với mọi chi phí",
+      "section": "\"Miễn phí\" nghĩa là gì ở 30 repo này",
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S2",
+        "S4",
+        "S9",
+        "S16",
+        "S15",
+        "S17",
+        "S20",
+        "S31"
+      ],
+      "notes": "Lớp thương mại hoặc dịch vụ đám mây do dự án hoặc tác giả cung cấp cạnh bản miễn phí, người viết đếm được tám repo: Superpowers có \"Commercial Services\" cho doanh nghiệp [S2]; ECC có ECC Pro, GitHub App cho repo riêng tư giá từ 19 đô la mỗi chỗ mỗi tháng [S4]; Graphify có Graphify Cloud với 14 ngày dùng thử [S9]; Claude-Mem có observer lưu trữ với 30 ngày dùng thử [S16]; Caveman có Caveman Cloud, nơi README gọi việc đăng ký là miễn phí, nhắc tới \"Free plan\" và không nêu giá [S15]; Headroom có bản Enterprise [S17]; UI UX Pro Max có bản Premium [S20]; Marketing Skills có dịch vụ tư vấn của tác giả [S31]. Ngoài ra bốn README có nhà tài trợ hoặc liên kết giới thiệu: PPT Master [S24], Archify [S22], Agent Reach [S10] và Marketing Skills, nơi các đối tác tài trợ được ghi là \"fund the work\" [S31]. Điều này không có gì sai, và README đều nói rõ; chỉ là \"free\" trong ảnh chưa chạm tới các lớp đó.",
+      "bullets": [
+        "Tám repo có lớp thương mại: Superpowers, ECC, Graphify, Claude-Mem, Caveman, Headroom, UI UX Pro Max, Marketing Skills.",
+        "Giấy phép cần đọc kỹ: OpenMontage dùng GNU AGPLv3; skill tài liệu của Anthropic là source-available; hai repo không có LICENSE ở gốc.",
+        "Chi phí khác: token (Taste), API video (OpenMontage), khóa và đăng nhập (Agent Reach, Last 30 Days)."
+      ]
+    },
+    {
+      "title": "Giấy phép và nhãn hiệu cần đọc kỹ",
+      "section": "\"Miễn phí\" nghĩa là gì ở 30 repo này",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [
+        "S27",
+        "S26",
+        "S5",
+        "S8",
+        "S12",
+        "S19"
+      ],
+      "notes": "Giấy phép cần đọc kỹ ở sáu repo. OpenMontage dùng GNU AGPLv3 [S27]. Skills của Anthropic nói các skill tài liệu là source-available, không phải mã nguồn mở, và ở gốc repo không có file LICENSE [S26]. Karpathy Skills ghi MIT trong README nhưng gốc repo cũng không có file LICENSE (người viết đếm) [S5]. REA yêu cầu bạn tự có quyền hợp pháp với các công cụ thương mại như Hopper hay IDA [S8]. Career Ops và BMAD cũng giữ nhãn hiệu riêng cho tên của mình dù mã là MIT [S12][S19].",
+      "bullets": [
+        "OpenMontage: GNU AGPLv3, giấy phép copyleft mạnh",
+        "Skills (Anthropic): docx, pdf, pptx, xlsx là source-available; không có LICENSE ở gốc",
+        "Karpathy Skills: README ghi MIT nhưng gốc repo không có file LICENSE",
+        "REA: tự có quyền hợp pháp với công cụ thương mại như Hopper hay IDA",
+        "Career Ops, BMAD: mã MIT nhưng tên và thương hiệu có chính sách riêng"
+      ]
+    },
+    {
+      "title": "Dữ liệu gửi đi: năm README nói thẳng",
+      "section": "\"Miễn phí\" nghĩa là gì ở 30 repo này",
+      "layout": "numbered-rows",
+      "tone": "light",
+      "sources": [
+        "S2",
+        "S17",
+        "S23",
+        "S15",
+        "S14"
+      ],
+      "notes": "Chi phí khác không nằm ở giấy phép: Taste nói một lượt dựng cần vài trăm nghìn token [S21]; OpenMontage nêu chi phí API cho video [S27]; Agent Reach và Last 30 Days cần khóa hoặc phiên đăng nhập cho nhiều nền tảng [S10][S13]. Về dữ liệu gửi đi, người viết tìm các từ khóa telemetry, beacon và analytics trong 30 README. Người viết đếm: năm README nói thẳng một lời gọi mạng hoặc số liệu gửi đi mặc định bật, gồm Superpowers [S2], Headroom [S17], Impeccable [S23], Caveman và gstack. Caveman: CLI gửi thống kê dùng kèm ID cài đặt ngẫu nhiên, hệ điều hành và IP, tắt bằng `caveman telemetry off`; riêng chế độ Auto, chỉ khi bạn đăng nhập và chọn, gửi cho Caveman Cloud câu hỏi mới nhất kèm thứ agent đính vào như CLAUDE.md, bộ nhớ hoặc file được nhắc tên [S15]. gstack: kiểm tra phiên bản chạy mỗi lần mở một skill tương tác và mặc định bật (GitHub thấy địa chỉ IP của bạn), còn \"outside reviews\" mặc định bật sẽ gửi prompt cùng code, diff hoặc kế hoạch liên quan cho nhà …",
+      "bullets": [
+        "Superpowers: logo tải từ website tác giả, kèm phiên bản",
+        "Headroom: beacon ẩn danh bật mặc định",
+        "Impeccable: gọi API impeccable.style khi bắt đầu thiết kế",
+        "Caveman: CLI gửi thống kê dùng, tắt bằng `caveman telemetry off`",
+        "gstack: kiểm tra phiên bản và outside reviews mặc định bật; telemetry mặc định tắt"
+      ]
+    },
+    {
+      "title": "Ba repo nên đọc đầu tiên (suy luận)",
+      "section": "Chọn ba repo đầu tiên",
+      "layout": "flow",
+      "tone": "dark",
+      "sources": [
+        "S5",
+        "S29",
+        "S2"
+      ],
+      "notes": "Một: `forrestchang/andrej-karpathy-skills`. Chỉ 9 file, một file `CLAUDE.md` và bốn nguyên tắc [S5]. Bạn đọc hết trong vài phút và hiểu một \"file quy tắc\" khác một \"skill\" thế nào. Nhớ rằng repo không có file LICENSE và cùng commit với một repo khác tên [S5]. Hai: `blader/humanizer`. 14 file, một skill duy nhất, 26 mẫu mô tả rõ [S29]. Đây là ví dụ gọn về một skill hoàn chỉnh: tên lệnh, mô tả, danh mục mẫu và ví dụ trước và sau. Nó còn có ích ngay cho việc viết tài liệu. Ba: `obra/superpowers`. 15 skill ghép nối thành một quy trình từ hỏi ý, lập kế hoạch, viết test đến review [S2]. Sau hai repo nhỏ, bạn sẽ đọc được cách các skill gọi nhau, đó là điều Matt Pocock phê bình ở các khung \"sở hữu quy trình\" và là chỗ bạn nên tự cân nhắc [S3].",
+      "bullets": [
+        "Karpathy Skills: 9 file, một file quy tắc, bốn nguyên tắc",
+        "Humanizer: 14 file, một skill, 26 mẫu",
+        "Superpowers: 15 skill nối thành một quy trình"
+      ]
+    },
+    {
+      "title": "Nếu mục tiêu của bạn khác",
+      "section": "Chọn ba repo đầu tiên",
+      "layout": "numbered-rows",
+      "tone": "light",
+      "sources": [
+        "S15",
+        "S17",
+        "S25",
+        "S22",
+        "S24",
+        "S28",
+        "S27"
+      ],
+      "notes": "Nếu mục tiêu của bạn khác thì cách chọn khác: muốn bớt token thì bắt đầu từ Caveman hoặc Headroom và đo trên việc của chính bạn, vì mọi số tiết kiệm trong README là số của tác giả [S15][S17]; muốn có sơ đồ hay slide thì Diagram Design, Archify hoặc PPT Master [S25][S22][S24]; muốn làm video thì HyperFrames hoặc OpenMontage, nhớ điều kiện giấy phép [S28][S27].",
+      "bullets": [
+        "Bớt token: Caveman hoặc Headroom, đo lại trên việc của chính bạn",
+        "Sơ đồ và slide: Diagram Design, Archify hoặc PPT Master",
+        "Video: HyperFrames hoặc OpenMontage, nhớ điều kiện giấy phép"
+      ]
+    },
+    {
+      "title": "Đọc trước, cài sau",
+      "section": "Điều cần nhớ",
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "sources": [
+        "S1",
+        "S4",
+        "S16",
+        "S18",
+        "S32"
+      ],
+      "notes": "- Ảnh chỉ cho tên, số sao và một câu. Muốn biết thật thì đọc README, và README cũng chỉ là lời của tác giả [S1]. - Hầu hết 30 repo là bộ skill cho coding agent; ba mẫu cần phân biệt là file quy tắc (Karpathy Skills), skill đơn (Humanizer) và chuỗi skill (Superpowers) [S5][S29][S2]. - Cài một repo là chạy mã của người khác. Kiểm đúng owner và tên repo, đọc script cài, và biết lệnh nào mở trình duyệt hay đăng ký MCP [S4][S16][S8]. - \"Free\" đúng với mã nguồn; tám repo có thêm lớp thương mại hoặc dịch vụ đám mây, và vài repo có điều khoản giấy phép đặc biệt [S2][S4][S9][S16][S15][S17][S20][S31][S27][S26]. - Năm README nói thẳng có lời gọi mạng hoặc số liệu gửi đi mặc định bật: Superpowers, Headroom, Impeccable, Caveman và gstack [S2][S17][S23][S15][S14]. - Mọi số tiết kiệm token trong README là số của tác giả; đo lại trên việc của bạn trước khi tin [S6][S15][S17]. - GSD trong ảnh đã chuyển sang kho khác, và số sao của REA trong ảnh lệch so với số radar đo [S18][S32]. - Năm repo đã …",
+      "bullets": [
+        "Mỗi lệnh cài chạy mã của người khác trên máy bạn.",
+        "Kiểm đúng owner và tên repo; đọc script cài trước khi bảo agent chạy.",
+        "Mọi số tiết kiệm token trong README là số của tác giả; đo lại trên việc của bạn.",
+        "GSD đã chuyển repo; số sao REA trong ảnh lệch số radar đo."
+      ]
+    },
+    {
+      "title": "Giới hạn của báo cáo",
+      "section": "Lưu ý",
+      "layout": "explainer",
+      "tone": "light",
+      "sources": [
+        "S1",
+        "S5",
+        "S26"
+      ],
+      "notes": "Giới hạn của nguồn: người viết chỉ đọc README của từng repo ở commit ghim và đếm file trên cây thư mục; không chạy bất kỳ lệnh cài nào, không mở các liên kết ngoài trong README, không đọc mã nguồn bên trong skill. Một README có thể lệch với mã. Mọi con số trong README mà báo cáo nêu (như phần trăm tiết kiệm, số lần phỏng vấn, tốc độ làm việc) là lời tác giả, người viết không kiểm. Số sao và các dòng mô tả là của ảnh do một người khác dựng; người viết chỉ lấy tên và nhóm và khớp tên với owner/repo. Ảnh không ghi địa chỉ, nên có thể một tên trong ảnh ứng với repo khác, như trường hợp hai repo cùng commit của Karpathy Skills [S1][S5]. Số sao của REA trong ảnh bị bỏ qua (phần \"Ảnh nói gì\") [S32]. Giấy phép: các câu về giấy phép trong báo cáo là chữ đọc từ đầu file LICENSE và từ README, không phải trường `license` mà GitHub hiển thị; hai repo không có file LICENSE ở gốc là Karpathy Skills và Skills …",
+      "body": "Người viết chỉ đọc **README** của từng repo ở commit ghim và đếm file trên cây thư mục; không chạy lệnh cài nào, không mở liên kết ngoài, không đọc mã bên trong skill. Một README có thể lệch với mã. Mọi con số tiết kiệm hay năng suất trong README là lời tác giả. Số sao và dòng mô tả là của ảnh do người khác dựng. Câu về **giấy phép** là chữ đọc từ file LICENSE và README, không phải trường `license` của GitHub, và không phải tư vấn pháp lý. Đây là tài liệu đọc, không phải khuyến nghị cài đặt.",
+      "bullets": [
+        "Giới hạn: chỉ đọc README ở commit ghim, không chạy gì",
+        "Giấy phép: đọc từ LICENSE và README, không phải tư vấn pháp lý",
+        "Chỉ dẫn trong README: là đối tượng được mô tả, không phải lệnh để làm theo"
+      ]
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "layout": "lookup-table",
+      "tone": "dark",
+      "sources": [],
+      "notes": "Danh sách đầy đủ 33 nguồn, kèm URL ghim commit, nằm ở cuối report.md và trong sources.json.",
+      "bullets": [
+        "S1: Ảnh Top 30 Claude Code Plugins (Charlie Hills), số sao đọc 23/10/2026",
+        "S2–S7: README sáu repo của nhóm 1, mỗi file ở commit ghim",
+        "S8–S13: README sáu repo của nhóm 2, mỗi file ở commit ghim",
+        "S14–S19: README sáu repo của nhóm 3, mỗi file ở commit ghim",
+        "S20–S25: README sáu repo của nhóm 4, mỗi file ở commit ghim",
+        "S26–S31: README sáu repo của nhóm 5, ở commit ghim; S32–S33: hai file của repo radar"
+      ]
+    }
+  ]
+}

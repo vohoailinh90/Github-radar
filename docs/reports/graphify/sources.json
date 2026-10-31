@@ -1,0 +1,92 @@
+{
+  "snapshot_date": "2026-10-30",
+  "repo": "https://github.com/Graphify-Labs/graphify",
+  "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f",
+  "branch": "v8",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "Graphify-Labs/graphify — README.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/README.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S2",
+      "name": "Graphify-Labs/graphify — ARCHITECTURE.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/ARCHITECTURE.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/ARCHITECTURE.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S3",
+      "name": "Graphify-Labs/graphify — BENCHMARKS.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/BENCHMARKS.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/BENCHMARKS.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S4",
+      "name": "Graphify-Labs/graphify — docs/how-it-works.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/docs/how-it-works.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/docs/how-it-works.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S5",
+      "name": "Graphify-Labs/graphify — SECURITY.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/SECURITY.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/SECURITY.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S6",
+      "name": "Graphify-Labs/graphify — CONTRIBUTING.md + AGENTS.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/CONTRIBUTING.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/CONTRIBUTING.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f",
+      "more_pinned_urls": [
+        "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/AGENTS.md"
+      ]
+    },
+    {
+      "id": "S7",
+      "name": "Graphify-Labs/graphify — CHANGELOG.md",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/CHANGELOG.md",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/CHANGELOG.md",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S8",
+      "name": "Graphify-Labs/graphify — pyproject.toml + NOTICE",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/pyproject.toml",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/pyproject.toml",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f",
+      "more_pinned_urls": [
+        "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/NOTICE"
+      ]
+    },
+    {
+      "id": "S9",
+      "name": "Graphify-Labs/graphify — .github/workflows/ci.yml",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/.github/workflows/ci.yml",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/.github/workflows/ci.yml",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S10",
+      "name": "Graphify-Labs/graphify — graphify/serve.py",
+      "url": "https://github.com/Graphify-Labs/graphify/blob/HEAD/graphify/serve.py",
+      "pinned_url": "https://github.com/Graphify-Labs/graphify/blob/0a8cd4e1e342235fe53e881fb5d591bf0460071f/graphify/serve.py",
+      "commit": "0a8cd4e1e342235fe53e881fb5d591bf0460071f"
+    },
+    {
+      "id": "S11",
+      "name": "GitHub Radar — state/stars.json (số sao 17/10 đến 28/10/2026)",
+      "url": "https://github.com/vohoailinh90/github-radar/blob/main/state/stars.json",
+      "pinned_url": null,
+      "commit": null
+    }
+  ]
+}

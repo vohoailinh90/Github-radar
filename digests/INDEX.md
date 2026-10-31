@@ -1,5 +1,8 @@
 # Digests
 
+- [2026-10-28](2026-10-28/README.md) — peach
+- [2026-10-24](2026-10-24/README.md) — kestra, opengym
+- [2026-10-21](2026-10-21/README.md) — ecc
 - [2026-10-17-7](2026-10-17-7/README.md) — agency-agents-zh
 - [2026-10-17-6](2026-10-17-6/README.md) — orca
 - [2026-10-17-5](2026-10-17-5/README.md) — chat-on-steroids, rea, supervision

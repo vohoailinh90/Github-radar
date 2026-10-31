@@ -1,0 +1,325 @@
+{
+  "draft": {
+    "analogy": "Giống như một người chỉ huy dàn nhạc giao hưởng, Kestra điều khiển từng nhạc cụ (tác vụ) cất tiếng đúng thời điểm để tạo nên một bản nhạc hoàn chỉnh.",
+    "caveats": [
+      "Yêu cầu Docker hoạt động trên hệ thống",
+      "Cần có kết nối internet để tự động tải các plugin từ Maven Central khi cần"
+    ],
+    "facebook": {
+      "caption": "Điều phối mọi quy trình tự động với Kestra mã nguồn mở!",
+      "hashtags": [
+        "#Kestra",
+        "#Automation",
+        "#DevOps",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Đơn vị cốt lõi đại diện cho một luồng công việc gồm nhiều tác vụ.",
+        "term": "Flow"
+      },
+      {
+        "meaning": "Từng đơn vị công việc riêng lẻ trong luồng.",
+        "term": "Task"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thêm các tác vụ phức tạp hơn",
+        "Khám phá AI Copilot"
+      ],
+      "outcome": "Bạn sẽ có một hệ thống Kestra chạy cục bộ trên máy và truy cập được giao diện quản lý trên trình duyệt.",
+      "requirements": [
+        {
+          "detail": "Đảm bảo rằng Docker đang được bật trên máy tính của bạn.",
+          "evidence": "README.md",
+          "item": "Docker",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "docker run --pull=always --rm -it -p 8080:8080 --user=root --name kestra -v kestra_data:/app/storage -v kestra_db:/app/data -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp -e KESTRA_PLUGINS_AUTO_INSTALL_ENABLED=true kestra/kestra:latest-slim server local"
+          ],
+          "do": [
+            "Mở terminal trên máy tính.",
+            "Sao chép và chạy câu lệnh Docker tương ứng với hệ điều hành của bạn."
+          ],
+          "evidence": "README.md",
+          "expect": "Kestra khởi động và sẵn sàng nhận kết nối trên cổng 8080.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Khởi động Kestra bằng Docker",
+          "why": "Tải và chạy máy chủ Kestra cục bộ trong một lệnh duy nhất."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở trình duyệt web và truy cập vào địa chỉ cục bộ."
+          ],
+          "evidence": "README.md",
+          "expect": "Giao diện Kestra xuất hiện trên màn hình.",
+          "if_fails": "",
+          "link_ref": 2,
+          "snippet_ref": null,
+          "title": "Truy cập giao diện Kestra",
+          "why": "Mở bảng điều khiển trên trình duyệt để bắt đầu xây dựng luồng công việc."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Tạo một flow mới với nội dung YAML được cung cấp."
+          ],
+          "evidence": "README.md",
+          "expect": "Flow được lưu và có thể chạy để in ra thông điệp.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": 0,
+          "title": "Tạo luồng Hello World đầu tiên",
+          "why": "Kiểm tra hoạt động của hệ thống bằng một flow đơn giản."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Truy cập thành công vào trang quản lý Kestra và chạy thử nghiệm quy trình."
+    },
+    "hook": "Tự động hóa quy trình dữ liệu và hạ tầng của bạn chỉ với một vài dòng YAML dễ đọc.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README.md",
+          "icon": "server",
+          "name": "Kestra Server",
+          "role": "Thành phần cốt lõi điều phối toàn bộ các luồng công việc."
+        },
+        {
+          "evidence": "README.md",
+          "icon": "monitor",
+          "name": "UI",
+          "role": "Giao diện trực quan để theo dõi và chỉnh sửa các luồng."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README.md",
+          "text": "Mô tả các công việc cần làm dưới dạng cấu hình YAML rõ ràng.",
+          "title": "Khai báo YAML"
+        },
+        {
+          "evidence": "README.md",
+          "text": "Kestra tự động điều phối các tác vụ chạy theo lịch trình hoặc sự kiện kích hoạt.",
+          "title": "Thực thi tác vụ"
+        },
+        {
+          "evidence": "README.md",
+          "text": "Các plugin cần thiết được tự động tải từ Maven Central theo nhu cầu của flow.",
+          "title": "Tự động tải plugin"
+        }
+      ]
+    },
+    "learn": [
+      "Sử dụng cấu hình YAML để quản lý luồng công việc",
+      "Vận hành nền tảng điều phối bằng Docker",
+      "Xây dựng hệ thống tự động hóa hướng sự kiện"
+    ],
+    "one_liner": "Nền tảng mã nguồn mở điều phối luồng công việc (workflows) cho dữ liệu, AI và hạ tầng qua giao diện YAML khai báo.",
+    "problem": "Các nhóm làm việc thường gặp khó khăn khi phải kết hợp nhiều công cụ rời rạc, thiếu sự đồng bộ và khó theo dõi trạng thái thực thi. Việc quản lý các quy trình thủ công tốn thời gian và dễ xảy ra lỗi khi vận hành.",
+    "title": "Orchestrate everything everywhere with Kestra",
+    "who_for": [
+      "Lập trình viên muốn tự động hóa quy trình",
+      "Kỹ sư dữ liệu quản lý các luồng ETL",
+      "Nhà quản lý hạ tầng công nghệ"
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "yaml",
+        "id: hello_world\nnamespace: dev\n\ntasks:\n  - id: say_hello\n    type: io.kestra.plugin.core.log.Log\n    message: \"Hello, World!\""
+      ]
+    ],
+    "bucket": "solutions",
+    "forks": 3467,
+    "full_name": "kestra-io/kestra",
+    "language": "Java",
+    "license": "Apache-2.0",
+    "links": [
+      [
+        "our Terraform module",
+        "https://github.com/kestra-io/deployment-templates/tree/main/gcp/terraform/infrastructure-manager/vm-sql-gcs"
+      ],
+      [
+        "Installation Guide",
+        "https://kestra.io/docs/installation"
+      ],
+      [
+        "http://localhost:8080",
+        "http://localhost:8080"
+      ],
+      [
+        "Python",
+        "https://kestra.io/docs/api-reference/kestra-sdk/python-sdk"
+      ],
+      [
+        "JavaScript",
+        "https://kestra.io/docs/api-reference/kestra-sdk/javascript-sdk"
+      ],
+      [
+        "workflows",
+        "https://kestra.io/docs/quickstart"
+      ],
+      [
+        "AI Copilot",
+        "https://kestra.io/docs/ai-tools/ai-copilot"
+      ],
+      [
+        "Agent Skills",
+        "https://kestra.io/docs/ai-tools/agent-skills"
+      ],
+      [
+        "www.kestra.io",
+        "https://www.kestra.io"
+      ],
+      [
+        "github.com",
+        "https://github.com/kestra-io/kestra/releases"
+      ],
+      [
+        "github.com",
+        "https://github.com/kestra-io/kestra/blob/develop/LICENSE"
+      ],
+      [
+        "github.com",
+        "https://github.com/kestra-io/kestra/stargazers"
+      ],
+      [
+        "kestra.io",
+        "https://kestra.io"
+      ],
+      [
+        "kestra.io",
+        "https://kestra.io/slack"
+      ],
+      [
+        "x.com",
+        "https://x.com/kestra_io"
+      ],
+      [
+        "www.linkedin.com",
+        "https://www.linkedin.com/company/kestra/"
+      ],
+      [
+        "www.youtube.com",
+        "https://www.youtube.com/@kestra-io"
+      ],
+      [
+        "trendshift.io",
+        "https://trendshift.io/repositories/2714"
+      ],
+      [
+        "go.kestra.io",
+        "https://go.kestra.io/video/product-overview"
+      ],
+      [
+        "What's New in Kestra 2.0",
+        "https://kestra.io/docs/whats-new-2-0"
+      ],
+      [
+        "2.0 migration guide",
+        "https://kestra.io/docs/migration-guide/v2.0.0"
+      ],
+      [
+        "AI Agents",
+        "https://kestra.io/docs/ai-tools/ai-agents"
+      ],
+      [
+        "RAG workflows",
+        "https://kestra.io/docs/ai-tools/ai-rag-workflows"
+      ],
+      [
+        "MCP server",
+        "https://kestra.io/docs/ai-tools/mcp-server"
+      ],
+      [
+        "MCP Tool Trigger",
+        "https://kestra.io/docs/workflow-components/triggers/mcp-tool-trigger"
+      ],
+      [
+        "Loop",
+        "https://kestra.io/docs/workflow-components/tasks/flowable-tasks"
+      ],
+      [
+        "date functions",
+        "https://kestra.io/docs/expressions/functions/dates"
+      ],
+      [
+        "subflow",
+        "https://kestra.io/docs/expressions/functions/workflow"
+      ],
+      [
+        "Inputs",
+        "https://kestra.io/docs/workflow-components/inputs"
+      ],
+      [
+        "Draft revisions",
+        "https://kestra.io/docs/concepts/revision"
+      ],
+      [
+        "No-Code editor",
+        "https://kestra.io/docs/ui/flows"
+      ],
+      [
+        "Plugin Artifacts",
+        "https://kestra.io/docs/plugin-developer-guide/plugin-ui"
+      ],
+      [
+        "kestractl",
+        "https://kestra.io/docs/kestra-cli/kestractl"
+      ],
+      [
+        "VS Code extension",
+        "https://kestra.io/docs/version-control-cicd/vscode"
+      ],
+      [
+        "Architecture",
+        "https://kestra.io/docs/architecture"
+      ],
+      [
+        "task runners",
+        "https://kestra.io/docs/task-runners"
+      ],
+      [
+        "HTTP task URL filtering",
+        "https://kestra.io/docs/administrator-guide/security-hardening"
+      ],
+      [
+        "RBAC model",
+        "https://kestra.io/docs/enterprise/auth/rbac"
+      ],
+      [
+        "Policies",
+        "https://kestra.io/docs/enterprise/governance/policies"
+      ],
+      [
+        "Cases",
+        "https://kestra.io/docs/enterprise/governance/cases"
+      ]
+    ],
+    "scanned": "2026-10-24",
+    "shells": {
+      "docker run --pull=always --rm -it -p 8080:8080 --user=root --name kestra -v \"kestra_data:/app/storage\" -v \"kestra_db:/app/data\" -v \"/var/run/docker.sock:/var/run/docker.sock\" -v \"C:/Temp:/tmp\" -e KESTRA_PLUGINS_AUTO_INSTALL_ENABLED=true kestra/kestra:latest-slim server local": "powershell"
+    },
+    "stars": 29966,
+    "url": "https://github.com/kestra-io/kestra"
+  },
+  "lang": "vi",
+  "position": 2
+}

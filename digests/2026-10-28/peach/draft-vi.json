@@ -1,0 +1,271 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn có một tủ sách khổng lồ và Peach là người thủ thư tự động dán nhãn, tìm bìa sách đẹp rồi sắp xếp gọn gàng lên kệ để bạn tìm đọc bất cứ lúc nào.",
+    "caveats": [
+      "Bản dựng thử nghiệm trên máy tính để bàn chưa được ký mã nguồn và các bản macOS chưa được công chứng.",
+      "Peach không cung cấp tài nguyên video hoặc quyền truy cập vào nội dung trả phí.",
+      "Người dùng phải tự chịu trách nhiệm về bản quyền và tuân thủ pháp luật đối với nội dung quản lý."
+    ],
+    "facebook": {
+      "caption": "Quản lý kho video cá nhân và tự động cào thông tin phim cực dễ với Peach!",
+      "hashtags": [
+        "#Peach",
+        "#MediaManager",
+        "#LocalFirst",
+        "#Python",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Mô hình lưu trữ dữ liệu ưu tiên lưu ngay trên thiết bị của người dùng để đảm bảo quyền riêng tư.",
+        "term": "Local-first"
+      },
+      {
+        "meaning": "Thông tin chi tiết về video như tên phim, diễn viên, đạo diễn, thể loại và ảnh bìa.",
+        "term": "Siêu dữ liệu (Metadata)"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Khám phá thêm các nguồn dữ liệu tùy chỉnh",
+        "Kết nối với các trình phát bên ngoài"
+      ],
+      "outcome": "Bạn sẽ cài đặt thành công Peach, chọn thư mục chứa video và bắt đầu quét, duyệt cũng như phát video với đầy đủ thông tin.",
+      "requirements": [
+        {
+          "detail": "Chọn trình cài đặt hoặc bản portable",
+          "evidence": "README",
+          "item": "Windows x64",
+          "link_ref": 0
+        },
+        {
+          "detail": "Hỗ trợ Apple Silicon / ARM64 hoặc Intel / x86_64",
+          "evidence": "README",
+          "item": "macOS",
+          "link_ref": 2
+        },
+        {
+          "detail": "Dành cho việc triển khai trên máy chủ",
+          "evidence": "README",
+          "item": "Docker / NAS",
+          "link_ref": null
+        },
+        {
+          "detail": "Yêu cầu khi chạy từ mã nguồn",
+          "evidence": "README",
+          "item": "Git, uv và Python 3.14+",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Nhấp vào liên kết tải xuống tương ứng với hệ điều hành Windows hoặc macOS của bạn trên trang web hoặc tài liệu."
+          ],
+          "evidence": "README",
+          "expect": "Tệp cài đặt được tải về thiết bị.",
+          "if_fails": "",
+          "link_ref": 0,
+          "snippet_ref": null,
+          "title": "Tải xuống Peach",
+          "why": "Lấy gói cài đặt phù hợp với hệ điều hành của bạn để bắt đầu."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Cài đặt ứng dụng và chọn thư mục chứa phương tiện truyền thông của bạn sau khi cài đặt xong."
+          ],
+          "evidence": "README",
+          "expect": "Giao diện ứng dụng hiển thị và sẵn sàng quét.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt và cấu hình thư mục",
+          "why": "Chỉ định nơi lưu trữ video để phần mềm tiến hành quét."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Thực hiện quét thư viện trong ứng dụng để bắt đầu duyệt và phát video."
+          ],
+          "evidence": "README",
+          "expect": "Danh sách video xuất hiện kèm theo thông tin, hình ảnh và tiêu đề được cập nhật.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Quét thư viện",
+          "why": "Đồng bộ hóa và cào siêu dữ liệu cho các tệp video."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Bạn có thể duyệt qua danh sách video với đầy đủ thông tin diễn viên, ảnh bìa và phát video trực tiếp từ giao diện."
+    },
+    "hook": "Quản lý kho video cá nhân, tự động lấy thông tin phim và phát trực tiếp trên mọi thiết bị.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "search",
+          "name": "Metadata Scraper",
+          "role": "Nhận diện mã video và lấy thông tin chi tiết từ nhiều nguồn."
+        },
+        {
+          "evidence": "README",
+          "icon": "database",
+          "name": "Media Manager",
+          "role": "Quản lý thư viện cục bộ và đám mây, thẻ tag và lịch sử xem."
+        },
+        {
+          "evidence": "README",
+          "icon": "video",
+          "name": "Video Player",
+          "role": "Hỗ trợ phát video qua web hoặc trình phát ngoài với phụ đề và xem trước."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Nhận diện mã video, đọc tệp NFO và tự động điền tiêu đề, diễn viên, hãng sản xuất cùng ảnh bìa từ nhiều nguồn khác nhau.",
+          "title": "Cào siêu dữ liệu"
+        },
+        {
+          "evidence": "README",
+          "text": "Hỗ trợ duyệt ổ đĩa cục bộ, mạng SMB, lưu trữ đám mây và PikPak, đồng thời lưu trữ lịch sử xem cục bộ.",
+          "title": "Quản lý thư viện"
+        },
+        {
+          "evidence": "README",
+          "text": "Cung cấp trình phát web hoặc tích hợp trình phát ngoài với các tính năng phụ đề, tốc độ phát và bản xem trước dòng thời gian.",
+          "title": "Phát lại và theo dõi"
+        }
+      ]
+    },
+    "learn": [
+      "Cách tổ chức kho phương tiện truyền thông kỹ thuật số với kiến trúc local-first.",
+      "Tự động hóa việc lấy siêu dữ liệu và hình ảnh bìa cho video.",
+      "Quản lý và phát video kết hợp giữa ổ cứng cục bộ và lưu trữ đám mây."
+    ],
+    "one_liner": "Peach là trình cào siêu dữ liệu video và quản lý phương tiện truyền thông mang tính cục bộ (local-first).",
+    "problem": "Người dùng có kho video lớn trên ổ cứng hoặc đám mây thường gặp khó khăn trong việc sắp xếp, tìm kiếm thông tin diễn viên, bìa phim và theo dõi lịch sử xem. Việc quản lý thủ công rất mất thời gian và thiếu sự đồng bộ.",
+    "title": "Peach: Trình quản lý và cào siêu dữ liệu video cục bộ",
+    "who_for": [
+      "Người có kho video cá nhân lớn trên máy tính hoặc đám mây.",
+      "Người dùng muốn tự động sắp xếp và tìm kiếm thông tin phim ảnh.",
+      "Người thích giải pháp quản lý media mang tính cục bộ (local-first)."
+    ]
+  },
+  "facts": {
+    "bucket": "software",
+    "forks": 1529,
+    "full_name": "peach-mitao/peach",
+    "language": "Python",
+    "license": "AGPL-3.0",
+    "links": [
+      [
+        "Installer",
+        "https://github.com/peach-mitao/peach/releases/download/v0.50.0/Peach-0.50.0-windows-x64-setup.exe"
+      ],
+      [
+        "Portable",
+        "https://github.com/peach-mitao/peach/releases/download/v0.50.0/Peach-0.50.0-windows-x64.zip"
+      ],
+      [
+        "Apple Silicon / ARM64",
+        "https://github.com/peach-mitao/peach/releases/download/v0.50.0/Peach-0.50.0-macos-arm64.dmg"
+      ],
+      [
+        "Intel / x8664",
+        "https://github.com/peach-mitao/peach/releases/download/v0.50.0/Peach-0.50.0-macos-x86_64.dmg"
+      ],
+      [
+        "Website",
+        "https://peach.video"
+      ],
+      [
+        "Live demo",
+        "https://demo.peach.video"
+      ],
+      [
+        "github.com",
+        "https://github.com/peach-mitao/peach/releases"
+      ],
+      [
+        "github.com",
+        "https://github.com/peach-mitao/peach/actions/workflows/test.yml"
+      ],
+      [
+        "peach.video",
+        "https://peach.video/assets/screenshots/home-wide-20261025-2.png"
+      ],
+      [
+        "asset credits and licenses",
+        "https://peach.video/en/credits/"
+      ],
+      [
+        "peach.video",
+        "https://peach.video/assets/screenshots/profile-wide-20261025-2.png"
+      ],
+      [
+        "peach.video",
+        "https://peach.video/assets/screenshots/follow-wide-20261025-2.png"
+      ],
+      [
+        "peach.video",
+        "https://peach.video/assets/screenshots/stats-wide-20261025-3.png"
+      ],
+      [
+        "peach.video",
+        "https://peach.video/assets/screenshots/play-wide-20261025-2.png"
+      ],
+      [
+        "Report a bug or suggest a feature",
+        "https://github.com/peach-mitao/peach/issues/new/choose"
+      ],
+      [
+        "amane",
+        "https://github.com/sqzw-x/amane"
+      ],
+      [
+        "Gfriends",
+        "https://github.com/gfriends/gfriends"
+      ],
+      [
+        "CloudDrive2",
+        "https://www.clouddrive2.com/"
+      ],
+      [
+        "github.com",
+        "https://github.com/peach-mitao/peach/tree/star-history"
+      ],
+      [
+        "raw.githubusercontent.com",
+        "https://raw.githubusercontent.com/peach-mitao/peach/star-history/star-history-dark.svg"
+      ],
+      [
+        "raw.githubusercontent.com",
+        "https://raw.githubusercontent.com/peach-mitao/peach/star-history/star-history-light.svg"
+      ],
+      [
+        "Star Chart",
+        "https://github.com/leereilly/star-chart"
+      ]
+    ],
+    "scanned": "2026-10-28",
+    "stars": 13062,
+    "url": "https://github.com/peach-mitao/peach"
+  },
+  "lang": "vi",
+  "position": 1
+}

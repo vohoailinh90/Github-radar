@@ -1,0 +1,269 @@
+{
+  "date": "2026-10-28",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 289,
+  "dropped": {
+    "already covered": 28,
+    "licence noassertion is not on the free list": 58,
+    "licence cc-by-4.0 is not on the free list": 2,
+    "licence none is not on the free list": 11,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "peach-mitao/peach",
+      "bucket": "software",
+      "score": 15.626,
+      "stars": 13062,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 29640,
+      "velocity": "measured",
+      "flags": [
+        "star-spike"
+      ]
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 18.0054,
+      "stars": 203127,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 14293,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "huginn/huginn",
+      "bucket": "solutions",
+      "score": 14.7109,
+      "stars": 50160,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 321,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "DietrichGebert/ponytail",
+      "bucket": "ai",
+      "score": 18.3283,
+      "stars": 178402,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "NousResearch/hermes-agent",
+      "bucket": "ai",
+      "score": 18.0299,
+      "stars": 257830,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Graphify-Labs/graphify",
+      "bucket": "ai",
+      "score": 17.9555,
+      "stars": 137165,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.8489,
+      "stars": 196162,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Leonxlnx/taste-skill",
+      "bucket": "ai",
+      "score": 17.4071,
+      "stars": 103856,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 354,
+    "measured": 266
+  },
+  "written": [
+    {
+      "repo": "peach-mitao/peach",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 0,
+        "used": 0
+      }
+    }
+  ],
+  "held": [],
+  "export_errors": [],
+  "aborted": "yt-dlp/yt-dlp [vi]: unparseable model output: no JSON object in the model answer",
+  "ok": false,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 3.7
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 3.7
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 4.4
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 0.8,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 3.4
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 2.6
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.1
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.6,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.1,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.6,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.0,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-28"
+}

@@ -1,0 +1,261 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn tự xây phòng gym mini tại nhà thay vì thuê thẻ hội viên ở một trung tâm fitness.",
+    "caveats": [
+      "Cần biết cơ bản về lệnh terminal và Docker",
+      "Cấu hình HTTPS là bắt buộc nếu muốn dùng passkeys thực tế trên điện thoại",
+      "Giấy phép sử dụng thuộc AGPL-3.0"
+    ],
+    "facebook": {
+      "caption": "Tự host app tập gym của riêng bạn với openGym! Không quảng cáo, không phí thuê bao, dữ liệu nằm trọn trong tay bạn.",
+      "hashtags": [
+        "#openGym",
+        "#SelfHosted",
+        "#Docker",
+        "#FitnessTracker",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Công cụ định nghĩa và chạy ứng dụng Docker nhiều container.",
+        "term": "Docker Compose"
+      },
+      {
+        "meaning": "Chạy ứng dụng trên máy chủ hoặc thiết bị của chính bạn thay vì đám mây của bên thứ ba.",
+        "term": "Self-hosted"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Cấu hình HTTPS trong file .env để dùng passkeys từ điện thoại.",
+        "Nhập dữ liệu tập cũ từ Strong, Hevy hoặc FitNotes."
+      ],
+      "outcome": "Ứng dụng openGym chạy trên máy tính hoặc server của bạn, có thể truy cập qua trình duyệt ở cổng 8080 để tạo hồ sơ và lên lịch tập.",
+      "requirements": [
+        {
+          "detail": "Cần cài đặt sẵn Docker cùng với Compose trên máy của bạn.",
+          "evidence": "README",
+          "item": "Docker",
+          "link_ref": 0
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "git clone https://github.com/DuarteSantos8/openGym"
+          ],
+          "do": [
+            "Mở terminal và chạy lệnh clone repository."
+          ],
+          "evidence": "README",
+          "expect": "Thư mục openGym được tạo xuống máy tính.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tải mã nguồn",
+          "why": "Lấy mã nguồn openGym từ kho lưu trữ GitHub về máy."
+        },
+        {
+          "commands": [
+            "cd openGym"
+          ],
+          "do": [
+            "Chạy lệnh cd để di chuyển vào thư mục."
+          ],
+          "evidence": "README",
+          "expect": "Terminal đang ở thư mục openGym.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Vào thư mục dự án",
+          "why": "Chuyển hướng terminal vào thư mục vừa tải."
+        },
+        {
+          "commands": [
+            "cp .env.example .env"
+          ],
+          "do": [
+            "Chạy lệnh copy file mẫu thành .env."
+          ],
+          "evidence": "README",
+          "expect": "File .env được tạo trong thư mục hiện tại.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tạo file cấu hình môi trường",
+          "why": "Sao chép file mẫu thành file cấu hình chính thức."
+        },
+        {
+          "commands": [
+            "docker compose pull"
+          ],
+          "do": [
+            "Chạy lệnh docker compose pull."
+          ],
+          "evidence": "README",
+          "expect": "Các image được tải về thành công.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tải image Docker",
+          "why": "Tải các prebuilt image cho amd64 hoặc arm64 trước khi chạy."
+        },
+        {
+          "commands": [
+            "docker compose up -d"
+          ],
+          "do": [
+            "Chạy lệnh docker compose up -d."
+          ],
+          "evidence": "README",
+          "expect": "Các container khởi động và chạy ngầm.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Khởi chạy ứng dụng",
+          "why": "Khởi động các container dưới nền bằng Docker Compose."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Mở trình duyệt truy cập localhost:8080, chạm vào Create profile để bắt đầu sử dụng."
+    },
+    "hook": "Không phụ thuộc server bên thứ ba. Tự host app tập gym của riêng bạn với Docker chỉ trong vài phút.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "frontend",
+          "role": "Giao diện người dùng viết bằng React 19 và Vite"
+        },
+        {
+          "evidence": "README",
+          "icon": "server",
+          "name": "api",
+          "role": "Xử lý logic backend bằng Node.js"
+        },
+        {
+          "evidence": "README",
+          "icon": "globe",
+          "name": "web",
+          "role": "Build giao diện và phục vụ qua nginx"
+        }
+      ],
+      "flow": [
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "frontend/ sử dụng React 19 và Vite, được biên dịch thành file tĩnh bên trong container Docker.",
+          "title": "Giao diện React"
+        },
+        {
+          "evidence": "README",
+          "text": "api/ dùng node:http thuần túy với các thư viện xác thực passkey và thông báo.",
+          "title": "API Node.js"
+        },
+        {
+          "evidence": "README",
+          "text": "web/ đóng gói giao diện và phục vụ qua nginx, đồng thời proxy /api để chạy chung một gốc.",
+          "title": "Phục vụ qua Nginx"
+        }
+      ]
+    },
+    "learn": [
+      "Cách dùng Docker Compose để triển khai ứng dụng fullstack self-hosted",
+      "Kiến trúc kết hợp React frontend và Node.js backend đơn giản không cần framework phức tạp",
+      "Cơ chế đồng bộ dữ liệu bằng JSON document và revision"
+    ],
+    "one_liner": "Ứng dụng mã nguồn mở theo dõi tập gym và thể hình, hỗ trợ lập lịch, ghi lại buổi tập, xem nhóm cơ hoạt động và tự host bằng Docker.",
+    "problem": "Nhiều ứng dụng tập luyện lưu trữ dữ liệu của bạn trên server của họ, thúc đẩy bạn mua gói trả phí hoặc biến mất khi công ty đóng cửa. Bạn muốn một giải pháp tự kiểm soát dữ liệu trên máy chủ cá nhân mà vẫn hoạt động mượt mà như ứng dụng hiện đại.",
+    "title": "Tự host openGym: Trình theo dõi tập gym mã nguồn mở",
+    "who_for": [
+      "Người tập gym muốn tự quản lý dữ liệu tập luyện của mình",
+      "Người thích các ứng dụng self-hosted chạy qua Docker",
+      "Lập trình viên muốn tuỳ chỉnh ứng dụng thể hình mã nguồn mở"
+    ]
+  },
+  "facts": {
+    "bucket": "software",
+    "forks": 2009,
+    "full_name": "DuarteSantos8/openGym",
+    "language": "JavaScript",
+    "license": "AGPL-3.0",
+    "links": [
+      [
+        "Docker",
+        "https://docs.docker.com/get-docker/"
+      ],
+      [
+        "github.com",
+        "https://github.com/DuarteSantos8/openGym"
+      ],
+      [
+        "localhost:8080",
+        "http://localhost:8080"
+      ],
+      [
+        "opengym.ch/api.html",
+        "https://opengym.ch/api.html"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/e62jY6fwVb"
+      ],
+      [
+        "github.com",
+        "https://github.com/DuarteSantos8/openGym/stargazers"
+      ],
+      [
+        "github.com",
+        "https://github.com/DuarteSantos8/openGym/releases"
+      ],
+      [
+        "github.com",
+        "https://github.com/DuarteSantos8/openGym/actions/workflows/test.yml"
+      ],
+      [
+        "gitlab.com",
+        "https://gitlab.com/DuarteSantos8/opengym/-/pipelines"
+      ],
+      [
+        "apps.apple.com",
+        "https://apps.apple.com/app/id6822275400"
+      ],
+      [
+        "Website",
+        "https://opengym.ch"
+      ],
+      [
+        "Live demo",
+        "https://opengym.ch/demo/"
+      ],
+      [
+        "Android APK",
+        "https://github.com/DuarteSantos8/openGym/releases/latest"
+      ],
+      [
+        "buymeacoffee.com",
+        "https://buymeacoffee.com/duartesantos"
+      ],
+      [
+        "ko-fi.com",
+        "https://ko-fi.com/opengym"
+      ]
+    ],
+    "scanned": "2026-10-24",
+    "stars": 15286,
+    "url": "https://github.com/DuarteSantos8/openGym"
+  },
+  "lang": "vi",
+  "position": 1
+}

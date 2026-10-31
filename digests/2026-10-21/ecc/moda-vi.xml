@@ -1,0 +1,50 @@
+<!-- radar: Moda canvas 1200x1596; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Tối ưu hóa trợ lý AI với ECC cho Claude Code và các harness</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Nâng cấp kỹ năng, bộ nhớ và độ bảo mật cho Claude Code, Codex, Cursor chỉ trong vài bước.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">ECC Universal Package</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Gói cài đặt tự động toàn năng cho các agent harness</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Claude Plugin</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tích hợp các kỹ năng, câu lệnh và hook quản lý trực tiếp vào Claude Code</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="723" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="789" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="811" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="811" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Universal Setup Wizard</text>
+<text x="154" y="847" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Kiểm tra marketplace chính thức và các phạm vi cài đặt Claude để cài đặt hoặc cập nhật plugin `ecc@ecc` an toàn.</text>
+<line x1="584" y1="863" x2="616" y2="863" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="789" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="811" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="811" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Multi-Harness Support</text>
+<text x="714" y="847" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hỗ trợ cấu hình nhiều coding agent khác nhau như Claude Code, Codex, Kimi Code trong một luồng.</text>
+<rectangle x="60" y="961" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="983" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="983" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Native Integration</text>
+<text x="154" y="1019" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Tích hợp trực tiếp vào hệ thống sinh thái sẵn có của agent mà không làm gián đoạn luồng làm việc.</text>
+<text x="60" y="1191" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1257" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1297.8" x2="97.6" y2="1305" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1305" x2="110" y2="1289.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1277" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Không chồng chéo nhiều phương pháp cài đặt khác nhau trên cùng một harness</text>
+<rectangle x="615" y="1257" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1297.8" x2="652.6" y2="1305" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1305" x2="665" y2="1289.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1277" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Sử dụng công cụ universal setup giúp preflight và tránh xung đột cấu hình</text>
+<rectangle x="60" y="1381" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1421.8" x2="97.6" y2="1429" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1429" x2="110" y2="1413.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1401" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Tuân thủ việc chọn đúng một phương pháp cài đặt cho mỗi loại trợ lý AI</text>
+<rectangle x="615" y="1381" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1421.8" x2="652.6" y2="1429" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1429" x2="665" y2="1413.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1401" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Kiểm tra kỹ lưỡng các điều kiện phần mềm trước khi chạy trình cài đặt tự động</text>
+<text x="60" y="1533" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: affaan-m/ECC · Giấy phép: MIT · 285.034 sao · Quét ngày 2026-10-21</text>
+</content>
