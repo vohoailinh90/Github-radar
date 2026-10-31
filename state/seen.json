@@ -24,6 +24,11 @@
     "covered": "2026-10-13",
     "stars": 36720
   },
+  "NousResearch/hermes-agent": {
+    "bucket": "ai",
+    "covered": "2026-10-31",
+    "stars": 258944
+  },
   "OrchestratorInc/agent-orchestrator": {
     "bucket": "software",
     "covered": "2026-10-17",

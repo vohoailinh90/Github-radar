@@ -1,0 +1,388 @@
+{
+  "date": "2026-10-31",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 287,
+  "dropped": {
+    "already covered": 29,
+    "licence noassertion is not on the free list": 55,
+    "already covered by a report": 14,
+    "licence cc-by-4.0 is not on the free list": 2,
+    "licence none is not on the free list": 12,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "bucket": "ai",
+      "score": 17.3675,
+      "stars": 53231,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 58114,
+      "velocity": "measured",
+      "flags": [
+        "star-spike"
+      ]
+    },
+    {
+      "repo": "NousResearch/hermes-agent",
+      "bucket": "ai",
+      "score": 18.0763,
+      "stars": 258944,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 10136,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.9483,
+      "stars": 204052,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 12634,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.8191,
+      "stars": 197183,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "ollama/ollama",
+      "bucket": "ai",
+      "score": 17.2559,
+      "stars": 185404,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.2138,
+      "stars": 109041,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "rohitg00/ai-engineering-from-scratch",
+      "bucket": "ai",
+      "score": 16.9547,
+      "stars": 75792,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Shubhamsaboo/awesome-llm-apps",
+      "bucket": "ai",
+      "score": 16.8705,
+      "stars": 143535,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 370,
+    "measured": 271
+  },
+  "written": [
+    {
+      "repo": "NousResearch/hermes-agent",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 23,
+        "used": 3
+      }
+    }
+  ],
+  "held": [
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: 'dsh plugin --profile web add @ebony-vinyl/dsh-our-free-model@2.7.4'",
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: '\"'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: 'DSH_HOME= dsh --profile  --dump-config | grep our-free-model'",
+        "[error] guide.steps[3].commands: command is not a line or code span of the README: 'rd /s /q \"%DSH_HOME%\\\\profiles\\\\web\\\\node_modules\"'",
+        "[error] guide.steps[3].commands: command is not a line or code span of the README: 'del \"%DSH_HOME%\\\\profiles\\\\web\\\\pnpm-lock.yaml\"'"
+      ],
+      "blockers": []
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: 'curl -L https://github.com/yt-dlp/yt-dlp/raw/master/public.key | gpg -'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: 'gpg --verify SHA2-256SUMS.sig SHA2-256SUMS'",
+        "[error] guide.steps[3].commands: command is not a line or code span of the README: 'gpg --verify SHA2-512SUMS.sig SHA2-512SUMS'"
+      ],
+      "blockers": [
+        {
+          "severity": "blocker",
+          "field": "guide.steps[1].commands",
+          "problem": "Suggests yt-dlp -U works for all installations, but README says it only updates release binaries",
+          "fact": "README: \"You can use `yt-dlp -U` to update if you are using the [release binaries]\""
+        }
+      ]
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 4.0
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
+      "seconds": 0.2
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
+      "seconds": 0.2
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_",
+      "seconds": 0.2,
+      "headers": {
+        "retry-after": "11",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "groq/openai/gpt-oss-20b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-20b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_d",
+      "seconds": 0.5,
+      "headers": {
+        "retry-after": "12",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+      "seconds": 0.2,
+      "headers": {
+        "x-ratelimit-limit-req-minute": "0",
+        "x-ratelimit-remaining-req-minute": "0"
+      }
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 0.9,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
+      "seconds": 0.2
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
+      "seconds": 0.1
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
+      "seconds": 0.2
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.4,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.1
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.3,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.3,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.1,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.7,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.7,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.2,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.6,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.6,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-10-31"
+}
