@@ -10,7 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import conditions, contract, digest, discover, facts as factslib, gates, history, icons, studio_export
+from . import conditions, contract, digest, discover, facts as factslib, gates, history, icons, reports, studio_export
 from .llm import AllModelsFailed, Gateway
 from .net import HttpError
 from .write import write_one
@@ -41,14 +41,15 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
     started, budget = clock(), float(cfg.get("max_run_minutes", 35)) * 60
     seen_path = root / "state" / "seen.json"
     seen = factslib.load_seen(seen_path)
+    reports_covered = reports.covered(root)          # read-only: a report is not a digest, so it never goes into seen.json
     stars_path = root / "state" / "stars.json"
     history_problems: list[str] = []
     hist = history.load(stars_path, history_problems)
     if only:
-        cand, request_warnings = discover.requested(gh, only, cfg, seen, today, bucket, hist)
+        cand, request_warnings = discover.requested(gh, only, cfg, seen, today, bucket, hist, reports_covered)
         ranked, dropped, picks = [cand], {}, [cand]
     else:
-        ranked, dropped = discover.candidates(gh, cfg, seen, today, hist)
+        ranked, dropped = discover.candidates(gh, cfg, seen, today, hist, reports_covered)
         picks = discover.pick(ranked, cfg, today)
     measured = sum(c["velocity"]["source"] == "measured" for c in ranked)
     if not dry_run:

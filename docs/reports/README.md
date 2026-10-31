@@ -21,6 +21,8 @@ Each report is a folder:
 | [archify](archify/report.md) | [tt-a1i/archify](https://github.com/tt-a1i/archify) | `51a2917` (2026-10-25); 48-page deck |
 | [graphify](graphify/report.md) | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) | `0a8cd4e` (2026-10-27); 32-page deck; not yet reviewed by the VPS team |
 
+The scan does not write a second post for a repository a report covers. `radar/reports.py` reads `deck.json` and `sources.json` of every folder here and takes each GitHub repository they name (a `source.repo` or `repo` field, or a `github.com/<owner>/<name>` address in any string) as covered, ignoring case; `radar.py run --repo` only warns. So a new report must list the repositories it studied in one of those two files, and every repository it lists counts as covered, including one it only cites. `tests/test_reports.py` fails for a folder that lists none. Nothing is written to `state/seen.json` for a report.
+
 Before starting or changing a report, claim its folder (`python3 scripts/claim.py claim docs/reports/<name>`, see [`docs/claims.md`](../claims.md)): several Claude or Codex sessions can work here at once, and the claim is what keeps two of them from building the same report, or two Moda canvases for it. `deck.json` holds the canvas link: edit that canvas, never create a second.
 
 | [build-your-own-x](build-your-own-x/report.md) | [codecrafters-io/build-your-own-x](https://github.com/codecrafters-io/build-your-own-x) | `aa17439`; overview / 31 groups (2026-10-24) |

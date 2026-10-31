@@ -19,13 +19,20 @@ def _days(iso: str, today: dt.date) -> int:
     return max(0, (today - dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).date()).days)
 
 
-def eligible(repo: dict, cfg: dict, seen: dict, today: dt.date, min_stars: int | None = None) -> str | None:
+REPORT_COVERED = "already covered by a report"
+
+
+def eligible(repo: dict, cfg: dict, seen: dict, today: dt.date, min_stars: int | None = None,
+             reports: dict | None = None) -> str | None:
     """None when the repo may be picked, else the reason it was dropped. `min_stars` overrides the configured floor
-    (the rising pass has a lower one)."""
+    (the rising pass has a lower one). `reports` is radar.reports.covered(): a repository a hand-written report studied is
+    not written again, though it is not in `seen`."""
     name = repo.get("full_name", "")
     spdx = ((repo.get("license") or {}).get("spdx_id") or "").lower()
     if name in seen:
         return "already covered"
+    if name.lower() in (reports or {}):
+        return REPORT_COVERED
     if spdx not in cfg["licenses"]:
         return f"licence {spdx or 'none'} is not on the free list"
     if repo.get("archived") or repo.get("fork") or repo.get("disabled") or repo.get("private"):
@@ -81,7 +88,8 @@ def _candidate(repo: dict, bucket: str, topic: str, cfg: dict, today: dt.date, h
             "rising": age <= int(cfg["rising"]["created_within_days"]), "velocity": mom, "flags": flags(repo, mom), "repo": repo}
 
 
-def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = None) -> tuple[list[dict], dict]:
+def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = None,
+               reports: dict | None = None) -> tuple[list[dict], dict]:
     """Search every bucket topic. Returns (ranked candidates, drop counts by reason).
 
     Two passes per topic, as in StarVelocity: "top" (the stars floor, what a plain star ranking finds) and "rising"
@@ -114,7 +122,7 @@ def candidates(gh, cfg: dict, seen: dict, today: dt.date, hist: dict | None = No
                 continue
             if kind == "rising" and _days(repo.get("created_at", "1970-01-01T00:00:00Z"), today) > window:
                 continue                             # the query asked for young repositories; an old one is not "rising"
-            why = eligible(repo, cfg, seen, today, min_stars=floor)
+            why = eligible(repo, cfg, seen, today, min_stars=floor, reports=reports)
             if why:
                 dropped[why] = dropped.get(why, 0) + 1
                 continue
@@ -182,7 +190,7 @@ def parse_repo(text: str) -> str:
 
 
 def requested(gh, text: str, cfg: dict, seen: dict, today: dt.date, bucket: str | None = None,
-              hist: dict | None = None) -> tuple[dict, list[str]]:
+              hist: dict | None = None, reports: dict | None = None) -> tuple[dict, list[str]]:
     """One repository a person asked for, as a candidate shaped like the ones `candidates` returns.
 
     The person's choice replaces the ranking filters (stars, freshness, already covered): those only decide what the
@@ -210,6 +218,8 @@ def requested(gh, text: str, cfg: dict, seen: dict, today: dt.date, bucket: str 
     warnings: list[str] = []
     if full in seen:
         warnings.append(f"already covered on {seen[full].get('covered', '?')}: written again")
+    if full.lower() in (reports or {}):
+        warnings.append(f"already covered by the report docs/reports/{reports[full.lower()]}: written again")
     if repo.get("archived"):
         warnings.append("archived")
     if repo.get("fork"):
