@@ -1,0 +1,458 @@
+{
+  "title": "Matt Pocock Skills: 27 skill nhỏ ghép được",
+  "subtitle": "Báo cáo đọc repo mattpocock/skills ở commit a496f55",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S3",
+        "S4"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Bộ skill nhỏ, ghép được: tác giả giữ quyền kiểm soát thay vì giao cả quy trình cho một khung",
+        "27 skill được quảng bá, 11 skill chưa quảng bá; đọc ở commit a496f55 ngày 29/10/2026",
+        "Người viết đọc mã, chưa chạy"
+      ],
+      "notes": "Mở bài bằng câu hỏi: bộ skill này là gì và khác các khung quy trình lớn ở đâu. README đặt mình đối lập với GSD, BMAD và Spec-Kit vì những bộ đó sở hữu quy trình nên người dùng mất kiểm soát. Về hình thức đây là plugin với hai mươi bảy skill được quảng bá. Người viết đọc commit a496f55 ngày hai mươi chín tháng mười, không cài và không chạy gì."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S3",
+        "S5",
+        "S7",
+        "S8",
+        "S9",
+        "S23",
+        "S25"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Giá trị nằm ở vài nguyên thủy nhỏ: grilling dài 329 từ làm lõi cho cả grill-me và grill-with-docs",
+        "Repo kỷ luật hóa cả việc viết skill: phân loại người gọi hay mô hình gọi, gọi bằng công cụ Skill",
+        "Tác giả không nhận skill mới hay PR ngoài: đây là quan điểm của một người"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: lõi giá trị là vài nguyên thủy nhỏ như grilling, còn grill-me và grill-with-docs chỉ là vỏ hai mươi hai và ba mươi lăm từ. Hai: repo có quy ước riêng để viết và gọi skill, và bản đồ ask-matt phải luôn khớp. Ba: tác giả từ chối skill mới và pull request từ người ngoài, nên bộ này là quan điểm cá nhân chứ không phải khung chung."
+    },
+    {
+      "title": "Hồ sơ nhanh",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S4",
+        "S5",
+        "S29"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền. Ba nhãn xuyên suốt bài: nguồn repo là đọc từ tệp, người viết đếm là con số tính bằng lệnh trên bản đã tải, suy luận là nhận định của người viết. Hai mươi bảy skill được quảng bá chia thành mười sáu skill do người gọi và mười một skill do mô hình gọi. Bài không nêu số sao vì nguồn duy nhất là tệp ở commit đã ghim.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Plugin 27 skill quảng bá + 11 skill chưa quảng bá"
+        },
+        {
+          "label": "Phiên bản",
+          "text": "1.3.2; giấy phép MIT"
+        },
+        {
+          "label": "Người gọi",
+          "text": "16 skill (disable-model-invocation)"
+        },
+        {
+          "label": "Mô hình gọi",
+          "text": "11 skill, người cũng gọi được"
+        },
+        {
+          "label": "Quy mô",
+          "text": "176 tệp; 38 SKILL.md, 26.689 từ"
+        },
+        {
+          "label": "Đóng góp",
+          "text": "Không nhận skill mới; PR chỉ cho cộng tác viên"
+        }
+      ]
+    },
+    {
+      "title": "Bốn lỗi, bốn cách chữa",
+      "section": "Bốn lỗi thường gặp và skill chữa từng lỗi",
+      "sources": [
+        "S1"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "1. Không làm điều tôi muốn: grilling, tức phỏng vấn trước khi làm",
+        "2. Quá dài dòng: ngôn ngữ chung trong GLOSSARY.md",
+        "3. Mã không chạy: TDD và vòng gỡ lỗi chia pha",
+        "4. Cục bùn: module sâu, khảo sát kiến trúc"
+      ],
+      "notes": "README tổ chức cả bộ quanh bốn thất bại của agent lập trình. Lệch hiểu biết thì phỏng vấn trước. Quá dài dòng thì cần một ngôn ngữ chung. Mã không chạy thì cần vòng phản hồi, gồm TDD và gỡ lỗi chia pha. Cục bùn thì cần quan tâm thiết kế. Mỗi lỗi đi kèm một câu trích sách kinh điển. Suy luận của người viết: bộ skill đóng gói nguyên tắc cũ thành thao tác lặp lại được."
+    },
+    {
+      "title": "Cây quyết định của grilling",
+      "section": "Grilling và ngôn ngữ chung của dự án",
+      "sources": [
+        "S7"
+      ],
+      "layout": "flow",
+      "tone": "light",
+      "bullets": [
+        "Tìm frontier: quyết định đã đủ tiền đề",
+        "Hỏi cả vòng: đánh số, kèm đề xuất",
+        "Nghe trả lời, tính lại frontier",
+        "Xong khi frontier rỗng, người dùng xác nhận"
+      ],
+      "notes": "Skill grilling dài ba trăm hai mươi chín từ và chứa toàn bộ cơ chế. Phiên phỏng vấn là một cây quyết định. Frontier là mọi quyết định đã đủ tiền đề, và cả frontier được hỏi trong một vòng, đánh số, kèm câu trả lời đề xuất. Sau mỗi vòng agent tính lại frontier. Sự kiện trong môi trường là việc của subagent, quyết định là việc của người dùng. Agent không hành động cho tới khi người dùng xác nhận."
+    },
+    {
+      "title": "Hai lớp vỏ, một lõi",
+      "section": "Grilling và ngôn ngữ chung của dự án",
+      "sources": [
+        "S7",
+        "S8",
+        "S9"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "grill-me: 22 từ. Chỉ một dòng gọi công cụ Skill với grilling.",
+        "grill-with-docs: 35 từ. Gọi Skill hai lần, cho grilling và domain-modeling.",
+        "Lõi nằm ở grilling, 329 từ"
+      ],
+      "notes": "Hai skill được dùng nhiều nhất thực ra rất mỏng. Grill-me chỉ có một dòng gọi grilling. Grill-with-docs gọi công cụ Skill hai lần, cho grilling và domain-modeling. Phần kỷ luật nằm ở một chỗ duy nhất nên sửa một lần là cả hai cùng đổi. Đây là suy luận của người viết từ nội dung ba tệp. Số từ do người viết đếm bằng lệnh wc."
+    },
+    {
+      "title": "domain-modeling làm gì",
+      "section": "Grilling và ngôn ngữ chung của dự án",
+      "sources": [
+        "S10",
+        "S11"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Thách thức thuật ngữ: so với GLOSSARY.md ngay khi người dùng nói",
+        "Làm rõ chữ mơ hồ: đề xuất một thuật ngữ chuẩn",
+        "Đối chiếu mã: nêu mâu thuẫn giữa lời và mã",
+        "Ghi glossary ngay, ADR chỉ khi đủ ba điều kiện"
+      ],
+      "notes": "Domain-modeling là kỷ luật chủ động xây mô hình miền. Nó thách thức thuật ngữ so với glossary, làm rõ chữ mơ hồ, thử bằng tình huống cụ thể và đối chiếu với mã. Glossary được cập nhật ngay khi thuật ngữ được chốt và không chứa chi tiết cài đặt. ADR chỉ được đề nghị khi quyết định khó đảo ngược, gây bất ngờ nếu thiếu bối cảnh, và là kết quả của một đánh đổi thật."
+    },
+    {
+      "title": "Dòng chính từ ý tưởng đến mã",
+      "section": "Từ ý tưởng đến mã: spec, ticket, thực thi",
+      "sources": [
+        "S20",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "grill-with-docs: sharpen ý tưởng",
+        "to-spec: tổng hợp, không phỏng vấn",
+        "to-tickets: lát cắt tracer bullet",
+        "implement hoặc implement-spec",
+        "code-review, rồi retro"
+      ],
+      "notes": "Ask-matt mô tả một dòng chính từ ý tưởng đến phát hành. Bắt đầu bằng grill-with-docs, rồi nếu việc kéo dài nhiều phiên thì to-spec và to-tickets, sau đó implement hoặc implement-spec, kết thúc bằng code-review và retro. Skill khuyên giữ ba bước đầu trong một cửa sổ ngữ cảnh và nhắc tới vùng thông minh khoảng một trăm năm mươi nghìn token. Mỗi lần implement bắt đầu mới từ ticket."
+    },
+    {
+      "title": "Bảy phần của một spec",
+      "section": "Từ ý tưởng đến mã: spec, ticket, thực thi",
+      "sources": [
+        "S14"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Out of Scope và Further Notes",
+        "Testing Decisions: seam đã thỏa thuận",
+        "Implementation Decisions: không đường dẫn, không mã",
+        "User Stories: danh sách rất dài",
+        "Problem Statement và Solution"
+      ],
+      "notes": "To-spec không phỏng vấn, chỉ tổng hợp từ cuộc trò chuyện. Nó phác các seam sẽ kiểm thử, ưu tiên seam sẵn có và lý tưởng là một, rồi hỏi người dùng xác nhận. Spec theo mẫu bảy phần. Phần quyết định cài đặt không chứa đường dẫn tệp hay đoạn mã vì chúng nhanh lỗi thời, trừ đoạn mã từ prototype mã hóa một quyết định chính xác hơn lời. Spec được gắn nhãn ready-for-agent."
+    },
+    {
+      "title": "implement-spec chạy thế nào",
+      "section": "Từ ý tưởng đến mã: spec, ticket, thực thi",
+      "sources": [
+        "S17"
+      ],
+      "layout": "timeline",
+      "tone": "dark",
+      "bullets": [
+        "Đọc spec: ticket là đồ thị tác vụ",
+        "Tạo nhánh tích hợp",
+        "Mỗi ticket một subagent, một worktree",
+        "Merger gộp; frontier mới thì chạy tiếp",
+        "code-review và một đợt sửa"
+      ],
+      "notes": "Implement-spec coi các ticket như một đồ thị tác vụ có frontier. Nó tạo một nhánh tích hợp, giao mỗi ticket cho một subagent mới trong worktree riêng và chạy nền để tối đa hóa song song. Một subagent merger gộp kết quả vào nhánh tích hợp. Khi hết ticket thì chạy code-review trên nhánh tích hợp và dùng một subagent sửa mọi lỗi. Giao tiếp dùng con trỏ ngữ cảnh thay vì chép nội dung."
+    },
+    {
+      "title": "Cách dựng vòng phản hồi",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S13"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "Giai đoạn 1 của diagnosing-bugs: dựng vòng phản hồi chặt",
+        "Tác giả viết: đây là skill, phần còn lại chỉ là cơ học"
+      ],
+      "notes": "Skill gỡ lỗi nói thẳng: giai đoạn một là cả skill. Có mười cách dựng vòng phản hồi, xếp gần theo thứ tự ưu tiên, từ test thất bại, curl, CLI với fixture, trình duyệt headless, phát lại trace, harness tạm, fuzz, bisect, so sánh khác biệt, đến cách cuối cùng là script cho người ngồi bấm. Số mười do người viết đếm từ danh sách trong skill. Không có vòng thì không được đoán."
+    },
+    {
+      "title": "Khi nào giai đoạn 1 xong",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S13"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Red-capable: khẳng định đúng triệu chứng của người dùng",
+        "Tất định: cùng kết quả mỗi lần chạy",
+        "Nhanh: vài giây, không phải vài phút",
+        "Agent chạy được: không cần người ngồi bấm"
+      ],
+      "notes": "Giai đoạn một chỉ xong khi có một lệnh đã chạy ít nhất một lần và thỏa bốn điều kiện. Nó red-capable, tức khẳng định đúng triệu chứng, không chỉ là chạy không lỗi. Nó tất định. Nó nhanh. Và agent chạy được không cần người. Nếu không dựng được vòng, skill bắt agent dừng, liệt kê đã thử gì và hỏi người dùng, không được chuyển sang giả thuyết. Skill cũng yêu cầu che bí mật trước khi hiển thị."
+    },
+    {
+      "title": "TDD: seam trước, test sau",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S12"
+      ],
+      "layout": "explainer",
+      "tone": "light",
+      "bullets": [
+        "Seam: Ranh giới công khai nơi đặt test",
+        "Trước khi viết: Ghi seam và xin xác nhận",
+        "Quy tắc: Red trước green, mỗi lần một lát cắt"
+      ],
+      "notes": "Seam là điểm mấu chốt của skill tdd. Người viết nhấn mạnh quy tắc chờ xác nhận, vì nó tập trung công sức kiểm thử vào đường dẫn quan trọng. Chi tiết refactor nằm ở giai đoạn review chứ không ở vòng TDD, và đó là một chỗ README chưa khớp. Các câu trích trong slide là từ skill tdd ở commit đã ghim.",
+      "body": "Skill tdd là tài liệu tham chiếu cho vòng **red-green**: bài kiểm tra tốt xác minh hành vi qua giao diện công khai, không qua cài đặt [S12].\n\nTrước khi viết bất kỳ test nào, agent phải ghi lại các **seam** sẽ kiểm thử và xác nhận với người dùng; không test nào được viết ở seam chưa xác nhận [S12]. Refactor không thuộc vòng này mà thuộc giai đoạn review [S12]."
+    },
+    {
+      "title": "Ba phản mẫu của test",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S12"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Gắn với cài đặt: test vỡ khi refactor dù hành vi không đổi",
+        "Tautological: khẳng định tự tính lại như mã",
+        "Cắt ngang: viết hết test rồi mới viết mã"
+      ],
+      "notes": "Skill tdd nêu ba phản mẫu. Test gắn với cài đặt vỡ khi refactor dù hành vi không đổi. Test tautological khẳng định bằng cách tự tính lại giá trị như mã nên không bao giờ bất đồng với mã; giá trị mong đợi phải đến từ nguồn độc lập. Cắt ngang là viết hết test rồi mới viết mã; thay vào đó làm từng lát cắt dọc, mỗi test là một tracer bullet."
+    },
+    {
+      "title": "Mùi mã Fowler",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S18"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "Đường cơ sở của trục Standards trong code-review",
+        "Repo luôn thắng; mỗi mùi chỉ là phán đoán, không phải vi phạm cứng"
+      ],
+      "notes": "Trục Standards của code-review luôn mang theo một đường cơ sở gồm mười hai mùi mã của Fowler, từ Mysterious Name đến Refused Bequest. Số mười hai do người viết đếm từ danh sách trong skill. Hai ràng buộc: tiêu chuẩn tài liệu của repo luôn thắng đường cơ sở, và mỗi mùi chỉ là phán đoán có nhãn, không phải vi phạm cứng. Bỏ qua mọi thứ mà công cụ kiểm tra đã thực thi."
+    },
+    {
+      "title": "Review hai trục",
+      "section": "TDD, gỡ lỗi và review",
+      "sources": [
+        "S18"
+      ],
+      "layout": "sequence-diagram",
+      "tone": "dark",
+      "bullets": [
+        "Ghim điểm cố định, kiểm diff không rỗng",
+        "Giao diff cho trục Standards",
+        "Giao diff cho trục Spec",
+        "Standards báo mùi mã và vi phạm",
+        "Spec báo chỗ lệch yêu cầu"
+      ],
+      "notes": "Code-review so diff từ một điểm cố định bằng ba chấm với merge-base. Điều phối kiểm điểm cố định hợp lệ và diff không rỗng trước khi giao việc. Hai trục Standards và Spec chạy ở hai subagent song song, mỗi cái với ngữ cảnh mới, để không làm nhiễu nhau. Sau đó skill tổng hợp hai báo cáo cạnh nhau. Nếu không tìm thấy spec, trục Spec bỏ qua và báo không có spec."
+    },
+    {
+      "title": "Module sâu, triage, bản đồ",
+      "section": "Thiết kế sâu, triage và bản đồ",
+      "sources": [
+        "S19",
+        "S21",
+        "S22"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "codebase-design: Module sâu = nhiều hành vi sau giao diện nhỏ",
+        "triage: 2 vai phân loại, 5 vai trạng thái",
+        "wayfinder: Bản đồ là issue, decision ticket là issue con",
+        "ask-matt: Bản đồ luôn phải khớp các skill người gọi"
+      ],
+      "notes": "Ba skill còn lại của nhóm thiết kế và điều phối. Codebase-design cho tám thuật ngữ chung về module sâu: nhiều hành vi sau một giao diện nhỏ, đặt ở một seam sạch. Triage chuyển issue qua máy trạng thái hai vai phân loại và năm vai trạng thái, và mọi bình luận do AI đăng phải mở đầu bằng dòng tuyên bố. Wayfinder lập bản đồ quyết định cho việc lớn hơn một phiên. Ask-matt phải luôn khớp các skill người gọi."
+    },
+    {
+      "title": "Quy tắc giữ repo nhất quán",
+      "section": "Cách repo giữ nhất quán",
+      "sources": [
+        "S2",
+        "S5",
+        "S20"
+      ],
+      "layout": "connection-diagram",
+      "tone": "dark",
+      "bullets": [
+        "README và plugin.json khớp nhau cho skill quảng bá",
+        "Mỗi skill quảng bá một trang tài liệu bốn mục",
+        "ask-matt luôn khớp các skill người gọi",
+        "Subagent luôn bắt đầu với ngữ cảnh mới"
+      ],
+      "notes": "Bốn quy tắc trong CLAUDE.md giữ repo nhất quán. Skill quảng bá phải có mặt trong README và trong mảng skills của plugin.json. Mỗi skill quảng bá có một trang tài liệu bốn mục. Bản đồ ask-matt phải luôn khớp, nếu không bộ định tuyến sẽ nói dối. Và mọi skill giao việc cho subagent phải dặn bắt đầu với cửa sổ ngữ cảnh mới vì vài harness fork ngữ cảnh cha. AGENTS.md là liên kết tượng trưng tới CLAUDE.md."
+    },
+    {
+      "title": "Điều bị từ chối công khai",
+      "section": "Phạm vi và cách đóng góp",
+      "sources": [
+        "S3",
+        "S23",
+        "S24",
+        "S25",
+        "S30"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Không nhận skill mới: nếu ghép được từ skill sẵn có thì không có skill mới",
+        "Pull request chỉ mở cho cộng tác viên",
+        "Không đặt trần số câu hỏi khi grilling",
+        "Issue needs-info tự đóng sau 14 ngày không phản hồi"
+      ],
+      "notes": "SCOPE đặt ngưỡng kép: một ý tưởng chỉ còn mở nếu mô tả thất bại quan sát được trong phiên thật và hợp triết lý. Đề xuất skill mới bị đóng vì nếu ghép được từ skill sẵn có thì không cần skill mới. Pull request chỉ mở cho cộng tác viên. Không đặt trần số câu hỏi vì có kế hoạch cần ba câu, có kế hoạch cần năm mươi. Suy luận của người viết: đây là mô hình một người giữ cửa cho catalog nhỏ."
+    },
+    {
+      "title": "Bốn chỗ repo chưa khớp nhau",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S2",
+        "S11",
+        "S12",
+        "S15",
+        "S26",
+        "S27"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Red-green-refactor: README dùng tên này, tdd nói refactor ngoài vòng",
+        "Ticket: glossary khuyên tránh, skill tên to-tickets",
+        "Em dash: CLAUDE.md cấm, changelog có 68 dòng",
+        "Khoảng trống: tdd không quyết định thay đổi nào đáng chạy"
+      ],
+      "notes": "Bốn chỗ các tệp của chính repo không khớp nhau, được báo chứ không chọn bên. README và mô tả tdd dùng cụm red-green-refactor nhưng thân skill nói refactor không thuộc vòng. Glossary khuyên tránh chữ ticket nhưng skill mang tên to-tickets. CLAUDE.md cấm em dash nhưng changelog có sáu mươi tám dòng chứa nó, do người viết đếm. Và trang tài liệu tdd tự thừa nhận một khoảng trống."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S5",
+        "S7",
+        "S12",
+        "S13",
+        "S18",
+        "S20",
+        "S3",
+        "S25"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Thư viện 27 skill nhỏ, ghép được; không phải quy trình khép kín",
+        "Lõi là grilling và GLOSSARY: ngôn ngữ chung",
+        "Dòng chính: grill, spec, ticket, implement, review hai trục",
+        "Gỡ lỗi bắt đầu bằng vòng phản hồi chặt, đỏ đúng triệu chứng",
+        "Muốn đổi thì fork hoặc tự viết: tác giả không nhận skill mới"
+      ],
+      "notes": "Năm điều cần nhớ. Đây là thư viện skill nhỏ ghép được, không phải quy trình khép kín. Lõi là grilling và glossary. Dòng chính đi từ grill đến spec, ticket, implement và review hai trục. Gỡ lỗi bắt đầu bằng vòng phản hồi đỏ đúng triệu chứng chứ không bằng giả thuyết. Và tác giả không nhận skill mới nên muốn đổi thì fork hoặc tự viết. Đọc kèm sự nghi ngờ vừa phải vì có bốn chỗ chưa khớp."
+    },
+    {
+      "title": "Lưu ý",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S4"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Đọc mã, chưa chạy: bài là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt",
+        "Clone nông ở commit a496f55, nhánh main, ngày 29/10/2026",
+        "Không nêu số sao; giấy phép MIT theo plugin.json"
+      ],
+      "notes": "Giới hạn của bài. Người viết đọc bản clone nông ở commit a496f55 ngày hai mươi chín tháng mười, không cài plugin, không chạy claude plugin validate và không thử skill nào. Phần lớn các tệp phụ, thư mục in-progress, misc và phần lớn changelog không được đọc kỹ. Bài không nêu số sao hay lịch sử issue. Giấy phép MIT theo plugin.json, người viết không đọc tệp LICENSE. Nội dung skill chỉ là đối tượng để mô tả."
+    },
+    {
+      "title": "Nguồn tham khảo",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: CLAUDE.md",
+        "S3: SCOPE.md",
+        "S4: plugin.json",
+        "S5: invocation.md",
+        "S6: ADR 0002 (plugin)",
+        "S7: grilling",
+        "S8: grill-me",
+        "S9: grill-with-docs",
+        "S10: domain-modeling",
+        "S11: GLOSSARY.md",
+        "S12: tdd",
+        "S13: diagnosing-bugs",
+        "S14: to-spec",
+        "S15: to-tickets",
+        "S16: implement",
+        "S17: implement-spec",
+        "S18: code-review",
+        "S19: codebase-design",
+        "S20: ask-matt",
+        "S21: triage",
+        "S22: wayfinder",
+        "S23: new-skills.md",
+        "S24: question-limits.md",
+        "S25: CONTRIBUTING.md",
+        "S26: CHANGELOG.md",
+        "S27: tdd.md",
+        "S28: resolving-merge-conflicts.md",
+        "S29: package.json",
+        "S30: needs-info.yml"
+      ],
+      "notes": ""
+    }
+  ]
+}
