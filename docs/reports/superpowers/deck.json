@@ -1,0 +1,30 @@
+{
+  "canvas": "https://moda.app/canvas/231d2197-8d30-4dbd-aa4a-3114a9c6b10c?source=agent",
+  "pages": 26,
+  "built": "2026-10-31",
+  "brand_kit": null,
+  "slides_json_sha256": "338ff0677fc25561ec2dd56ee7a51e48c19110e3163a699c1f36baeeebd9d5fd",
+  "source": {
+    "repo": "https://github.com/obra/superpowers",
+    "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b"
+  },
+  "design": "Github-radar R07 / 1920x1080 / Be Vietnam Pro + Bricolage Grotesque / cream, ink, blue, amber, teal, red (deck-style of Multiple-report)",
+  "drawn_text_differences": [
+    "Footer reads 'Github-radar · R07 · NN/26' instead of the Multiple-report label.",
+    "The references slide uses three columns (33 sources); gen.py and check_lesson.py were patched in a scratch copy only (limit 18 -> 36, third column).",
+    "Backticks in slides.json are not drawn."
+  ],
+  "export_caveats": [
+    "Moda's export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "gate": "check_lesson.py R07 OK (2 warnings: notes of slides 11 and 22 have 54 and 56 words)",
+    "canvas_pages_screenshotted": "8 of 26 (cover, 5, 8, 9, 15, 24, 26 and the references page); the other pages were not looked at",
+    "pptx_pages": 26
+  },
+  "artifacts": {
+    "superpowers.pptx": "a064da8ad5dfecd5281090f3244a4d8b05f3111ac49d1302d86536bd0cb4d4fc"
+  },
+  "status": "done"
+}
