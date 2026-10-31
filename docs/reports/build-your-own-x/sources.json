@@ -1,0 +1,14 @@
+[
+  {
+    "id": "S1",
+    "title": "CodeCrafters — build-your-own-x / README",
+    "url": "https://github.com/codecrafters-io/build-your-own-x/blob/aa17439b62f384511a5561ce308e9598b94d8989/README.md",
+    "commit": "aa17439b62f384511a5561ce308e9598b94d8989"
+  },
+  {
+    "id": "S2",
+    "title": "Cstack — db_tutorial / Part 1",
+    "url": "https://github.com/cstack/db_tutorial/blob/60b50c5b7be787a4aaa1e50ab8a90c6cabb75159/_parts/part1.md",
+    "commit": "60b50c5b7be787a4aaa1e50ab8a90c6cabb75159"
+  }
+]
