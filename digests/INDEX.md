@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-10-31](2026-10-31/README.md) — hermes-agent
 - [2026-10-28](2026-10-28/README.md) — peach
 - [2026-10-24](2026-10-24/README.md) — kestra, opengym
 - [2026-10-21](2026-10-21/README.md) — ecc
