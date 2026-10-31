@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 
 from . import gates, icons
-from .llm import AllModelsFailed, Gateway, family, parse_json
+from .llm import Gateway, UnparseableAnswer, family, parse_json
 
 LANG_NAME = {"vi": "Vietnamese (tiếng Việt)", "en": "English", "ja": "Japanese (日本語, polite です・ます)"}
 AUDIENCE = {
@@ -98,7 +98,7 @@ def _ask(gw: Gateway, models, system, user, **kw) -> tuple[dict, str]:
         except ValueError as exc:
             last = exc
             user += "\n\nYour previous answer was not a single JSON object. Answer again with only the JSON object."
-    raise AllModelsFailed(f"unparseable model output: {last}")
+    raise UnparseableAnswer(f"unparseable model output: {last}")
 
 
 def checker_pool(checker_models: list[str], writer: str) -> list[str]:

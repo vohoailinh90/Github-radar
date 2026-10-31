@@ -3,7 +3,7 @@ import json
 import pytest
 
 from radar import config, icons
-from radar.llm import AllModelsFailed, Gateway
+from radar.llm import AllModelsFailed, Gateway, UnparseableAnswer
 from radar.write import write_one
 from tests.support import FakeLLM, TODAY, make_draft, README, TREE
 
@@ -63,12 +63,20 @@ def test_minor_issues_alone_do_not_trigger_a_rewrite(served):
     assert write_one(gw(), CFG, FACTS, "vi")["fixed"] is False and srv.counts["writer"] == 1
 
 
-def test_unparseable_output_gets_one_repair_then_fails(served):
+def test_unparseable_output_gets_one_repair_then_raises_an_error_about_that_answer_only(served):
     srv = served(lambda kind, facts, lang, n: "not an object" if kind == "writer" else None)
     # the fake wraps non-dict script values as JSON strings, which parse_json rejects as non-objects
-    with pytest.raises(AllModelsFailed, match="unparseable"):
+    with pytest.raises(UnparseableAnswer, match="unparseable") as caught:
         write_one(gw(), CFG, FACTS, "vi")
+    assert not isinstance(caught.value, AllModelsFailed)          # "no model works" would stop the whole run; this is one repository
     assert srv.counts["writer"] == 2
+
+
+def test_an_unparseable_checker_answer_is_also_an_error_about_that_answer_only(served):
+    srv = served(lambda kind, facts, lang, n: "not an object" if kind == "checker" else None)
+    with pytest.raises(UnparseableAnswer):
+        write_one(gw(), CFG, FACTS, "vi")
+    assert srv.counts["writer"] == 1 and srv.counts["checker"] == 2
 
 
 def test_prompt_marks_the_readme_as_data_and_carries_the_language(served):

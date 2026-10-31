@@ -48,6 +48,11 @@ class AllModelsFailed(RuntimeError):
     pass
 
 
+class UnparseableAnswer(RuntimeError):
+    """A model answered, twice, but not with one JSON object. Unlike AllModelsFailed this says nothing about the other
+    repositories of the run: the pipeline holds this one and goes on."""
+
+
 def split_model(model: str) -> tuple[str, str]:
     provider, _, name = model.partition("/")
     if provider not in PROVIDER_KEYS or not name:
