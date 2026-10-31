@@ -25,5 +25,7 @@ The scan does not write a second post for a repository a report covers. `radar/r
 
 Before starting or changing a report, claim its folder (`python3 scripts/claim.py claim docs/reports/<name>`, see [`docs/claims.md`](../claims.md)): several Claude or Codex sessions can work here at once, and the claim is what keeps two of them from building the same report, or two Moda canvases for it. `deck.json` holds the canvas link: edit that canvas, never create a second.
 
+| [build-your-own-x](build-your-own-x/report.md) | [codecrafters-io/build-your-own-x](https://github.com/codecrafters-io/build-your-own-x) | `aa17439`; overview / 31 groups (2026-10-24) |
+
 The format follows [vohoailinh90/Multiple-report](https://github.com/vohoailinh90/Multiple-report): a lesson, a slide plan and a Moda deck,
 checked by a structure gate (sections in order, every `[Sn]` listed and used, slide layouts and text sizes).
