@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 from . import conditions, contract, digest, discover, facts as factslib, gates, history, icons, reports, studio_export
-from .llm import AllModelsFailed, Gateway
+from .llm import AllModelsFailed, Gateway, UnparseableAnswer
 from .net import HttpError
 from .write import write_one
 
@@ -101,9 +101,14 @@ def run(cfg: dict, gh, gw: Gateway, root: Path, today: dt.date, *, dry_run: bool
                 # Every model failed: the rest of the run would burn the same quota for nothing.
                 report["aborted"] = f"{facts['full_name']} [{lang}]: {exc}"
                 break
+            except UnparseableAnswer as exc:
+                # The models answer, but this repository's answer is not JSON: hold it (offered again next run), try the next one.
+                res = {"status": "unparseable", "problems": [f"model output: {str(exc)[:200]}"], "issues": []}
             if not (cand is picks[-1] and lang == cfg["langs"][-1]):
                 sleep(pace)                          # keeps the checker under its tokens-per-minute cap; not needed after the last call
-            if res["status"] == "ok":
+            if res["status"] == "unparseable":
+                report["held"].append({"repo": facts["full_name"], "lang": lang, "problems": res["problems"], "blockers": []})
+            elif res["status"] == "ok":
                 drafts[lang] = res["draft"]
                 report["written"].append({"repo": facts["full_name"], "lang": lang, "writer": res["writer"],
                                           "checker": res["checker"], "independent_checker": res["independent"],

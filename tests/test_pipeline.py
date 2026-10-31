@@ -63,6 +63,25 @@ def test_second_run_covers_different_repos_because_covered_ones_are_remembered(t
     assert a and not (a & b)
 
 
+def test_an_answer_that_is_not_json_holds_that_repository_and_the_run_goes_on(tmp_path, servers):
+    gh, llm = servers
+    first = {}
+
+    def script(kind, facts, lang, n):
+        if kind == "writer":
+            first.setdefault("name", facts["full_name"])
+            if facts["full_name"] == first["name"]:
+                return "not an object"                       # parse_json refuses it, on the attempt and on the repair
+
+    llm.script = script
+    report = go(tmp_path, servers)
+    assert report["aborted"] is None and report["ok"], report
+    assert [h["repo"] for h in report["held"]] == [first["name"]] and "unparseable" in report["held"][0]["problems"][0]
+    assert len(report["written"]) == 2 and first["name"] not in {w["repo"] for w in report["written"]}
+    seen = json.loads((tmp_path / "state" / "seen.json").read_text())
+    assert len(seen) == 2 and first["name"] not in seen                  # not remembered: offered again next run
+
+
 def test_all_models_failing_aborts_early_and_remembers_nothing(tmp_path, servers, monkeypatch):
     gh, llm = servers
     llm.script = lambda kind, facts, lang, n: (503, {"error": "down"})
