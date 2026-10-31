@@ -31,3 +31,4 @@ The format follows [vohoailinh90/Multiple-report](https://github.com/vohoailinh9
 checked by a structure gate (sections in order, every `[Sn]` listed and used, slide layouts and text sizes).
 
 | [superpowers](superpowers/report.md) | [obra/superpowers](https://github.com/obra/superpowers) | `2ce8aa1` (2026-10-21); 26-page deck; dedicated report, the repo is also one of the 30 in top30-claude-plugins |
+| [mattpocock-skills](mattpocock-skills/report.md) | [mattpocock/skills](https://github.com/mattpocock/skills) | `a496f55` (2026-10-29); 24-page deck; dedicated report, the repo is also one of the 30 in top30-claude-plugins |

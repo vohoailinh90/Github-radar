@@ -1,0 +1,220 @@
+{
+  "snapshot_date": "2026-10-31",
+  "repo": "https://github.com/mattpocock/skills",
+  "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa",
+  "branch": "main",
+  "commit_date": "2026-10-29",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "mattpocock/skills — README.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/README.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S2",
+      "name": "mattpocock/skills — CLAUDE.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/CLAUDE.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/CLAUDE.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S3",
+      "name": "mattpocock/skills — SCOPE.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/SCOPE.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/SCOPE.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S4",
+      "name": "mattpocock/skills — .claude-plugin/plugin.json",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.claude-plugin/plugin.json",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.claude-plugin/plugin.json",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S5",
+      "name": "mattpocock/skills — .agents/invocation.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.agents/invocation.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.agents/invocation.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S6",
+      "name": "mattpocock/skills — .agents/adr/0002-ship-as-a-claude-code-plugin.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.agents/adr/0002-ship-as-a-claude-code-plugin.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.agents/adr/0002-ship-as-a-claude-code-plugin.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S7",
+      "name": "mattpocock/skills — skills/productivity/grilling/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/productivity/grilling/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/productivity/grilling/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S8",
+      "name": "mattpocock/skills — skills/productivity/grill-me/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/productivity/grill-me/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/productivity/grill-me/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S9",
+      "name": "mattpocock/skills — skills/engineering/grill-with-docs/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/grill-with-docs/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/grill-with-docs/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S10",
+      "name": "mattpocock/skills — skills/engineering/domain-modeling/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/domain-modeling/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/domain-modeling/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S11",
+      "name": "mattpocock/skills — GLOSSARY.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/GLOSSARY.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/GLOSSARY.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S12",
+      "name": "mattpocock/skills — skills/engineering/tdd/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/tdd/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/tdd/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S13",
+      "name": "mattpocock/skills — skills/engineering/diagnosing-bugs/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/diagnosing-bugs/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/diagnosing-bugs/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S14",
+      "name": "mattpocock/skills — skills/engineering/to-spec/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/to-spec/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/to-spec/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S15",
+      "name": "mattpocock/skills — skills/engineering/to-tickets/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/to-tickets/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/to-tickets/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S16",
+      "name": "mattpocock/skills — skills/engineering/implement/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/implement/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/implement/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S17",
+      "name": "mattpocock/skills — skills/engineering/implement-spec/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/implement-spec/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/implement-spec/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S18",
+      "name": "mattpocock/skills — skills/engineering/code-review/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/code-review/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/code-review/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S19",
+      "name": "mattpocock/skills — skills/engineering/codebase-design/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/codebase-design/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/codebase-design/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S20",
+      "name": "mattpocock/skills — skills/engineering/ask-matt/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/ask-matt/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/ask-matt/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S21",
+      "name": "mattpocock/skills — skills/engineering/triage/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/triage/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/triage/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S22",
+      "name": "mattpocock/skills — skills/engineering/wayfinder/SKILL.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/skills/engineering/wayfinder/SKILL.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/skills/engineering/wayfinder/SKILL.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S23",
+      "name": "mattpocock/skills — .out-of-scope/new-skills.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.out-of-scope/new-skills.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.out-of-scope/new-skills.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S24",
+      "name": "mattpocock/skills — .out-of-scope/question-limits.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.out-of-scope/question-limits.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.out-of-scope/question-limits.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S25",
+      "name": "mattpocock/skills — CONTRIBUTING.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/CONTRIBUTING.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/CONTRIBUTING.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S26",
+      "name": "mattpocock/skills — CHANGELOG.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/CHANGELOG.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/CHANGELOG.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S27",
+      "name": "mattpocock/skills — docs/engineering/tdd.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/docs/engineering/tdd.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/docs/engineering/tdd.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S28",
+      "name": "mattpocock/skills — docs/engineering/resolving-merge-conflicts.md",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/docs/engineering/resolving-merge-conflicts.md",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/docs/engineering/resolving-merge-conflicts.md",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S29",
+      "name": "mattpocock/skills — package.json",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/package.json",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/package.json",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    },
+    {
+      "id": "S30",
+      "name": "mattpocock/skills — .github/workflows/needs-info.yml",
+      "url": "https://github.com/mattpocock/skills/blob/HEAD/.github/workflows/needs-info.yml",
+      "pinned_url": "https://github.com/mattpocock/skills/blob/a496f5513d4a4cf889bc48e189e579f4b0bdf6aa/.github/workflows/needs-info.yml",
+      "commit": "a496f5513d4a4cf889bc48e189e579f4b0bdf6aa"
+    }
+  ]
+}
