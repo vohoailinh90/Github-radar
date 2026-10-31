@@ -1,0 +1,171 @@
+{
+  "snapshot_date": "2026-10-24",
+  "repo": "https://github.com/abhigyanpatwari/GitNexus",
+  "commit": "d8a256a03a101a767dc4e1118913c679af740336",
+  "branch": "main",
+  "commit_date": "2026-10-24",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "abhigyanpatwari/GitNexus — README.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/README.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S2",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/README.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/README.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/README.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S3",
+      "name": "abhigyanpatwari/GitNexus — ARCHITECTURE.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/ARCHITECTURE.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/ARCHITECTURE.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S4",
+      "name": "abhigyanpatwari/GitNexus — AGENTS.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/AGENTS.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/AGENTS.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S5",
+      "name": "abhigyanpatwari/GitNexus — SECURITY.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/SECURITY.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/SECURITY.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S6",
+      "name": "abhigyanpatwari/GitNexus — docs/mcp-reference.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/docs/mcp-reference.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/docs/mcp-reference.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S7",
+      "name": "abhigyanpatwari/GitNexus — docs/deployment.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/docs/deployment.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/docs/deployment.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S8",
+      "name": "abhigyanpatwari/GitNexus — LICENSE",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/LICENSE",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/LICENSE",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S9",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/src/core/ingestion/pipeline.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/src/core/ingestion/pipeline.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/src/core/ingestion/pipeline.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S10",
+      "name": "abhigyanpatwari/GitNexus — gitnexus-shared/src/lbug/schema-constants.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus-shared/src/lbug/schema-constants.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus-shared/src/lbug/schema-constants.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S11",
+      "name": "abhigyanpatwari/GitNexus — gitnexus-shared/src/languages.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus-shared/src/languages.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus-shared/src/languages.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S12",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/src/mcp/resources.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/src/mcp/resources.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/src/mcp/resources.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S13",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/package.json",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/package.json",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/package.json",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S14",
+      "name": "abhigyanpatwari/GitNexus — eval/README.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/eval/README.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/eval/README.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S15",
+      "name": "abhigyanpatwari/GitNexus — gitnexus-web/package.json",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus-web/package.json",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus-web/package.json",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S16",
+      "name": "abhigyanpatwari/GitNexus — pr-swarm-review/README.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/pr-swarm-review/README.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/pr-swarm-review/README.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S17",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/src/core/incremental/escalation-gate.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/src/core/incremental/escalation-gate.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/src/core/incremental/escalation-gate.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S18",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/src/mcp/output-budget.ts",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/gitnexus/src/mcp/output-budget.ts",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/src/mcp/output-budget.ts",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S19",
+      "name": "abhigyanpatwari/GitNexus — gitnexus/skills",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/tree/HEAD/gitnexus/skills",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/tree/d8a256a03a101a767dc4e1118913c679af740336/gitnexus/skills",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S20",
+      "name": "abhigyanpatwari/GitNexus — .github/workflows",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/tree/HEAD/.github/workflows",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/tree/d8a256a03a101a767dc4e1118913c679af740336/.github/workflows",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S21",
+      "name": "abhigyanpatwari/GitNexus — CHANGELOG.md",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/blob/HEAD/CHANGELOG.md",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/blob/d8a256a03a101a767dc4e1118913c679af740336/CHANGELOG.md",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S22",
+      "name": "abhigyanpatwari/GitNexus — gitnexus",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/tree/HEAD/gitnexus",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/tree/d8a256a03a101a767dc4e1118913c679af740336/gitnexus",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    },
+    {
+      "id": "S23",
+      "name": "abhigyanpatwari/GitNexus — gitnexus-web/src",
+      "url": "https://github.com/abhigyanpatwari/GitNexus/tree/HEAD/gitnexus-web/src",
+      "pinned_url": "https://github.com/abhigyanpatwari/GitNexus/tree/d8a256a03a101a767dc4e1118913c679af740336/gitnexus-web/src",
+      "commit": "d8a256a03a101a767dc4e1118913c679af740336"
+    }
+  ]
+}
