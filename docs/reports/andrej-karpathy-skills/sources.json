@@ -1,0 +1,73 @@
+{
+  "snapshot_date": "2026-10-31",
+  "repo": "https://github.com/forrestchang/andrej-karpathy-skills",
+  "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2",
+  "branch": "main",
+  "commit_date": "2026-04-20",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "forrestchang/andrej-karpathy-skills — README.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S2",
+      "name": "forrestchang/andrej-karpathy-skills — CLAUDE.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/CLAUDE.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CLAUDE.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S3",
+      "name": "forrestchang/andrej-karpathy-skills — skills/karpathy-guidelines/SKILL.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/skills/karpathy-guidelines/SKILL.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/skills/karpathy-guidelines/SKILL.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S4",
+      "name": "forrestchang/andrej-karpathy-skills — .cursor/rules/karpathy-guidelines.mdc",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/.cursor/rules/karpathy-guidelines.mdc",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/.cursor/rules/karpathy-guidelines.mdc",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S5",
+      "name": "forrestchang/andrej-karpathy-skills — CURSOR.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/CURSOR.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CURSOR.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S6",
+      "name": "forrestchang/andrej-karpathy-skills — EXAMPLES.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/EXAMPLES.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/EXAMPLES.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S7",
+      "name": "forrestchang/andrej-karpathy-skills — .claude-plugin/plugin.json",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/.claude-plugin/plugin.json",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/.claude-plugin/plugin.json",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S8",
+      "name": "forrestchang/andrej-karpathy-skills — .claude-plugin/marketplace.json",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/.claude-plugin/marketplace.json",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/.claude-plugin/marketplace.json",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    },
+    {
+      "id": "S9",
+      "name": "forrestchang/andrej-karpathy-skills — README.zh.md",
+      "url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/HEAD/README.zh.md",
+      "pinned_url": "https://github.com/forrestchang/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.zh.md",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+    }
+  ]
+}

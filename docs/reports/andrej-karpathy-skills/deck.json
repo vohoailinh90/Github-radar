@@ -1,0 +1,30 @@
+{
+  "canvas": "https://moda.app/canvas/2993b057-1e82-4211-b243-dd0fa504aa4c?source=agent",
+  "pages": 16,
+  "built": "2026-10-31",
+  "brand_kit": null,
+  "slides_json_sha256": "fc71e639027d2ef5df764a2d5850abce6a25138e17804f9d8b62661cd67f7063",
+  "source": {
+    "repo": "https://github.com/forrestchang/andrej-karpathy-skills",
+    "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+  },
+  "design": "Github-radar R09 / 1920x1080 / Be Vietnam Pro + Bricolage Grotesque / light and dark pages alternating, ink, amber, teal, red, blue (deck-style of Multiple-report)",
+  "drawn_text_differences": [
+    "Footer reads 'Github-radar · R09 · NN/16' instead of the Multiple-report label.",
+    "The references slide uses two columns; gen.py and check_lesson.py were patched in a scratch copy only.",
+    "Backticks in slides.json are not drawn."
+  ],
+  "export_caveats": [
+    "Moda's export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "gate": "check_lesson.py R09 OK",
+    "canvas_pages_screenshotted": "6 of 16 (1, 7, 10, 11, 13, 16); the other pages were not looked at",
+    "pptx_pages": 16
+  },
+  "artifacts": {
+    "andrej-karpathy-skills.pptx": "6f80b51fe92e8a4865e2c0be09425c57103d66b6f99aba6d1b95821ec70b8084"
+  },
+  "status": "done"
+}
