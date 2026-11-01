@@ -53,8 +53,8 @@
     {
       "repo": "liketrek/TREK",
       "bucket": "software",
-      "score": 14.44,
-      "stars": 15281,
+      "score": 14.4401,
+      "stars": 15282,
       "rising": false,
       "slot": false,
       "stars_per_30d": 2020,
@@ -73,7 +73,8 @@
       "repo": "liketrek/TREK",
       "lang": "vi",
       "problems": [
-        "[error] how_it_works.steps: needs 3-6 items"
+        "[error] how_it_works.steps: needs 3-6 items",
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: 'ENCRYPTION_KEY=$(openssl rand -hex 32) docker run -d --name trek -p 3000:3000 \\n  -e ENCRYPTION_KEY=$ENCRYPTION_KEY \\n  -e COOKIE_SECURE=false \\n  -v ./data:/app/data -v ./uploads:/app/uploads mauriceboe/trek'"
       ],
       "blockers": []
     }
@@ -91,55 +92,6 @@
       "model": "google/gemini-flash-latest",
       "status": "error",
       "attempt": 1,
-      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
-      "seconds": 0.5
-    },
-    {
-      "model": "google/gemini-flash-latest",
-      "status": "error",
-      "attempt": 2,
-      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
-      "seconds": 0.6
-    },
-    {
-      "model": "google/gemini-flash-latest",
-      "status": "error",
-      "attempt": 3,
-      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
-      "seconds": 0.1
-    },
-    {
-      "model": "google/gemini-flash-lite-latest",
-      "status": "ok",
-      "attempt": 1,
-      "seconds": 3.7,
-      "served": "gemini-flash-lite-latest"
-    },
-    {
-      "model": "groq/openai/gpt-oss-120b",
-      "status": "ok",
-      "attempt": 1,
-      "seconds": 1.1,
-      "served": "openai/gpt-oss-120b"
-    },
-    {
-      "model": "google/gemini-flash-latest",
-      "status": "error",
-      "attempt": 1,
-      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
-      "seconds": 0.1
-    },
-    {
-      "model": "google/gemini-flash-latest",
-      "status": "error",
-      "attempt": 2,
-      "why": "HTTP 429 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and bil",
-      "seconds": 0.1
-    },
-    {
-      "model": "google/gemini-flash-latest",
-      "status": "error",
-      "attempt": 3,
       "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
       "seconds": 120.1
     },
@@ -147,8 +99,15 @@
       "model": "google/gemini-flash-lite-latest",
       "status": "ok",
       "attempt": 1,
-      "seconds": 2.9,
+      "seconds": 3.8,
       "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.0,
+      "served": "openai/gpt-oss-120b"
     },
     {
       "model": "google/gemini-flash-latest",
@@ -159,7 +118,7 @@
       "model": "google/gemini-flash-lite-latest",
       "status": "ok",
       "attempt": 1,
-      "seconds": 3.7,
+      "seconds": 3.8,
       "served": "gemini-flash-lite-latest"
     }
   ],
