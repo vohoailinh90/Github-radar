@@ -217,3 +217,12 @@ def test_the_writer_prompt_says_a_string_over_several_lines_is_copied_whole():
     from radar.write import SYSTEM
     text = SYSTEM.format(audience="x", language="y", icons="box = a box")
     assert "a PowerShell here-string" in text and "a string that goes on over several lines" in text and "a compound command" in text
+
+
+def test_the_writer_is_shown_how_a_backslash_continued_command_is_joined_and_told_how_many_steps_to_give(served):
+    srv = served()
+    write_one(gw(), CFG, FACTS, "en")
+    system = srv.calls[0]["body"]["messages"][0]["content"]
+    assert "become the single entry `docker run -d -p 80:80 -e KEY=1 img`" in system
+    assert "the text `\\n`, a line break or a backslash never appears inside an entry" in system
+    assert "never write a 7th, never fewer than 3" in system
