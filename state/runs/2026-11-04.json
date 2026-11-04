@@ -1,0 +1,331 @@
+{
+  "date": "2026-11-04",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 286,
+  "dropped": {
+    "already covered": 28,
+    "licence noassertion is not on the free list": 60,
+    "already covered by a report": 15,
+    "licence none is not on the free list": 13,
+    "licence cc-by-sa-4.0 is not on the free list": 2
+  },
+  "picks": [
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "bucket": "ai",
+      "score": 17.4291,
+      "stars": 59629,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 52389,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "bucket": "ai",
+      "score": 17.7824,
+      "stars": 198400,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 9591,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.7456,
+      "stars": 205073,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 8340,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.3144,
+      "stars": 110902,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "ollama/ollama",
+      "bucket": "ai",
+      "score": 17.1959,
+      "stars": 185853,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "bucket": "ai",
+      "score": 16.9912,
+      "stars": 120461,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Shubhamsaboo/awesome-llm-apps",
+      "bucket": "ai",
+      "score": 16.797,
+      "stars": 143861,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "rohitg00/ai-engineering-from-scratch",
+      "bucket": "ai",
+      "score": 16.765,
+      "stars": 76745,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 391,
+    "measured": 266
+  },
+  "written": [],
+  "held": [
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: 'dsh plugin --profile web add @ebony-vinyl/dsh-our-free-model@2.8.0'",
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'dsh plugin --profile web add /绝对路径/dsh-our-free-model'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: '\"'",
+        "[error] guide.steps[3].commands: command is not a line or code span of the README: 'DSH_HOME= dsh --profile  --dump-config | grep our-free-model'",
+        "[error] guide.steps[4].commands: command is not a line or code span of the README: 'rd /s /q \"%DSH_HOME%\\\\profiles\\\\web\\\\node_modules\"'",
+        "[error] guide.steps[4].commands: command is not a line or code span of the README: 'del \"%DSH_HOME%\\\\profiles\\\\web\\\\pnpm-lock.yaml\"'"
+      ],
+      "blockers": []
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'curl -X POST \\'https://api.firecrawl.dev/v2/search\\' -H \\'Authorization: Bearer fc-YOUR_API_KEY\\' -H \\'Content-Type: application/json\\' -d \\'{\"query\": \"firecrawl\", \"limit\": 5}\\''",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: 'curl -X POST \\'https://api.firecrawl.dev/v2/scrape\\' -H \\'Authorization: Bearer fc-YOUR_API_KEY\\' -H \\'Content-Type: application/json\\' -d \\'{\"url\": \"firecrawl.dev\"}\\''",
+        "[error] guide.steps: the README shows 16 command lines but the guide uses none of them; copy the ones a reader types, in order"
+      ],
+      "blockers": [
+        {
+          "severity": "blocker",
+          "field": "guide.outcome",
+          "problem": "Claims 96% web coverage and 3.4s P95 latency not supported by FACTS",
+          "fact": "FACTS does not mention coverage percentage or latency metrics"
+        },
+        {
+          "severity": "blocker",
+          "field": "guide.outcome",
+          "problem": "States \"Agent ready\" with single command but README requires curl or SDK usage, not a single universal command",
+          "fact": "README shows multiple methods (curl, SDK, CLI) for agent usage"
+        }
+      ]
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'yt-dlp --update-to nightly'"
+      ],
+      "blockers": []
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": false,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.1
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 5.1,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_",
+      "seconds": 0.1,
+      "headers": {
+        "retry-after": "12",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "groq/openai/gpt-oss-20b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-20b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_d",
+      "seconds": 0.1,
+      "headers": {
+        "retry-after": "16",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+      "seconds": 0.2,
+      "headers": {
+        "x-ratelimit-limit-req-minute": "0",
+        "x-ratelimit-remaining-req-minute": "0"
+      }
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 0.7,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 5.2,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.4,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.1,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.3,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.2,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 5.7,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": null
+}
