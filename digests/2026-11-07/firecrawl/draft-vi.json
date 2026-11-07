@@ -1,0 +1,373 @@
+{
+  "draft": {
+    "analogy": "Giống như việc thuê một thư ký thông minh chuyên đọc mọi trang web trên Internet rồi tóm tắt lại gọn gàng bằng định dạng bạn muốn trước khi giao cho bạn.",
+    "caveats": [
+      "Dịch vụ yêu cầu khóa API và có thể phát sinh chi phí theo hạn mức sử dụng",
+      "Phụ thuộc vào dịch vụ máy chủ trực tuyến của Firecrawl"
+    ],
+    "facebook": {
+      "caption": "Biến mọi trang web thành dữ liệu sạch cho AI với Firecrawl! 🚀",
+      "hashtags": [
+        "#AI",
+        "#WebScraping",
+        "#Python",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Hành động tải và trích xuất nội dung từ một trang web đơn lẻ.",
+        "term": "Scrape"
+      },
+      {
+        "meaning": "Định dạng văn bản nhẹ, dễ đọc, rất tối ưu cho các mô hình ngôn ngữ lớn (LLM).",
+        "term": "Markdown"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Thử nghiệm tính năng Crawl toàn bộ website",
+        "Tích hợp Firecrawl vào MCP client",
+        "Khám phá các endpoint Agent tự động"
+      ],
+      "outcome": "Bạn sẽ có thể gọi API Firecrawl để tìm kiếm thông tin, cào nội dung trang web hoặc tương tác trực tiếp với các trang web động.",
+      "requirements": [
+        {
+          "detail": "Đăng ký tại trang web chính thức để nhận khóa API.",
+          "evidence": "README",
+          "item": "Tài khoản Firecrawl",
+          "link_ref": 14
+        }
+      ],
+      "steps": [
+        {
+          "commands": [],
+          "do": [
+            "Truy cập trang đăng ký chính thức."
+          ],
+          "evidence": "README",
+          "expect": "Nhận được khóa API dạng fc-YOUR_API_KEY.",
+          "if_fails": "",
+          "link_ref": 14,
+          "snippet_ref": null,
+          "title": "Lấy Khóa API",
+          "why": "Cần có khóa API để xác thực các yêu cầu gửi tới máy chủ Firecrawl."
+        },
+        {
+          "commands": [
+            "firecrawl search \"firecrawl\" --limit 5"
+          ],
+          "do": [
+            "Chạy lệnh tìm kiếm trong terminal của bạn."
+          ],
+          "evidence": "README",
+          "expect": "Nhận được danh sách kết quả kèm URL và tiêu đề.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tìm Kiếm Web Bằng Cân Lệnh",
+          "why": "Thực hiện truy vấn tìm kiếm và lấy nội dung toàn trang qua công cụ dòng lệnh."
+        },
+        {
+          "commands": [
+            "firecrawl scrape https://firecrawl.dev"
+          ],
+          "do": [
+            "Chạy lệnh cào dữ liệu URL mục tiêu trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "Nhận được nội dung trang web dưới dạng văn bản cấu trúc Markdown sạch sẽ.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cào Dữ Liệu Trang Web",
+          "why": "Chuyển đổi bất kỳ URL nào thành Markdown sẵn sàng cho LLM sử dụng."
+        },
+        {
+          "commands": [
+            "firecrawl scrape https://amazon.com",
+            "firecrawl interact exec --prompt \"Search for 'mechanical keyboard'\"",
+            "firecrawl interact exec --prompt \"Click the first result\""
+          ],
+          "do": [
+            "Thực hiện cào trang web và chạy lệnh tương tác."
+          ],
+          "evidence": "README",
+          "expect": "Trang web thực hiện hành động theo câu lệnh và trả về kết quả tương tác.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Tương Tác Với Trang Web",
+          "why": "Thực hiện các thao tác click hoặc tìm kiếm trên trang web động bằng câu lệnh mô tả."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Xác nhận các câu lệnh CLI gọi API thành công và trả về dữ liệu đúng định dạng JSON hoặc Markdown."
+    },
+    "hook": "Biến mọi trang web thành Markdown hoặc JSON sạch để cấp nguồn cho trợ lý AI.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "search",
+          "name": "Search Endpoint",
+          "role": "Tìm kiếm web và trả về nội dung toàn trang từ kết quả."
+        },
+        {
+          "evidence": "README",
+          "icon": "file-text",
+          "name": "Scrape Endpoint",
+          "role": "Chuyển đổi URL thành Markdown, HTML hoặc JSON."
+        },
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "Interact Endpoint",
+          "role": "Tương tác với trang web thông qua câu lệnh prompt hoặc mã lệnh."
+        },
+        {
+          "evidence": "README",
+          "icon": "sparkles",
+          "name": "Agent Endpoint",
+          "role": "Tự động hóa hoàn toàn việc thu thập dữ liệu chỉ bằng mô tả mục tiêu."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Hệ thống nhận URL hoặc từ khóa, vượt qua các lớp bảo vệ JavaScript và proxy để lấy dữ liệu thô.",
+          "title": "Tìm kiếm và Thu thập"
+        },
+        {
+          "evidence": "README",
+          "text": "Lọc nội dung chính và chuyển hóa dữ liệu thành Markdown sạch hoặc JSON cấu trúc tối ưu cho LLM.",
+          "title": "Chuyển đổi định dạng"
+        },
+        {
+          "evidence": "README",
+          "text": "Hỗ trợ agent AI thực hiện các hành vi phức tạp như bấm nút, điền form hoặc tìm kiếm tiếp theo.",
+          "title": "Tương tác thông minh"
+        }
+      ]
+    },
+    "learn": [
+      "Cách kết nối ứng dụng với API thu thập dữ liệu web tiên tiến",
+      "Tận dụng định dạng Markdown tối ưu hóa cho token của LLM",
+      "Cách xây dựng agent tự động tương tác trực tiếp với giao diện trang web"
+    ],
+    "one_liner": "Firecrawl là API thu thập dữ liệu web nguồn mở giúp agent AI tìm kiếm, cào, phân tích và tương tác với bất kỳ trang web nào một cách dễ dàng.",
+    "problem": "Các lập trình viên và nhà nghiên cứu AI thường gặp khó khăn khi lấy dữ liệu sạch từ các trang web phức tạp do bị chặn hoặc cấu trúc lộn xộn. Firecrawl giải quyết việc này bằng cách tự động xử lý proxy xoay vòng, nội dung nặng JavaScript và trả về dữ liệu chuẩn cho LLM.",
+    "title": "Firecrawl: API TÌm Kiếm, Trích Xuất và Tương Tác Web Cho AI",
+    "who_for": [
+      "Lập trình viên AI muốn cấp nguồn dữ liệu thời gian thực cho trợ lý",
+      "Nhà phát triển cần công cụ cào web không lo về proxy và cấu hình phức tạp",
+      "Người làm dữ liệu cần tự động chuyển đổi tài liệu và website thành Markdown sạch"
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "python",
+        "from firecrawl import Firecrawl\n\napp = Firecrawl(api_key=\"fc-YOUR_API_KEY\")\n\nsearch_result = app.search(\"firecrawl\", limit=5)"
+      ],
+      [
+        "javascript",
+        "import { Firecrawl } from 'firecrawl';\n\nconst app = new Firecrawl({apiKey: \"fc-YOUR_API_KEY\"});\n\napp.search(\"firecrawl\", { limit: 5 })"
+      ],
+      [
+        "json",
+        "[\n  {\n    \"url\": \"https://firecrawl.dev\",\n    \"title\": \"Firecrawl\",\n    \"markdown\": \"Turn websites into...\"\n  },\n  {\n    \"url\": \"https://docs.firecrawl.dev\",\n    \"title\": \"Firecrawl Docs\",\n    \"markdown\": \"# Getting Started...\"\n  }\n]"
+      ],
+      [
+        "python",
+        "from firecrawl import Firecrawl\n\napp = Firecrawl(api_key=\"fc-YOUR_API_KEY\")\n\nresult = app.scrape('firecrawl.dev')"
+      ],
+      [
+        "javascript",
+        "import { Firecrawl } from 'firecrawl';\n\nconst app = new Firecrawl({ apiKey: \"fc-YOUR_API_KEY\" });\n\napp.scrape('firecrawl.dev')"
+      ],
+      [
+        "",
+        "# Firecrawl\n\nFirecrawl helps AI agents search, scrape, and interact with the web.\n\n## Features\n- Search: Find information across the web\n- Scrape: Clean data from any page\n- Interact: Click, navigate, and operate pages\n- Agent: Autonomous data gathering"
+      ],
+      [
+        "python",
+        "from firecrawl import Firecrawl\n\napp = Firecrawl(api_key=\"fc-YOUR_API_KEY\")\n\nresult = app.scrape(\"https://amazon.com\")\nscrape_id = result.metadata.scrape_id\n\napp.interact(scrape_id, prompt=\"Search for 'mechanical keyboard'\")\napp.interact(scrape_id, prompt=\"Click the first result\")"
+      ],
+      [
+        "javascript",
+        "import { Firecrawl } from 'firecrawl';\n\nconst app = new Firecrawl({apiKey: \"fc-YOUR_API_KEY\"});\n\nconst result = await app.scrape(\"https://amazon.com\");\n\nawait app.interact(result.metadata.scrapeId, {\n  prompt: \"Search for 'mechanical keyboard'\"\n});\nawait app.interact(result.metadata.scrapeId, {\n  prompt: \"Click the first result\"\n});"
+      ],
+      [
+        "json",
+        "{\n  \"success\": true,\n  \"output\": \"Keyboard available at $100\",\n  \"liveViewUrl\": \"https://liveview.firecrawl.dev/...\"\n}"
+      ],
+      [
+        "json",
+        "{\n  \"mcpServers\": {\n    \"firecrawl-mcp\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"firecrawl-mcp\"],\n      \"env\": {\n        \"FIRECRAWL_API_KEY\": \"fc-YOUR_API_KEY\"\n      }\n    }\n  }\n}"
+      ],
+      [
+        "json",
+        "{\n  \"success\": true,\n  \"data\": {\n    \"result\": \"Notion offers the following pricing plans:\\n\\n1. Free - $0/month...\\n2. Plus - $10/seat/month...\\n3. Business - $18/seat/month...\",\n    \"sources\": [\"https://www.notion.so/pricing\"]\n  }\n}"
+      ],
+      [
+        "python",
+        "from firecrawl import Firecrawl\nfrom pydantic import BaseModel, Field\nfrom typing import List, Optional\n\napp = Firecrawl(api_key=\"fc-YOUR_API_KEY\")\n\nclass Founder(BaseModel):\n    name: str = Field(description=\"Full name of the founder\")\n    role: Optional[str] = Field(None, description=\"Role or position\")\n\nclass FoundersSchema(BaseModel):\n    founders: List[Founder] = Field(description=\"List of founders\")\n\nresult = app.agent(\n    prompt=\"Find the founders of Firecrawl\",\n    schema=FoundersSchema\n)\n\nprint(result.data)"
+      ]
+    ],
+    "bucket": "ai",
+    "forks": 10499,
+    "full_name": "firecrawl/firecrawl",
+    "language": "TypeScript",
+    "license": "AGPL-3.0",
+    "links": [
+      [
+        "playground",
+        "https://firecrawl.dev/playground"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/search"
+      ],
+      [
+        "docs.firecrawl.dev",
+        "https://docs.firecrawl.dev"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/scrape"
+      ],
+      [
+        "amazon.com",
+        "https://amazon.com"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/scrape/SCRAPE_ID/interact"
+      ],
+      [
+        "liveview.firecrawl.dev",
+        "https://liveview.firecrawl.dev/"
+      ],
+      [
+        "Agent documentation",
+        "https://docs.firecrawl.dev/features/agent"
+      ],
+      [
+        "see benchmarks",
+        "https://www.firecrawl.dev/blog/the-worlds-best-web-data-api-v25"
+      ],
+      [
+        "Parse",
+        "https://docs.firecrawl.dev/features/parse"
+      ],
+      [
+        "Monitor",
+        "https://docs.firecrawl.dev/features/monitoring"
+      ],
+      [
+        "github.com",
+        "https://github.com/firecrawl/firecrawl/blob/main/LICENSE"
+      ],
+      [
+        "pepy.tech",
+        "https://pepy.tech/project/firecrawl-py"
+      ],
+      [
+        "GitHub.com",
+        "https://GitHub.com/firecrawl/firecrawl/graphs/contributors"
+      ],
+      [
+        "firecrawl.dev",
+        "https://firecrawl.dev"
+      ],
+      [
+        "twitter.com",
+        "https://twitter.com/firecrawl"
+      ],
+      [
+        "www.linkedin.com",
+        "https://www.linkedin.com/company/104100957"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/firecrawl"
+      ],
+      [
+        "github.com",
+        "https://github.com/firecrawl/firecrawl"
+      ],
+      [
+        "Claude Code",
+        "https://claude.ai/code"
+      ],
+      [
+        "Antigravity",
+        "https://antigravity.google"
+      ],
+      [
+        "OpenCode",
+        "https://opencode.ai"
+      ],
+      [
+        "firecrawl.dev",
+        "https://firecrawl.dev/agent-onboarding/SKILL.md"
+      ],
+      [
+        "Skill + CLI documentation",
+        "https://docs.firecrawl.dev/sdks/cli"
+      ],
+      [
+        "firecrawl-mcp-server",
+        "https://github.com/firecrawl/firecrawl-mcp-server"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/agent"
+      ],
+      [
+        "www.notion.so",
+        "https://www.notion.so/pricing"
+      ],
+      [
+        "firecrawl.dev",
+        "https://firecrawl.dev/pricing"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/crawl"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/crawl/123-456-789"
+      ],
+      [
+        "api.firecrawl.dev",
+        "https://api.firecrawl.dev/v2/map"
+      ],
+      [
+        "firecrawl.dev",
+        "https://firecrawl.dev/blog"
+      ]
+    ],
+    "scanned": "2026-11-07",
+    "stars": 199333,
+    "url": "https://github.com/firecrawl/firecrawl"
+  },
+  "lang": "vi",
+  "position": 2
+}

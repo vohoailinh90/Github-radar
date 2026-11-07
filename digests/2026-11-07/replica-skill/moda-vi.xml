@@ -1,0 +1,64 @@
+<!-- radar: Moda canvas 1200x1763; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="174" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="174" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Khởi nghiệp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Sao chép mọi ứng dụng với Claude Skills</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">11 Claude skill miễn phí giúp đảo ngược, xây dựng lại và sửa lỗi ứng dụng bạn muốn clone.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="166" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-recon</text>
+<text x="80" y="577" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Reverse-engineers screens, flows, and data models from public pages and screenshots.</text>
+<rectangle x="460" y="517" width="280" height="166" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-architect</text>
+<text x="480" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Plans the technology stack, database schema, and API structure.</text>
+<rectangle x="860" y="517" width="280" height="166" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-design</text>
+<text x="880" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Rebuilds the design system into tokens and handles contrast checks.</text>
+<rectangle x="60" y="757" width="280" height="145" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="779" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-build</text>
+<text x="80" y="817" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Builds the application screen by screen based on the recon map.</text>
+<rectangle x="460" y="757" width="280" height="145" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="779" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-backend</text>
+<text x="480" y="817" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Handles authentication, databases, payments, and integrations.</text>
+<rectangle x="860" y="757" width="280" height="145" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="779" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">replica-test</text>
+<text x="880" y="817" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Clicks through flows and tests for bugs to generate bug reports.</text>
+<line x1="340" y1="600" x2="460" y2="600" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="600" x2="860" y2="600" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="683" x2="1000" y2="720" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="720" x2="200" y2="720" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="720" x2="200" y2="757" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="340" y1="829.5" x2="460" y2="829.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="829.5" x2="860" y2="829.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="984" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="1050" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1072" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1072" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Khảo sát và đảo ngược</text>
+<text x="154" y="1108" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đọc dữ liệu màn hình, luồng đi và mô hình dữ liệu từ các trang công cộng và tài khoản của bạn.</text>
+<line x1="584" y1="1124" x2="616" y2="1124" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="1050" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1072" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1072" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Thiết kế và kiến trúc</text>
+<text x="714" y="1108" width="404" height="45" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Lên kế hoạch stack công nghệ, cơ sở dữ liệu, API và hệ thống thiết kế dạng token.</text>
+<rectangle x="60" y="1222" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1244" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1244" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Xây dựng và cải tiến</text>
+<text x="154" y="1280" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Xây dựng ứng dụng từng màn hình, tích hợp backend, kiểm thử lỗi và cải tiến dựa trên phản hồi người dùng.</text>
+<text x="60" y="1452" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1518" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1558.8" x2="97.6" y2="1566" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1566" x2="110" y2="1550.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1538" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách cấu trúc quy trình reverse-engineer một ứng dụng sạch-phòng (clean-room).</text>
+<rectangle x="430" y="1518" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1558.8" x2="467.6" y2="1566" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1566" x2="480" y2="1550.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1538" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Phương pháp chuyển đổi dữ liệu giao diện thành hệ thống token thiết kế.</text>
+<rectangle x="800" y="1518" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1558.8" x2="837.6" y2="1566" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1566" x2="850" y2="1550.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1538" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Kỹ thuật viết script Python tiêu chuẩn để kiểm tra mã nguồn và giao diện.</text>
+<text x="60" y="1700" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: Jakeschincariol/replica-skill · Giấy phép: MIT · 8.015 sao · Quét ngày 2026-11-07</text>
+</content>
