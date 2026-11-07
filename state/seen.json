@@ -24,6 +24,11 @@
     "covered": "2026-10-13",
     "stars": 36720
   },
+  "Jakeschincariol/replica-skill": {
+    "bucket": "startup",
+    "covered": "2026-11-07",
+    "stars": 8015
+  },
   "NousResearch/hermes-agent": {
     "bucket": "ai",
     "covered": "2026-10-31",
@@ -73,6 +78,11 @@
     "bucket": "ai",
     "covered": "2026-10-14",
     "stars": 249184
+  },
+  "firecrawl/firecrawl": {
+    "bucket": "ai",
+    "covered": "2026-11-07",
+    "stars": 199333
   },
   "harry0703/MoneyPrinterTurbo": {
     "bucket": "ai",
