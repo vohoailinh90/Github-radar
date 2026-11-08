@@ -22,9 +22,9 @@ Ba ý đáng mang theo. Thứ nhất, lõi của API không phải một công c
 |---|---|---|
 | Là gì | Monorepo của API web cho agent: tìm kiếm, cào, tương tác, thu thập, bản đồ URL, agent tự tìm dữ liệu | Nguồn: repo [S1] [S3] |
 | Quy mô | 2.219 tệp; 1.943 tệp trong `apps/`; `apps/api` có 1.127 tệp, trong đó 1.048 tệp `.ts` | Người viết đếm |
-| Thư mục con của `apps/` | 17: `api`, 9 thư mục SDK, `go-html-to-md-service`, `nuq-postgres`, `playwright-service-ts`, `redis`, `siem`, `test-site`, `test-suite` | Người viết đếm [S3] |
-| Kiểm thử | 438 tệp `*.test.ts` trong `apps/api`; 116 tệp trong bộ `snips` | Người viết đếm [S3] [S5] |
-| Ví dụ | 194 tệp trong `examples/`, 58 thư mục ví dụ | Người viết đếm |
+| Thư mục con của `apps/` | 17: `api`, 9 thư mục SDK, `go-html-to-md-service`, `nuq-postgres`, `playwright-service-ts`, `redis`, `siem`, `test-site`, `test-suite` | Người viết đếm |
+| Kiểm thử | 438 tệp `*.test.ts` trong `apps/api`; 116 tệp trong bộ `snips` | Người viết đếm |
+| Ví dụ | 194 tệp trong `examples/`: 56 thư mục ví dụ và 2 tệp lẻ | Người viết đếm |
 | CI | 33 tệp workflow trong `.github/workflows` | Người viết đếm |
 | SDK nêu trong README | Python, Node.js, Go, Java, Elixir, Rust, Ruby, .NET, PHP (9 ngôn ngữ) | Nguồn: repo [S1] |
 | Phiên bản SDK JS | `@mendable/firecrawl-js` 4.53.0, giấy phép MIT | Nguồn: repo [S19] |
@@ -70,7 +70,7 @@ Tệp `docker-compose.yaml` ở gốc dựng các dịch vụ sau (người vi�
 
 `SELF_HOST.md` khuyên giữ chuyến chạy đầu thật đơn giản và liệt kê mặc định: dùng đúng một thẻ phát hành thay vì `main`; `USE_DB_AUTHENTICATION=false`; hàng đợi NuQ trên Postgres; scrape bằng Playwright đi kèm và `fetch` dự phòng; không nhà cung cấp mô hình cho tính năng AI; giao diện quản trị hàng đợi tắt [S6]. Những lưu ý trước khi lên sản xuất: API mặc định **không xác thực**, cần thiết kế xác thực, TLS và chính sách mạng trước khi ra khỏi mạng tin cậy; Compose gốc **không định nghĩa volume lưu trữ** cho Postgres của NuQ, Redis và RabbitMQ; không công bố cổng của các phụ thuộc; và tệp Compose là điểm khởi đầu, không phải kiến trúc sản xuất [S6]. Người viết đối chiếu: khối `volumes` của Compose chỉ khai `fdb-data` và `fdb-cluster-file`, khớp với lời tệp tự lưu trữ [S7].
 
-Các tuyến quản trị: tuyến có khóa tồn tại khi đặt `BULL_AUTH_KEY`; bộ lắng nghe nội bộ chạy khi đặt `ADMIN_INTERNAL_PORT` và **không cần khóa**; bảng trong `SELF_HOST.md` liệt kê năm tuyến xác thực bằng tiêu đề và nhiều tuyến nội bộ như giao diện hàng đợi, số liệu, `GET /admin/precrawl` (đưa một lượt tiền thu thập vào hàng) và `POST /admin/fsearch` (chạy một lượt tìm kiếm) [S6]. Tài liệu nhắc: ai tới được cổng nội bộ là dùng được các tuyến đó, nên đừng bao giờ công bố cổng này [S6].
+Các tuyến quản trị: tuyến có khóa tồn tại khi đặt `BULL_AUTH_KEY`; bộ lắng nghe nội bộ chạy khi đặt `ADMIN_INTERNAL_PORT` và **không cần khóa**; một đoạn trong `SELF_HOST.md` liệt kê năm tuyến xác thực bằng tiêu đề và nhiều tuyến nội bộ như giao diện hàng đợi, số liệu, `GET /admin/precrawl` (đưa một lượt tiền thu thập vào hàng) và `POST /admin/fsearch` (chạy một lượt tìm kiếm) [S6]. Tài liệu nhắc: ai tới được cổng nội bộ là dùng được các tuyến đó, nên đừng bao giờ công bố cổng này [S6].
 
 ## SDK, CLI, MCP và skill cho agent
 

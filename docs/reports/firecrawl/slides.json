@@ -44,8 +44,6 @@
       "sources": [
         "S1",
         "S2",
-        "S3",
-        "S5",
         "S19"
       ],
       "layout": "profile-card",
@@ -82,10 +80,7 @@
     {
       "title": "Quy mô của monorepo",
       "section": "Hồ sơ nhanh",
-      "sources": [
-        "S3",
-        "S5"
-      ],
+      "sources": [],
       "layout": "one-big-number",
       "tone": "dark",
       "bullets": [
