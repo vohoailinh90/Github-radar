@@ -284,7 +284,7 @@
       "bullets": [
         "Luật: không bịa đánh giá; đọc chứ không cào; người đánh giá không phải lời chứng thực",
         "Ra: reviews.csv, feedback.md, fixes.md",
-        "Nguồn công khai chính thức được phép: RSS của Apple, API Hacker News, API Reddit"
+        "Nguồn chính thức: RSS Apple, API Hacker News, API Reddit"
       ],
       "notes": "Entrepreneur là điểm bán của bộ skill: một bản sao thẳng không có lý do tồn tại, nên skill tìm lý do bằng cách đọc người dùng của bản gốc nói gì bằng lời của họ. Quy trình thu thập từ một trăm đánh giá trở lên qua ít nhất ba nguồn, xếp hạng bằng công cụ, rồi viết ba danh sách và kế hoạch sửa kèm ba phương án định vị.",
       "body": "**entrepreneur** tìm lý do để bản sao tồn tại: nó đọc người dùng của bản gốc nói gì bằng lời của họ. Quy trình là thu thập từ 100 đánh giá trở lên qua ít nhất ba nguồn, mỗi hàng có đường dẫn và văn bản chép nguyên văn, chạy công cụ reviews.py để xếp hạng, rồi viết ba danh sách: điều họ **ghét**, điều còn **thiếu**, điều **chưa ai giải**. Cuối cùng là kế hoạch sửa 5 đến 8 mục và ba phương án định vị."

@@ -1,0 +1,31 @@
+{
+  "canvas": "https://moda.app/canvas/c7740ac0-c400-4406-9fb9-03a0dda78d4e?source=agent",
+  "pages": 26,
+  "built": "2026-11-08",
+  "brand_kit": null,
+  "slides_json_sha256": "4fcd0781fa23d9f6bc1b4101554aac5a96bdfb48be347880213d68a846a33059",
+  "source": {
+    "repo": "https://github.com/firecrawl/firecrawl",
+    "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+  },
+  "design": "Github-radar R11 / 1920x1080 / Be Vietnam Pro + Bricolage Grotesque / light and dark pages alternating, ink, amber, teal, red, blue (deck-style of Multiple-report), drawn by gen.py of Multiple-report",
+  "drawn_text_differences": [
+    "Footer reads 'Github-radar · R11 · NN/26' instead of the Multiple-report label.",
+    "Backticks in slides.json are not drawn."
+  ],
+  "export_caveats": [
+    "Moda's export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "gate": "check_lesson.py R11 OK (no warnings)",
+    "canvas_pages_screenshotted": "3 of 26; the other pages were not looked at",
+    "pptx_pages": 26,
+    "pptx_hyperlinks": 27,
+    "text_auto_shrunk": "Moda shrank some number boxes and long reference labels at apply time (cosmetic); not re-edited"
+  },
+  "artifacts": {
+    "firecrawl.pptx": "786744debb0096f2d26f069e1c5e3ec99cd0ecf50316460217cb656a7fa23e83"
+  },
+  "status": "done"
+}
