@@ -1,0 +1,585 @@
+{
+  "title": "Replica Skill: mười một skill Claude để dựng lại một ứng dụng",
+  "subtitle": "Báo cáo đọc repo Jakeschincariol/replica-skill ở commit 77c9436",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S19"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Replica Skill là chuỗi mười một skill Claude dựng lại một ứng dụng, từ đọc bản gốc đến triển khai",
+        "Kèm sáu công cụ Python chỉ dùng thư viện chuẩn",
+        "Đọc ở commit 77c9436 ngày 03/10/2026; đọc mã, chưa chạy"
+      ],
+      "notes": "Mở bài bằng câu hỏi repo này là gì và cần cẩn thận ở đâu. README mô tả đây là mười một skill Claude để nhân bản ứng dụng, miễn phí, giấy phép MIT. Thực chất là mười một thư mục skill chạy theo một chuỗi cố định, kèm sáu công cụ Python làm những việc mô hình không nên tự cảm nhận. Người viết đọc mã, chưa chạy."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S2",
+        "S3",
+        "S5",
+        "S6",
+        "S9",
+        "S12",
+        "S15"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Kỷ luật trước: phần lớn skill mở bằng luật chỉ nguồn công khai, không chép mã, không bịa trích dẫn",
+        "reviews.py bỏ mọi dòng đánh giá không có đường dẫn và chỉ in đoạn trích có thật",
+        "Miễn phí là bộ skill; Stripe, cơ sở dữ liệu, email, máy chủ thì tự mở và trả"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: phần lớn skill mở đầu bằng luật, chỉ đọc nguồn công khai, không chép mã, không bịa trích dẫn, Claude không tự đăng ký dịch vụ. Hai: phần thắng của skill entrepreneur nằm ở công cụ reviews.py, thứ chỉ in đoạn trích là chuỗi con của dòng người dùng đưa vào. Ba: miễn phí áp dụng cho bộ skill, không phải cho dịch vụ phía sau."
+    },
+    {
+      "title": "Hồ sơ nhanh",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S21"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền. Ba nhãn xuyên suốt: nguồn repo là đọc từ tệp, người viết đếm là con số tính bằng script trên bản đã tải, suy luận là nhận định của người viết. Quy mô nhỏ gọn: ba mươi chín tệp, mười một skill, sáu công cụ Python và năm mươi bảy hàm test. Giấy phép MIT có tệp LICENSE riêng, khác với nhiều repo chỉ ghi giấy phép trong README.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Mười một skill Claude theo chuỗi, đóng gói thành plugin và thư mục skill"
+        },
+        {
+          "label": "Tác giả, giấy phép",
+          "text": "Jake Schincariol; MIT, có tệp LICENSE, bản quyền 2026"
+        },
+        {
+          "label": "Quy mô",
+          "text": "39 tệp, 163.015 byte"
+        },
+        {
+          "label": "Văn bản skill",
+          "text": "7.539 từ trong 11 tệp SKILL.md"
+        },
+        {
+          "label": "Công cụ",
+          "text": "6 tệp Python, 1.505 dòng, chỉ dùng thư viện chuẩn"
+        },
+        {
+          "label": "Kiểm thử",
+          "text": "6 tệp test, 57 hàm def test_"
+        }
+      ]
+    },
+    {
+      "title": "Mười một skill",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1"
+      ],
+      "layout": "one-big-number",
+      "tone": "dark",
+      "bullets": [
+        "11 skill",
+        "recon, architect, design, build, backend, test, diff, entrepreneur, brand, launch, deploy",
+        "Mỗi bước đọc tệp bước trước ghi trong thư mục replica/"
+      ],
+      "notes": "Con số lớn của bài là mười một: mười một thư mục skill, mỗi thư mục một tệp SKILL.md. README yêu cầu chạy theo thứ tự recon, architect, design, build, backend, test, diff, entrepreneur, brand, launch, deploy, và mỗi skill đọc những gì skill trước ghi trong thư mục replica của dự án người dùng. Có thể chạy từng skill riêng lẻ."
+    },
+    {
+      "title": "Chuỗi theo năm nhóm",
+      "section": "Chuỗi mười một bước và thư mục replica/",
+      "sources": [
+        "S1"
+      ],
+      "layout": "flow",
+      "tone": "light",
+      "bullets": [
+        "Đọc bản gốc: recon",
+        "Lập kế hoạch: architect, design",
+        "Dựng: build, backend",
+        "Kiểm: test, diff",
+        "Ra mắt: entrepreneur, brand, launch, deploy"
+      ],
+      "notes": "Người viết gom mười một bước thành năm nhóm cho dễ nhớ. Đọc bản gốc bằng recon. Lập kế hoạch bằng architect và design. Dựng bằng build và backend. Kiểm bằng test và diff. Ra mắt bằng entrepreneur, brand, launch và deploy. Đây là cách gom của người viết bài, không phải phân nhóm của repo; thứ tự mười một bước thì lấy từ README."
+    },
+    {
+      "title": "Ai đọc, ai ghi",
+      "section": "Chuỗi mười một bước và thư mục replica/",
+      "sources": [
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S8"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "recon: ghi replica/recon.md, features.csv và thư mục screens/",
+        "architect: đọc recon.md, ghi architecture.md và schema.sql",
+        "design: ghi design/tokens.json, tokens.css và components.md",
+        "build: điền cột clone của features.csv, ghi build-log.md",
+        "diff: đọc features.csv và ảnh hai bên, ghi parity.md"
+      ],
+      "notes": "Bảng đọc và ghi của năm bước đầu và bước chấm điểm, lấy từ phần mở đầu của từng SKILL.md. Recon ghi bản đồ và ma trận tính năng. Architect đọc chúng và ghi kiến trúc cùng lược đồ. Design ghi token và đặc tả thành phần. Build điền cột clone. Diff đọc ma trận và ảnh chụp để ghi báo cáo tương đồng."
+    },
+    {
+      "title": "features.csv là xương sống",
+      "section": "Chuỗi mười một bước và thư mục replica/",
+      "sources": [
+        "S2",
+        "S5",
+        "S8",
+        "S9",
+        "S23"
+      ],
+      "layout": "connection-diagram",
+      "tone": "light",
+      "bullets": [
+        "recon: tạo ra, 18 hàng mẫu",
+        "build: điền cột clone",
+        "diff: chấm điểm bằng parity.py",
+        "entrepreneur: thêm hàng mới cho các bản sửa"
+      ],
+      "notes": "Suy luận của người viết: tệp features.csv là xương sống của chuỗi. Nó sinh ra ở recon, được build điền cột clone, được diff chấm điểm, được entrepreneur thêm hàng mới. Tệp mẫu có mười tám hàng, gồm chín must, năm should và bốn could; một hàng là skip vì mạng lưới đối tác không thuộc phần có thể dựng lại."
+    },
+    {
+      "title": "recon: đọc ứng dụng gốc",
+      "section": "Ba bước đầu: recon, architect, design",
+      "sources": [
+        "S2"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Luật: chỉ nguồn công khai và tài khoản của chính người dùng",
+        "Cấm: đọc mã JavaScript của ứng dụng, ghi lại lời gọi mạng",
+        "Ra: replica/recon.md và features.csv"
+      ],
+      "notes": "Recon là bước mà mọi bước sau dựa vào. Skill có chín bước, từ phạm vi đến ước lượng cỡ. Mục không thể nhân bản đáng chú ý: nội dung có bản quyền, mạng lưới người dùng, dữ liệu của ứng dụng, thỏa thuận đối tác, phần cứng và giấy phép quản lý đều phải ghi thành hàng skip kèm lý do. Luật riêng cấm đọc mã JavaScript hay ghi lại lời gọi mạng của ứng dụng gốc.",
+      "body": "**recon** là bước mà mọi bước sau dựa vào. Skill có chín bước: phạm vi, nguồn có URL ở mọi hàng, kiểm kê màn hình, luồng người dùng, thành phần, mô hình dữ liệu suy luận có độ tin cậy, ma trận tính năng, danh sách thứ không thể nhân bản và ước lượng cỡ S, M, L hoặc XL. Mục không thể nhân bản gồm nội dung có bản quyền, mạng lưới người dùng, dữ liệu của ứng dụng và giấy phép quản lý."
+    },
+    {
+      "title": "architect: công nghệ mặc định",
+      "section": "Ba bước đầu: recon, architect, design",
+      "sources": [
+        "S3"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Giao diện: Next.js, TypeScript, Tailwind",
+        "Di động: Expo",
+        "Dữ liệu: Postgres trên Supabase hoặc Neon, Drizzle hoặc Prisma",
+        "Đăng nhập và thanh toán: Supabase Auth hoặc Auth.js, Stripe",
+        "Email và tác vụ nền: Resend hoặc Postmark, Vercel Cron, Inngest, Trigger.dev",
+        "Tệp và máy chủ: Supabase Storage hoặc Cloudflare R2, Vercel"
+      ],
+      "notes": "Architect chọn công nghệ mặc định theo nguyên tắc mọi phần đều được quản lý, có tài liệu và rẻ khi chưa có người dùng, và buộc ghi một dòng lý do cho mỗi lựa chọn. Bảng mặc định có mười một tầng. Skill dặn một cơ sở dữ liệu, không vi dịch vụ, và bản sao không cần kiến trúc của bản gốc mà chỉ cần tính năng của bản gốc."
+    },
+    {
+      "title": "design: token và độ tương phản",
+      "section": "Ba bước đầu: recon, architect, design",
+      "sources": [
+        "S4",
+        "S18"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Token mẫu: 10 vai trò màu, 6 cỡ chữ, thang khoảng cách 9 bậc, 9 cặp cần kiểm",
+        "contrast.py: chữ thường cần 4,5; chữ lớn và thành phần giao diện cần 3",
+        "Thoát mã 1 nếu có cặp nào trượt mức AA",
+        "Không lấy: logo, biểu tượng, ảnh, âm thanh, phông có bản quyền, câu chữ"
+      ],
+      "notes": "Design dựng lại hệ thống chứ không lấy tài sản: vai trò màu, thang chữ, thang khoảng cách, bo góc. Màu thương hiệu của bản gốc ghi thành một vai trò accent và để bước brand đổi sau. Tệp token mẫu có mười vai trò màu, sáu cỡ chữ, thang khoảng cách chín bậc và chín cặp cần kiểm. Công cụ contrast.py kiểm theo WCAG hai."
+    },
+    {
+      "title": "build: dựng từng màn hình",
+      "section": "Bốn bước làm ra sản phẩm: build, backend, test, diff",
+      "sources": [
+        "S5"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Clean room: viết lại mọi dòng, không dán HTML, CSS, JS, SVG hay ảnh của bản gốc",
+        "Khung ứng dụng, lát cắt dọc, rồi từng màn hình theo architecture.md",
+        "Mỗi màn hình có danh sách 7 mục xong, gồm 390px và 1440px",
+        "Mỗi màn hình một commit, ví dụ build: S07 booking page"
+      ],
+      "notes": "Build viết lại từng màn hình theo kiểu clean room: mọi dòng mã viết tại chỗ, không dán HTML, CSS, JavaScript, SVG hay ảnh của bản gốc, không tải gì từ miền của nó. Thứ tự là khung ứng dụng, lát cắt dọc, rồi từng màn hình. Mỗi màn hình có danh sách bảy mục xong và một commit riêng. Nếu một tính năng lớn hơn dự tính thì phải nói ra, không giao nửa vời."
+    },
+    {
+      "title": "backend: luật an toàn",
+      "section": "Bốn bước làm ra sản phẩm: build, backend, test, diff",
+      "sources": [
+        "S6"
+      ],
+      "layout": "one-big-number",
+      "tone": "dark",
+      "bullets": [
+        "9 mục",
+        "trong danh sách kiểm bảo mật của backend",
+        "Claude không tự đăng ký dịch vụ, không gõ mật khẩu hay thẻ; người dùng tự đặt khóa vào .env.local"
+      ],
+      "notes": "Backend có luật an toàn đáng chú ý nhất: Claude không bao giờ tự đăng ký dịch vụ, gõ mật khẩu, thẻ hay khóa chạy thật. Người dùng tự tạo dự án Stripe, Supabase, Resend hay Google Cloud rồi đặt khóa vào tệp env local. Danh sách kiểm bảo mật có chín mục, từ bí mật trong biến môi trường đến chính sách riêng tư liệt kê mọi bên xử lý."
+    },
+    {
+      "title": "test: kiểm bản sao, không đập bản gốc",
+      "section": "Bốn bước làm ra sản phẩm: build, backend, test, diff",
+      "sources": [
+        "S7",
+        "S26"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Kiểm: Playwright, chọn theo vai trò và nhãn, quét axe, lỗi console và 5xx",
+        "Không bao giờ: dồn tải, fuzz hay đập máy chủ của ứng dụng gốc",
+        "Lỗi xếp S1 đến S4; chỉ báo lỗi đã tái hiện"
+      ],
+      "notes": "Test có một luật gốc: kiểm bản sao của mình, không bao giờ dồn tải, fuzz hay đập máy chủ của ứng dụng gốc; dùng bản gốc bằng tay như người dùng thường thì được. Kế hoạch sinh từ các luồng trong recon, tự động hóa bằng Playwright với selector theo vai trò và nhãn, thêm quét trợ năng axe. Lỗi chia bốn mức, chỉ báo lỗi đã tái hiện."
+    },
+    {
+      "title": "diff: ba phép đo và ba phán quyết",
+      "section": "Bốn bước làm ra sản phẩm: build, backend, test, diff",
+      "sources": [
+        "S8",
+        "S13",
+        "S14"
+      ],
+      "layout": "card-grid",
+      "tone": "dark",
+      "bullets": [
+        "Điểm tính năng: parity.py, trọng số 3, 2, 1",
+        "Điểm bố cục: imgdiff.py, bỏ qua màu",
+        "Hành vi: số lần bấm, xử lý lỗi, thứ được nhớ, email nhận được",
+        "Phán quyết: không thể phát hành, có thể phát hành, tốt hơn bản gốc"
+      ],
+      "notes": "Diff nói thẳng rằng tương đồng nghĩa là làm cùng việc, không phải trông giống nhau, và cố ý bỏ qua màu vì brand sẽ đổi mọi màu. Có ba phép đo: điểm tính năng, điểm bố cục và so sánh hành vi bằng tay. Phán quyết ba mức: không thể phát hành nếu thiếu must-have hoặc còn lỗi S1, có thể phát hành nếu đủ must-have và điểm tính năng từ tám mươi, tốt hơn bản gốc nếu có thêm các bản sửa."
+    },
+    {
+      "title": "Quy trình của entrepreneur",
+      "section": "Entrepreneur: đọc đánh giá thật",
+      "sources": [
+        "S9"
+      ],
+      "layout": "explainer",
+      "tone": "light",
+      "bullets": [
+        "Luật: không bịa đánh giá; đọc chứ không cào; người đánh giá không phải lời chứng thực",
+        "Ra: reviews.csv, feedback.md, fixes.md",
+        "Nguồn công khai chính thức được phép: RSS của Apple, API Hacker News, API Reddit"
+      ],
+      "notes": "Entrepreneur là điểm bán của bộ skill: một bản sao thẳng không có lý do tồn tại, nên skill tìm lý do bằng cách đọc người dùng của bản gốc nói gì bằng lời của họ. Quy trình thu thập từ một trăm đánh giá trở lên qua ít nhất ba nguồn, xếp hạng bằng công cụ, rồi viết ba danh sách và kế hoạch sửa kèm ba phương án định vị.",
+      "body": "**entrepreneur** tìm lý do để bản sao tồn tại: nó đọc người dùng của bản gốc nói gì bằng lời của họ. Quy trình là thu thập từ 100 đánh giá trở lên qua ít nhất ba nguồn, mỗi hàng có đường dẫn và văn bản chép nguyên văn, chạy công cụ reviews.py để xếp hạng, rồi viết ba danh sách: điều họ **ghét**, điều còn **thiếu**, điều **chưa ai giải**. Cuối cùng là kế hoạch sửa 5 đến 8 mục và ba phương án định vị."
+    },
+    {
+      "title": "reviews.py xếp hạng thế nào",
+      "section": "Entrepreneur: đọc đánh giá thật",
+      "sources": [
+        "S15"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Loại bỏ: hàng không có đường dẫn http hoặc không có văn bản; loại trùng",
+        "Trọng số: (6 trừ số sao) chia 5; chưa có sao được 0,6",
+        "Đánh giá cũ hơn 18 tháng bị giảm một nửa",
+        "Chủ đề mỏng: dưới 3 đánh giá hoặc dưới 2 nguồn",
+        "Trích dẫn: câu đầu tiên khớp mẫu của đúng dòng đã nhập"
+      ],
+      "notes": "Công cụ reviews.py loại hàng không có đường dẫn hoặc không có văn bản và loại trùng. Trọng số một đánh giá là sáu trừ số sao rồi chia năm: một sao được một, năm sao được không phẩy hai, chưa có sao được không phẩy sáu. Đánh giá cũ hơn mười tám tháng giảm một nửa. Chủ đề mỏng nếu dưới ba đánh giá hoặc dưới hai nguồn. Mỗi trích dẫn là câu đầu tiên khớp mẫu của đúng dòng đã nhập."
+    },
+    {
+      "title": "Mười sáu chủ đề",
+      "section": "Entrepreneur: đọc đánh giá thật",
+      "sources": [
+        "S24"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "16 chủ đề",
+        "12 loại phàn nàn và 4 loại yêu cầu trong themes.json",
+        "Cộng 13 mẫu yêu cầu như i wish và please add"
+      ],
+      "notes": "Tệp themes.json có mười sáu chủ đề: mười hai loại phàn nàn như giá, thanh toán, lỗi, chậm, mất dữ liệu, khó dùng, hỗ trợ, tài khoản, thông báo, quảng cáo, cập nhật làm tệ đi và quyền riêng tư; bốn loại yêu cầu là tích hợp, nền tảng, tùy biến và cộng tác. Ngoài ra có mười ba mẫu yêu cầu như i wish hay please add."
+    },
+    {
+      "title": "brand: đổi hết danh tính",
+      "section": "Brand, launch, deploy: từ bản sao thành sản phẩm riêng",
+      "sources": [
+        "S10"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Đặt tên: 20 ứng viên lọc còn 5, chạy kiểm tra nhãn hiệu",
+        "Bảng màu mới, chạy lại contrast.py",
+        "Bản mô tả logo và giọng thương hiệu",
+        "Viết lại 10 chuỗi hiển thị nhiều nhất",
+        "Chạy sweep.py đến khi sạch"
+      ],
+      "notes": "Brand mở đầu bằng câu không gì được ra mắt dưới danh tính của bản gốc. Sáu bước: tạo hai mươi tên ứng viên rồi lọc còn năm, chạy các kiểm tra nhãn hiệu; dựng bảng màu mới; viết bản mô tả logo và giọng thương hiệu; viết lại mười chuỗi hiển thị nhiều nhất; chạy sweep đến khi sạch. Skill ghi rõ đây là sàng lọc, không phải thẩm định pháp lý."
+    },
+    {
+      "title": "launch: luật và giá",
+      "section": "Brand, launch, deploy: từ bản sao thành sản phẩm riêng",
+      "sources": [
+        "S11"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Không bằng chứng giả; không dùng lời người đánh giá làm lời chứng thực",
+        "Tên ứng dụng gốc không xuất hiện trong tên, tin đăng, từ khóa, quảng cáo",
+        "Giá: bảng so với trang giá công khai của bản gốc, kèm ngày đọc; tối đa ba gói",
+        "Sửa ngay trong sản phẩm: hủy một cú nhấp, email gia hạn rõ ràng"
+      ],
+      "notes": "Launch viết trang đích, định giá và tin đăng cửa hàng. Luật: không bằng chứng giả, không dùng lời người đánh giá làm lời chứng thực, và tên ứng dụng gốc không xuất hiện ở tên, tin đăng, từ khóa hay quảng cáo. Phần giá yêu cầu bảng so với trang giá công khai của bản gốc kèm ngày đọc, tối đa ba gói, và sửa ngay trong sản phẩm các phàn nàn về thanh toán."
+    },
+    {
+      "title": "deploy: không có chữ đi thì không lên mạng",
+      "section": "Brand, launch, deploy: từ bản sao thành sản phẩm riêng",
+      "sources": [
+        "S12",
+        "S25"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Người dùng nói đi thì mới triển khai",
+        "Người dùng tự mua tên miền, nhập thẻ, gõ mật khẩu",
+        "Chưa đổi thương hiệu thì không triển khai: sweep phải sạch",
+        "Preflight năm lệnh: Playwright, parity, sweep, listing, build",
+        "DNS: A, CNAME www, TXT, SPF, DKIM, DMARC bắt đầu ở p=none"
+      ],
+      "notes": "Deploy có ba luật: không gì lên mạng khi người dùng chưa nói đi; người dùng tự mua miền, nhập thẻ và gõ mật khẩu; và không triển khai khi chưa đổi thương hiệu. Bước kiểm trước gồm năm lệnh cộng các kiểm tay. Phần DNS gồm bản ghi A, CNAME cho www, TXT xác minh, cùng SPF, DKIM và DMARC bắt đầu ở p bằng none rồi siết dần."
+    },
+    {
+      "title": "Sáu công cụ theo chuỗi",
+      "section": "Sáu công cụ Python",
+      "sources": [
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "layout": "timeline",
+      "tone": "light",
+      "bullets": [
+        "contrast.py: WCAG, thoát mã 1 nếu trượt AA",
+        "imgdiff.py: so bố cục ảnh, bỏ qua màu",
+        "parity.py: điểm tính năng có trọng số",
+        "reviews.py: xếp hạng phản hồi có đường dẫn",
+        "sweep.py: tìm tên, miền, màu của bản gốc",
+        "listing.py: giới hạn ký tự của cửa hàng"
+      ],
+      "notes": "Sáu công cụ, sắp theo vị trí trong chuỗi. Contrast kiểm độ tương phản của token ở bước design. Imgdiff và parity chấm điểm ở bước diff. Reviews xếp hạng phản hồi ở entrepreneur. Sweep quét thương hiệu còn sót ở brand. Listing kiểm tin đăng cửa hàng ở launch. Người viết đếm các dòng import: chỉ có thư viện chuẩn, không mô-đun mạng nào."
+    },
+    {
+      "title": "Những con số đặt cứng trong mã",
+      "section": "Sáu công cụ Python",
+      "sources": [
+        "S13",
+        "S14",
+        "S16",
+        "S17"
+      ],
+      "layout": "profile-card",
+      "tone": "dark",
+      "bullets": [],
+      "notes": "Những con số đặt cứng trong mã của bốn công cụ. Parity dùng trọng số ba, hai, một; khi có ảnh, điểm tổng là tám mươi phần trăm tính năng cộng hai mươi phần trăm bố cục. Imgdiff mặc định rộng bốn trăm tám mươi, mười hai cột, dung sai hai mươi bốn, ngưỡng cạnh bốn mươi. Sweep khớp tên cả trong định danh. Listing giữ giới hạn của hai cửa hàng.",
+      "facts": [
+        {
+          "label": "parity.py",
+          "text": "Trọng số must 3, should 2, could 1; yes được 1, partial được 0,5"
+        },
+        {
+          "label": "Điểm tổng",
+          "text": "80% tính năng cộng 20% bố cục khi có ảnh"
+        },
+        {
+          "label": "imgdiff.py",
+          "text": "Rộng 480, 12 cột, dung sai 24, ngưỡng cạnh 40"
+        },
+        {
+          "label": "Phán quyết ảnh",
+          "text": "Từ 90 là khớp, từ 75 là gần, từ 50 là một phần"
+        },
+        {
+          "label": "sweep.py",
+          "text": "Tên khớp cả trong định danh; màu khớp cả dạng ngắn"
+        },
+        {
+          "label": "listing.py",
+          "text": "App Store tên 30, mô tả 4.000; Play tiêu đề 30, mô tả ngắn 80"
+        }
+      ]
+    },
+    {
+      "title": "Cam kết và phần kiểm được",
+      "section": "Ranh giới pháp lý và đạo đức mà repo tự đặt",
+      "sources": [
+        "S1",
+        "S10",
+        "S16"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Cam kết: dựng lại chức năng và mẫu trải nghiệm, không chép mã, tài sản, nhãn hiệu, câu chữ hay API riêng; luôn đổi thương hiệu",
+        "Công cụ kiểm: sweep.py chỉ bắt tên, miền, màu bạn khai báo, không bắt cấu trúc hay câu chữ giống",
+        "README dặn chạy kiểm tra nhãn hiệu và hỏi luật sư; không phải tư vấn pháp lý"
+      ],
+      "notes": "README có mục Fine print nói bản dựng lại chức năng và mẫu trải nghiệm theo kiểu clean room, không chép mã nguồn, tài sản, nhãn hiệu, câu chữ hay API riêng, và luôn đổi thương hiệu trước khi ra mắt. Công cụ kiểm duy nhất cho phần đó là sweep, chỉ bắt thứ bạn khai báo. README tự dặn chạy kiểm tra nhãn hiệu và hỏi luật sư, và nói đây không phải tư vấn pháp lý."
+    },
+    {
+      "title": "Sáu phản biện chính",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S3",
+        "S6",
+        "S9",
+        "S12",
+        "S15",
+        "S16",
+        "S22"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Miễn phí chỉ đúng cho bộ skill, không phải dịch vụ phía sau",
+        "Phần lớn là văn bản hướng dẫn; chỉ sáu công cụ có test",
+        "Test kiểm cấu trúc repo, không kiểm hiệu quả",
+        "sweep.py chỉ bắt thứ bạn khai báo",
+        "Ngưỡng nguồn của reviews.py thấp hơn lời khuyên của skill",
+        "Một đánh giá có thể được tính vào nhiều chủ đề"
+      ],
+      "notes": "Sáu phản biện chính. Miễn phí chỉ đúng cho bộ skill; Stripe, cơ sở dữ liệu, email, máy chủ và tài khoản cửa hàng thì tự mở và trả. Phần lớn repo là văn bản hướng dẫn và chỉ sáu công cụ có test. Test kiểm cấu trúc chứ không kiểm hiệu quả. Sweep chỉ bắt thứ bạn khai báo. Skill khuyên một trăm đánh giá từ ba nguồn nhưng công cụ chỉ gắn mỏng khi dưới ba đánh giá hoặc dưới hai nguồn."
+    },
+    {
+      "title": "Clean room là cam kết quy trình",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S4",
+        "S14"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Nhãn clean room là cam kết quy trình, không phải bảo đảm pháp lý",
+        "imgdiff.py chỉ đọc PNG, từ chối PNG xen kẽ",
+        "Trade dress được nhắc ở design nhưng không có công cụ nào kiểm"
+      ],
+      "notes": "Phản biện cuối. Nhãn clean room là cam kết về quy trình, README tự nói phải hỏi luật sư. Một bản sao giữ nguyên luồng và bố cục có thể vẫn gặp vấn đề về trade dress, thứ mà skill design nhắc tới nhưng không có công cụ nào kiểm. Ngoài ra imgdiff chỉ đọc PNG và từ chối PNG xen kẽ, nên ảnh chụp ở định dạng khác phải chuyển trước."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S2",
+        "S9",
+        "S12",
+        "S13",
+        "S15",
+        "S22",
+        "S23"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Chuỗi mười một skill đọc và ghi trong thư mục replica/",
+        "features.csv là xương sống; parity.py biến nó thành một con số",
+        "Mỗi skill mở bằng luật: nguồn công khai, không chép, không bịa",
+        "entrepreneur là phần khác biệt: ba danh sách từ đánh giá có đường dẫn",
+        "Sáu công cụ chỉ dùng thư viện chuẩn, 57 hàm test; SKILL.md chỉ kiểm về hình thức",
+        "Miễn phí là bộ skill; chưa phải tư vấn pháp lý"
+      ],
+      "notes": "Sáu điều cần nhớ. Chuỗi mười một skill đọc và ghi trong thư mục replica. Tệp features.csv là xương sống và parity biến nó thành một con số. Mỗi skill mở bằng luật. Entrepreneur là phần khác biệt vì ba danh sách xuất phát từ đánh giá có đường dẫn. Sáu công cụ có năm mươi bảy hàm test còn các SKILL.md chỉ được kiểm về hình thức. Miễn phí là bộ skill, và đây không phải tư vấn pháp lý."
+    },
+    {
+      "title": "Giới hạn của bài",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S21"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Đọc mã, chưa chạy: bài là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt hay lời khuyên pháp lý",
+        "Clone nông ở commit 77c9436, nhánh mặc định, ngày 03/10/2026",
+        "Không nêu số sao; giấy phép MIT theo tệp LICENSE"
+      ],
+      "notes": "Giới hạn của bài. Người viết đọc bản clone nông ở commit ghim. Cả ba mươi chín tệp được mở hoặc đếm, nhưng sáu công cụ Python chỉ đọc phần mô tả đầu tệp và các hàm chính. Không cài plugin, không chạy skill hay công cụ nào. Bài không nêu số sao, số fork hay lịch sử phát hành, và không kiểm các quy định pháp luật hay chính sách cửa hàng mà skill nhắc tới."
+    },
+    {
+      "title": "Nguồn tham khảo (1/2)",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: replica-recon/SKILL.md",
+        "S3: replica-architect/SKILL.md",
+        "S4: replica-design/SKILL.md",
+        "S5: replica-build/SKILL.md",
+        "S6: replica-backend/SKILL.md",
+        "S7: replica-test/SKILL.md",
+        "S8: replica-diff/SKILL.md",
+        "S9: replica-entrepreneur/SKILL.md",
+        "S10: replica-brand/SKILL.md",
+        "S11: replica-launch/SKILL.md",
+        "S12: replica-deploy/SKILL.md",
+        "S13: replica-diff/parity.py"
+      ],
+      "notes": ""
+    },
+    {
+      "title": "Nguồn tham khảo (2/2)",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S14: replica-diff/imgdiff.py",
+        "S15: replica-entrepreneur/reviews.py",
+        "S16: replica-brand/sweep.py",
+        "S17: replica-launch/listing.py",
+        "S18: replica-design/contrast.py",
+        "S19: .claude-plugin/plugin.json",
+        "S20: .claude-plugin/marketplace.json",
+        "S21: LICENSE",
+        "S22: tests/test_repo.py",
+        "S23: replica-recon/features.csv",
+        "S24: replica-entrepreneur/themes.json",
+        "S25: replica-deploy/preflight.md",
+        "S26: replica-test/e2e.example.spec.ts"
+      ],
+      "notes": ""
+    }
+  ]
+}

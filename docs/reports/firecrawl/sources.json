@@ -1,0 +1,199 @@
+{
+  "snapshot_date": "2026-11-08",
+  "repo": "https://github.com/firecrawl/firecrawl",
+  "commit": "033f42f87c270900a01fc027903fc718b9870d02",
+  "branch": "main",
+  "commit_date": "2026-11-08",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "firecrawl/firecrawl — README.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/README.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S2",
+      "name": "firecrawl/firecrawl — LICENSE",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/LICENSE",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/LICENSE",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S3",
+      "name": "firecrawl/firecrawl — CLAUDE.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/CLAUDE.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/CLAUDE.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S4",
+      "name": "firecrawl/firecrawl — AGENTS.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/AGENTS.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/AGENTS.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S5",
+      "name": "firecrawl/firecrawl — CONTRIBUTING.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/CONTRIBUTING.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/CONTRIBUTING.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S6",
+      "name": "firecrawl/firecrawl — SELF_HOST.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/SELF_HOST.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/SELF_HOST.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S7",
+      "name": "firecrawl/firecrawl — docker-compose.yaml",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/docker-compose.yaml",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/docker-compose.yaml",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S8",
+      "name": "firecrawl/firecrawl — .gitmodules",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/.gitmodules",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/.gitmodules",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S9",
+      "name": "firecrawl/firecrawl — apps/api/package.json",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/package.json",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/package.json",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S10",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/scrapeURL/engines/index.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/scrapeURL/engines/index.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/scrapeURL/engines/index.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S11",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/scrapeURL/README.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/scrapeURL/README.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/scrapeURL/README.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S12",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/WebScraper/utils/ENGINE_FORCING.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/WebScraper/utils/ENGINE_FORCING.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/WebScraper/utils/ENGINE_FORCING.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S13",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/scrapeURL/shouldCheckRobots.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/scrapeURL/shouldCheckRobots.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/scrapeURL/shouldCheckRobots.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S14",
+      "name": "firecrawl/firecrawl — apps/api/src/controllers/v2/types.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/controllers/v2/types.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/controllers/v2/types.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S15",
+      "name": "firecrawl/firecrawl — apps/api/src/services/worker/nuq.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/services/worker/nuq.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/services/worker/nuq.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S16",
+      "name": "firecrawl/firecrawl — apps/api/src/config.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/config.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/config.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S17",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/scrapeURL/engines/fire-engine/available.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/scrapeURL/engines/fire-engine/available.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/scrapeURL/engines/fire-engine/available.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S18",
+      "name": "firecrawl/firecrawl — apps/playwright-service-ts/package.json",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/playwright-service-ts/package.json",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/playwright-service-ts/package.json",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S19",
+      "name": "firecrawl/firecrawl — apps/js-sdk/firecrawl/package.json",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/js-sdk/firecrawl/package.json",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/js-sdk/firecrawl/package.json",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S20",
+      "name": "firecrawl/firecrawl — apps/python-sdk/pyproject.toml",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/python-sdk/pyproject.toml",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/python-sdk/pyproject.toml",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S21",
+      "name": "firecrawl/firecrawl — apps/js-sdk/LICENSE",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/js-sdk/LICENSE",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/js-sdk/LICENSE",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S22",
+      "name": "firecrawl/firecrawl — skills/README.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/skills/README.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/skills/README.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S23",
+      "name": "firecrawl/firecrawl — skills/firecrawl-build/SKILL.md",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/skills/firecrawl-build/SKILL.md",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/skills/firecrawl-build/SKILL.md",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S24",
+      "name": "firecrawl/firecrawl — img/open-source-cloud.png",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/img/open-source-cloud.png",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/img/open-source-cloud.png",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S25",
+      "name": "firecrawl/firecrawl — apps/api/src/routes/v2.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/routes/v2.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/routes/v2.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S26",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/WebScraper/crawler.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/WebScraper/crawler.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/WebScraper/crawler.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    },
+    {
+      "id": "S27",
+      "name": "firecrawl/firecrawl — apps/api/src/scraper/scrapeURL/index.ts",
+      "url": "https://github.com/firecrawl/firecrawl/blob/HEAD/apps/api/src/scraper/scrapeURL/index.ts",
+      "pinned_url": "https://github.com/firecrawl/firecrawl/blob/033f42f87c270900a01fc027903fc718b9870d02/apps/api/src/scraper/scrapeURL/index.ts",
+      "commit": "033f42f87c270900a01fc027903fc718b9870d02"
+    }
+  ]
+}
