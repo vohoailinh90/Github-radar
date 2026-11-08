@@ -1,0 +1,192 @@
+{
+  "snapshot_date": "2026-11-08",
+  "repo": "https://github.com/Jakeschincariol/replica-skill",
+  "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51",
+  "branch": "main",
+  "commit_date": "2026-10-03",
+  "clone": "depth 1",
+  "sources": [
+    {
+      "id": "S1",
+      "name": "Jakeschincariol/replica-skill — README.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/README.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/README.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S2",
+      "name": "Jakeschincariol/replica-skill — replica-recon/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-recon/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-recon/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S3",
+      "name": "Jakeschincariol/replica-skill — replica-architect/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-architect/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-architect/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S4",
+      "name": "Jakeschincariol/replica-skill — replica-design/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-design/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-design/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S5",
+      "name": "Jakeschincariol/replica-skill — replica-build/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-build/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-build/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S6",
+      "name": "Jakeschincariol/replica-skill — replica-backend/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-backend/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-backend/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S7",
+      "name": "Jakeschincariol/replica-skill — replica-test/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-test/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-test/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S8",
+      "name": "Jakeschincariol/replica-skill — replica-diff/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-diff/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-diff/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S9",
+      "name": "Jakeschincariol/replica-skill — replica-entrepreneur/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-entrepreneur/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-entrepreneur/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S10",
+      "name": "Jakeschincariol/replica-skill — replica-brand/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-brand/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-brand/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S11",
+      "name": "Jakeschincariol/replica-skill — replica-launch/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-launch/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-launch/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S12",
+      "name": "Jakeschincariol/replica-skill — replica-deploy/SKILL.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-deploy/SKILL.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-deploy/SKILL.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S13",
+      "name": "Jakeschincariol/replica-skill — replica-diff/parity.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-diff/parity.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-diff/parity.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S14",
+      "name": "Jakeschincariol/replica-skill — replica-diff/imgdiff.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-diff/imgdiff.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-diff/imgdiff.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S15",
+      "name": "Jakeschincariol/replica-skill — replica-entrepreneur/reviews.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-entrepreneur/reviews.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-entrepreneur/reviews.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S16",
+      "name": "Jakeschincariol/replica-skill — replica-brand/sweep.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-brand/sweep.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-brand/sweep.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S17",
+      "name": "Jakeschincariol/replica-skill — replica-launch/listing.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-launch/listing.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-launch/listing.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S18",
+      "name": "Jakeschincariol/replica-skill — replica-design/contrast.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-design/contrast.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-design/contrast.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S19",
+      "name": "Jakeschincariol/replica-skill — .claude-plugin/plugin.json",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/.claude-plugin/plugin.json",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/.claude-plugin/plugin.json",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S20",
+      "name": "Jakeschincariol/replica-skill — .claude-plugin/marketplace.json",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/.claude-plugin/marketplace.json",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/.claude-plugin/marketplace.json",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S21",
+      "name": "Jakeschincariol/replica-skill — LICENSE",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/LICENSE",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/LICENSE",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S22",
+      "name": "Jakeschincariol/replica-skill — tests/test_repo.py",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/tests/test_repo.py",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/tests/test_repo.py",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S23",
+      "name": "Jakeschincariol/replica-skill — replica-recon/features.csv",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-recon/features.csv",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-recon/features.csv",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S24",
+      "name": "Jakeschincariol/replica-skill — replica-entrepreneur/themes.json",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-entrepreneur/themes.json",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-entrepreneur/themes.json",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S25",
+      "name": "Jakeschincariol/replica-skill — replica-deploy/preflight.md",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-deploy/preflight.md",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-deploy/preflight.md",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    },
+    {
+      "id": "S26",
+      "name": "Jakeschincariol/replica-skill — replica-test/e2e.example.spec.ts",
+      "url": "https://github.com/Jakeschincariol/replica-skill/blob/HEAD/replica-test/e2e.example.spec.ts",
+      "pinned_url": "https://github.com/Jakeschincariol/replica-skill/blob/77c9436fb3d18c3d58169efb8caf4fe906b0dc51/replica-test/e2e.example.spec.ts",
+      "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "canvas": "https://moda.app/canvas/58ca0e48-bc4c-4f09-a4fb-0752a5e06857?source=agent",
+  "pages": 30,
+  "built": "2026-11-08",
+  "brand_kit": null,
+  "slides_json_sha256": "88c323b359215a0ef4b49c09d16ec1c237a4287c3b4c29a736733621d799be5c",
+  "source": {
+    "repo": "https://github.com/Jakeschincariol/replica-skill",
+    "commit": "77c9436fb3d18c3d58169efb8caf4fe906b0dc51"
+  },
+  "design": "Github-radar R12 / 1920x1080 / Be Vietnam Pro + Bricolage Grotesque / light and dark pages alternating, ink, amber, teal, red, blue (deck-style of Multiple-report), drawn by gen.py of Multiple-report",
+  "drawn_text_differences": [
+    "Footer reads 'Github-radar · R12 · NN/30' instead of the Multiple-report label.",
+    "Backticks in slides.json are not drawn."
+  ],
+  "export_caveats": [
+    "Moda's export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "gate": "check_lesson.py R12 OK (no warnings)",
+    "canvas_pages_screenshotted": "3 of 30; the other pages were not looked at",
+    "pptx_pages": 30,
+    "pptx_hyperlinks": 26,
+    "text_auto_shrunk": "Moda shrank some number boxes and long reference labels at apply time (cosmetic); not re-edited"
+  },
+  "artifacts": {
+    "replica-skill.pptx": "6a07496f489c3e7a41ab2dbf7f7ef6cb998c6f8bf4cdfeac33763e0f3fbae3f4"
+  },
+  "status": "done"
+}

@@ -1,0 +1,481 @@
+{
+  "title": "Firecrawl: API web cho agent, và phần nào thực sự mở",
+  "subtitle": "Báo cáo đọc repo firecrawl/firecrawl ở commit 033f42f",
+  "slides": [
+    {
+      "title": "Câu hỏi của bài",
+      "section": "Tóm tắt",
+      "sources": [
+        "S1",
+        "S3"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Firecrawl là một monorepo API web cho agent: tìm kiếm, cào, tương tác, thu thập",
+        "Đọc ở commit 033f42f ngày 08/11/2026; 2.219 tệp",
+        "Người viết đọc mã, chưa chạy"
+      ],
+      "notes": "Mở bài bằng câu hỏi repo này là gì và phần nào thực sự mở. README gọi Firecrawl là API để tìm kiếm, cào và tương tác với web, API ngữ cảnh cho agent. Về hình thức đây là một monorepo gồm API, worker, các SDK, dịch vụ Playwright và hàng đợi trên Postgres. Người viết đọc bản clone nông ở một commit cố định và chưa chạy gì."
+    },
+    {
+      "title": "Ba ý đáng mang theo",
+      "section": "Tóm tắt",
+      "sources": [
+        "S2",
+        "S6",
+        "S9",
+        "S10",
+        "S19",
+        "S23"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Lõi là bộ điều phối 16 engine xếp theo điểm chất lượng, không phải một công cụ cào",
+        "Bản tự lưu trữ mặc định không có xác thực và không có volume cho hàng đợi",
+        "Giấy phép nhiều lớp: AGPL-3.0 ở gốc, MIT ở SDK, ISC ở vài package.json và skill"
+      ],
+      "notes": "Ba ý cô đọng cả bài. Một: lõi của API là bộ điều phối engine, mỗi engine có điểm chất lượng và tập tính năng, danh sách thực dùng tùy cấu hình. Hai: tệp hướng dẫn tự lưu trữ tự nói rằng API mặc định không xác thực và Compose không định nghĩa volume cho hàng đợi. Ba: repo mang nhiều giấy phép, nên mã nguồn mở cần đọc theo từng thư mục."
+    },
+    {
+      "title": "Hồ sơ nhanh",
+      "section": "Hồ sơ nhanh",
+      "sources": [
+        "S1",
+        "S2",
+        "S19"
+      ],
+      "layout": "profile-card",
+      "tone": "light",
+      "bullets": [],
+      "notes": "Gom các dữ kiện nền. Ba nhãn xuyên suốt: nguồn repo là đọc từ tệp, người viết đếm là con số tính bằng lệnh trên bản đã tải, suy luận là nhận định của người viết. Nhấn mạnh quy mô: hơn hai nghìn tệp, riêng thư mục API có hơn một nghìn tệp, và hàng trăm tệp test. Bài này không nêu số sao vì nguồn duy nhất là tệp ở commit đã ghim.",
+      "facts": [
+        {
+          "label": "Là gì",
+          "text": "Monorepo API web cho agent: search, scrape, interact, agent, crawl, map"
+        },
+        {
+          "label": "Quy mô",
+          "text": "2.219 tệp; apps/api có 1.127 tệp, trong đó 1.048 tệp .ts"
+        },
+        {
+          "label": "Kiểm thử",
+          "text": "438 tệp *.test.ts trong apps/api; 116 tệp trong bộ snips"
+        },
+        {
+          "label": "SDK",
+          "text": "9 ngôn ngữ trong README; SDK JS 4.53.0, giấy phép MIT"
+        },
+        {
+          "label": "Giấy phép",
+          "text": "AGPL-3.0 ở gốc; SDK và một số thành phần giao diện MIT theo README"
+        },
+        {
+          "label": "Số sao",
+          "text": "Bài này không nêu"
+        }
+      ]
+    },
+    {
+      "title": "Quy mô của monorepo",
+      "section": "Hồ sơ nhanh",
+      "sources": [],
+      "layout": "one-big-number",
+      "tone": "dark",
+      "bullets": [
+        "2.219 tệp",
+        "1.943 tệp ở apps/, 194 tệp ở examples/",
+        "33 workflow CI và 438 tệp test trong apps/api"
+      ],
+      "notes": "Con số lớn của bài là tổng số tệp: hai nghìn hai trăm mười chín tệp ở commit đã ghim. Trong đó gần hai nghìn tệp nằm dưới thư mục apps, một trăm chín mươi bốn tệp là ví dụ, ba mươi ba tệp là workflow CI, và riêng thư mục API có bốn trăm ba mươi tám tệp test. Tất cả là số người viết đếm bằng git ls-files."
+    },
+    {
+      "title": "Bốn thao tác đầu của README",
+      "section": "Bề mặt API: các thao tác trong README và route thật",
+      "sources": [
+        "S1"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Search: tìm trên web, trả nội dung đầy đủ của kết quả",
+        "Scrape: một URL thành markdown, HTML, ảnh chụp hoặc JSON",
+        "Interact: cào một trang rồi ra lệnh tiếp bằng lời hoặc mã",
+        "Agent: mô tả điều cần, không cần cung cấp URL"
+      ],
+      "notes": "README gọi ba endpoint cốt lõi là Search, Scrape và Interact, rồi liệt kê thêm Parse, Agent, Crawl, Map, Batch Scrape và Monitor. Interact là thao tác hai bước: cào một trang, lấy mã scrape, rồi ra lệnh tiếp. Agent được mô tả là cách dễ nhất để lấy dữ liệu từ web và là bản tiến hóa của endpoint extract; mọi mức công sức đều chạy mô hình spark-2."
+    },
+    {
+      "title": "Các thao tác còn lại",
+      "section": "Bề mặt API: các thao tác trong README và route thật",
+      "sources": [
+        "S1",
+        "S25"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Crawl: thu thập cả website, trả mã công việc để hỏi trạng thái",
+        "Map: liệt kê mọi URL của một trang, có tùy chọn search",
+        "Batch Scrape: cào nhiều URL bất đồng bộ",
+        "Parse: có trong README; route /parse và tải tệp lên trong routes/v2.ts",
+        "Monitor: có trong README; route /monitor, kể cả xác nhận email"
+      ],
+      "notes": "Năm thao tác còn lại. Crawl thu thập cả website và SDK tự thăm dò đến khi xong. Map liệt kê mọi URL, có thể xếp theo độ liên quan. Batch Scrape cào nhiều URL bất đồng bộ. Parse và Monitor có trong README và có route tương ứng trong tệp routes v2. Người viết chỉ đọc khai báo route, chưa gọi endpoint nào."
+    },
+    {
+      "title": "Mã máy chủ rộng hơn README",
+      "section": "Bề mặt API: các thao tác trong README và route thật",
+      "sources": [
+        "S25"
+      ],
+      "layout": "one-big-number",
+      "tone": "light",
+      "bullets": [
+        "78 route",
+        "khai báo trong routes/v2.ts",
+        "Có cả extract, lượng dùng tín dụng, SIEM, Slack và hàng đợi của nhóm"
+      ],
+      "notes": "README liệt kê khoảng chục thao tác nhưng tệp routes v2 có bảy mươi tám khai báo route. Ngoài các thao tác trên còn có tải tệp lên, extract, giám sát, truy vấn lượng dùng tín dụng và token, cấu hình SIEM, bảo vệ mối đe dọa và Slack. Suy luận của người viết: phần lớn bề mặt dành cho bản dịch vụ lưu trữ nằm ngay trong cây mã."
+    },
+    {
+      "title": "Vòng lặp của scrapeURL",
+      "section": "Một lệnh scrape đi qua đâu",
+      "sources": [
+        "S11"
+      ],
+      "layout": "flow",
+      "tone": "dark",
+      "bullets": [
+        "Dựng danh sách dự phòng",
+        "Chạy một engine",
+        "Phân tích sang markdown",
+        "Scrape thành công?",
+        "Thử engine kế, hết thì báo lỗi"
+      ],
+      "notes": "Tài liệu của mô-đun scrapeURL vẽ vòng lặp bằng sơ đồ: dựng danh sách dự phòng, chạy một engine, phân tích sang markdown rồi hỏi scrape có thành công không. Nếu không thì thử engine tiếp theo; hết engine thì báo lỗi NoEnginesLeftError. Người viết lưu ý tài liệu này cũ hơn mã, nên coi mã là nguồn chính. Phần tiếp theo mô tả mã thật của bộ điều phối engine."
+    },
+    {
+      "title": "Điểm chất lượng của các engine",
+      "section": "Một lệnh scrape đi qua đâu",
+      "sources": [
+        "S10"
+      ],
+      "layout": "layers",
+      "tone": "light",
+      "bullets": [
+        "Điểm 2000 và 1500: exchange và x-twitter",
+        "Điểm 1000 và 500: index và wikipedia",
+        "Điểm 50 và 45: fire-engine chrome-cdp và bản retry",
+        "Điểm 20, 10 và 5: playwright, fire-engine tlsclient, fetch",
+        "Điểm âm: pdf, document, image (-20) và các biến thể stealth"
+      ],
+      "notes": "Kiểu Engine có mười sáu giá trị, mỗi giá trị mang một điểm chất lượng đọc được trong mã. Engine điểm cao được dùng nhiều nhất. Điểm âm dành cho engine đặc chủng như PDF, DOCX và proxy ẩn danh. Danh sách thực dùng còn phụ thuộc cấu hình đang bật, nên một bản tự lưu trữ có ít engine hơn bản đầy đủ."
+    },
+    {
+      "title": "Cờ tính năng và ngưỡng một nửa",
+      "section": "Một lệnh scrape đi qua đâu",
+      "sources": [
+        "S10"
+      ],
+      "layout": "explainer",
+      "tone": "dark",
+      "bullets": [
+        "Ở đâu: engines/index.ts, 1.144 dòng",
+        "Làm gì: chọn và xếp engine theo cờ và điểm",
+        "Đừng hiểu nhầm: bản tự lưu trữ có thể bỏ qua yêu cầu stealth (suy luận)"
+      ],
+      "notes": "Phần này giải thích cách chọn engine. Mỗi yêu cầu mang một tập cờ tính năng, mỗi engine khai báo cờ nào nó hỗ trợ. Một engine được chọn nếu tổng trọng số cờ nó hỗ trợ đạt ít nhất một nửa. Khi người dùng xin proxy ẩn danh mà không engine nào đủ khả năng, mã giữ danh sách ban đầu để scrape không hỏng hẳn.",
+      "body": "Mỗi yêu cầu scrape mang một tập **cờ tính năng** như actions, waitFor, screenshot, pdf hay stealthProxy, và mỗi cờ có một trọng số. Mỗi engine khai báo cờ nào nó hỗ trợ. Một engine được đưa vào danh sách nếu tổng trọng số cờ nó hỗ trợ đạt ít nhất **một nửa** tổng trọng số của yêu cầu. Khi người dùng xin proxy ẩn danh, danh sách thu về các engine hỗ trợ nó; nếu không engine nào đủ khả năng, danh sách ban đầu được giữ để scrape không hỏng hẳn."
+    },
+    {
+      "title": "Engine nào được bật khi nào",
+      "section": "Một lệnh scrape đi qua đâu",
+      "sources": [
+        "S10",
+        "S16",
+        "S17"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "fire-engine: chỉ khi có biến FIRE_ENGINE_BETA_URL",
+        "playwright: chỉ khi có PLAYWRIGHT_MICROSERVICE_URL",
+        "index: chỉ khi có INDEX_DATABASE_URL",
+        "wikipedia: cần tài khoản doanh nghiệp của Wikipedia",
+        "fetch, pdf, document: luôn có; image khi có địa chỉ dịch vụ FirePDF"
+      ],
+      "notes": "Danh sách engine thực sự bật phụ thuộc cấu hình. Fire-engine chỉ vào danh sách khi có biến địa chỉ riêng, Playwright khi có địa chỉ dịch vụ Playwright, index khi có địa chỉ cơ sở dữ liệu chỉ mục, Wikipedia cần tài khoản doanh nghiệp. Fetch, pdf và document luôn có, còn image chỉ khi có địa chỉ dịch vụ FirePDF."
+    },
+    {
+      "title": "Các dịch vụ quanh API",
+      "section": "Hàng đợi, dịch vụ và tự lưu trữ",
+      "sources": [
+        "S6",
+        "S7",
+        "S15"
+      ],
+      "layout": "connection-diagram",
+      "tone": "dark",
+      "bullets": [
+        "Playwright: engine trình duyệt mặc định của bản Compose",
+        "Redis: một dịch vụ trong Compose",
+        "RabbitMQ: phải khỏe thì api mới chạy",
+        "NuQ Postgres: hàng đợi chính, có tùy chọn FoundationDB"
+      ],
+      "notes": "Tệp Compose ở gốc dựng bảy dịch vụ: api, Playwright, Redis, RabbitMQ, Postgres của NuQ, FoundationDB và bước khởi tạo của nó. API phụ thuộc Redis, Playwright, RabbitMQ phải khỏe, và Postgres của NuQ không bắt buộc khi dùng FoundationDB. Chỉ API mở cổng ra máy chủ, mặc định cổng ba nghìn không trăm linh hai. Người viết chưa chạy Compose."
+    },
+    {
+      "title": "Mặc định khuyên dùng cho lần chạy đầu",
+      "section": "Hàng đợi, dịch vụ và tự lưu trữ",
+      "sources": [
+        "S6"
+      ],
+      "layout": "numbered-rows",
+      "tone": "light",
+      "bullets": [
+        "Dùng đúng một thẻ phát hành, không dùng nhánh main",
+        "USE_DB_AUTHENTICATION=false cho chuyến chạy đầu",
+        "Hàng đợi NuQ trên Postgres",
+        "Scrape bằng Playwright đi kèm, fetch dự phòng",
+        "Không nhà cung cấp mô hình cho tính năng AI",
+        "Giao diện quản trị hàng đợi tắt"
+      ],
+      "notes": "Tệp hướng dẫn tự lưu trữ khuyên giữ lần chạy đầu thật đơn giản và liệt kê sáu mặc định: dùng đúng một thẻ phát hành, tắt xác thực bằng cơ sở dữ liệu, hàng đợi NuQ trên Postgres, scrape bằng Playwright đi kèm kèm fetch dự phòng, không nhà cung cấp mô hình, và giao diện quản trị hàng đợi tắt. Hãy chạy được nền này trước khi đổi backend."
+    },
+    {
+      "title": "Từ bản thử đến sản xuất",
+      "section": "Hàng đợi, dịch vụ và tự lưu trữ",
+      "sources": [
+        "S6",
+        "S7"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Mặc định: API không xác thực, mật khẩu Postgres là postgres, cổng 3002 mở ra máy chủ",
+        "Cần thêm: xác thực, TLS, chính sách mạng, volume và sao lưu cho Postgres, Redis, RabbitMQ",
+        "Compose là điểm khởi đầu, không phải kiến trúc sản xuất"
+      ],
+      "notes": "Hai cột đối lập. Bên trái là mặc định: API không xác thực, mật khẩu Postgres mặc định trong Compose là postgres, cổng của API mở ra máy chủ. Bên phải là điều phải thêm trước sản xuất: thiết kế xác thực, TLS, chính sách mạng, volume lưu trữ và sao lưu cho các dịch vụ hàng đợi. Chính tệp hướng dẫn tự lưu trữ nói tệp Compose không phải kiến trúc sản xuất."
+    },
+    {
+      "title": "Ba đường cho agent và một đường cho mã",
+      "section": "SDK, CLI, MCP và skill cho agent",
+      "sources": [
+        "S1"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Skill: một lệnh npx cài cho Claude Code và các agent khác",
+        "MCP: cấu hình firecrawl-mcp chạy bằng npx, khóa qua FIRECRAWL_API_KEY",
+        "Agent Onboarding: một dòng curl lấy SKILL.md để agent tự đăng ký",
+        "SDK: chín ngôn ngữ, mỗi cái có mã mẫu trong README"
+      ],
+      "notes": "Phần Power Your Agent của README có ba đường: cài skill bằng một lệnh npx, cấu hình MCP chạy bằng npx với khóa truyền qua biến môi trường, và Agent Onboarding, một dòng curl lấy tệp SKILL.md để một agent tự đăng ký tài khoản. Đường thứ tư dành cho mã ứng dụng là chín SDK. Người viết chưa cài hay chạy cái nào."
+    },
+    {
+      "title": "Cài SDK theo README",
+      "section": "SDK, CLI, MCP và skill cho agent",
+      "sources": [
+        "S1"
+      ],
+      "layout": "lookup-table",
+      "tone": "dark",
+      "bullets": [
+        "Python: pip install firecrawl",
+        "Node.js: npm install firecrawl",
+        "Go: go get từ đường dẫn apps/go-sdk của chính repo",
+        "Ruby: gem install firecrawl-sdk",
+        ".NET: dotnet add package firecrawl-sdk",
+        "Rust: firecrawl = \"2\" trong Cargo.toml"
+      ],
+      "notes": "Sáu trong chín SDK với cách cài lấy nguyên từ README. Java, Elixir và PHP cũng có mục riêng. Lưu ý Go: README hướng dẫn cài từ thư mục apps go-sdk của chính monorepo, trong khi tệp gitmodules khai thêm hai submodule Go; suy luận của người viết là mã Go nằm ở cả hai nơi. Người viết không cài SDK nào."
+    },
+    {
+      "title": "Mở và cloud theo hình của README",
+      "section": "Mã nguồn mở và bản cloud",
+      "sources": [
+        "S1",
+        "S24"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "light",
+      "bullets": [
+        "Mã nguồn mở: Scrape, Crawl, LLM Extract, Map, định dạng cho LLM, SDK",
+        "Cloud thêm: chống bot, xoay vòng proxy, bảng điều khiển, Actions, duyệt không và có trình duyệt, tính năng doanh nghiệp",
+        "Theo hình minh họa trong README; người viết đọc hình"
+      ],
+      "notes": "README có mục Open Source versus Cloud kèm một hình minh họa. Người viết đọc hình: nhóm mã nguồn mở gồm Scrape, Crawl, LLM Extract, Map, định dạng sẵn cho LLM và SDK. Nhóm cloud thêm chống bot, xoay vòng proxy, bảng điều khiển, Actions, duyệt không trình duyệt và có trình duyệt, cùng tính năng doanh nghiệp. Đây là cách người viết đọc hình, không phải bảng liệt kê trong mã."
+    },
+    {
+      "title": "Engine mạnh nhất nằm ngoài repo",
+      "section": "Mã nguồn mở và bản cloud",
+      "sources": [
+        "S6",
+        "S10",
+        "S17"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "dark",
+      "bullets": [
+        "Engine cào mạnh nhất, fire-engine, là dịch vụ nằm ngoài repo; cây mã chỉ có phía gọi nó",
+        "Chỉ bật khi có FIRE_ENGINE_BETA_URL; khối môi trường chung của Compose không đặt biến này",
+        "Suy luận từ cây apps/ và tệp available.ts; đọc mã, chưa chạy"
+      ],
+      "notes": "Đối chiếu hình với mã. Fire-engine, nơi các engine chrome-cdp, tlsclient và biến thể stealth chạy, chỉ được dùng khi có biến địa chỉ, và hàm kiểm tra chỉ so địa chỉ có khác rỗng hay không. Trong cây apps không có thư mục dịch vụ fire-engine, chỉ có phía khách. Suy luận của người viết: phần cào mạnh nhất cho chống bot là dịch vụ ngoài repo."
+    },
+    {
+      "title": "Giấy phép theo từng nơi",
+      "section": "Phản biện",
+      "sources": [
+        "S2",
+        "S9",
+        "S18",
+        "S20",
+        "S21",
+        "S23"
+      ],
+      "layout": "lookup-table",
+      "tone": "light",
+      "bullets": [
+        "Gốc repo: AGPL-3.0 trong tệp LICENSE",
+        "SDK Python, JS, Elixir, Ruby: tệp LICENSE ghi MIT",
+        "apps/api/package.json: ISC",
+        "apps/playwright-service-ts/package.json: ISC",
+        "skills/firecrawl-build/SKILL.md: license ISC"
+      ],
+      "notes": "Phản biện thứ nhất: một repo nhiều giấy phép. Tệp LICENSE gốc là AGPL ba chấm không, README nói SDK và một số thành phần giao diện là MIT. Trong khi đó package.json của API, của dịch vụ Playwright và skill firecrawl-build ghi ISC. Báo cáo không chọn bên mà chỉ nêu hai tệp trong cùng repo ghi hai giấy phép khác nhau. Đây không phải tư vấn pháp lý."
+    },
+    {
+      "title": "Lời hứa về robots.txt",
+      "section": "Phản biện",
+      "sources": [
+        "S13",
+        "S14",
+        "S26",
+        "S27"
+      ],
+      "layout": "two-column-comparison",
+      "tone": "dark",
+      "bullets": [
+        "Crawl: ignoreRobotsTxt mặc định false, tôn trọng robots theo mặc định",
+        "Scrape một URL: chỉ kiểm khi chế độ an toàn bật enforceRobots hoặc cờ nhóm checkRobotsOnScrape bật",
+        "Tải robots.txt lỗi thì mã vẫn cho scrape (đọc mã, chưa chạy)"
+      ],
+      "notes": "README nói theo mặc định Firecrawl tôn trọng robots.txt. Mã cho thấy lời đó rõ nhất với crawl, nơi ignoreRobotsTxt mặc định là false. Với scrape một URL, hàm shouldCheckRobots chỉ trả true khi chế độ an toàn của tổ chức bật enforceRobots hoặc cờ nhóm checkRobotsOnScrape bật. Khi tải robots.txt thất bại, nhật ký ghi cho phép scrape. Người viết chưa chạy và chưa kiểm cờ mặc định của dịch vụ lưu trữ."
+    },
+    {
+      "title": "Bốn phản biện còn lại",
+      "section": "Phản biện",
+      "sources": [
+        "S1",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S9",
+        "S11"
+      ],
+      "layout": "card-grid",
+      "tone": "light",
+      "bullets": [
+        "Số liệu: 96% web và P95 3,4 giây là lời README, chưa kiểm",
+        "Tài liệu lệch: CLAUDE.md có thêm luật knip so với AGENTS.md; README của scrapeURL cũ hơn mã",
+        "Hai đường cài: phát triển và tự lưu trữ dùng hai tệp môi trường khác nhau",
+        "Độ phức tạp: hơn một nghìn tệp .ts, 8 worker, hai backend hàng đợi"
+      ],
+      "notes": "Bốn phản biện nhỏ hơn. Một: các con số về độ phủ web và độ trễ là lời của README, người viết không có phép đo. Hai: tài liệu bên trong lệch nhau, CLAUDE.md có thêm luật knip so với AGENTS.md. Ba: phát triển và tự lưu trữ là hai đường khác nhau với hai tệp môi trường, đừng chép tệp này sang tệp kia. Bốn: hệ thống lớn, nhiều worker, khó tự vận hành."
+    },
+    {
+      "title": "Điều cần nhớ",
+      "section": "Điều cần nhớ",
+      "sources": [
+        "S1",
+        "S2",
+        "S3",
+        "S6",
+        "S10",
+        "S13",
+        "S14",
+        "S17"
+      ],
+      "layout": "numbered-rows",
+      "tone": "dark",
+      "bullets": [
+        "Monorepo API web cho agent: nhiều thao tác, chín SDK",
+        "Lõi là 16 engine xếp theo điểm chất lượng và cờ tính năng",
+        "Fire-engine, engine mạnh nhất, nằm ngoài repo",
+        "Tự lưu trữ mặc định: không xác thực, không volume cho hàng đợi",
+        "Giấy phép nhiều lớp, đọc theo từng thư mục",
+        "Tôn trọng robots.txt rõ nhất ở crawl; scrape phụ thuộc cờ nhóm"
+      ],
+      "notes": "Sáu điều cần nhớ. Firecrawl là monorepo API web cho agent với chín SDK. Lõi là bộ điều phối mười sáu engine. Engine mạnh nhất cho chống bot nằm ngoài repo. Bản tự lưu trữ mặc định không xác thực và không có volume cho hàng đợi. Giấy phép nhiều lớp. Lời hứa về robots rõ nhất ở crawl. Mọi con số marketing là lời của README."
+    },
+    {
+      "title": "Giới hạn của bài",
+      "section": "Lưu ý",
+      "sources": [
+        "S1",
+        "S2"
+      ],
+      "layout": "one-highlighted-sentence",
+      "tone": "light",
+      "bullets": [
+        "Đọc mã, chưa chạy: bài là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt hay cào web",
+        "Clone nông ở commit 033f42f, nhánh main, ngày 08/11/2026",
+        "Không nêu số sao; giấy phép AGPL-3.0 ở gốc theo tệp LICENSE"
+      ],
+      "notes": "Giới hạn của bài. Người viết đọc bản clone nông ở commit ghim, đọc trọn các tệp tài liệu chính và đọc một phần các tệp mã lớn. Không chạy API, worker, Compose hay SDK, không gọi dịch vụ lưu trữ. Bài không nêu số sao, số fork, issue hay lịch sử phát hành. Đây là tài liệu hỗ trợ đọc repo, không phải khuyến nghị cài đặt, cào web hay tư vấn pháp lý."
+    },
+    {
+      "title": "Nguồn tham khảo (1/2)",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S1: README.md",
+        "S2: LICENSE",
+        "S3: CLAUDE.md",
+        "S4: AGENTS.md",
+        "S5: CONTRIBUTING.md",
+        "S6: SELF_HOST.md",
+        "S7: docker-compose.yaml",
+        "S8: .gitmodules",
+        "S9: apps/api/package.json",
+        "S10: apps/api/src/scraper/scrapeURL/engines/index.ts",
+        "S11: apps/api/src/scraper/scrapeURL/README.md",
+        "S12: apps/api/src/scraper/WebScraper/utils/ENGINE_FORCING.md",
+        "S13: apps/api/src/scraper/scrapeURL/shouldCheckRobots.ts",
+        "S14: apps/api/src/controllers/v2/types.ts"
+      ],
+      "notes": ""
+    },
+    {
+      "title": "Nguồn tham khảo (2/2)",
+      "section": "Nguồn tham khảo",
+      "sources": [],
+      "layout": "references",
+      "tone": "dark",
+      "bullets": [
+        "S15: apps/api/src/services/worker/nuq.ts",
+        "S16: apps/api/src/config.ts",
+        "S17: apps/api/src/scraper/scrapeURL/engines/fire-engine/available.ts",
+        "S18: apps/playwright-service-ts/package.json",
+        "S19: apps/js-sdk/firecrawl/package.json",
+        "S20: apps/python-sdk/pyproject.toml",
+        "S21: apps/js-sdk/LICENSE",
+        "S22: skills/README.md",
+        "S23: skills/firecrawl-build/SKILL.md",
+        "S24: img/open-source-cloud.png",
+        "S25: apps/api/src/routes/v2.ts",
+        "S26: apps/api/src/scraper/WebScraper/crawler.ts",
+        "S27: apps/api/src/scraper/scrapeURL/index.ts"
+      ],
+      "notes": ""
+    }
+  ]
+}
