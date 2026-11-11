@@ -1,0 +1,325 @@
+{
+  "date": "2026-11-11",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 278,
+  "dropped": {
+    "already covered": 34,
+    "already covered by a report": 15,
+    "licence noassertion is not on the free list": 64,
+    "licence none is not on the free list": 19
+  },
+  "picks": [
+    {
+      "repo": "Jakeschincariol/founder-skill",
+      "bucket": "startup",
+      "score": 12.0724,
+      "stars": 3142,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 3099,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "bucket": "ai",
+      "score": 17.4559,
+      "stars": 69204,
+      "rising": true,
+      "slot": false,
+      "stars_per_30d": 41036,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "sherlock-project/sherlock",
+      "bucket": "software",
+      "score": 18.102,
+      "stars": 109461,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 59709,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.6919,
+      "stars": 206792,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.1917,
+      "stars": 113018,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "ollama/ollama",
+      "bucket": "ai",
+      "score": 17.1799,
+      "stars": 186611,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "bucket": "ai",
+      "score": 17.0816,
+      "stars": 121920,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "bucket": "ai",
+      "score": 16.7432,
+      "stars": 58104,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 419,
+    "measured": 264
+  },
+  "written": [],
+  "held": [
+    {
+      "repo": "Jakeschincariol/founder-skill",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: '/plugin marketplace add Jakeschincariol/founder-skill'"
+      ],
+      "blockers": []
+    },
+    {
+      "repo": "Ebony-Vinyl/dsh-our-free-model",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[1]: hype wording 'tuyệt đối'",
+        "[error] guide.steps[1].do[1]: hype wording 'tuyệt đối'",
+        "[error] guide.steps[0].commands: command is not a line or code span of the README: 'dsh plugin --profile web add @ebony-vinyl/dsh-our-free-model@2.8.3'",
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'dsh plugin --profile web add /绝对路径/dsh-our-free-model'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: '\"'",
+        "[error] guide.steps[3].commands: command is not a line or code span of the README: 'DSH_HOME= dsh --profile  --dump-config | grep our-free-model'",
+        "[error] guide.steps[4].commands: command is not a line or code span of the README: 'rd /s /q \"%DSH_HOME%\\\\profiles\\\\web\\\\node_modules\"'",
+        "[error] guide.steps[4].commands: command is not a line or code span of the README: 'del \"%DSH_HOME%\\\\profiles\\\\web\\\\pnpm-lock.yaml\"'"
+      ],
+      "blockers": []
+    },
+    {
+      "repo": "sherlock-project/sherlock",
+      "lang": "vi",
+      "problems": [
+        "[error] how_it_works.components: needs 2-6 items",
+        "[error] flow: edge [0, 0] must be two different component indexes"
+      ],
+      "blockers": []
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": false,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 72.0,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.3,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.1
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 7.4,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.8,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_",
+      "seconds": 0.1,
+      "headers": {
+        "retry-after": "13",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "groq/openai/gpt-oss-20b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-20b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_d",
+      "seconds": 0.1,
+      "headers": {
+        "retry-after": "14",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "1000",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1ms",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+      "seconds": 0.4,
+      "headers": {
+        "x-ratelimit-limit-req-minute": "0",
+        "x-ratelimit-remaining-req-minute": "0"
+      }
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.2,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 5.4,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.2,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 0.9,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.2,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.4,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": null
+}
