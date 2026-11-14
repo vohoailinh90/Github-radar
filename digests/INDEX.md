@@ -1,5 +1,6 @@
 # Digests
 
+- [2026-11-14](2026-11-14/README.md) — esp32-iphone-agent, huginn
 - [2026-11-07](2026-11-07/README.md) — firecrawl, replica-skill
 - [2026-10-31](2026-10-31/README.md) — hermes-agent
 - [2026-10-28](2026-10-28/README.md) — peach

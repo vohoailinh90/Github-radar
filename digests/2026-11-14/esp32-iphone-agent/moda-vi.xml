@@ -1,0 +1,57 @@
+<!-- radar: Moda canvas 1200x1645; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">ESP32 iPhone Agent: Điều khiển iPhone bằng AI qua bo mạch $7</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Để AI nhìn màn hình iPhone, bấm, vuốt và goz hộ bạn qua bo mạch ESP32 giá 7 USD mà không cần jailbreak.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="145" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">ESP32-S3 Board</text>
+<text x="80" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Nhận luồng AirPlay, phát Wi-Fi hotspot và giả lập thiết bị USB HID.</text>
+<rectangle x="460" y="545" width="280" height="145" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">ESP32 Agent App</text>
+<text x="480" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Giải mã màn hình, gửi ảnh tới AI và điều phối các thao tác.</text>
+<rectangle x="860" y="545" width="280" height="145" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">AI Vision Model</text>
+<text x="880" y="605" width="240" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đọc nội dung màn hình và đưa ra bước đi tiếp theo.</text>
+<line x1="340" y1="617.5" x2="460" y2="617.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="617.5" x2="860" y2="617.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="1000" y1="545" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="200" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="772" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="838" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="860" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="860" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Truyền hình ảnh màn hình</text>
+<text x="154" y="896" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bo mạch mở điểm phát Wi-Fi, nhận luồng AirPlay từ iPhone và chuyển tiếp đến ứng dụng.</text>
+<line x1="584" y1="912" x2="616" y2="912" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="838" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="860" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="860" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Điều khiển phần cứng</text>
+<text x="714" y="896" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Bo mạch hoạt động như chuột và bàn phím USB HID để thực hiện các thao tác bấm, vuốt.</text>
+<rectangle x="60" y="1010" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1032" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1032" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Xử lý trí tuệ nhân tạo</text>
+<text x="154" y="1068" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ứng dụng phân tích ảnh chụp màn hình qua mô hình thị giác và quyết định hành động tiếp theo.</text>
+<text x="60" y="1240" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1306" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1346.8" x2="97.6" y2="1354" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1354" x2="110" y2="1338.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1326" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách tích hợp phần cứng giá rẻ ESP32 với ứng dụng di động</text>
+<rectangle x="615" y="1306" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1346.8" x2="652.6" y2="1354" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1354" x2="665" y2="1338.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1326" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách xây dựng agent AI điều khiển giao diện người dùng qua màn hình và chuột ảo</text>
+<rectangle x="60" y="1430" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1470.8" x2="97.6" y2="1478" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1478" x2="110" y2="1462.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1450" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách sử dụng giao thức AirPlay để truyền tải hình ảnh không dây</text>
+<rectangle x="615" y="1430" width="525" height="100" fill="#0B1B3A" corner-radius="20"/>
+<line x1="645.8" y1="1470.8" x2="652.6" y2="1478" stroke="#FFC83D" stroke-width="5"/>
+<line x1="652.6" y1="1478" x2="665" y2="1462.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="691" y="1450" width="429" height="45" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách quản lý vòng lặp hành động của mô hình thị giác trên thiết bị di động</text>
+<text x="60" y="1582" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: onehumanbeing/esp32-iphone-agent · Giấy phép: MIT · 4.923 sao · Quét ngày 2026-11-14</text>
+</content>

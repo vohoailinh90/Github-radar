@@ -1,0 +1,347 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn thuê một trợ lý ảo chăm chỉ, luôn túc trực ngày đêm để lướt web, đọc tin tức và báo cáo ngay cho bạn khi có thông tin quan trọng.",
+    "caveats": [
+      "Yêu cầu kiến thức cơ bản về dòng lệnh và quản trị server khi chạy thực tế.",
+      "Không giữ worker chạy miễn phí trên các nền tảng đám mây quản lý."
+    ],
+    "facebook": {
+      "caption": "Tự động hóa mọi việc với Huginn - mã nguồn mở thay thế IFTTT chạy ngay trên server của bạn!",
+      "hashtags": [
+        "#huginn",
+        "#automation",
+        "#opensource",
+        "#selfhosted"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Một thành phần trong Huginn chịu trách nhiệm thực hiện một nhiệm vụ cụ thể như đọc web, theo dõi RSS hay gửi thông báo.",
+        "term": "Agent"
+      },
+      {
+        "meaning": "Dữ liệu được tạo ra và truyền đi giữa các Agent trong hệ thống.",
+        "term": "Event"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Đọc wiki để tìm hiểu ví dụ sử dụng và tạo các Agent mới.",
+        "Cấu hình cơ sở dữ liệu bên ngoài và lưu trữ bền vững theo tài liệu Docker."
+      ],
+      "outcome": "Khởi chạy thành công ứng dụng Huginn bằng Docker hoặc chuẩn bị môi trường phát triển cục bộ từ mã nguồn.",
+      "requirements": [
+        {
+          "detail": "Cần thiết để chạy thử Huginn nhanh chóng bằng container.",
+          "evidence": "README",
+          "item": "Docker",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần thiết nếu bạn muốn phát triển cục bộ từ mã nguồn.",
+          "evidence": "README",
+          "item": "MySQL hoặc PostgreSQL",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần thiết cho các thư viện giao diện như Font Awesome.",
+          "evidence": "README",
+          "item": "Node.js",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "docker run -it -p 3000:3000 ghcr.io/huginn/huginn"
+          ],
+          "do": [
+            "Mở terminal và chạy lệnh Docker để khởi động container Huginn."
+          ],
+          "evidence": "README",
+          "expect": "Container khởi động và in mật khẩu admin một lần vào log.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy thử Huginn bằng Docker",
+          "why": "Cách nhanh nhất để kiểm tra Huginn bằng hình ảnh Docker chính thức chạy mọi thứ trong một container."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Mở trình duyệt và truy cập địa chỉ localhost ở cổng 3000.",
+            "Đăng nhập với tài khoản admin và mật khẩu được in trong log của container."
+          ],
+          "evidence": "README",
+          "expect": "Giao diện Huginn hiển thị trên trình duyệt.",
+          "if_fails": "",
+          "link_ref": 0,
+          "snippet_ref": null,
+          "title": "Truy cập giao diện Docker",
+          "why": "Mở trình duyệt web để đăng nhập vào bảng điều khiển của Huginn chạy qua Docker."
+        },
+        {
+          "commands": [
+            "git remote add upstream https://github.com/huginn/huginn.git"
+          ],
+          "do": [
+            "Mở terminal và chạy lệnh git remote add để liên kết với kho chính."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": 1,
+          "snippet_ref": null,
+          "title": "Thêm remote cho bản fork",
+          "why": "Thêm kho lưu trữ chính làm remote cho nhánh phát triển cục bộ của bạn."
+        },
+        {
+          "commands": [
+            "cp .env.example .env"
+          ],
+          "do": [
+            "Sao chép tệp `.env.example` thành `.env` và chỉnh sửa biến `APP_SECRET_TOKEN`."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cấu hình biến môi trường",
+          "why": "Tạo tệp cấu hình `.env` từ `.env.example` và cập nhật khóa bí mật."
+        },
+        {
+          "commands": [
+            "bundle",
+            "npm install"
+          ],
+          "do": [
+            "Chạy lệnh cài đặt bundle và npm install trên terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt các gói phụ thuộc",
+          "why": "Cài đặt các thư viện Ruby qua bundle và thư viện JavaScript qua npm."
+        },
+        {
+          "commands": [
+            "bundle exec rake db:create",
+            "bundle exec rake db:migrate",
+            "bundle exec rake db:seed"
+          ],
+          "do": [
+            "Chạy các lệnh rake trên terminal để thiết lập database."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Khởi tạo cơ sở dữ liệu",
+          "why": "Tạo, chạy migrate và seed cơ sở dữ liệu phát triển với một số Agent mẫu."
+        },
+        {
+          "commands": [
+            "bundle exec foreman start"
+          ],
+          "do": [
+            "Chạy lệnh foreman start trên terminal và mở địa chỉ localhost cổng 3000."
+          ],
+          "evidence": "README",
+          "expect": "Ứng dụng chạy và có thể truy cập qua trình duyệt với tài khoản admin.",
+          "if_fails": "",
+          "link_ref": 0,
+          "snippet_ref": null,
+          "title": "Khởi động môi trường phát triển cục bộ",
+          "why": "Chạy foreman để bắt đầu ứng dụng và kiểm tra trên trình duyệt."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Truy cập thành công trang quản trị Huginn tại cổng 3000 và đăng nhập được bằng tài khoản admin."
+    },
+    "hook": "Xây dựng các agent tự động theo dõi web và hành động thay cho bạn trên server riêng.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "bot",
+          "name": "Agent",
+          "role": "Thực hiện các tác vụ theo dõi, đọc dữ liệu và phản ứng với sự kiện."
+        },
+        {
+          "evidence": "README",
+          "icon": "network",
+          "name": "Event Graph",
+          "role": "Đồ thị có hướng truyền tải sự kiện giữa các Agent."
+        },
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "Web UI",
+          "role": "Giao diện web để quản lý, cấu hình các Agent và xem kết quả."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Các Agent của Huginn liên tục đọc web, theo dõi RSS, IMAP hoặc webhook để tạo ra các sự kiện mới.",
+          "title": "Tạo sự kiện"
+        },
+        {
+          "evidence": "README",
+          "text": "Sự kiện được lan truyền dọc theo một đồ thị có hướng giữa các Agent trong hệ thống.",
+          "title": "Truyền sự kiện"
+        },
+        {
+          "evidence": "README",
+          "text": "Dựa trên sự kiện nhận được, các Agent thực hiện hành động như gửi email, đăng bài lên mạng xã hội hoặc gọi webhook.",
+          "title": "Thực hiện hành động"
+        }
+      ]
+    },
+    "learn": [
+      "Cách tự động hóa các tác vụ lặp đi lặp lại trên nền tảng self-hosted.",
+      "Mô hình lập trình dựa trên sự kiện và đồ thị Agent.",
+      "Cách vận hành ứng dụng Ruby trên môi trường Docker hoặc local."
+    ],
+    "one_liner": "Huginn là hệ thống giúp tạo các agent thực hiện tác vụ tự động, đọc web, theo dõi sự kiện giống như IFTTT hoặc Zapier nhưng chạy trên server của bạn.",
+    "problem": "Bạn muốn tự động hóa các công việc lặp đi lặp lại trên mạng như cào dữ liệu web, theo dõi RSS, nhận thông báo thay đổi nhưng lo lắng về quyền riêng tư dữ liệu trên các dịch vụ bên thứ ba.",
+    "title": "Tạo các tác vụ tự động hóa với Huginn",
+    "who_for": [
+      "Nhân viên văn phòng muốn tự động hóa công việc kiểm tra thông tin trên web.",
+      "Lập trình viên muốn tự chủ dữ liệu cá nhân thay vì dùng dịch vụ bên thứ ba.",
+      "Người thích tự xây dựng các hệ thống thông báo và tích hợp API."
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 4356,
+    "full_name": "huginn/huginn",
+    "language": "Ruby",
+    "license": "MIT",
+    "links": [
+      [
+        "http://localhost:3000/",
+        "http://localhost:3000/"
+      ],
+      [
+        "github.com",
+        "https://github.com/huginn/huginn.git"
+      ],
+      [
+        "Homebrew",
+        "http://brew.sh/"
+      ],
+      [
+        "http://localhost:3000/letteropener",
+        "http://localhost:3000/letter_opener"
+      ],
+      [
+        "Novice setup guide",
+        "https://github.com/huginn/huginn/wiki/Novice-setup-guide"
+      ],
+      [
+        "Coolify",
+        "https://coolify.io/"
+      ],
+      [
+        "Dokploy",
+        "https://dokploy.com/"
+      ],
+      [
+        "Dokku",
+        "https://dokku.com/"
+      ],
+      [
+        "Render",
+        "https://render.com/docs/deploying-an-image"
+      ],
+      [
+        "Fly.io",
+        "https://docs.fly.io/launch/processes"
+      ],
+      [
+        "Railway",
+        "https://docs.railway.com/services"
+      ],
+      [
+        "DigitalOcean App Platform",
+        "https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-container-images/"
+      ],
+      [
+        "wiki",
+        "https://github.com/huginn/huginn/wiki#deploying-huginn"
+      ],
+      [
+        "GitHub Discussions",
+        "https://github.com/huginn/huginn/discussions"
+      ],
+      [
+        "add new Agents",
+        "https://github.com/huginn/huginn/wiki/Creating-a-new-agent"
+      ],
+      [
+        "documentation and tutorials",
+        "https://github.com/huginn/huginn/wiki"
+      ],
+      [
+        "issues tagged with \"help wanted\"",
+        "https://github.com/huginn/huginn/issues?direction=desc&labels=help+wanted&page=1&sort=created&state=open"
+      ],
+      [
+        "official 'suggest an agent' thread",
+        "https://github.com/huginn/huginn/issues/353"
+      ],
+      [
+        "github.com",
+        "https://github.com/huginn/huginn/actions/workflows/ci.yml"
+      ],
+      [
+        "Coverage",
+        "https://octocov.dev/huginn/huginn"
+      ],
+      [
+        "github.com",
+        "https://github.com/sponsors/knu"
+      ],
+      [
+        "huginnagent",
+        "https://github.com/huginn/huginn_agent"
+      ],
+      [
+        "YunoHost",
+        "https://apps.yunohost.org/app/huginn"
+      ],
+      [
+        "Unraid Community Applications",
+        "https://unraid.net/community/apps"
+      ],
+      [
+        "Akinori Musha @knu",
+        "https://github.com/knu"
+      ],
+      [
+        "@cantino",
+        "https://github.com/cantino"
+      ]
+    ],
+    "scanned": "2026-11-14",
+    "stars": 50534,
+    "url": "https://github.com/huginn/huginn"
+  },
+  "lang": "vi",
+  "position": 2
+}
