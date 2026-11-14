@@ -89,6 +89,11 @@
     "covered": "2026-10-16",
     "stars": 131800
   },
+  "huginn/huginn": {
+    "bucket": "solutions",
+    "covered": "2026-11-14",
+    "stars": 50534
+  },
   "jianchang512/pyvideotrans": {
     "bucket": "ai",
     "covered": "2026-10-16",
@@ -123,6 +128,11 @@
     "bucket": "software",
     "covered": "2026-10-16",
     "stars": 136600
+  },
+  "onehumanbeing/esp32-iphone-agent": {
+    "bucket": "solutions",
+    "covered": "2026-11-14",
+    "stars": 4923
   },
   "pbakaus/impeccable": {
     "bucket": "software",

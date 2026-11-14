@@ -1,0 +1,50 @@
+<!-- radar: Moda canvas 1200x1501; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Tạo các tác vụ tự động hóa với Huginn</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Xây dựng các agent tự động theo dõi web và hành động thay cho bạn trên server riêng.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="280" height="145" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Agent</text>
+<text x="80" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Thực hiện các tác vụ theo dõi, đọc dữ liệu và phản ứng với sự kiện.</text>
+<rectangle x="460" y="517" width="280" height="145" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Event Graph</text>
+<text x="480" y="577" width="240" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Đồ thị có hướng truyền tải sự kiện giữa các Agent.</text>
+<rectangle x="860" y="517" width="280" height="145" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="539" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Web UI</text>
+<text x="880" y="577" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Giao diện web để quản lý, cấu hình các Agent và xem kết quả.</text>
+<line x1="340" y1="589.5" x2="460" y2="589.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="740" y1="589.5" x2="860" y2="589.5" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="744" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="810" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="832" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="832" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tạo sự kiện</text>
+<text x="154" y="868" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Các Agent của Huginn liên tục đọc web, theo dõi RSS, IMAP hoặc webhook để tạo ra các sự kiện mới.</text>
+<line x1="584" y1="884" x2="616" y2="884" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="810" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="832" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="832" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Truyền sự kiện</text>
+<text x="714" y="868" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Sự kiện được lan truyền dọc theo một đồ thị có hướng giữa các Agent trong hệ thống.</text>
+<rectangle x="60" y="982" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1004" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1004" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Thực hiện hành động</text>
+<text x="154" y="1040" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Dựa trên sự kiện nhận được, các Agent thực hiện hành động như gửi email, đăng bài lên mạng xã hội hoặc gọi webhook.</text>
+<text x="60" y="1212" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1278" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1318.8" x2="97.6" y2="1326" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1326" x2="110" y2="1310.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1298" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách tự động hóa các tác vụ lặp đi lặp lại trên nền tảng self-hosted.</text>
+<rectangle x="430" y="1278" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1318.8" x2="467.6" y2="1326" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1326" x2="480" y2="1310.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1298" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mô hình lập trình dựa trên sự kiện và đồ thị Agent.</text>
+<rectangle x="800" y="1278" width="340" height="108" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1318.8" x2="837.6" y2="1326" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1326" x2="850" y2="1310.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1298" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách vận hành ứng dụng Ruby trên môi trường Docker hoặc local.</text>
+<text x="60" y="1438" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: huginn/huginn · Giấy phép: MIT · 50.534 sao · Quét ngày 2026-11-14</text>
+</content>

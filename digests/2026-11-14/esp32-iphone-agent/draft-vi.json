@@ -1,0 +1,287 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn gắn thêm một con mắt (AirPlay) và đôi tay robot (chuột USB) cho AI để nó tự bấm điện thoại thay bạn.",
+    "caveats": [
+      "Cần mua bo mạch phần cứng giá khoảng $7",
+      "Điện thoại sẽ sử dụng dữ liệu di động khi kết nối Wi-Fi với bo mạch"
+    ],
+    "facebook": {
+      "caption": "Điều khiển iPhone bằng AI với bo mạch ESP32 giá 7 USD không cần jailbreak!",
+      "hashtags": [
+        "#AI",
+        "#ESP32",
+        "#iPhone",
+        "#Automation"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Giao thức truyền phát không dây màn hình iPhone lên bo mạch.",
+        "term": "AirPlay"
+      },
+      {
+        "meaning": "Chuẩn giao tiếp USB cho phép bo mạch điều khiển con trỏ và bàn phím như thiết bị ngoại vi.",
+        "term": "USB HID"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Chạy các tác vụ dài hơn",
+        "Tùy chỉnh model lập kế hoạch và model hành động"
+      ],
+      "outcome": "AI có thể tự nhận diện màn hình iPhone và thực hiện các tác vụ theo yêu cầu của bạn.",
+      "requirements": [
+        {
+          "detail": "Khoảng $7",
+          "evidence": "README",
+          "item": "Bo mạch Seeed XIAO ESP32S3",
+          "link_ref": null
+        },
+        {
+          "detail": "Thiết bị iOS để chạy ứng dụng",
+          "evidence": "README",
+          "item": "iPhone",
+          "link_ref": null
+        },
+        {
+          "detail": "Cài đặt ứng dụng ESP32 Agent",
+          "evidence": "README",
+          "item": "TestFlight",
+          "link_ref": 9
+        },
+        {
+          "detail": "Chỉ cần thiết nếu tự nạp firmware",
+          "evidence": "README",
+          "item": "arduino-cli",
+          "link_ref": 0
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "arduino-cli lib install \"NimBLE-Arduino@2.5.1\"",
+            "hardware/flash.sh"
+          ],
+          "do": [
+            "Cài đặt arduino-cli, ESP32 core 3.3.x và NimBLE-Arduino 2.5.x",
+            "Chạy lệnh nạp firmware trong terminal"
+          ],
+          "evidence": "README",
+          "expect": "Firmware được nạp thành công vào bo mạch.",
+          "if_fails": "Dùng cách nạp qua trình duyệt Chrome hoặc Edge nếu không dùng Mac.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Nạp firmware cho bo mạch",
+          "why": "Cài đặt phần mềm điều khiển cho bo mạch ESP32."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Tham gia beta qua TestFlight trên iPhone",
+            "Cài đặt ứng dụng ESP32 Agent"
+          ],
+          "evidence": "README",
+          "expect": "Ứng dụng xuất hiện trên màn hình điện thoại.",
+          "if_fails": "Kiểm tra lại liên kết TestFlight.",
+          "link_ref": 9,
+          "snippet_ref": null,
+          "title": "Cài đặt ứng dụng",
+          "why": "Cài ứng dụng điều khiển lên iPhone của bạn."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Cắm bo mạch vào iPhone và mở ứng dụng ESP32 Agent",
+            "Thực hiện 4 bước hướng dẫn: ghép nối Bluetooth, bật Screen Mirroring, bật AssistiveTouch và nhập khóa mô hình AI"
+          ],
+          "evidence": "README",
+          "expect": "Ứng dụng kết nối thành công với bo mạch và sẵn sàng nhận lệnh.",
+          "if_fails": "Kiểm tra lại kết nối cáp và nguồn điện của bo mạch.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Thiết lập trong ứng dụng",
+          "why": "Kết nối bo mạch với iPhone qua Bluetooth, Wi-Fi và cấu hình AI."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Chuyển sang sử dụng API key riêng của bạn trong phần Settings › Model.",
+          "problem": "Free line busy or failing"
+        }
+      ],
+      "verify": "Nhập một mục tiêu ví dụ 'Open Settings and go to Wi-Fi' và nhấn Start để AI tự thực hiện trên iPhone."
+    },
+    "hook": "Để AI nhìn màn hình iPhone, bấm, vuốt và goz hộ bạn qua bo mạch ESP32 giá 7 USD mà không cần jailbreak.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "cpu",
+          "name": "ESP32-S3 Board",
+          "role": "Nhận luồng AirPlay, phát Wi-Fi hotspot và giả lập thiết bị USB HID."
+        },
+        {
+          "evidence": "README",
+          "icon": "smartphone",
+          "name": "ESP32 Agent App",
+          "role": "Giải mã màn hình, gửi ảnh tới AI và điều phối các thao tác."
+        },
+        {
+          "evidence": "README",
+          "icon": "brain",
+          "name": "AI Vision Model",
+          "role": "Đọc nội dung màn hình và đưa ra bước đi tiếp theo."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Bo mạch mở điểm phát Wi-Fi, nhận luồng AirPlay từ iPhone và chuyển tiếp đến ứng dụng.",
+          "title": "Truyền hình ảnh màn hình"
+        },
+        {
+          "evidence": "README",
+          "text": "Bo mạch hoạt động như chuột và bàn phím USB HID để thực hiện các thao tác bấm, vuốt.",
+          "title": "Điều khiển phần cứng"
+        },
+        {
+          "evidence": "README",
+          "text": "Ứng dụng phân tích ảnh chụp màn hình qua mô hình thị giác và quyết định hành động tiếp theo.",
+          "title": "Xử lý trí tuệ nhân tạo"
+        }
+      ]
+    },
+    "learn": [
+      "Cách tích hợp phần cứng giá rẻ ESP32 với ứng dụng di động",
+      "Cách xây dựng agent AI điều khiển giao diện người dùng qua màn hình và chuột ảo",
+      "Cách sử dụng giao thức AirPlay để truyền tải hình ảnh không dây",
+      "Cách quản lý vòng lặp hành động của mô hình thị giác trên thiết bị di động"
+    ],
+    "one_liner": "Giúp mô hình AI tương tác với iPhone thật bằng cách kết hợp truyền màn hình AirPlay và chuột bàn phím USB HID.",
+    "problem": "Nhiều người dùng muốn AI tự thao tác trên iPhone nhưng ngại việc cài đặt phức tạp, dùng máy Mac hay jailbreak thiết bị. Dự án này giải quyết bài toán đó bằng một bo mạch phần cứng giá rẻ cắm trực tiếp vào điện thoại.",
+    "title": "ESP32 iPhone Agent: Điều khiển iPhone bằng AI qua bo mạch $7",
+    "who_for": [
+      "Người dùng muốn tự động hóa iPhone mà không cần jailbreak",
+      "Lập trình viên muốn thử nghiệm AI computer-use trên thiết bị di động"
+    ]
+  },
+  "facts": {
+    "blocks": [
+      [
+        "",
+        "iPhone ──Screen Mirroring (Wi-Fi)──▶ ESP32-S3: AirPlay receiver ──Wi-Fi TCP :7201──▶ ESP32 Agent app (same iPhone)\n   ▲                                    own hotspot, H.264 passthrough              decode → vision model → action\n   └──────── USB HID mouse + keyboard ◀──────────── BLE commands ◀──────────────────────┘"
+      ]
+    ],
+    "bucket": "solutions",
+    "forks": 674,
+    "full_name": "onehumanbeing/esp32-iphone-agent",
+    "language": "Swift",
+    "license": "MIT",
+    "links": [
+      [
+        "arduino-cli",
+        "https://arduino.github.io/arduino-cli/"
+      ],
+      [
+        "Install the firmware from Chrome or Edge",
+        "https://handsy.tech/install"
+      ],
+      [
+        "XcodeGen",
+        "https://github.com/yonaskolb/XcodeGen"
+      ],
+      [
+        "nvidia/Qwen3.8-Flash-Next-NVFP4",
+        "https://huggingface.co/nvidia/Qwen3.8-Flash-Next-NVFP4"
+      ],
+      [
+        "TensorFold",
+        "https://github.com/MiaAI-Lab/Qwen3.8-Flash-Dual-DGX-Sparks-TensorFold"
+      ],
+      [
+        "AI control for iPhone",
+        "https://handsy.tech/ai-control-iphone"
+      ],
+      [
+        "how Handsy works",
+        "https://handsy.tech/how-it-works"
+      ],
+      [
+        "v0.1.0",
+        "https://github.com/onehumanbeing/esp32-iphone-agent/tree/v0.1.0"
+      ],
+      [
+        "legacy",
+        "https://github.com/onehumanbeing/esp32-iphone-agent/tree/legacy"
+      ],
+      [
+        "Try on TestFlight",
+        "https://testflight.apple.com/join/1xQHgJcA"
+      ],
+      [
+        "Watch the demo",
+        "https://www.youtube.com/watch?v=Ly4im-P4jYg"
+      ],
+      [
+        "github.com",
+        "https://github.com/onehumanbeing/esp32-iphone-agent/stargazers"
+      ],
+      [
+        "github.com",
+        "https://github.com/onehumanbeing/esp32-iphone-agent/actions/workflows/ci.yml"
+      ],
+      [
+        "x.com",
+        "https://x.com/iamhenryyuan"
+      ],
+      [
+        "Hackaday",
+        "https://hackaday.com/2026/10/14/ai-controls-iphone-via-esp32/"
+      ],
+      [
+        "Digital Trends",
+        "https://www.digitaltrends.com/phones/a-7-board-lets-an-ai-control-an-iphone-without-jailbreaking-it/"
+      ],
+      [
+        "Ruanyf Weekly #415",
+        "https://github.com/ruanyf/weekly/blob/master/docs/issue-415.md"
+      ],
+      [
+        "Seeed Studio",
+        "https://x.com/seeedstudio/status/2112166890818986187"
+      ],
+      [
+        "Xiaohongshu",
+        "https://www.xiaohongshu.com/user/profile/5eb444030000000001000194"
+      ],
+      [
+        "DeepSeek Harness demo",
+        "https://www.youtube.com/watch?v=DzYv0QVk_No"
+      ],
+      [
+        "ESP32 iPhone Agent by Henry Yuan",
+        "https://github.com/onehumanbeing/esp32-iphone-agent"
+      ]
+    ],
+    "scanned": "2026-11-14",
+    "stars": 4923,
+    "url": "https://github.com/onehumanbeing/esp32-iphone-agent"
+  },
+  "lang": "vi",
+  "position": 1
+}
