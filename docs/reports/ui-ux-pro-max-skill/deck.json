@@ -10,9 +10,9 @@
     "data_date": "2026-11-16"
   },
   "status": "done",
-  "slides_json_sha256": "503734619c25dd72cc6ba0ce6c5d8c5c270b8544ab9f2a6868b2f4a6c3d56dff",
+  "slides_json_sha256": "d6110cc709cf0303e503df2a8a60aeea46c135a2153ab41dc5272b4abd940e31",
   "artifacts": {
-    "ui-ux-pro-max-skill.pptx": "9d1b1611bebf0cbf97f4042b258acd1bd47b2c6c4809e9cc27176d84fc915d8d"
+    "ui-ux-pro-max-skill.pptx": "56e3d6a556464ebed34d5877a12dbcf09d64025c6df91606cf92118f76647d25"
   },
   "design": "1920x1080 / Be Vietnam Pro / plum #2A0F1E, paper #FAF5F2, magenta #D6336C; palette-swatch motif; same 13-slide structure",
   "postprocess": [
@@ -27,6 +27,7 @@
   "verification": {
     "slides_rendered_with_libreoffice": "13 of 13 (Arial via Liberation Sans): no overflow, no clipped text",
     "pptx_pages": 13,
-    "notes": "13 of 13 slides have speaker notes"
+    "notes": "13 of 13 slides have speaker notes",
+    "revision": "slide 8 corrected after review: the Claude Code route needs both /plugin marketplace add and /plugin install; the uipro CLI route is listed separately; slide re-rendered and checked"
   }
 }

@@ -53,9 +53,9 @@ UI UX Pro Max là một **kỹ năng** (gói chỉ dẫn cài thêm cho trợ l�
 **Độ khó: Trung bình. Thời gian ước tính: 10–20 phút** (ước tính của người viết).
 
 1. Có trợ lý AI (Claude Code, Cursor, Codex…) và Python 3 (README ghi Python 3.x cho công cụ tra cứu, chỉ dùng thư viện chuẩn) [S1].
-2. Claude Code: `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` [S1].
-3. Công cụ khác: `npm install -g ui-ux-pro-max-cli` [S1].
-4. Trong thư mục dự án: `uipro init --ai claude` [S1].
+2. Claude Code, lệnh 1: `/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill` [S1].
+3. Claude Code, lệnh 2: `/plugin install ui-ux-pro-max@ui-ux-pro-max-skill`; thêm marketplace chưa cài kỹ năng, phải chạy lệnh này [S1].
+4. Công cụ khác (hoặc nếu muốn dùng lệnh `uipro`): `npm install -g ui-ux-pro-max-cli`, rồi trong thư mục dự án chạy `uipro init --ai <tên công cụ>`, ví dụ `uipro init --ai cursor` [S1].
 5. Nhờ trợ lý “Làm trang web cho một spa”, rồi xem gợi ý.
 
 ## Hạn chế và rủi ro
