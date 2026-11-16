@@ -88,7 +88,7 @@
       "image_stars_k": 304,
       "repo": "obra/superpowers",
       "alias": null,
-      "status": "todo",
+      "status": "report",
       "wave": 1,
       "hold": false,
       "name_check": "exists",
@@ -99,7 +99,10 @@
       "license_hint": "MIT",
       "flags": [
         "stars-unverified"
-      ]
+      ],
+      "report": "docs/reports/superpowers",
+      "report_date": "2026-10-31",
+      "report_pages": 26
     },
     {
       "label": "Matt Pocock Skills",
@@ -107,7 +110,7 @@
       "image_stars_k": 301,
       "repo": "mattpocock/skills",
       "alias": null,
-      "status": "todo",
+      "status": "report",
       "wave": 1,
       "hold": false,
       "name_check": "exists",
@@ -118,7 +121,10 @@
       "license_hint": "MIT",
       "flags": [
         "stars-unverified"
-      ]
+      ],
+      "report": "docs/reports/mattpocock-skills",
+      "report_date": "2026-10-31",
+      "report_pages": 24
     },
     {
       "label": "Agent Skills",
@@ -162,7 +168,7 @@
       "image_stars_k": 222,
       "repo": "forrestchang/andrej-karpathy-skills",
       "alias": "multica-ai/andrej-karpathy-skills",
-      "status": "todo",
+      "status": "report",
       "wave": 1,
       "hold": true,
       "name_check": "exists",
@@ -174,7 +180,10 @@
       "flags": [
         "license-unclear",
         "stars-unverified"
-      ]
+      ],
+      "report": "docs/reports/andrej-karpathy-skills",
+      "report_date": "2026-10-31",
+      "report_pages": 16
     },
     {
       "label": "Graphify",
@@ -182,7 +191,7 @@
       "image_stars_k": 133,
       "repo": "Graphify-Labs/graphify",
       "alias": null,
-      "status": "todo",
+      "status": "report",
       "wave": 2,
       "hold": false,
       "name_check": "stars-match",
@@ -191,7 +200,10 @@
       "skill_md": 0,
       "readme_bytes": 36226,
       "license_hint": "Apache-2.0",
-      "flags": []
+      "flags": [],
+      "report": "docs/reports/graphify",
+      "report_date": "2026-10-30",
+      "report_pages": 32
     },
     {
       "label": "Understand Anything",
@@ -386,7 +398,7 @@
       "image_stars_k": 88,
       "repo": "tt-a1i/archify",
       "alias": null,
-      "status": "todo",
+      "status": "report",
       "wave": 4,
       "hold": false,
       "name_check": "stars-match",
@@ -395,7 +407,10 @@
       "skill_md": 5,
       "readme_bytes": 36520,
       "license_hint": "MIT",
-      "flags": []
+      "flags": [],
+      "report": "docs/reports/archify",
+      "report_date": "2026-10-25",
+      "report_pages": 48
     },
     {
       "label": "Diagram Design",
@@ -553,5 +568,7 @@
         "stars-unverified"
       ]
     }
-  ]
+  ],
+  "updated": "2026-11-16",
+  "status_note": "status 'report' = a hand-written report with a Moda deck exists in docs/reports/<name> (not a radar digest, so not in state/seen.json); do not write these again. 'done' = radar digest. 'todo' = nothing yet."
 }
