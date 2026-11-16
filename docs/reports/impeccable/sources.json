@@ -1,0 +1,9 @@
+{
+  "snapshot_date": "2026-11-16",
+  "sources": [
+    {"id": "S1", "name": "pbakaus/impeccable, README.md", "url": "https://github.com/pbakaus/impeccable/blob/HEAD/README.md", "pinned_url": "https://github.com/pbakaus/impeccable/blob/d41d9860b0094dcb68030657da63461212835aaa/README.md", "commit": "d41d9860b0094dcb68030657da63461212835aaa"},
+    {"id": "S2", "name": "GitHub, siêu dữ liệu repo (API tìm kiếm repo): sao 111.170, fork 6.644, issue mở 48, giấy phép Apache-2.0, pushed_at 2026-11-16", "url": "https://github.com/pbakaus/impeccable", "pinned_url": null, "commit": null},
+    {"id": "S3", "name": "LICENSE (Apache 2.0), cùng commit", "url": "https://github.com/pbakaus/impeccable/blob/d41d9860b0094dcb68030657da63461212835aaa/LICENSE", "pinned_url": "https://github.com/pbakaus/impeccable/blob/d41d9860b0094dcb68030657da63461212835aaa/LICENSE", "commit": "d41d9860b0094dcb68030657da63461212835aaa"},
+    {"id": "S4", "name": "git ls-remote --tags: 221 thẻ, mới nhất skill-v4.9.1 (16/11/2026)", "url": "https://github.com/pbakaus/impeccable/tags", "pinned_url": null, "commit": null}
+  ]
+}
