@@ -1,0 +1,32 @@
+{
+  "canvas": "https://moda.app/canvas/3a45824e-2f4c-4903-b10b-69d41a9877fb?source=agent",
+  "canvas_id": "cvs_1T8P14WBTC941V22V9TGD9GXZV",
+  "pages": 13,
+  "built": "2026-11-16",
+  "brand_kit": null,
+  "source": {
+    "repo": "https://github.com/affaan-m/ECC",
+    "commit": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+    "data_date": "2026-11-16"
+  },
+  "status": "done",
+  "slides_json_sha256": "2156bfc12277b9f137de90c91d5588160ac7bbc9e300f1dc117a6bd288390730",
+  "artifacts": {
+    "ecc.pptx": "0ecf3aaf6c65ba2969f15661395e2f6a2d22e4c4c2816d53ca0d2f09d089302b"
+  },
+  "design": "1920x1080 / Be Vietnam Pro / charcoal #1F1410, paper #FBF6F1, orange #E4572E; seven-step loop motif on the cover; same 13-slide structure",
+  "postprocess": [
+    "Moda export mapped to Arial (ExtraBold -> bold)",
+    "speaker notes added from slides.json with python-pptx",
+    "glossary table header colour patched with headerColor"
+  ],
+  "export_caveats": [
+    "Free-plan Moda export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "slides_rendered_with_libreoffice": "13 of 13 (Arial via Liberation Sans): no overflow, no clipped text",
+    "pptx_pages": 13,
+    "notes": "13 of 13 slides have speaker notes"
+  }
+}

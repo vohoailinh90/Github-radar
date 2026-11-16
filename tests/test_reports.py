@@ -43,7 +43,16 @@ def test_the_reports_of_this_repository_are_all_read():
     """Each report folder must name at least one repository in deck.json or sources.json, or the scan cannot know it exists."""
     found = reports.covered(ROOT)
     for folder in sorted(p for p in (ROOT / "docs" / "reports").iterdir() if p.is_dir()):
-        assert folder.name in found.values(), f"{folder.name}: no repository found in deck.json or sources.json"
+        # covered() keeps the first folder (alphabetical) that names a repository, so a folder that only names repositories
+        # an earlier folder also names (a dedicated report of one of the 30 in top30-claude-plugins) is read through its own files.
+        named: set[str] = set()
+        for fname in reports.FILES:
+            try:
+                named |= reports._names(json.loads((folder / fname).read_text(encoding="utf-8")))
+            except (OSError, ValueError):
+                continue
+        assert named, f"{folder.name}: no repository found in deck.json or sources.json"
+        assert all(repo in found for repo in named), f"{folder.name}: a repository it names is not read by the scan"
     for repo in ("graphify-labs/graphify", "tt-a1i/archify", "nirdiamant/genai_agents", "sindresorhus/awesome",
                  "public-apis/public-apis", "codecrafters-io/build-your-own-x", "obra/superpowers"):
         assert repo in found, repo
