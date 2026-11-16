@@ -1,0 +1,10 @@
+{
+  "snapshot_date": "2026-11-16",
+  "sources": [
+    {"id": "S1", "name": "morluto/rea, README.md", "url": "https://github.com/morluto/rea/blob/HEAD/README.md", "pinned_url": "https://github.com/morluto/rea/blob/8ffea11ee30d5e0d442a8d14b27e05b0441b9e18/README.md", "commit": "8ffea11ee30d5e0d442a8d14b27e05b0441b9e18"},
+    {"id": "S2", "name": "GitHub, siêu dữ liệu repo (API tìm kiếm repo): sao 463.359, fork 113.418, issue mở 1.518, giấy phép MIT, pushed_at 2026-11-16", "url": "https://github.com/morluto/rea", "pinned_url": null, "commit": null},
+    {"id": "S3", "name": "LICENSE (MIT), cùng commit", "url": "https://github.com/morluto/rea/blob/8ffea11ee30d5e0d442a8d14b27e05b0441b9e18/LICENSE", "pinned_url": "https://github.com/morluto/rea/blob/8ffea11ee30d5e0d442a8d14b27e05b0441b9e18/LICENSE", "commit": "8ffea11ee30d5e0d442a8d14b27e05b0441b9e18"},
+    {"id": "S4", "name": "git ls-remote --tags: 41 thẻ, mới nhất rea-agents-6.9.0 (16/11/2026)", "url": "https://github.com/morluto/rea/tags", "pinned_url": null, "commit": null},
+    {"id": "S5", "name": "Số đo cũ của radar: morluto/rea 293.881 sao ngày 17/10/2026 (state/seen.json) và ảnh Top 30 Claude Code Plugins ghi 371k sao ngày 23/10/2026 (artifacts/plans/top30-claude-plugins.json)", "url": null, "pinned_url": null, "commit": null}
+  ]
+}

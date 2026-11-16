@@ -1,0 +1,33 @@
+{
+  "canvas": "https://moda.app/canvas/6e106901-ae34-4e32-a64a-27f2f8717b28?source=agent",
+  "canvas_id": "cvs_3E21MG3BHM9RSACJH7YBW72YS8",
+  "pages": 13,
+  "built": "2026-11-16",
+  "brand_kit": null,
+  "source": {
+    "repo": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+    "commit": "e59ff376a41f7ca47b7541ad5c116495cbade3ee",
+    "data_date": "2026-11-16"
+  },
+  "status": "done",
+  "slides_json_sha256": "d6110cc709cf0303e503df2a8a60aeea46c135a2153ab41dc5272b4abd940e31",
+  "artifacts": {
+    "ui-ux-pro-max-skill.pptx": "56e3d6a556464ebed34d5877a12dbcf09d64025c6df91606cf92118f76647d25"
+  },
+  "design": "1920x1080 / Be Vietnam Pro / plum #2A0F1E, paper #FAF5F2, magenta #D6336C; palette-swatch motif; same 13-slide structure",
+  "postprocess": [
+    "Moda export mapped to Arial (ExtraBold -> bold)",
+    "speaker notes added from slides.json with python-pptx",
+    "glossary table header colour patched with headerColor (markup attr header-color is ignored)"
+  ],
+  "export_caveats": [
+    "Free-plan Moda export stamps a small moda.app badge on every page.",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "slides_rendered_with_libreoffice": "13 of 13 (Arial via Liberation Sans): no overflow, no clipped text",
+    "pptx_pages": 13,
+    "notes": "13 of 13 slides have speaker notes",
+    "revision": "slide 8 corrected after review: the Claude Code route needs both /plugin marketplace add and /plugin install; the uipro CLI route is listed separately; slide re-rendered and checked"
+  }
+}

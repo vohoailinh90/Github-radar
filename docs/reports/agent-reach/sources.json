@@ -1,0 +1,10 @@
+{
+  "snapshot_date": "2026-11-16",
+  "sources": [
+    {"id": "S1", "name": "Panniantong/Agent-Reach, README.md", "url": "https://github.com/Panniantong/Agent-Reach/blob/HEAD/README.md", "pinned_url": "https://github.com/Panniantong/Agent-Reach/blob/c70ae6da5d39bc90e09ad2ae0575ccc89f31e284/README.md", "commit": "c70ae6da5d39bc90e09ad2ae0575ccc89f31e284"},
+    {"id": "S2", "name": "GitHub, siêu dữ liệu repo (API tìm kiếm repo): sao 112.228, fork 10.059, issue mở 128, giấy phép MIT, pushed_at 2026-11-08", "url": "https://github.com/Panniantong/Agent-Reach", "pinned_url": null, "commit": null},
+    {"id": "S3", "name": "Giấy phép: LICENSE (MIT), cùng commit", "url": "https://github.com/Panniantong/Agent-Reach/blob/c70ae6da5d39bc90e09ad2ae0575ccc89f31e284/LICENSE", "pinned_url": "https://github.com/Panniantong/Agent-Reach/blob/c70ae6da5d39bc90e09ad2ae0575ccc89f31e284/LICENSE", "commit": "c70ae6da5d39bc90e09ad2ae0575ccc89f31e284"},
+    {"id": "S4", "name": "git ls-remote --tags: 10 thẻ, mới nhất v1.6.1 (16/11/2026)", "url": "https://github.com/Panniantong/Agent-Reach/tags", "pinned_url": null, "commit": null},
+    {"id": "S5", "name": "docs/install.md (hướng dẫn cài cho trợ lý AI)", "url": "https://github.com/Panniantong/Agent-Reach/blob/c70ae6da5d39bc90e09ad2ae0575ccc89f31e284/docs/install.md", "pinned_url": "https://github.com/Panniantong/Agent-Reach/blob/c70ae6da5d39bc90e09ad2ae0575ccc89f31e284/docs/install.md", "commit": "c70ae6da5d39bc90e09ad2ae0575ccc89f31e284"}
+  ]
+}

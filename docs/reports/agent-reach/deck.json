@@ -1,0 +1,32 @@
+{
+  "canvas": "https://moda.app/canvas/46a16aef-940d-4ccd-9314-c70472d07159?source=agent",
+  "canvas_id": "cvs_26M5NEZ50D9K6S65670HSD0WAS",
+  "pages": 13,
+  "built": "2026-11-16",
+  "brand_kit": null,
+  "source": {
+    "repo": "https://github.com/Panniantong/Agent-Reach",
+    "commit": "c70ae6d",
+    "data_date": "2026-11-16"
+  },
+  "status": "done",
+  "slides_json_sha256": "b0f33bc5e9e600f7f7b883244ba53944b668575fafc77eeba558ad27d2f92db2",
+  "artifacts": {
+    "agent-reach.pptx": "a44e3efda77138c2371b5e003f13d0da27e41cf07d1a1ba113fe3b3bac9c7046"
+  },
+  "design": "1920x1080 / Be Vietnam Pro / ink #0B1F2A, paper #F6F4EE, teal #0E9F9F; radiating-rings motif; 13 slides in the brief's structure (single-repo variant)",
+  "postprocess": [
+    "Moda export mapped to Arial (ExtraBold -> bold) so the deck opens the same on machines without Be Vietnam Pro",
+    "speaker notes added from slides.json with python-pptx (Moda markup has no notes field)"
+  ],
+  "export_caveats": [
+    "Free-plan Moda export stamps a small moda.app badge on every page (bottom right, near the page number).",
+    "Fonts are referenced by name, not embedded."
+  ],
+  "verification": {
+    "slides_rendered_with_libreoffice": "13 of 13 (Arial via Liberation Sans): no overflow, no clipped text",
+    "moda_screenshots": "13 of 13",
+    "pptx_pages": 13,
+    "notes": "13 of 13 slides have speaker notes"
+  }
+}

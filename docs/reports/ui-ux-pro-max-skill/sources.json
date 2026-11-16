@@ -1,0 +1,9 @@
+{
+  "snapshot_date": "2026-11-16",
+  "sources": [
+    {"id": "S1", "name": "nextlevelbuilder/ui-ux-pro-max-skill, README.md", "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/HEAD/README.md", "pinned_url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/e59ff376a41f7ca47b7541ad5c116495cbade3ee/README.md", "commit": "e59ff376a41f7ca47b7541ad5c116495cbade3ee"},
+    {"id": "S2", "name": "GitHub, siêu dữ liệu repo (API tìm kiếm repo): sao 150.260, fork 15.885, issue mở 83, giấy phép MIT, pushed_at 2026-11-16", "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill", "pinned_url": null, "commit": null},
+    {"id": "S3", "name": "LICENSE (MIT), cùng commit", "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/e59ff376a41f7ca47b7541ad5c116495cbade3ee/LICENSE", "pinned_url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/e59ff376a41f7ca47b7541ad5c116495cbade3ee/LICENSE", "commit": "e59ff376a41f7ca47b7541ad5c116495cbade3ee"},
+    {"id": "S4", "name": "git ls-remote --tags: 49 thẻ, mới nhất v2.15.0 (16/11/2026)", "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tags", "pinned_url": null, "commit": null}
+  ]
+}

@@ -31,6 +31,26 @@ Cần xác minh một chỗ: ảnh ghi REA 371k sao, còn radar đo `morluto/rea
 ảnh ("Shows how any app really works") khớp bài đã viết, nhưng mức tăng 77.000 sao trong sáu ngày không khớp nhịp của các repo khác
 (khoảng 1.000 sao mỗi ngày), nên cần xem lại đó có đúng là một repo không. Chưa quyết định gì dựa trên điều này.
 
+### Cập nhật 2026-11-16: 5 repo đã có báo cáo riêng
+
+Sau ngày lập kế hoạch, 5 trong 25 repo "chưa có bài" đã được viết thành **báo cáo viết tay kèm deck Moda** trong `docs/reports/`. Đây không phải bài của radar
+nên không nằm trong `state/seen.json`, nhưng `radar/reports.py` coi chúng là đã phủ (luật "một repo, một bài": không viết lại, không chạy `radar.py run --repo` cho chúng).
+Trong `top30-claude-plugins.json` các mục này có `status: "report"`.
+
+| Repo | Báo cáo | Deck | Ngày |
+|---|---|---|---|
+| `obra/superpowers` | `docs/reports/superpowers/` | 26 trang | 2026-10-31 |
+| `mattpocock/skills` | `docs/reports/mattpocock-skills/` | 24 trang | 2026-10-31 |
+| `forrestchang/andrej-karpathy-skills` | `docs/reports/andrej-karpathy-skills/` | 16 trang | 2026-10-31 |
+| `Graphify-Labs/graphify` | `docs/reports/graphify/` | 32 trang | 2026-10-30 |
+| `tt-a1i/archify` | `docs/reports/archify/` | 48 trang | 2026-10-25 |
+
+Tổng cộng 10 trên 30 đã có bài (5 digest + 5 báo cáo riêng); **20 repo còn lại chưa có**: `addyosmani/agent-skills`, `DietrichGebert/ponytail`, `Lum1104/Understand-Anything`,
+`career-ops-hq/career-ops`, `mvanhorn/last30days-skill`, `thedotmack/claude-mem`, `headroomlabs-ai/headroom`, `JuliusBrussee/caveman`, `garrytan/gstack`,
+`bmad-code-org/BMAD-METHOD`, `gsd-build/get-shit-done`, `Leonxlnx/taste-skill`, `cathrynlavery/diagram-design`, `hugohe3/ppt-master`, `blader/humanizer`,
+`ayghri/i-have-adhd`, `coreyhaines31/marketingskills`, `heygen-com/hyperframes`, `calesthio/OpenMontage`, `anthropics/skills`.
+Các mục 2 và 3 bên dưới giữ nguyên bản 25 repo của ngày 2026-10-25; bỏ 5 repo trên khi đọc chúng.
+
 ## 2. 25 repo còn lại, chia năm đợt theo nhóm của ảnh
 
 Số liệu cột Giấy phép, README, File lấy bằng partial clone công khai ngày 2026-10-25 (`git clone --depth 1 --filter=blob:none --no-checkout`,
