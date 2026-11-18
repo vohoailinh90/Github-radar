@@ -1,0 +1,256 @@
+{
+  "draft": {
+    "analogy": "Giống như bạn làm mẫu một công việc cho nhân viên mới xem qua vai, rồi người đó tự chép lại thành bản hướng dẫn quy trình chuẩn để làm theo những lần sau.",
+    "caveats": [
+      "Không bảo vệ bí mật tự động: dữ liệu màn hình sẽ gửi tới AI khi bấm Analyze nên phải tự tránh nhập mật khẩu hoặc token",
+      "Tính năng BYOM vẫn gửi yêu cầu tới endpoint từ xa và tính phí nhà cung cấp, không phải xử lý ngoại tuyến",
+      "Phát triển từ mã nguồn đòi hỏi Node.js 24"
+    ],
+    "facebook": {
+      "caption": "Biến thao tác màn hình thành kỹ năng cho AI chỉ bằng một lần làm mẫu với Microsoft Skill Recorder.\n\nKhông cần ngồi viết prompt mô tả từng click chuột.\nỨng dụng ghi lại hành động của bạn rồi nhờ Copilot CLI dịch thành kỹ năng chuẩn chỉnh.\nƯu tiên chuyển thành lệnh terminal hoặc công cụ native thay vì bấm lại giao diện.\nHỗ trợ cả Windows 11, macOS và Ubuntu.",
+      "hashtags": [
+        "AIAgent",
+        "SkillRecorder",
+        "GitHubCopilot",
+        "Automation",
+        "OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Bring your own model: Cơ chế tự cung cấp API key của các dịch vụ như OpenAI, Anthropic, Azure OpenAI mà không cần tài khoản Copilot.",
+        "term": "BYOM"
+      },
+      {
+        "meaning": "Tài liệu chứa hướng dẫn quy trình và thuộc tính frontmatter để AI agent đọc và thực thi khi được yêu cầu.",
+        "term": "Skill"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Mở AI connection trong Sessions để đổi nhà cung cấp mô hình (OpenAI, Anthropic, Azure OpenAI)",
+        "Cấu hình lịch chạy tự động hoặc trigger cho quy trình Automation vừa tạo"
+      ],
+      "outcome": "Khởi chạy thành công Skill Recorder từ mã nguồn, ghi lại thao tác và xuất ra tệp quy trình Skill hoặc Automation cho AI agent.",
+      "requirements": [
+        {
+          "detail": "Bắt buộc phiên bản Node.js 24 để xây dựng và chạy ứng dụng từ mã nguồn.",
+          "evidence": "README",
+          "item": "Môi trường Node.js 24",
+          "link_ref": null
+        },
+        {
+          "detail": "macOS (nền tảng chính), Windows 11 (x64 hoặc ARM64), hoặc Ubuntu.",
+          "evidence": "README",
+          "item": "Hệ điều hành được hỗ trợ",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần tài khoản GitHub có Copilot access hoặc API key hỗ trợ image input và tool calling (OpenAI, Anthropic, Azure OpenAI, Foundry...).",
+          "evidence": "README",
+          "item": "Tài khoản GitHub Copilot hoặc API key nhà cung cấp AI",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "npm ci"
+          ],
+          "do": [
+            "Mở terminal tại thư mục mã nguồn đã tải về của dự án.",
+            "Chạy lệnh cài đặt npm ci."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt các gói phụ thuộc",
+          "why": "Tải và cài đặt chính xác các thư viện phụ thuộc của ứng dụng từ tệp khóa."
+        },
+        {
+          "commands": [
+            "npm run compliance:licenses"
+          ],
+          "do": [
+            "Nhập lệnh kiểm tra bản quyền vào terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra tuân thủ bản quyền phần mềm",
+          "why": "Xác nhận tuân thủ các điều khoản giấy phép mã nguồn trước khi khởi chạy."
+        },
+        {
+          "commands": [
+            "npm run test:ai",
+            "npm run test:ai:runtime"
+          ],
+          "do": [
+            "Chạy lần lượt các lệnh kiểm thử AI trong terminal."
+          ],
+          "evidence": "README",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm thử cấu hình AI và môi trường vận hành",
+          "why": "Chạy bộ kiểm thử cấu hình lưu trữ khóa an toàn và SDK nhúng với nhà cung cấp giả lập mà không tốn phí."
+        },
+        {
+          "commands": [
+            "npm run dev"
+          ],
+          "do": [
+            "Chạy lệnh npm run dev trong terminal.",
+            "Trên macOS, cấp quyền Screen Recording khi hệ điều hành hiển thị lời nhắc."
+          ],
+          "evidence": "README",
+          "expect": "Giao diện chính của Skill Recorder xuất hiện sẵn sàng cho việc ghi hình.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Khởi chạy ứng dụng ở chế độ phát triển",
+          "why": "Khởi động Vite và mở ứng dụng Electron với tính năng hot-reload."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Bấm nút Record hoặc nhấn tổ hợp phím ⌘⇧R (trên macOS) / Ctrl+Shift+R (trên Windows) từ bất kỳ đâu.",
+            "Thực hiện công việc cần làm trên màn hình mà không nhập mật khẩu hay thông tin bí mật.",
+            "Sử dụng thanh điều khiển nổi để bật tắt mic hoặc terminal phiên khi cần, sau đó kết thúc phiên."
+          ],
+          "evidence": "README",
+          "expect": "Thanh điều khiển trạng thái ghi hình, mic và terminal hiển thị nổi trên màn hình.",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Bắt đầu ghi lại phiên thao tác",
+          "why": "Thu thập các hoạt động thực tế trên màn hình, lệnh terminal và thuyết minh giọng nói tùy chọn."
+        },
+        {
+          "commands": [],
+          "do": [
+            "Bấm nút Analyze trong ứng dụng sau khi dừng ghi.",
+            "Nếu chưa thiết lập AI, chọn GitHub authentication để đăng nhập trình duyệt hoặc chọn Bring your own model để nhập API key.",
+            "Kiểm tra xem trước nội dung tệp quy trình và chọn tạo reusable Skill hoặc scheduled Automation."
+          ],
+          "evidence": "README",
+          "expect": "Tạo thành công quy trình Skill tái sử dụng hoặc cấu hình Automation cho agent.",
+          "if_fails": "Nếu đăng nhập trình duyệt lỗi, sử dụng lệnh thủ công hiển thị trên màn hình với PowerShell hoặc terminal để đăng nhập và thử phân tích lại.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Phân tích và tạo kỹ năng cho AI",
+          "why": "AI tái cấu trúc toàn bộ quá trình vừa làm thành một mục tiêu tổng thể và các bước có thứ tự để xuất ra quy trình."
+        }
+      ],
+      "troubleshooting": [
+        {
+          "evidence": "README",
+          "fix": "Không gian bảo mật của hệ điều hành không khả dụng; API key vẫn hoạt động trong phiên hiện tại nhưng sẽ cần nhập lại vào lần sau.",
+          "problem": "Secure space is unavailable. The Key will be saved in-memory and will be re-asked next time."
+        },
+        {
+          "evidence": "README",
+          "fix": "Dùng lệnh thủ công được ứng dụng hiển thị (chạy trên PowerShell nếu ở Windows), sau đó quay lại ứng dụng và tự bấm thử lại Analyze.",
+          "problem": "Quá trình đăng nhập trình duyệt bằng GitHub Copilot bị thất bại hoặc hết hạn 5 phút"
+        }
+      ],
+      "verify": "Xem trước được toàn bộ nội dung tệp văn bản quy trình (bao gồm cả frontmatter) qua nút xem trước trước khi cài đặt hoặc xuất ra."
+    },
+    "hook": "Làm mẫu một lần trên màn hình, AI tự học thành quy trình kỹ năng có thể lặp lại tự động.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "monitor",
+          "name": "Screen & Activity Recorder",
+          "role": "Ghi lại màn hình, sự kiện click chuột, ứng dụng hoạt động, âm thanh và terminal cục bộ."
+        },
+        {
+          "evidence": "README",
+          "icon": "terminal",
+          "name": "GitHub Copilot CLI",
+          "role": "Thành phần CLI nhúng sẵn phụ trách xác thực GitHub OAuth và kết nối bộ SDK."
+        },
+        {
+          "evidence": "README",
+          "icon": "brain",
+          "name": "AI Model Engine",
+          "role": "Mô hình ngôn ngữ và thị giác phân tích hình ảnh cùng lịch sử thao tác thành chuỗi hành động."
+        },
+        {
+          "evidence": "README",
+          "icon": "sparkles",
+          "name": "Skill and Automation Builder",
+          "role": "Trình tạo tệp đặc tả quy trình kỹ năng hoặc lịch kích hoạt tự động hóa cho AI agent."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Ghi nhận nhấp chuột, chuyển đổi cửa sổ ứng dụng, trang web truy cập, lệnh terminal và âm thanh mic ngay trên máy.",
+          "title": "Ghi hình và dữ liệu thao tác"
+        },
+        {
+          "evidence": "README",
+          "text": "Sử dụng Copilot CLI và mô hình AI để chuyển hành động thô thành ý định tổng quát và các bước làm việc logic theo thứ tự.",
+          "title": "Tái cấu trúc bằng Copilot CLI"
+        },
+        {
+          "evidence": "README",
+          "text": "Ưu tiên gọi công cụ có sẵn của agent thay vì lặp lại thao tác chuột UI, chuyển đổi thành tệp hướng dẫn Skill hoặc tác vụ Automation.",
+          "title": "Tổng quát hóa và xuất định dạng"
+        }
+      ]
+    },
+    "learn": [
+      "Cách tổng quát hóa từ một lần làm mẫu sang công cụ native thay vì bấm lại giao diện máy tính",
+      "Mô hình tích hợp Copilot CLI vào ứng dụng desktop Electron để xử lý xác thực Web OAuth",
+      "Cơ chế bảo vệ API key cục bộ bằng hệ thống lưu trữ khóa bảo mật của hệ điều hành"
+    ],
+    "one_liner": "Ứng dụng máy tính ghi lại thao tác màn hình và dùng GitHub Copilot CLI để tái cấu trúc thành kỹ năng Skill hoặc quy trình tự động hóa cho AI agent.",
+    "problem": "Người dùng văn phòng và lập trình viên phải lặp đi lặp lại các tác vụ thủ công nhiều bước trên máy tính. Việc tự viết prompt hoặc mã lệnh chi tiết cho AI agent mô phỏng lại các bước này rất tốn thời gian và dễ sai sót.",
+    "title": "Biến thao tác màn hình thành kỹ năng AI với Skill Recorder",
+    "who_for": [
+      "Người làm văn phòng muốn biến các chuỗi thao tác thường ngày thành quy trình cho trợ lý AI",
+      "Lập trình viên muốn tạo kỹ năng Skill cho Microsoft Scout, Copilot Cowork hoặc Copilot Studio",
+      "Người xây dựng agent AI cần chuyển đổi thao tác người dùng thành công cụ gọi lệnh chuẩn native"
+    ]
+  },
+  "facts": {
+    "bucket": "solutions",
+    "forks": 659,
+    "full_name": "microsoft/skill-recorder",
+    "language": "TypeScript",
+    "license": "MIT",
+    "links": [
+      [
+        "Go to the latest release",
+        "https://github.com/microsoft/skill-recorder/releases/latest"
+      ]
+    ],
+    "scanned": "2026-11-18",
+    "stars": 5846,
+    "url": "https://github.com/microsoft/skill-recorder"
+  },
+  "lang": "vi",
+  "position": 1
+}
