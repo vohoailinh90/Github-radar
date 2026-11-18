@@ -119,6 +119,11 @@
     "covered": "2026-10-16",
     "stars": 38200
   },
+  "microsoft/skill-recorder": {
+    "bucket": "solutions",
+    "covered": "2026-11-18",
+    "stars": 5846
+  },
   "morluto/rea": {
     "bucket": "ai",
     "covered": "2026-10-17",

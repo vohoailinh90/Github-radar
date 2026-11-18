@@ -1,0 +1,56 @@
+<!-- radar: Moda canvas 1200x1749; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="147" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="147" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">Giải pháp</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Biến thao tác màn hình thành kỹ năng AI với Skill Recorder</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Làm mẫu một lần trên màn hình, AI tự học thành quy trình kỹ năng có thể lặp lại tự động.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="517" width="480" height="124" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Screen &amp; Activity Recorder</text>
+<text x="80" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghi lại màn hình, sự kiện click chuột, ứng dụng hoạt động, âm thanh và terminal cục bộ.</text>
+<rectangle x="660" y="517" width="480" height="124" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="539" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">GitHub Copilot CLI</text>
+<text x="680" y="577" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Thành phần CLI nhúng sẵn phụ trách xác thực GitHub OAuth và kết nối bộ SDK.</text>
+<rectangle x="60" y="715" width="480" height="124" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">AI Model Engine</text>
+<text x="80" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Mô hình ngôn ngữ và thị giác phân tích hình ảnh cùng lịch sử thao tác thành chuỗi hành động.</text>
+<rectangle x="660" y="715" width="480" height="124" fill="#DDE8FF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="680" y="737" width="440" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Skill and Automation Builder</text>
+<text x="680" y="775" width="440" height="42" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Trình tạo tệp đặc tả quy trình kỹ năng hoặc lịch kích hoạt tự động hóa cho AI agent.</text>
+<line x1="540" y1="579" x2="660" y2="579" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="900" y1="641" x2="900" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="900" y1="678" x2="300" y2="678" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="300" y1="678" x2="300" y2="715" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="540" y1="777" x2="660" y2="777" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="921" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="987" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Ghi hình và dữ liệu thao tác</text>
+<text x="154" y="1045" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ghi nhận nhấp chuột, chuyển đổi cửa sổ ứng dụng, trang web truy cập, lệnh terminal và âm thanh mic ngay trên máy.</text>
+<line x1="584" y1="1061" x2="616" y2="1061" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="987" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="1009" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="1009" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tái cấu trúc bằng Copilot CLI</text>
+<text x="714" y="1045" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Sử dụng Copilot CLI và mô hình AI để chuyển hành động thô thành ý định tổng quát và các bước làm việc logic theo thứ tự.</text>
+<rectangle x="60" y="1159" width="520" height="197" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1181" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1181" width="404" height="55" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tổng quát hóa và xuất định dạng</text>
+<text x="154" y="1244" width="404" height="90" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ưu tiên gọi công cụ có sẵn của agent thay vì lặp lại thao tác chuột UI, chuyển đổi thành tệp hướng dẫn Skill hoặc tác vụ Automation.</text>
+<text x="60" y="1438" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1504" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1544.8" x2="97.6" y2="1552" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1552" x2="110" y2="1536.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1524" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách tổng quát hóa từ một lần làm mẫu sang công cụ native thay vì bấm lại giao diện máy tính</text>
+<rectangle x="430" y="1504" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1544.8" x2="467.6" y2="1552" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1552" x2="480" y2="1536.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1524" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Mô hình tích hợp Copilot CLI vào ứng dụng desktop Electron để xử lý xác thực Web OAuth</text>
+<rectangle x="800" y="1504" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1544.8" x2="837.6" y2="1552" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1552" x2="850" y2="1536.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1524" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cơ chế bảo vệ API key cục bộ bằng hệ thống lưu trữ khóa bảo mật của hệ điều hành</text>
+<text x="60" y="1686" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: microsoft/skill-recorder · Giấy phép: MIT · 5.846 sao · Quét ngày 2026-11-18</text>
+</content>
