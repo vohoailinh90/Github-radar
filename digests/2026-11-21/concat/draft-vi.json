@@ -1,0 +1,275 @@
+{
+  "draft": {
+    "analogy": "Giống như việc bạn có một phòng thu phim riêng tư ngay trong nhà mình, nơi mọi thứ từ máy cắt phim đến hiệu ứng đều nằm trên bàn của bạn và không ai nhìn thấy.",
+    "caveats": [
+      "Phần mềm đang trong giai đoạn thử nghiệm (beta) nên có thể còn một số lỗi nhỏ.",
+      "Bản dựng trên Windows chưa được ký số (unsigned), cần thao tác bỏ qua cảnh báo bảo mật.",
+      "Yêu cầu cấu hình phần cứng tối thiểu đáp ứng để chạy mô hình AI và mã hóa video 4K."
+    ],
+    "facebook": {
+      "caption": "Chỉnh sửa video hoàn toàn miễn phí, không hình mờ và ngoại tuyến với Concat!",
+      "hashtags": [
+        "#Concat",
+        "#VideoEditor",
+        "#OpenSource",
+        "#LocalFirst",
+        "#TechVN"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Model Context Protocol, giao thức giúp kết nối các AI agent với ứng dụng.",
+        "term": "MCP"
+      },
+      {
+        "meaning": "Giao thức gọi thủ tục từ xa sử dụng định dạng JSON cho kịch bản tự động hóa.",
+        "term": "JSON-RPC"
+      },
+      {
+        "meaning": "Kiến trúc ưu tiên xử lý và lưu trữ dữ liệu trực tiếp trên thiết bị cá nhân.",
+        "term": "Local-first"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Khám phá các tính năng cắt ghép, phụ đề tự động và hiệu ứng",
+        "Tìm hiểu cách kết nối AI agent qua MCP"
+      ],
+      "outcome": "Cài đặt và chạy được trình chỉnh sửa video Concat hoặc mã nguồn của nó trên máy tính của bạn.",
+      "requirements": [
+        {
+          "detail": "Xem rust-version trong src/Cargo.toml",
+          "evidence": "README.md",
+          "item": "Rust 1.93 hoặc mới hơn",
+          "link_ref": null
+        },
+        {
+          "detail": "Cần thiết khi xây dựng từ mã nguồn",
+          "evidence": "README.md",
+          "item": "Thư viện phát triển FFmpeg 7+",
+          "link_ref": 4
+        },
+        {
+          "detail": "Dùng để biên dịch các thành phần mã nguồn",
+          "evidence": "README.md",
+          "item": "Trình biên dịch C++ và cmake",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "cd src"
+          ],
+          "do": [
+            "Mở terminal và chuyển vào thư mục src."
+          ],
+          "evidence": "README.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chuyển đến thư mục mã nguồn",
+          "why": "Vào thư mục chứa mã nguồn của ứng dụng để thực hiện các lệnh tiếp theo trong terminal."
+        },
+        {
+          "commands": [
+            "cargo run -p concat"
+          ],
+          "do": [
+            "Gõ lệnh chạy ứng dụng trong terminal."
+          ],
+          "evidence": "README.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy ứng dụng",
+          "why": "Khởi động cửa sổ giao diện trình chỉnh sửa video."
+        },
+        {
+          "commands": [
+            "cargo build --profile app -p concat"
+          ],
+          "do": [
+            "Chạy lệnh build bản app trong terminal."
+          ],
+          "evidence": "README.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Xây dựng bản phát hành",
+          "why": "Tạo bản nhị phân đóng gói để sử dụng chính thức với hiệu suất tối ưu."
+        },
+        {
+          "commands": [
+            "cargo test"
+          ],
+          "do": [
+            "Chạy lệnh test trong terminal."
+          ],
+          "evidence": "README.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Chạy bộ kiểm thử",
+          "why": "Đảm bảo mã nguồn hoạt động chính xác thông qua bộ kiểm thử tự động."
+        },
+        {
+          "commands": [
+            "cargo fmt --check && cargo clippy --all-targets -- -D warnings"
+          ],
+          "do": [
+            "Chạy lệnh kiểm tra định dạng và clippy trong terminal."
+          ],
+          "evidence": "README.md",
+          "expect": "",
+          "if_fails": "",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra định dạng và linter",
+          "why": "Kiểm tra lỗi mã nguồn theo chuẩn kiểm tra của CI."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Cửa sổ giao diện chính của trình chỉnh sửa video Concat hiện lên trên màn hình và các lệnh biên dịch chạy thành công."
+    },
+    "hook": "Chỉnh sửa video hoàn toàn ngoại tuyến trên máy tính với Concat mà không cần tài khoản hay hình mờ.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README.md",
+          "icon": "monitor",
+          "name": "Trình biên tập giao diện",
+          "role": "Giao diện chính để người dùng tương tác, cắt ghép và xem trước video."
+        },
+        {
+          "evidence": "README.md",
+          "icon": "brain",
+          "name": "Mô hình AI ngoại tuyến",
+          "role": "Tạo phụ đề tự động, tách giọng nói và xóa phông nền trực tiếp trên máy."
+        },
+        {
+          "evidence": "README.md",
+          "icon": "bot",
+          "name": "MCP Server",
+          "role": "Cho phép các trợ lý AI kết nối và điều khiển trình chỉnh sửa video."
+        },
+        {
+          "evidence": "README.md",
+          "icon": "cpu",
+          "name": "Động cơ mã hóa",
+          "role": "Xuất video với các định dạng H.264, HEVC và AV1 sử dụng phần cứng máy tính."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README.md",
+          "text": "Mọi tác vụ chỉnh sửa và mô hình AI đều chạy trực tiếp trên thiết bị của bạn mà không tải dữ liệu lên mạng.",
+          "title": "Xử lý cục bộ"
+        },
+        {
+          "evidence": "README.md",
+          "text": "Tích hợp sẵn máy chủ MCP và giao diện JSON-RPC cho phép các tập lệnh hoặc AI agent tự động cắt dựng video.",
+          "title": "Hỗ trợ tự động hóa"
+        },
+        {
+          "evidence": "README.md",
+          "text": "Hỗ trợ nhiều track video, hình ảnh, tiêu đề và hiệu ứng khóa khung hình.",
+          "title": "Timeline đa lớp"
+        }
+      ]
+    },
+    "learn": [
+      "Cách vận dụng phần mềm mã nguồn mở để chỉnh sửa video phi tập trung",
+      "Cách chạy các mô hình AI hoàn toàn trên thiết bị cá nhân",
+      "Cách tích hợp công cụ chỉnh sửa video với các tác vụ lập trình tự động"
+    ],
+    "one_liner": "Concat là trình chỉnh sửa video mã nguồn mở miễn phí, chạy hoàn toàn cục bộ, hỗ trợ đa nền tảng và có thể điều khiển qua MCP.",
+    "problem": "Nhiều phần mềm chỉnh sửa video hiện nay yêu cầu tạo tài khoản, chèn hình mờ hoặc tải tệp lên đám mây, làm mất quyền riêng tư của người dùng. Người làm sáng tạo nội dung trên điện thoại và máy tính cần một công cụ miễn phí, chạy ngoại tuyến hoàn toàn trên thiết bị của mình.",
+    "title": "Trình chỉnh sửa video mã nguồn mở miễn phí Concat",
+    "who_for": [
+      "Người sáng tạo nội dung video ngắn",
+      "Lập trình viên muốn tự động hóa việc chỉnh sửa video",
+      "Người dùng coi trọng quyền riêng tư và muốn chỉnh sửa ngoại tuyến"
+    ]
+  },
+  "facts": {
+    "bucket": "software",
+    "forks": 2355,
+    "full_name": "jub0t/Concat",
+    "language": "Rust",
+    "license": "AGPL-3.0",
+    "links": [
+      [
+        "Say so",
+        "https://github.com/jub0t/Concat/issues"
+      ],
+      [
+        "#326",
+        "https://github.com/jub0t/Concat/issues/326"
+      ],
+      [
+        "Flatpark",
+        "https://flatpark.org/apps/app.concat.editor/"
+      ],
+      [
+        "the website",
+        "https://concat.standalones.org/guides/system-requirements"
+      ],
+      [
+        "FFmpeg's Windows downloads",
+        "https://ffmpeg.org/download.html#build-windows"
+      ],
+      [
+        "github.com",
+        "https://github.com/jub0t/Concat/releases"
+      ],
+      [
+        "github.com",
+        "https://github.com/jub0t/Concat/actions/workflows/ci.yml"
+      ],
+      [
+        "discord.gg",
+        "https://discord.gg/DVuPfpXfqP"
+      ],
+      [
+        "concat.standalones.org",
+        "https://concat.standalones.org/#download"
+      ],
+      [
+        "The developer docs",
+        "https://concat.standalones.org/docs"
+      ],
+      [
+        "This Discussion",
+        "https://github.com/jub0t/Concat/discussions/3"
+      ],
+      [
+        "github.com",
+        "https://github.com/jub0t/Concat/graphs/contributors"
+      ]
+    ],
+    "scanned": "2026-11-21",
+    "stars": 19285,
+    "url": "https://github.com/jub0t/Concat"
+  },
+  "lang": "vi",
+  "position": 1
+}

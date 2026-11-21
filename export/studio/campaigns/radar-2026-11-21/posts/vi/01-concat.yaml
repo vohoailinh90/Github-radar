@@ -1,0 +1,80 @@
+id: 01-concat
+status: draft
+format: portrait
+series: Radar GitHub · 2026-11-21
+link: 01-concat
+slides:
+- layout: cover
+  emoji: 🧰
+  eyebrow: Radar GitHub · Phần mềm
+  title: Trình chỉnh sửa video mã nguồn mở miễn phí Concat
+  subtitle: Concat là trình chỉnh sửa video mã nguồn mở miễn phí, chạy hoàn toàn cục bộ, hỗ trợ đa nền
+    tảng và có thể điều khiển qua MCP.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '19.285'
+  label: sao trên GitHub
+  caption: AGPL-3.0 · Rust
+- layout: quote
+  text: Nhiều phần mềm chỉnh sửa video hiện nay yêu cầu tạo tài khoản, chèn hình mờ hoặc tải tệp lên đám
+    mây, làm mất quyền riêng tư của người dùng.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Xử lý cục bộ: Mọi tác vụ chỉnh sửa và mô hình AI đều chạy trực tiếp trên thiết bị của bạn mà
+      không tải dữ liệu lên mạng.'
+  - text: 'Hỗ trợ tự động hóa: Tích hợp sẵn máy chủ MCP và giao diện JSON-RPC cho phép các tập lệnh hoặc
+      AI agent tự động cắt dựng video.'
+  - text: 'Timeline đa lớp: Hỗ trợ nhiều track video, hình ảnh, tiêu đề và hiệu ứng khóa khung hình.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Trình biên tập giao diện
+    text: Giao diện chính để người dùng tương tác, cắt ghép và xem trước video.
+  - emoji: ⚙️
+    title: Mô hình AI ngoại tuyến
+    text: Tạo phụ đề tự động, tách giọng nói và xóa phông nền trực tiếp trên máy.
+  - emoji: 🔌
+    title: MCP Server
+    text: Cho phép các trợ lý AI kết nối và điều khiển trình chỉnh sửa video.
+  - emoji: 📦
+    title: Động cơ mã hóa
+    text: Xuất video với các định dạng H.264, HEVC và AV1 sử dụng phần cứng máy tính.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cách vận dụng phần mềm mã nguồn mở để chỉnh sửa video phi tập trung
+  - Cách chạy các mô hình AI hoàn toàn trên thiết bị cá nhân
+  - Cách tích hợp công cụ chỉnh sửa video với các tác vụ lập trình tự động
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Phần mềm đang trong giai đoạn thử nghiệm (beta) nên có thể còn một số lỗi nhỏ.
+  - emoji: ⚠️
+    text: Bản dựng trên Windows chưa được ký số (unsigned), cần thao tác bỏ qua cảnh báo bảo mật.
+  - emoji: ⚠️
+    text: Yêu cầu cấu hình phần cứng tối thiểu đáp ứng để chạy mô hình AI và mã hóa video 4K.
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Chỉnh sửa video hoàn toàn miễn phí, không hình mờ và ngoại tuyến với Concat!
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Concat
+    - VideoEditor
+    - OpenSource
+    - LocalFirst
+    - TechVN
