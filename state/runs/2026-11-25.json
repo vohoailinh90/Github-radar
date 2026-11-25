@@ -1,0 +1,232 @@
+{
+  "date": "2026-11-25",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 283,
+  "dropped": {
+    "already covered": 34,
+    "already covered by a report": 17,
+    "licence noassertion is not on the free list": 75,
+    "licence none is not on the free list": 15
+  },
+  "picks": [
+    {
+      "repo": "erkamyaman/rust-anything",
+      "bucket": "software",
+      "score": 15.3283,
+      "stars": 9393,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 31603,
+      "velocity": "measured",
+      "flags": [
+        "star-spike"
+      ]
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.7269,
+      "stars": 210559,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 7620,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "apache/airflow",
+      "bucket": "solutions",
+      "score": 14.9567,
+      "stars": 47660,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 583,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "sherlock-project/sherlock",
+      "bucket": "software",
+      "score": 17.4578,
+      "stars": 117285,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.2488,
+      "stars": 116876,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "ollama/ollama",
+      "bucket": "ai",
+      "score": 17.0495,
+      "stars": 188059,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Shubhamsaboo/awesome-llm-apps",
+      "bucket": "ai",
+      "score": 16.8591,
+      "stars": 145644,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "bucket": "ai",
+      "score": 16.7398,
+      "stars": 123733,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 491,
+    "measured": 247
+  },
+  "written": [],
+  "held": [],
+  "export_errors": [],
+  "aborted": "erkamyaman/rust-anything [vi]: no model answered: google/gemini-flash-lite-latest: HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n]; google/gemini-flash-lite-latest: HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n]; groq/openai/gpt-oss-120b: HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8280, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https; mistral/mistral-small-2603: HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+  "ok": false,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 87.6,
+      "served": "gemini-flash-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.4,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 1.7
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 4.0
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 47.5
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 1.7
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "error",
+      "attempt": 2,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 0.8
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "error",
+      "attempt": 3,
+      "why": "HTTP 503 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: [{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in dem",
+      "seconds": 3.3
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 413 from https://api.groq.com/openai/v1/chat/completions: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01m4vknev5egea5g06pmt0e1wj` service tier `on_",
+      "seconds": 0.1,
+      "headers": {
+        "retry-after": "3",
+        "x-ratelimit-limit-requests": "1000",
+        "x-ratelimit-limit-tokens": "8000",
+        "x-ratelimit-remaining-requests": "999",
+        "x-ratelimit-remaining-tokens": "8000",
+        "x-ratelimit-reset-requests": "1m26.4s",
+        "x-ratelimit-reset-tokens": "1ms"
+      }
+    },
+    {
+      "model": "mistral/mistral-small-2603",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 429 from https://api.mistral.ai/v1/chat/completions: {\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+      "seconds": 0.2,
+      "headers": {
+        "x-ratelimit-limit-req-minute": "0",
+        "x-ratelimit-remaining-req-minute": "0"
+      }
+    }
+  ],
+  "warnings": [],
+  "campaign": null
+}
