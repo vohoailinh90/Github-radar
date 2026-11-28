@@ -64,6 +64,11 @@
     "covered": "2026-10-14",
     "stars": 38852
   },
+  "ccch1mneyyy/dsh-Go": {
+    "bucket": "ai",
+    "covered": "2026-11-28",
+    "stars": 33566
+  },
   "crisng95/flowkit": {
     "bucket": "ai",
     "covered": "2026-10-16",
@@ -138,6 +143,11 @@
     "bucket": "solutions",
     "covered": "2026-11-14",
     "stars": 4923
+  },
+  "paperclipai/paperclip": {
+    "bucket": "ai",
+    "covered": "2026-11-28",
+    "stars": 117676
   },
   "pbakaus/impeccable": {
     "bucket": "software",

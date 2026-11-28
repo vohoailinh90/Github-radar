@@ -1,0 +1,52 @@
+<!-- radar: Moda canvas 1200x1572; create it that size, then apply this markup -->
+<content font-family="Be Vietnam Pro">
+<background fill="#FFF6E5"/>
+<rectangle x="0" y="0" width="1200" height="377" fill="#0B1B3A"/>
+<rectangle x="0" y="377" width="1200" height="10" fill="#FF6B4A"/>
+<rectangle x="60" y="52" width="75" height="40" fill="#FFC83D" corner-radius="full"/>
+<text x="60" y="58" width="75" height="28" font-size="20" font-weight="700" color="#0B1B3A" text-align="center" line-height="1.4">AI</text>
+<text x="60" y="112" width="1080" height="135" font-size="54" font-weight="800" color="#FFFFFF" text-align="left" line-height="1.25">Dsh-Go: Chạy DeepSeek Harness Trên Điện Thoại Android</text>
+<text x="60" y="269" width="1080" height="68" font-size="24" font-weight="400" color="#BFD0F0" text-align="left" line-height="1.4">Đưa DeepSeek Harness vào túi quần: chạy native trên Android hoặc điều khiển máy tính của bạn từ xa.</text>
+<text x="60" y="451" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Các mảnh ghép</text>
+<rectangle x="60" y="545" width="280" height="166" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="80" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">DSH Go App</text>
+<text x="80" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ứng dụng Flutter trên Android cung cấp giao diện trò chuyện, cài đặt môi trường và quản lý kết nối.</text>
+<rectangle x="460" y="545" width="280" height="166" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="480" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Runtime Linux</text>
+<text x="480" y="605" width="240" height="63" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Môi trường Linux chạy bên trong ứng dụng, miễn phí Root và không cần Termux.</text>
+<rectangle x="860" y="545" width="280" height="166" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<text x="880" y="567" width="240" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">DSH Remote Client</text>
+<text x="880" y="605" width="240" height="84" font-size="15" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Thư viện kết nối và điều khiển các máy chủ hoặc máy tính chạy DeepSeek Harness từ xa.</text>
+<line x1="340" y1="628" x2="460" y2="628" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<line x1="200" y1="545" x2="200" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="200" y1="519" x2="1000" y2="519" stroke="#FF6B4A" stroke-width="5"/>
+<line x1="1000" y1="519" x2="1000" y2="545" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<text x="60" y="793" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Nó chạy như thế nào</text>
+<rectangle x="60" y="859" width="520" height="148" fill="#CFF5EE" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="881" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="1" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="881" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Giao diện và Runtime</text>
+<text x="154" y="917" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Ứng dụng cung cấp giao diện Flutter kết hợp môi trường Linux tích hợp sẵn trong ứng dụng.</text>
+<line x1="584" y1="933" x2="616" y2="933" stroke="#FF6B4A" stroke-width="5" arrow-end="triangle" pointer-length="14" pointer-width="14"/>
+<rectangle x="620" y="859" width="520" height="148" fill="#FFD9CF" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="642" y="881" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="2" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="714" y="881" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Kết nối và Điều khiển</text>
+<text x="714" y="917" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hỗ trợ kết nối SSH hoặc DSHarness Remote để điều khiển máy chủ hoặc máy tính cá nhân từ xa.</text>
+<rectangle x="60" y="1031" width="520" height="148" fill="#FFF0B8" stroke="#0B1B3A" stroke-width="3" corner-radius="24"/>
+<rectangle x="82" y="1053" width="56" height="56" corner-radius="full" fill="#0B1B3A" text="3" font-size="28" font-weight="800" color="#FFFFFF"/>
+<text x="154" y="1053" width="404" height="28" font-size="22" font-weight="800" color="#1F2A44" text-align="left" line-height="1.25">Tiện ích mở rộng</text>
+<text x="154" y="1089" width="404" height="68" font-size="16" font-weight="400" color="#1F2A44" text-align="left" line-height="1.4">Hỗ trợ hệ thống plugin, hiển thị trợ lý thú cưng trên màn hình và quản lý các tác vụ AI.</text>
+<text x="60" y="1261" width="1080" height="48" font-size="34" font-weight="800" color="#0B1B3A" text-align="left" line-height="1.4">Học được gì từ thiết kế này</text>
+<rectangle x="60" y="1327" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="90.8" y1="1367.8" x2="97.6" y2="1375" stroke="#FFC83D" stroke-width="5"/>
+<line x1="97.6" y1="1375" x2="110" y2="1359.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="136" y="1347" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách tự động hóa thiết lập chuỗi công cụ Android và Flutter bằng script</text>
+<rectangle x="430" y="1327" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="460.8" y1="1367.8" x2="467.6" y2="1375" stroke="#FFC83D" stroke-width="5"/>
+<line x1="467.6" y1="1375" x2="480" y2="1359.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="506" y="1347" width="244" height="90" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách tích hợp môi trường Linux runtime vào bên trong một ứng dụng di động</text>
+<rectangle x="800" y="1327" width="340" height="130" fill="#0B1B3A" corner-radius="20"/>
+<line x1="830.8" y1="1367.8" x2="837.6" y2="1375" stroke="#FFC83D" stroke-width="5"/>
+<line x1="837.6" y1="1375" x2="850" y2="1359.8" stroke="#FFC83D" stroke-width="5"/>
+<text x="876" y="1347" width="244" height="68" font-size="16" font-weight="400" color="#FFFFFF" text-align="left" line-height="1.4">Cách xây dựng ứng dụng đa nền tảng kết nối với các hệ thống AI agent từ xa</text>
+<text x="60" y="1509" width="1080" height="23" font-size="16" font-weight="400" color="#5B6478" text-align="left" line-height="1.4">Nguồn dữ kiện: ccch1mneyyy/dsh-Go · Giấy phép: AGPL-3.0 · 33.566 sao · Quét ngày 2026-11-28</text>
+</content>

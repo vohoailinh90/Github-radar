@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-28",
+  "dry_run": false,
+  "langs": [
+    "vi"
+  ],
+  "conditions": {
+    "label": null,
+    "resolved": {
+      "picks_per_run": 3,
+      "min_stars": 1500,
+      "max_days_since_push": 120,
+      "langs": [
+        "vi"
+      ],
+      "rising": {
+        "enabled": true,
+        "slots": 1,
+        "created_within_days": 120,
+        "min_stars": 300
+      },
+      "buckets": {
+        "ai": [
+          "llm",
+          "ai-agents",
+          "rag",
+          "machine-learning"
+        ],
+        "software": [
+          "developer-tools",
+          "self-hosted",
+          "cli",
+          "productivity"
+        ],
+        "solutions": [
+          "automation",
+          "workflow",
+          "open-source-alternative",
+          "low-code"
+        ],
+        "startup": [
+          "saas",
+          "startup",
+          "boilerplate",
+          "indie-hacker"
+        ]
+      }
+    }
+  },
+  "candidates": 285,
+  "dropped": {
+    "already covered": 33,
+    "already covered by a report": 17,
+    "licence noassertion is not on the free list": 72,
+    "licence none is not on the free list": 15
+  },
+  "picks": [
+    {
+      "repo": "ccch1mneyyy/dsh-Go",
+      "bucket": "ai",
+      "score": 16.402,
+      "stars": 33566,
+      "rising": true,
+      "slot": true,
+      "stars_per_30d": 21192,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "bucket": "ai",
+      "score": 17.2312,
+      "stars": 117676,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 9054,
+      "velocity": "measured",
+      "flags": []
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "bucket": "software",
+      "score": 17.7197,
+      "stars": 211268,
+      "rising": false,
+      "slot": false,
+      "stars_per_30d": 7461,
+      "velocity": "measured",
+      "flags": []
+    }
+  ],
+  "shortlist": [
+    {
+      "repo": "sherlock-project/sherlock",
+      "bucket": "software",
+      "score": 17.4655,
+      "stars": 118680,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "ollama/ollama",
+      "bucket": "ai",
+      "score": 17.081,
+      "stars": 188356,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "Shubhamsaboo/awesome-llm-apps",
+      "bucket": "ai",
+      "score": 16.8967,
+      "stars": 145993,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "bucket": "ai",
+      "score": 16.7204,
+      "stars": 63906,
+      "rising": false,
+      "flags": []
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "bucket": "ai",
+      "score": 16.7092,
+      "stars": 123975,
+      "rising": false,
+      "flags": []
+    }
+  ],
+  "history": {
+    "tracked": 497,
+    "measured": 243
+  },
+  "written": [
+    {
+      "repo": "ccch1mneyyy/dsh-Go",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 11,
+        "used": 8
+      }
+    },
+    {
+      "repo": "paperclipai/paperclip",
+      "lang": "vi",
+      "writer": "google/gemini-flash-lite-latest",
+      "checker": "groq/openai/gpt-oss-120b",
+      "independent_checker": true,
+      "fixed": true,
+      "coverage": {
+        "readme_commands": 13,
+        "used": 4
+      }
+    }
+  ],
+  "held": [
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "lang": "vi",
+      "problems": [
+        "[error] guide.steps[1].commands: command is not a line or code span of the README: 'gpg --verify SHA2-256SUMS.sig SHA2-256SUMS'",
+        "[error] guide.steps[2].commands: command is not a line or code span of the README: 'gpg --verify SHA2-512SUMS.sig SHA2-512SUMS'"
+      ],
+      "blockers": []
+    }
+  ],
+  "export_errors": [],
+  "aborted": null,
+  "ok": true,
+  "models_log": [
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "error",
+      "attempt": 1,
+      "why": "HTTP 599 from https://generativelanguage.googleapis.com/v1beta/openai/chat/completions: The read operation timed out",
+      "seconds": 120.1
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.9,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.4,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.5,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.0,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.1,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.7,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 4.3,
+      "served": "gemini-flash-lite-latest"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 1.0,
+      "served": "openai/gpt-oss-120b"
+    },
+    {
+      "model": "google/gemini-flash-latest",
+      "status": "skipped",
+      "why": "stopped answering earlier in this run"
+    },
+    {
+      "model": "google/gemini-flash-lite-latest",
+      "status": "ok",
+      "attempt": 1,
+      "seconds": 3.4,
+      "served": "gemini-flash-lite-latest"
+    }
+  ],
+  "warnings": [],
+  "campaign": "radar-2026-11-28"
+}
