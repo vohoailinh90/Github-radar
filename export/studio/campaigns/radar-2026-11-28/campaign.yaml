@@ -1,0 +1,14 @@
+tool: github-radar
+langs:
+- vi
+platforms:
+- facebook
+goal: 'Share what 2 popular free GitHub projects teach, scanned on 2026-11-28: one clear explanation per
+  project, so readers learn the idea and save the post.'
+links:
+  01-dsh-go: https://github.com/ccch1mneyyy/dsh-Go
+  02-paperclip: https://github.com/paperclipai/paperclip
+utm:
+  medium: social
+  campaign: radar-2026-11-28
+schedule: []

@@ -1,0 +1,79 @@
+id: 01-dsh-go
+status: draft
+format: portrait
+series: Radar GitHub · 2026-11-28
+link: 01-dsh-go
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: 'Dsh-Go: Chạy DeepSeek Harness Trên Điện Thoại Android'
+  subtitle: Ứng dụng Android chạy môi trường Linux và DeepSeek Harness ngay trên máy, hỗ trợ điều khiển
+    từ xa, giao diện web,桌宠 và phím tắt.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '33.566'
+  label: sao trên GitHub
+  caption: AGPL-3.0 · Dart
+- layout: quote
+  text: Người dùng muốn sử dụng DeepSeek Harness trên thiết bị di động nhưng bị giới hạn bởi môi trường
+    dòng lệnh phức tạp hoặc cần một giải pháp điều khiển máy tính từ xa tiện lợi.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Giao diện và Runtime: Ứng dụng cung cấp giao diện Flutter kết hợp môi trường Linux tích hợp
+      sẵn trong ứng dụng.'
+  - text: 'Kết nối và Điều khiển: Hỗ trợ kết nối SSH hoặc DSHarness Remote để điều khiển máy chủ hoặc
+      máy tính cá nhân từ xa.'
+  - text: 'Tiện ích mở rộng: Hỗ trợ hệ thống plugin, hiển thị trợ lý thú cưng trên màn hình và quản lý
+      các tác vụ AI.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: DSH Go App
+    text: Ứng dụng Flutter trên Android cung cấp giao diện trò chuyện, cài đặt môi trường và quản lý kết
+      nối.
+  - emoji: ⚙️
+    title: Runtime Linux
+    text: Môi trường Linux chạy bên trong ứng dụng, miễn phí Root và không cần Termux.
+  - emoji: 🔌
+    title: DSH Remote Client
+    text: Thư viện kết nối và điều khiển các máy chủ hoặc máy tính chạy DeepSeek Harness từ xa.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cách tự động hóa thiết lập chuỗi công cụ Android và Flutter bằng script
+  - Cách tích hợp môi trường Linux runtime vào bên trong một ứng dụng di động
+  - Cách xây dựng ứng dụng đa nền tảng kết nối với các hệ thống AI agent từ xa
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Dự án thuộc bên thứ ba không chính thức liên quan đến DeepSeek
+  - emoji: ⚠️
+    text: Yêu cầu thiết bị Android 8.0 trở lên và cần khoảng 1 GB dung lượng trống cho runtime
+  - emoji: ⚠️
+    text: Sử dụng AI agent và các công cụ thực thi lệnh có thể tiềm ẩn rủi ro về bảo mật dữ liệu nếu không
+      cẩn thận
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Chạy DeepSeek Harness trên điện thoại Android với Dsh-Go!
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Android
+    - DeepSeek
+    - Flutter
+    - OpenSource

@@ -1,0 +1,79 @@
+id: 02-paperclip
+status: draft
+format: portrait
+series: Radar GitHub · 2026-11-28
+link: 02-paperclip
+slides:
+- layout: cover
+  emoji: 🤖
+  eyebrow: Radar GitHub · AI
+  title: Paperclip - Quản lý AI Agents tại nơi làm việc
+  subtitle: Paperclip là ứng dụng mã nguồn mở để quản lý các tác nhân AI tại nơi làm việc với sơ đồ tổ
+    chức, ngân sách và phân công.
+- layout: stat
+  eyebrow: Số liệu theo ngày quét
+  value: '117.676'
+  label: sao trên GitHub
+  caption: MIT · TypeScript
+- layout: quote
+  text: Việc điều phối nhiều AI agent gặp khó khăn trong việc kiểm soát trùng lặp tác vụ, quản lý chi
+    phí và duy trì ngữ cảnh. Thiếu sự quản trị tập trung khiến các nhóm không thể giám sát hiệu quả công
+    việc của agent.
+  author: Vấn đề nó giải quyết
+- layout: flow
+  variant: after
+  title: Nó chạy thế nào
+  steps:
+  - text: 'Quản lý tác vụ: Kiểm tra tác vụ đơn lẻ và khóa thực thi ngăn các luồng chạy cạnh tranh nhau
+      nhận cùng một việc.'
+  - text: 'Ngữ cảnh bền vững: Tác vụ, bình luận và tài liệu được lưu giữ trong Paperclip với các bộ chuyển
+      đổi hỗ trợ khôi phục phiên.'
+  - text: 'Tiêm kỹ năng thời gian chạy: Agent có thể học các quy trình làm việc và ngữ cảnh dự án mà không
+      cần huấn luyện lại.'
+- layout: features
+  title: Các mảnh ghép
+  items:
+  - emoji: 🧩
+    title: Paperclip Server
+    text: Quản lý API, giao diện người dùng và cơ sở dữ liệu nhúng.
+  - emoji: ⚙️
+    title: Agent Runner
+    text: Thực thi các tác vụ và tương tác với các công cụ bên ngoài.
+  - emoji: 🔌
+    title: MCP Server
+    text: Cung cấp các kết nối và dịch vụ tích hợp cho hệ thống.
+- layout: checklist
+  title: Học được gì
+  tone: ok
+  items:
+  - Cách tổ chức nhiều AI agent thành một cấu trúc công ty có phân cấp rõ ràng
+  - Tầm quan trọng của việc khóa tác vụ nguyên tử để tránh xung đột
+  - Phương pháp kiểm soát ngân sách và quản trị quy trình làm việc của AI
+- layout: pains
+  title: Lưu ý
+  tone: accent
+  items:
+  - emoji: ⚠️
+    text: Dự án đang trong giai đoạn phát triển nhanh, có thể có thay đổi
+  - emoji: ⚠️
+    text: Yêu cầu Node.js và pnpm phiên bản mới
+  - emoji: ⚠️
+    text: Cần có khóa API của nhà cung cấp LLM để agent hoạt động đầy đủ
+- layout: cta
+  emoji: 📌
+  title: Lưu lại để học dần
+  text: Mỗi tuần hai lần có một repo mới.
+  show_link: false
+platforms:
+  facebook:
+    caption: 'Quản lý đội ngũ AI agent của bạn như một doanh nghiệp thực thụ với Paperclip!
+
+
+      Nội dung do AI tóm tắt từ README và cấu trúc repo; hãy đọc repo gốc trước khi dùng.'
+    first_comment: 'Repo gốc: {link}'
+    hashtags:
+    - Paperclip
+    - AIAgents
+    - OpenSource
+    - TypeScript
+    - AIOrchestration

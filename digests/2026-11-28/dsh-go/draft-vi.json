@@ -1,0 +1,256 @@
+{
+  "draft": {
+    "analogy": "Giống như việc lắp một chiếc động cơ xe hơi mạnh mẽ vào một bộ điều khiển cầm tay nhỏ gọn, vừa có thể tự chạy vừa cất gọn trong túi áo.",
+    "caveats": [
+      "Dự án thuộc bên thứ ba không chính thức liên quan đến DeepSeek",
+      "Yêu cầu thiết bị Android 8.0 trở lên và cần khoảng 1 GB dung lượng trống cho runtime",
+      "Sử dụng AI agent và các công cụ thực thi lệnh có thể tiềm ẩn rủi ro về bảo mật dữ liệu nếu không cẩn thận"
+    ],
+    "facebook": {
+      "caption": "Chạy DeepSeek Harness trên điện thoại Android với Dsh-Go!",
+      "hashtags": [
+        "#Android",
+        "#DeepSeek",
+        "#Flutter",
+        "#OpenSource"
+      ]
+    },
+    "glossary": [
+      {
+        "meaning": "Hệ thống mã nguồn mở cung cấp khả năng chạy các tác vụ AI agent.",
+        "term": "DeepSeek Harness"
+      },
+      {
+        "meaning": "Môi trường chạy các lệnh Linux được đóng gói sẵn để chạy trên Android mà không cần Root.",
+        "term": "Runtime"
+      }
+    ],
+    "guide": {
+      "next": [
+        "Cài đặt tệp APK lên thiết bị Android 8.0 trở lên",
+        "Cấu hình mô hình AI và bắt đầu sử dụng本机运行 hoặc 远程连接"
+      ],
+      "outcome": "Biên dịch thành công tệp APK của Dsh-Go cho kiến trúc arm64 trên Linux x86_64.",
+      "requirements": [
+        {
+          "detail": "Môi trường hệ điều hành Linux x86_64 để build mã nguồn.",
+          "evidence": "README",
+          "item": "Linux x86_64",
+          "link_ref": null
+        },
+        {
+          "detail": "Chuẩn bị Bash, Git, curl, tar, unzip, xz, Python 3, zstd, file và các lệnh GNU phổ biến.",
+          "evidence": "README",
+          "item": "Bash, Git, cURL và các công cụ",
+          "link_ref": null
+        }
+      ],
+      "steps": [
+        {
+          "commands": [
+            "git clone https://github.com/ccch1mneyyy/dsh-go.git",
+            "cd dsh-go"
+          ],
+          "do": [
+            "Mở terminal và chạy lệnh clone kho lưu trữ",
+            "Di chuyển vào thư mục dự án vừa tải"
+          ],
+          "evidence": "README",
+          "expect": "Tải thành công mã nguồn vào thư mục dsh-go.",
+          "if_fails": "Kiểm tra kết nối mạng và cài đặt Git.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Lấy mã nguồn",
+          "why": "Tải toàn bộ mã nguồn dự án từ kho lưu trữ GitHub về máy."
+        },
+        {
+          "commands": [
+            "bash tooling/setup-toolchain.sh",
+            "source tooling/env.sh"
+          ],
+          "do": [
+            "Chạy script thiết lập công cụ phát triển",
+            "Tải các biến môi trường vào phiên làm việc hiện tại"
+          ],
+          "evidence": "README",
+          "expect": "Hoàn tất cài đặt công cụ mà không có lỗi.",
+          "if_fails": "Đảm bảo hệ thống có đủ dung lượng và các gói phụ thuộc yêu cầu.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Cài đặt công cụ",
+          "why": "Tự động cài đặt JDK, Flutter SDK, Android SDK/NDK và các phụ thuộc cần thiết."
+        },
+        {
+          "commands": [
+            "flutter --version",
+            "java -version"
+          ],
+          "do": [
+            "Kiểm tra phiên bản Flutter",
+            "Kiểm tra phiên bản Java"
+          ],
+          "evidence": "README",
+          "expect": "Hiển thị đúng số phiên bản công cụ trên màn hình.",
+          "if_fails": "Chạy lại lệnh nguồn biến môi trường.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Kiểm tra phiên bản",
+          "why": "Xác thực phiên bản Flutter và Java đã được cấu hình đúng."
+        },
+        {
+          "commands": [
+            "bash runtime/build-runtime.sh arm64-v8a"
+          ],
+          "do": [
+            "Chạy script xây dựng runtime với kiến trúc arm64-v8a"
+          ],
+          "evidence": "README",
+          "expect": "Runtime được biên dịch thành công.",
+          "if_fails": "Kiểm tra lại không gian đĩa trống và thông báo lỗi.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Xây dựng runtime cho arm64",
+          "why": "Biên dịch môi trường Linux runtime cho kiến trúc arm64-v8a."
+        },
+        {
+          "commands": [
+            "DSH_BETA_TOKEN_FILE= bash tooling/build-apk.sh -f arm64 --keep-daemon"
+          ],
+          "do": [
+            "Chạy script build APK với tùy chọn arm64 và giữ lại Gradle daemon"
+          ],
+          "evidence": "README",
+          "expect": "Tạo ra tệp APK tại đường dẫn app/build/app/outputs/flutter-apk/app-arm64-release.apk.",
+          "if_fails": "Kiểm tra lại cấu hình SDK/NDK trong môi trường.",
+          "link_ref": null,
+          "snippet_ref": null,
+          "title": "Biên dịch tệp APK",
+          "why": "Đóng gói ứng dụng Flutter thành tệp APK release cho kiến trúc arm64."
+        }
+      ],
+      "troubleshooting": [],
+      "verify": "Kiểm tra sự tồn tại của tệp APK tại đường dẫn app/build/app/outputs/flutter-apk/app-arm64-release.apk."
+    },
+    "hook": "Đưa DeepSeek Harness vào túi quần: chạy native trên Android hoặc điều khiển máy tính của bạn từ xa.",
+    "how_it_works": {
+      "components": [
+        {
+          "evidence": "README",
+          "icon": "smartphone",
+          "name": "DSH Go App",
+          "role": "Ứng dụng Flutter trên Android cung cấp giao diện trò chuyện, cài đặt môi trường và quản lý kết nối."
+        },
+        {
+          "evidence": "README",
+          "icon": "server",
+          "name": "Runtime Linux",
+          "role": "Môi trường Linux chạy bên trong ứng dụng, miễn phí Root và không cần Termux."
+        },
+        {
+          "evidence": "README",
+          "icon": "plug",
+          "name": "DSH Remote Client",
+          "role": "Thư viện kết nối và điều khiển các máy chủ hoặc máy tính chạy DeepSeek Harness từ xa."
+        }
+      ],
+      "flow": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "steps": [
+        {
+          "evidence": "README",
+          "text": "Ứng dụng cung cấp giao diện Flutter kết hợp môi trường Linux tích hợp sẵn trong ứng dụng.",
+          "title": "Giao diện và Runtime"
+        },
+        {
+          "evidence": "README",
+          "text": "Hỗ trợ kết nối SSH hoặc DSHarness Remote để điều khiển máy chủ hoặc máy tính cá nhân từ xa.",
+          "title": "Kết nối và Điều khiển"
+        },
+        {
+          "evidence": "README",
+          "text": "Hỗ trợ hệ thống plugin, hiển thị trợ lý thú cưng trên màn hình và quản lý các tác vụ AI.",
+          "title": "Tiện ích mở rộng"
+        }
+      ]
+    },
+    "learn": [
+      "Cách tự động hóa thiết lập chuỗi công cụ Android và Flutter bằng script",
+      "Cách tích hợp môi trường Linux runtime vào bên trong một ứng dụng di động",
+      "Cách xây dựng ứng dụng đa nền tảng kết nối với các hệ thống AI agent từ xa"
+    ],
+    "one_liner": "Ứng dụng Android chạy môi trường Linux và DeepSeek Harness ngay trên máy, hỗ trợ điều khiển từ xa, giao diện web,桌宠 và phím tắt.",
+    "problem": "Người dùng muốn sử dụng DeepSeek Harness trên thiết bị di động nhưng bị giới hạn bởi môi trường dòng lệnh phức tạp hoặc cần một giải pháp điều khiển máy tính từ xa tiện lợi. Việc cài đặt thủ công qua Termux đôi khi khó khăn và thiếu giao diện trực quan thân thiện.",
+    "title": "Dsh-Go: Chạy DeepSeek Harness Trên Điện Thoại Android",
+    "who_for": [
+      "Lập trình viên muốn sử dụng DeepSeek Harness trực tiếp trên thiết bị Android",
+      "Người dùng cần công cụ điều khiển máy tính hoặc máy chủ từ xa thông qua AI agent",
+      "Nhà phát triển ứng dụng di động quan tâm đến Flutter và tích hợp Linux runtime"
+    ]
+  },
+  "facts": {
+    "bucket": "ai",
+    "forks": 1625,
+    "full_name": "ccch1mneyyy/dsh-Go",
+    "language": "Dart",
+    "license": "AGPL-3.0",
+    "links": [
+      [
+        "go.dshtui.com",
+        "https://go.dshtui.com/download"
+      ],
+      [
+        "github.com",
+        "https://github.com/ccch1mneyyy/dsh-go/stargazers"
+      ],
+      [
+        "github.com",
+        "https://github.com/ccch1mneyyy/dsh-go/releases/latest"
+      ],
+      [
+        "forum.dshtui.com",
+        "https://forum.dshtui.com"
+      ],
+      [
+        "qm.qq.com",
+        "https://qm.qq.com/q/OEy2RqZnqY"
+      ],
+      [
+        "trendshift.io",
+        "https://trendshift.io/repositories/319451"
+      ],
+      [
+        "DeepSeek Harness",
+        "https://github.com/deepseek-ai/deepseek-harness"
+      ],
+      [
+        "DSHarness Remote",
+        "https://github.com/liguobao/ds-harness-remote"
+      ],
+      [
+        "github.com",
+        "https://github.com/ccch1mneyyy/dsh-go.git"
+      ],
+      [
+        "DSH-TUI",
+        "https://dshtui.com/"
+      ],
+      [
+        "GitHub",
+        "https://github.com/ccch1mneyyy/dsh-TUI"
+      ]
+    ],
+    "scanned": "2026-11-28",
+    "stars": 33566,
+    "url": "https://github.com/ccch1mneyyy/dsh-Go"
+  },
+  "lang": "vi",
+  "position": 1
+}
